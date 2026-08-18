@@ -1,6 +1,13 @@
-<!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101319"><title>Kamil OS 3.9</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><style>
-:root{font-family:Inter,system-ui,sans-serif;color:#f5f7fa;background:#0c0e12}*{box-sizing:border-box}body{margin:0;background:#0c0e12}.app{max-width:1180px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;position:sticky;top:0;background:#0c0e12e8;backdrop-filter:blur(12px);z-index:3;padding:10px 0}.brand{font-size:24px;font-weight:850}.sub,.muted{color:#98a2b3}.tabs{display:flex;gap:7px;overflow:auto;padding:8px 0 14px}.tabs button,.btn{border:1px solid #2a303b;background:#151922;color:#fff;padding:10px 13px;border-radius:12px;cursor:pointer}.tabs button.on,.btn.primary{background:#fff;color:#111}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}.card{grid-column:span 4;background:#141820;border:1px solid #252b36;border-radius:18px;padding:16px}.wide{grid-column:span 8}.full{grid-column:1/-1}.kpi{font-size:30px;font-weight:850}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#222936;font-size:12px}.red{color:#ff8b8b}.green{color:#74dda1}.amber{color:#ffd477}.row{display:flex;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid #242a34;padding:11px 0}.row:first-child{border:0}.title{font-weight:720}.view{display:none}.view.on{display:block}input,select{background:#0d1015;border:1px solid #303745;color:white;border-radius:10px;padding:9px}.form{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:9px;border-bottom:1px solid #252b36}th{color:#98a2b3}.progress{height:8px;background:#262c36;border-radius:9px;overflow:hidden}.progress i{display:block;height:100%;background:#e8edf4}.hero{background:linear-gradient(135deg,#171d28,#101319)}@media(max-width:760px){.card,.wide{grid-column:1/-1}.app{padding:12px}.kpi{font-size:25px}table{font-size:11px}th:nth-child(3),td:nth-child(3){display:none}}
-</style></head><body><main class="app"><div class="top"><div><div class="brand">Kamil OS <span class="badge">3.9</span></div><div class="sub" id="today"></div></div><div><span id="cloud" class="badge">LOCAL</span></div></div><nav class="tabs" id="tabs"></nav>
+<!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101319"><title>Kamil OS 6.0</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><style>
+:root{font-family:Inter,system-ui,sans-serif;color:#f5f7fa;background:#0c0e12}*{box-sizing:border-box}body{margin:0;background:#0c0e12}.app{max-width:1180px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;position:sticky;top:0;background:#0c0e12e8;backdrop-filter:blur(12px);z-index:3;padding:10px 0}.brand{font-size:24px;font-weight:850}.sub,.muted{color:#98a2b3}.tabs{display:flex;gap:7px;overflow:auto;padding:8px 0 14px}.tabs button,.btn{border:1px solid #2a303b;background:#151922;color:#fff;padding:10px 13px;border-radius:12px;cursor:pointer}.tabs button.on,.btn.primary{background:#fff;color:#111}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}.card{grid-column:span 4;background:#141820;border:1px solid #252b36;border-radius:18px;padding:16px}.wide{grid-column:span 8}.full{grid-column:1/-1}.kpi{font-size:30px;font-weight:850}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#222936;font-size:12px}.red{color:#ff8b8b}.green{color:#74dda1}.amber{color:#ffd477}.row{display:flex;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid #242a34;padding:11px 0}.row:first-child{border:0}.title{font-weight:720}.view{display:none}.view.on{display:block}input,select,textarea{background:#0d1015;border:1px solid #303745;color:white;border-radius:10px;padding:9px}.form{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:9px;border-bottom:1px solid #252b36}th{color:#98a2b3}.progress{height:8px;background:#262c36;border-radius:9px;overflow:hidden}.progress i{display:block;height:100%;background:#e8edf4}.hero{background:linear-gradient(135deg,#171d28,#101319)}@media(max-width:760px){.card,.wide{grid-column:1/-1}.app{padding:12px}.kpi{font-size:25px}table{font-size:11px}th:nth-child(3),td:nth-child(3){display:none}}
+</style></head><body><main class="app"><div class="top"><div><div class="brand">Kamil OS <span class="badge">6.0</span></div><div class="sub" id="today"></div></div><div><span id="cloud" class="badge">LOCAL</span></div></div><nav class="tabs" id="tabs"></nav>
+<div class="card full" style="margin-bottom:12px">
+  <div class="form">
+    <input id="quickcapture" style="flex:1;min-width:260px" placeholder="Rychle přidat… např. 'urgovat Nová Zbrojovka zítra', 'úkol občanka', 'delegovat fakturaci Petrovi'">
+    <button class="btn primary" onclick="quickCapture()">Přidat</button>
+  </div>
+  <div id="quickcapturemsg" class="muted"></div>
+</div>
 <section id="todayv" class="view on"></section><section id="autopilot" class="view"></section><section id="routines" class="view"></section><section id="projects" class="view"></section><section id="calendarv" class="view"></section><section id="financev" class="view"></section><section id="delegation" class="view"></section><section id="weekly" class="view"></section><section id="invest" class="view"></section><section id="xtb" class="view"></section><section id="journalv" class="view"></section><section id="wallet" class="view"></section><section id="cloudv" class="view"></section></main><script>
 const LIVE_URL='https://kamil-os-kamil-8359.vercel.app',SB_URL='https://tswqfbkmxywxxczsoddr.supabase.co',SB_KEY='sb_publishable_kLy9FrQ7cpNEVhvqcCEsfw_MFVqBlFg';const sb=window.supabase.createClient(SB_URL,SB_KEY);const POS=[{"name": "Core Global Aggregate Bond", "ticker": "EUNA.DE", "type": "ETF", "value": 64025.96, "weight": 0.1129695487, "pl": -0.0113, "plczk": -730.25, "verdict": "DRŽET", "confidence": 0.82}, {"name": "TSMC", "ticker": "TSM.US", "type": "STOCK", "value": 55111.85, "weight": 0.0972411944, "pl": 0.001, "plczk": 56.44, "verdict": "DRŽET", "confidence": 0.91}, {"name": "Msci World Small Cap", "ticker": "IUSN.DE", "type": "ETF", "value": 42855.61, "weight": 0.075615874, "pl": 0.005, "plczk": 211.87, "verdict": "DRŽET", "confidence": 0.7}, {"name": "Novo Nordisk", "ticker": "NVO.US", "type": "STOCK", "value": 42849.78, "weight": 0.0756055873, "pl": -0.0387, "plczk": -1726.96, "verdict": "DRŽET", "confidence": 0.78}, {"name": "MSCI World Health Care", "ticker": "XDWH.DE", "type": "ETF", "value": 40992.76, "weight": 0.072328999, "pl": -0.0071, "plczk": -293.22, "verdict": "DRŽET", "confidence": 0.76}, {"name": "Core MSCI EM IMI", "ticker": "IS3N.DE", "type": "ETF", "value": 40857.93, "weight": 0.0720911004, "pl": 0.0216, "plczk": 862.41, "verdict": "DRŽET", "confidence": 0.75}, {"name": "MSCI World ex USA", "ticker": "EXUS.DE", "type": "ETF", "value": 40425.16, "weight": 0.0713275066, "pl": 0.0106, "plczk": 425.23, "verdict": "DRŽET", "confidence": 0.8}, {"name": "FTSE All-World", "ticker": "VWCE.DE", "type": "ETF", "value": 36209.475, "weight": 0.0638892109, "pl": -0.0006, "plczk": -20.95, "verdict": "PŘIKOUPIT", "confidence": 0.95}, {"name": "Workday", "ticker": "WDAY.US", "type": "STOCK", "value": 30523.96, "weight": 0.0538574976, "pl": 0.4306, "plczk": 9187.65, "verdict": "DRŽET", "confidence": 0.75}, {"name": "Abbot", "ticker": "ABT.US", "type": "STOCK", "value": 26437.8, "weight": 0.04664774, "pl": 0.0095, "plczk": 249.94, "verdict": "DRŽET", "confidence": 0.9}, {"name": "Broadcom Inc", "ticker": "1YD.DE", "type": "STOCK", "value": 25390.44, "weight": 0.0447997429, "pl": -0.0163, "plczk": -420.79, "verdict": "DRŽET", "confidence": 0.86}, {"name": "S&P Global", "ticker": "SPGI.US", "type": "STOCK", "value": 24788.45, "weight": 0.0437375716, "pl": 0.0052, "plczk": 129.1, "verdict": "DRŽET", "confidence": 0.83}, {"name": "Grab", "ticker": "GRAB.US", "type": "STOCK", "value": 24616.73, "weight": 0.0434345831, "pl": -0.0274, "plczk": -694.03, "verdict": "DRŽET", "confidence": 0.82}, {"name": "Eli Lilly", "ticker": "LLY.US", "type": "STOCK", "value": 24508.47, "weight": 0.0432435655, "pl": -0.0259, "plczk": -650.57, "verdict": "DRŽET", "confidence": 0.9}, {"name": "Berkshire", "ticker": "BRYN.DE", "type": "STOCK", "value": 20019.27, "weight": 0.0353226706, "pl": 0.0012, "plczk": 23.67, "verdict": "DRŽET", "confidence": 0.89}, {"name": "Brookfield", "ticker": "BN.US", "type": "STOCK", "value": 19965.9, "weight": 0.0352285028, "pl": -0.0126, "plczk": -255.47, "verdict": "DRŽET", "confidence": 0.8}, {"name": "Netflix", "ticker": "NFLX.US", "type": "STOCK", "value": 7174.6, "weight": 0.0126591046, "pl": -0.008, "plczk": -57.61, "verdict": "DRŽET", "confidence": 0.82}];
 const base={version:'1.9',tasks:[{id:'wallet-id',title:'Vyřídit novou občanku',area:'Administrativa',status:'UDĚLAT',priority:100,risk:0},{id:'wallet-dl',title:'Vyřídit nový řidičák',area:'Administrativa',status:'UDĚLAT',priority:95,risk:0}],routines:[{id:'r20',title:'Aktualizovat kartu zakázky',day:20,area:'Práce'},{id:'r25',title:'Odeslat fakturaci na dodavatele',day:25,area:'Práce'},{id:'rend',title:'Cesták + docházka',day:'last',area:'Práce'},{id:'r1',title:'Koncepty faktur vydaných – všichni',day:1,area:'Práce'}],routineDone:{},projects:[{id:'p1',name:'Nová Zbrojovka',area:'Práce',status:'Aktivní',next:'Řídit zakázku / ZL a termíny'},{id:'p2',name:'Dům',area:'Domov',status:'Aktivní',next:'Rekonstrukce a cash-flow'},{id:'p3',name:'XTB',area:'Finance',status:'Aktivní',next:'Refresh portfolia / další měsíční vklad'},{id:'p4',name:'Vstupenky',area:'Finance',status:'Čekání',next:'Převody / payouty'}],financePlan:{cashNow:100000,expectedIncome:0,reserveFloor:100000,plannedInvestment:25000},xtbReport:{asOf:'2026-08-18T15:27:00+02:00',czkValue:523814.59,czkProfit:-412.67,eurValue:1466.72,eurProfit:-20.72,source:'XTB report 18. 8. 2026'},tradeJournal:{asOf:'2026-08-18T15:27:00+02:00',cfdRealized:-88997.77,trades:[{"ticker":"VWCE.DE","name":"FTSE All-World","category":"ETF","kind":"TRANSFER","volume":2.6995,"avgOpen":168.66,"avgClose":169.2,"realized":-112.9,"gross":-112.9,"purchaseValue":11102.89,"saleValue":10989.99,"openDate":"2026-08-11T13:47:06.540000","closeDate":"2026-08-14T14:22:14.129000","closeFx":24.061},{"ticker":"WDAY.US","name":"Workday","category":"STOCK","kind":"INVESTMENT","volume":10.0,"avgOpen":138.38,"avgClose":166.036,"realized":6246.41,"gross":6246.41,"purchaseValue":28653.170000000002,"saleValue":34899.58,"openDate":"2026-02-26T17:53:38.487000","closeDate":"2026-08-13T18:52:32.031000","closeFx":20.875},{"ticker":"WU.US","name":"Western Union","category":"STOCK","kind":"INVESTMENT","volume":249.00179999999997,"avgOpen":9.175316178437265,"avgClose":6.990083131929167,"realized":-12419.85,"gross":-12419.85,"purchaseValue":48743.259999999995,"saleValue":36323.409999999996,"openDate":"2026-03-18T15:14:57.410000","closeDate":"2026-08-11T14:07:14.014000","closeFx":20.87},{"ticker":"1YD.DE","name":"Broadcom Inc","category":"STOCK","kind":"INVESTMENT","volume":0.5,"avgOpen":343.72,"avgClose":363.65,"realized":193.96,"gross":193.96,"purchaseValue":4177.11,"saleValue":4371.07,"openDate":"2026-07-24T10:32:50.956000","closeDate":"2026-08-05T17:11:25.949000","closeFx":24.04},{"ticker":"XDWT.DE","name":"MSCI World Information Tech","category":"ETF","kind":"INVESTMENT","volume":36.5941,"avgOpen":113.72289691507648,"avgClose":122.32510585039667,"realized":6370.72,"gross":6370.72,"purchaseValue":101328.75,"saleValue":107699.47,"openDate":"2026-02-25T09:00:22.830000","closeDate":"2026-08-04T08:56:19.440000","closeFx":24.057},{"ticker":"2B76.DE","name":"Automation & Robotics","category":"ETF","kind":"INVESTMENT","volume":247.8161,"avgOpen":16.61009067126793,"avgClose":18.149034957777157,"realized":8003.92,"gross":8003.92,"purchaseValue":100185.1,"saleValue":108189.02,"openDate":"2026-02-25T09:00:22.821000","closeDate":"2026-08-03T14:34:29.288000","closeFx":24.054},{"ticker":"TTWO.US","name":"Take-Two Interactive","category":"STOCK","kind":"INVESTMENT","volume":2.1652,"avgOpen":239.1176833548864,"avgClose":248.09542767411784,"realized":274.43,"gross":274.43,"purchaseValue":11066.490000000002,"saleValue":11340.92,"openDate":"2026-07-27T14:19:09.694000","closeDate":"2026-07-29T19:47:23.026000","closeFx":20.976},{"ticker":"RYAAY.US","name":"Ryanair","category":"STOCK","kind":"INVESTMENT","volume":0.4359,"avgOpen":58.919999999999995,"avgClose":57.89,"realized":-17.099999999999998,"gross":-17.099999999999998,"purchaseValue":549.72,"saleValue":532.62,"openDate":"2026-07-28T13:30:03.582000","closeDate":"2026-07-29T15:11:35.941000","closeFx":21.107},{"ticker":"HCAI.US","name":"Huachen AI Parking Management Technology Holding","category":"STOCK","kind":"INVESTMENT","volume":2.9333,"avgOpen":6.756,"avgClose":7.585912112637644,"realized":57.34,"gross":57.34,"purchaseValue":410.48,"saleValue":467.82,"openDate":"2026-02-26T17:57:58.519000","closeDate":"2026-06-22T13:30:10.311000","closeFx":21.024},{"ticker":"AI.ES","name":"Airtificial","category":"STOCK","kind":"INVESTMENT","volume":22111.0,"avgOpen":0.092,"avgClose":0.0964,"realized":1308.45,"gross":1308.45,"purchaseValue":49998.9,"saleValue":51307.35,"openDate":"2026-03-18T15:14:11.668000","closeDate":"2026-06-19T07:00:06","closeFx":24.071},{"ticker":"SPGI.US","name":"S&P Global","category":"STOCK","kind":"INVESTMENT","volume":28.2391,"avgOpen":420.84850108537455,"avgClose":432.8652797008403,"realized":5208.469999999999,"gross":5208.469999999999,"purchaseValue":245330.16999999998,"saleValue":250538.64,"openDate":"2026-02-04T14:30:04.322000","closeDate":"2026-04-14T13:31:34.797000","closeFx":20.523},{"ticker":"NVDA.US","name":"Nvidia","category":"STOCK","kind":"INVESTMENT","volume":1.1623999999999999,"avgOpen":123.48257398485893,"avgClose":93.97139710942876,"realized":-947.64,"gross":-947.64,"purchaseValue":3451.1400000000003,"saleValue":2503.5,"openDate":"2025-03-03T14:30:00.462000","closeDate":"2025-04-04T18:25:50.758000","closeFx":22.919}],market:null},calendar:{asOf:'2026-08-18T16:51:00+02:00',source:'Google Calendar + Outlook/ICS',events:[]},wallet:[{id:'bank',name:'Bankovní karty',done:true},{id:'vzp',name:'VZP karta',done:true},{id:'op',name:'Občanský průkaz',done:false},{id:'rp',name:'Řidičský průkaz',done:false}],xtb:{value:566754.15,asOf:'2026-08-14T14:25:00',source:'XTB export 14. 8. 2026',intelAsOf:'2026-08-14T14:25:00',positions:POS,marketEstimate:null}};
@@ -86,14 +93,14 @@ function journalSummary(){
 }
 function render(){
  const top=rank().slice(0,3),nm=nextMeeting(),fs=financeSummary(),jsu=journalSummary(),me=s.xtb.marketEstimate;
- todayv.innerHTML=`<div id="morningbrief"></div><div id="dailyexecution"></div><div class="grid"><div class="card wide"><h2>CEO Today</h2>${top.map((x,i)=>`<div class="row"><b>${i+1}. ${x.title}</b><span class="muted">${x.area}${x.time?' · '+x.time:''}</span></div>`).join('')||'Nic urgentního.'}</div><div class="card"><div class="muted">Další schůzka</div><b>${nm?nm.e.title:'—'}</b><div class="muted">${nm?(nm.ongoing?'PROBÍHÁ':nm.mins<60?'za '+nm.mins+' min':new Date(nm.e.start).toLocaleString('cs-CZ')):'—'}</div></div><div class="card"><div class="muted">XTB · potvrzeno</div><div class="kpi">${cz(s.xtbReport?.czkValue||0)}</div><div class="muted">+ €${new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:2}).format(s.xtbReport?.eurValue||0)} · ${s.xtbHub?.positionCount||17} pozic</div></div><div class="card"><div class="muted">Bezpečně investovat</div><div class="kpi">${cz(investCapacity())}</div></div><div class="card"><div class="muted">Realizováno akcie/ETF</div><div class="kpi ${jsu.realized>=0?'green':'red'}">${jsu.realized>=0?'+':''}${cz(jsu.realized)}</div></div></div>`;
+ todayv.innerHTML=`<div id="executivehome"></div><div id="autoprioritizer"></div><div id="nextbestaction"></div><div id="smartsync"></div><div id="freshnessalerts"></div><div id="controlcenter"></div><div id="inboxzero"></div><div id="waitingfor"></div><div id="followupradar"></div><div id="dayplanner"></div><div id="capacityguard"></div><div id="eveningclose"></div><div id="executionlearning"></div><div id="weeklyos"></div><div id="decisionreview"></div><div id="morningbrief"></div><div id="dailyexecution"></div><div class="grid"><div class="card wide"><h2>CEO Today</h2>${top.map((x,i)=>`<div class="row"><b>${i+1}. ${x.title}</b><span class="muted">${x.area}${x.time?' · '+x.time:''}</span></div>`).join('')||'Nic urgentního.'}</div><div class="card"><div class="muted">Další schůzka</div><b>${nm?nm.e.title:'—'}</b><div class="muted">${nm?(nm.ongoing?'PROBÍHÁ':nm.mins<60?'za '+nm.mins+' min':new Date(nm.e.start).toLocaleString('cs-CZ')):'—'}</div></div><div class="card"><div class="muted">XTB · potvrzeno</div><div class="kpi">${cz(s.xtbReport?.czkValue||0)}</div><div class="muted">+ €${new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:2}).format(s.xtbReport?.eurValue||0)} · ${s.xtbHub?.positionCount||17} pozic</div></div><div class="card"><div class="muted">Bezpečně investovat</div><div class="kpi">${cz(investCapacity())}</div></div><div class="card"><div class="muted">Realizováno akcie/ETF</div><div class="kpi ${jsu.realized>=0?'green':'red'}">${jsu.realized>=0?'+':''}${cz(jsu.realized)}</div></div></div>`;
  autopilot.innerHTML=`<div class="card full"><h2>Autopilot</h2><div class="form"><input id="nt" placeholder="Nový úkol"><select id="na"><option>Práce</option><option>Finance</option><option>Administrativa</option><option>Domov</option></select><button class="btn primary" onclick="addTask()">Přidat</button></div>${s.tasks.map(x=>`<div class="row"><div><b>${x.title}</b><div class="muted">${x.area}</div></div><select onchange="setTask('${x.id}',this.value)"><option ${x.status==='UDĚLAT'?'selected':''}>UDĚLAT</option><option ${x.status==='ČEKÁM'?'selected':''}>ČEKÁM</option><option ${x.status==='HLÍDAT'?'selected':''}>HLÍDAT</option><option ${x.status==='HOTOVO'?'selected':''}>HOTOVO</option></select></div>`).join('')}</div>`;
  routines.innerHTML=`<div class="card full"><h2>Rutiny</h2>${s.routines.map(r=>{let d=due(r),n=days(d);return `<div class="row"><div><b>${r.title}</b><div class="muted">${d.toLocaleDateString('cs-CZ')} · ${label(n)}</div></div><button class="btn" onclick="doneRoutine('${r.id}')">Splněno</button></div>`}).join('')}</div>`;
  projects.innerHTML=`<div class="grid">${s.projects.map(p=>`<div class="card"><div class="muted">${p.area}</div><h3>${p.name}</h3><p>${p.next}</p><span class="badge">${p.status}</span></div>`).join('')}</div>`;
  const cev=(s.calendar?.events||[]).slice().sort((a,b)=>new Date(a.start)-new Date(b.start));calendarv.innerHTML=`<div class="card full"><h2>Kalendář</h2><div class="muted">${s.calendar?.source||'Cloud cache'} · ${s.calendar?.asOf?new Date(s.calendar.asOf).toLocaleString('cs-CZ'):'po přihlášení'}</div>${cev.slice(0,30).map(e=>`<div class="row"><div><b>${e.title}</b><div class="muted">${new Date(e.start).toLocaleString('cs-CZ')}</div></div><span class="badge">${e.busy?'BUSY':'INFO'}</span></div>`).join('')||'<p class="muted">Přihlas se pro cloud kalendář.</p>'}</div>`;
  const cap=investCapacity();financev.innerHTML=`<div class="grid"><div class="card full"><h2>Cash-flow 31 dní</h2><div class="form"><label>Hotovost <input type="number" value="${s.financePlan.cashNow}" onchange="setFinancePlan('cashNow',this.value)"></label><label>Příjem <input type="number" value="${s.financePlan.expectedIncome}" onchange="setFinancePlan('expectedIncome',this.value)"></label><label>Rezerva <input type="number" value="${s.financePlan.reserveFloor}" onchange="setFinancePlan('reserveFloor',this.value)"></label><label>Investice <input type="number" value="${s.financePlan.plannedInvestment}" onchange="setFinancePlan('plannedInvestment',this.value)"></label></div></div><div class="card"><div class="muted">Bezpečně investovatelné</div><div class="kpi ${cap>=s.financePlan.plannedInvestment?'green':'amber'}">${cz(cap)}</div></div><div class="card"><div class="muted">Odtoky 31 dní</div><div class="kpi">${cz(fs.scheduledTotal)}</div></div><div class="card"><div class="muted">XTB CZK</div><div class="kpi">${cz(fs.xtbCzk)}</div></div><div class="card full"><h3>Plánované platby</h3>${fs.scheduled.map(e=>`<div class="row"><span>${e.title}</span><b>${cz(e.amount)}</b></div>`).join('')||'—'}</div></div>`;
- const hub=s.xtbHub,acc=hub?.accounts||{},czkAcc=acc['51850491'],eurAcc=acc['56069932'];xtb.innerHTML=`<div class="grid"><div class="card"><div class="muted">CZK účet</div><div class="kpi">${cz(s.xtbReport?.czkValue||0)}</div><div class="${(s.xtbReport?.czkProfit||0)>=0?'green':'red'}">P/L ${cz(s.xtbReport?.czkProfit||0)}</div></div><div class="card"><div class="muted">EUR účet</div><div class="kpi">€${new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:2}).format(s.xtbReport?.eurValue||0)}</div><div class="${(s.xtbReport?.eurProfit||0)>=0?'green':'red'}">P/L €${Number(s.xtbReport?.eurProfit||0).toFixed(2)}</div></div><div class="card"><div class="muted">Zdroj dat</div><div class="title">${hub?.source||s.xtbReport?.source||'XTB report'}</div><div class="muted">${hub?.asOf?new Date(hub.asOf).toLocaleString('cs-CZ'):'po přihlášení'} · ${hub?.positionCount||17} pozic</div></div><div class="card full"><div id="reviewbox"></div></div><div class="card full"><div id="decisionjournalbox"></div></div><div class="card full"><div id="performancebox"></div></div><div class="card full"><div id="actionbox"></div></div><div class="card full"><div id="plannerbox"></div></div><div class="card full"><div id="simulatorbox"></div></div><div class="card full"><div id="decisionbox"></div></div><div class="card full"><div id="intelbox"></div><div class="form"><button class="btn primary" onclick="refreshIntelligence()">Refresh Intelligence</button><span id="intelmsg" class="muted"></span></div></div><div class="card full"><div class="form"><label class="btn primary">Nahrát nový XTB ZIP<input type="file" accept=".zip,.xlsx" onchange="importXtbZip(this)" hidden></label><button class="btn" onclick="showXtbImportHistory()">Historie importů</button><span id="ximsg" class="muted"></span></div><div id="xihistory"></div><h2>Aktuální pozice</h2><div class="muted">CZK a EUR účty jsou záměrně oddělené. Žádné falešné přepočty měn.</div><div style="overflow:auto"><table><tr><th>Ticker</th><th>Instrument</th><th>Účet</th><th>Hodnota</th><th>P/L</th></tr>${[...(czkAcc?.positions||[]),...(eurAcc?.positions||[])].sort((a,b)=>(b.currency==='CZK'?b.value:0)-(a.currency==='CZK'?a.value:0)).map(x=>`<tr><td>${x.ticker}</td><td>${x.name}</td><td>${x.currency}</td><td>${x.currency==='EUR'?'€'+new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:2}).format(x.value):cz(x.value)}</td><td class="${x.net_profit>=0?'green':'red'}">${x.net_profit_pct?.toFixed(2)} %</td></tr>`).join('')||'<tr><td colspan="5">Přihlas se pro XTB Data Hub.</td></tr>'}</table></div></div></div>`;
- setTimeout(()=>{renderIntelligence();renderDecisionEngine();renderSimulator();renderMonthlyPlanner();renderActionCenter();renderPerformanceTracker();renderDecisionJournal();renderReviewEngine();renderInvestmentCommandCenter();renderMorningBrief();renderDailyExecution();renderWeeklyReview();renderWeeklyPlanning();renderDelegationCenter();renderDelegationAccountability()},0);const jt=s.tradeJournal.trades,inv=jt.filter(x=>x.kind==='INVESTMENT'),cfd=s.tradeJournal.cfdRealized||-88997.77;journalv.innerHTML=`<div class="grid"><div class="card"><div class="muted">Akcie/ETF</div><div class="kpi">${cz(inv.reduce((a,x)=>a+x.realized,0))}</div></div><div class="card"><div class="muted">CFD historie</div><div class="kpi red">${cz(cfd)}</div></div><div class="card full"><div class="form"><button class="btn primary" onclick="refreshJournal()">Přepočítat vs dnešek</button><select id="jfilter" onchange="renderJournalTable()"><option value="INVESTMENT">Akcie / ETF</option><option value="CFD">CFD</option><option value="TRANSFER">Přesuny</option><option value="ALL">Vše</option></select><span id="jmsg" class="muted"></span></div><div id="jtable"></div></div></div>`;setTimeout(renderJournalTable,0);
+ const hub=s.xtbHub,acc=hub?.accounts||{},czkAcc=acc['51850491'],eurAcc=acc['56069932'];xtb.innerHTML=`<div class="grid"><div class="card"><div class="muted">CZK účet</div><div class="kpi">${cz(s.xtbReport?.czkValue||0)}</div><div class="${(s.xtbReport?.czkProfit||0)>=0?'green':'red'}">P/L ${cz(s.xtbReport?.czkProfit||0)}</div></div><div class="card"><div class="muted">EUR účet</div><div class="kpi">€${new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:2}).format(s.xtbReport?.eurValue||0)}</div><div class="${(s.xtbReport?.eurProfit||0)>=0?'green':'red'}">P/L €${Number(s.xtbReport?.eurProfit||0).toFixed(2)}</div></div><div class="card"><div class="muted">Zdroj dat</div><div class="title">${hub?.source||s.xtbReport?.source||'XTB report'}</div><div class="muted">${hub?.asOf?new Date(hub.asOf).toLocaleString('cs-CZ'):'po přihlášení'} · ${hub?.positionCount||17} pozic</div></div><div class="card full"><div id="reviewbox"></div></div><div class="card full"><div id="decisionjournalbox"></div></div><div class="card full"><div id="performancebox"></div></div><div class="card full"><div id="actionbox"></div></div><div class="card full"><div id="plannerbox"></div></div><div class="card full"><div id="simulatorbox"></div></div><div class="card full"><div id="memorybox"></div></div><div class="card full"><div id="thesisqueuebox"></div></div><div class="card full"><div id="guardrailsbox"></div></div><div class="card full"><div id="decisionbox"></div></div><div class="card full"><div id="intelbox"></div><div class="form"><button class="btn primary" onclick="refreshIntelligence()">Refresh Intelligence</button><span id="intelmsg" class="muted"></span></div></div><div class="card full"><div class="form"><label class="btn primary">Nahrát nový XTB ZIP<input type="file" accept=".zip,.xlsx" onchange="importXtbZip(this)" hidden></label><button class="btn" onclick="showXtbImportHistory()">Historie importů</button><span id="ximsg" class="muted"></span></div><div id="xihistory"></div><h2>Aktuální pozice</h2><div class="muted">CZK a EUR účty jsou záměrně oddělené. Žádné falešné přepočty měn.</div><div style="overflow:auto"><table><tr><th>Ticker</th><th>Instrument</th><th>Účet</th><th>Hodnota</th><th>P/L</th></tr>${[...(czkAcc?.positions||[]),...(eurAcc?.positions||[])].sort((a,b)=>(b.currency==='CZK'?b.value:0)-(a.currency==='CZK'?a.value:0)).map(x=>`<tr><td>${x.ticker}</td><td>${x.name}</td><td>${x.currency}</td><td>${x.currency==='EUR'?'€'+new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:2}).format(x.value):cz(x.value)}</td><td class="${x.net_profit>=0?'green':'red'}">${x.net_profit_pct?.toFixed(2)} %</td></tr>`).join('')||'<tr><td colspan="5">Přihlas se pro XTB Data Hub.</td></tr>'}</table></div></div></div>`;
+ setTimeout(()=>{renderIntelligence();renderDecisionEngine();renderSimulator();renderMonthlyPlanner();renderActionCenter();renderPortfolioMemory();renderThesisReviewQueue();renderGuardrails();renderPerformanceTracker();renderDecisionJournal();renderReviewEngine();renderInvestmentCommandCenter();renderExecutiveHome();renderAutoPrioritizer();renderNextBestAction();renderSmartSync();renderFreshnessAlerts();renderControlCenter();renderInboxZero();renderWaitingFor();renderFollowUpRadar();renderDayPlanner();renderCapacityGuard();renderEveningClose();renderExecutionLearning();renderWeeklyOS();renderDecisionReview();renderMorningBrief();renderDailyExecution();renderWeeklyReview();renderWeeklyPlanning();renderDelegationCenter();renderDelegationAccountability()},0);const jt=s.tradeJournal.trades,inv=jt.filter(x=>x.kind==='INVESTMENT'),cfd=s.tradeJournal.cfdRealized||-88997.77;journalv.innerHTML=`<div class="grid"><div class="card"><div class="muted">Akcie/ETF realizováno</div><div class="kpi">${cz(inv.reduce((a,x)=>a+x.realized,0))}</div></div><div class="card"><div class="muted">CFD historie</div><div class="kpi red">${cz(cfd)}</div></div><div id="postsalebox" class="card full"></div><div id="lessonsbox" class="card full"></div><div class="card full"><div class="form"><button class="btn primary" onclick="refreshJournal()">LIVE: přepočítat vs dnešek</button><select id="jfilter" onchange="renderJournalTable()"><option value="INVESTMENT">Akcie / ETF</option><option value="CFD">CFD</option><option value="TRANSFER">Přesuny</option><option value="ALL">Vše</option></select><span id="jmsg" class="muted"></span></div><div class="muted" style="margin-bottom:8px">„Vs. držení“ = rozdíl mezi dnešní hypotetickou hodnotou prodaného lotu a tím, co jsi za něj při prodeji dostal. Zahrnuje aktuální cenu i aktuální FX, pokud je dostupné.</div><div id="jtable"></div></div></div>`;setTimeout(()=>{renderPostSaleSummary();renderLessonsLearned();renderJournalTable()},0);
  wallet.innerHTML=`<div class="card full"><h2>Peněženka</h2>${s.wallet.map(w=>`<div class="row"><b>${w.name}</b><button class="btn ${w.done?'primary':''}" onclick="walletSet('${w.id}')">${w.done?'HOTOVO':'ZAŘÍDIT'}</button></div>`).join('')}</div>`;
  cloudv.innerHTML=`<div class="card full">
 <h2>Přihlášení & Cloud</h2>
@@ -160,10 +167,108 @@ async function importXTB(inp){
 
 
 function curForTicker(t){if(t.endsWith('.DE')||t.endsWith('.ES'))return'EUR';if(t.endsWith('.US'))return'USD';return null}
+function postSaleRows(){
+ const m=s.tradeJournal.market?.prices||{};
+ return (s.tradeJournal.trades||[]).filter(x=>x.kind==='INVESTMENT').map(x=>{
+   const q=m[x.ticker]; let hypothetical=null,opportunity=null,movePct=null;
+   if(q?.price&&q?.fx&&x.avgClose){
+     hypothetical=x.volume*q.price*q.fx;
+     opportunity=hypothetical-x.saleValue;
+     movePct=q.price/x.avgClose-1;
+   }
+   const threshold=Math.max(500,(x.saleValue||0)*0.02);
+   let verdict='ČEKÁ NA LIVE CENU',grade='muted';
+   if(opportunity!=null){
+     if(opportunity<=-threshold){
+       verdict=x.realized<0?'ZACHRÁNĚNÁ ZTRÁTA':'PRODÁNO DOBŘE';grade='green';
+     }else if(opportunity>=threshold){
+       verdict=x.realized<0?'ZTRÁTA + NÁSLEDNÝ RŮST':'PRODÁNO BRZO';grade='red';
+     }else{
+       verdict='NEUTRÁLNÍ EXIT';grade='muted';
+     }
+   }
+   return {...x,q,hypothetical,opportunity,movePct,threshold,verdict,grade};
+ });
+}
+function postSaleStats(){
+ const rows=postSaleRows(),live=rows.filter(x=>x.opportunity!=null);
+ const opportunity=live.reduce((a,x)=>a+x.opportunity,0);
+ const realized=rows.reduce((a,x)=>a+(x.realized||0),0);
+ const good=live.filter(x=>x.opportunity<=-x.threshold);
+ const early=live.filter(x=>x.opportunity>=x.threshold);
+ const saved=good.reduce((a,x)=>a+Math.max(0,-x.opportunity),0);
+ const missed=early.reduce((a,x)=>a+Math.max(0,x.opportunity),0);
+ const best=[...live].sort((a,b)=>a.opportunity-b.opportunity)[0]||null;
+ const worst=[...live].sort((a,b)=>b.opportunity-a.opportunity)[0]||null;
+ return {rows,live,opportunity,realized,good,early,saved,missed,best,worst};
+}
+function renderPostSaleSummary(){
+ const box=document.getElementById('postsalebox');if(!box)return;
+ const x=postSaleStats(),asOf=s.tradeJournal.market?.asOf;
+ box.innerHTML=`<div class="muted">POST-SALE INTELLIGENCE ${asOf?'· LIVE '+new Date(asOf).toLocaleString('cs-CZ'):''}</div>
+ <h2>Bylo lepší prodat, nebo držet?</h2>
+ <div class="grid">
+   <div class="card"><div class="muted">Realizovaný P/L</div><div class="kpi ${x.realized>=0?'green':'red'}">${x.realized>=0?'+':''}${cz(x.realized)}</div></div>
+   <div class="card"><div class="muted">Efekt po prodeji</div><div class="kpi ${x.opportunity<=0?'green':'red'}">${x.live.length?(x.opportunity>0?'+':'')+cz(x.opportunity):'—'}</div><div class="muted">${x.opportunity>0?'tolik by dnes bylo navíc při držení':'záporné = prodej tě před dalším poklesem ochránil'}</div></div>
+   <div class="card"><div class="muted">Dobré exity</div><div class="kpi green">${x.good.length}</div><div class="muted">ochráněno cca ${cz(x.saved)}</div></div>
+   <div class="card"><div class="muted">Prodáno brzo</div><div class="kpi ${x.early.length?'red':'green'}">${x.early.length}</div><div class="muted">ušlá příležitost cca ${cz(x.missed)}</div></div>
+ </div>
+ ${x.best?`<div class="row"><div><b>Nejlepší timing: ${x.best.name}</b><div class="muted">${x.best.ticker} · po prodeji ${(x.best.movePct*100).toFixed(1)} %</div></div><span class="green">ušetřeno ${cz(-x.best.opportunity)}</span></div>`:''}
+ ${x.worst&&x.worst.opportunity>0?`<div class="row"><div><b>Největší ušlá příležitost: ${x.worst.name}</b><div class="muted">${x.worst.ticker} · po prodeji +${(x.worst.movePct*100).toFixed(1)} %</div></div><span class="red">${cz(x.worst.opportunity)}</span></div>`:''}
+ ${!x.live.length?'<p class="muted">Klikni na „LIVE: přepočítat vs dnešek“. Po přihlášení se načtou dnešní ceny prodaných titulů.</p>':''}`;
+}
+
+function lessonsLearned(){
+ const x=postSaleStats(), rows=x.live;
+ const winners=rows.filter(r=>(r.realized||0)>0);
+ const losers=rows.filter(r=>(r.realized||0)<0);
+ const winnerEarly=winners.filter(r=>r.opportunity>=r.threshold);
+ const winnerGood=winners.filter(r=>r.opportunity<=-r.threshold);
+ const loserBounce=losers.filter(r=>r.opportunity>=r.threshold);
+ const loserSaved=losers.filter(r=>r.opportunity<=-r.threshold);
+ const avg=(a,fn)=>a.length?a.reduce((s,r)=>s+fn(r),0)/a.length:0;
+ const avgWinnerPost=avg(winners,r=>r.movePct||0), avgLoserPost=avg(losers,r=>r.movePct||0);
+ const patterns=[];
+ if(winnerEarly.length>=2 || (winners.length>=3&&winnerEarly.length/winners.length>=0.4))patterns.push({severity:'amber',title:'Vítěze možná prodáváš příliš brzo',detail:`${winnerEarly.length}/${winners.length} ziskových exitů pokračovalo výrazně nahoru po prodeji.`});
+ if(loserBounce.length>=2 || (losers.length>=3&&loserBounce.length/losers.length>=0.4))patterns.push({severity:'amber',title:'Část ztrát realizuješ před odrazem',detail:`${loserBounce.length}/${losers.length} ztrátových exitů se po prodeji výrazně zotavilo.`});
+ if(loserSaved.length>=2)patterns.push({severity:'green',title:'Umíš utnout část špatných pozic včas',detail:`${loserSaved.length} ztrátových exitů po prodeji dál klesalo.`});
+ if(winnerGood.length>=2)patterns.push({severity:'green',title:'Umíš zamknout zisk před poklesem',detail:`${winnerGood.length} ziskových exitů po prodeji výrazně oslabilo.`});
+ if(!patterns.length&&rows.length)patterns.push({severity:'green',title:'Zatím bez silného behaviorálního vzorce',detail:'Historie exitů zatím neukazuje jednoznačnou opakovanou chybu.'});
+ const rules=[];
+ if(winnerEarly.length>=2)rules.push('U ziskové pozice před úplným prodejem zvaž částečný exit místo 100% prodeje.');
+ if(loserBounce.length>=2)rules.push('U ztrátové pozice před prodejem ověř, zda se změnila investiční teze, ne jen cena.');
+ if(loserSaved.length>=2)rules.push('U porušené investiční teze pokračuj v rychlém řezu ztráty.');
+ if(!rules.length)rules.push('Sbírej další exity; behavior engine se zpřesní s historií.');
+ return {rows,winners,losers,winnerEarly,winnerGood,loserBounce,loserSaved,avgWinnerPost,avgLoserPost,patterns,rules};
+}
+function renderLessonsLearned(){
+ const box=document.getElementById('lessonsbox');if(!box)return;
+ const l=lessonsLearned();
+ box.innerHTML=`<div class="muted">LESSONS LEARNED</div><h2>Co tvoje historie prodejů říká o rozhodování</h2>
+ <div class="grid">
+  <div class="card"><div class="muted">Ziskové exity</div><div class="kpi">${l.winners.length}</div><div class="muted">po prodeji průměr ${(l.avgWinnerPost*100).toFixed(1)} %</div></div>
+  <div class="card"><div class="muted">Ztrátové exity</div><div class="kpi">${l.losers.length}</div><div class="muted">po prodeji průměr ${(l.avgLoserPost*100).toFixed(1)} %</div></div>
+  <div class="card"><div class="muted">Vítězové prodaní brzo</div><div class="kpi ${l.winnerEarly.length?'amber':'green'}">${l.winnerEarly.length}</div></div>
+  <div class="card"><div class="muted">Ztráty utnuté dobře</div><div class="kpi green">${l.loserSaved.length}</div></div>
+ </div>
+ ${l.patterns.map(p=>`<div class="row"><div><b>${p.title}</b><div class="muted">${p.detail}</div></div><span class="${p.severity}">${p.severity==='green'?'OK':'POZOR'}</span></div>`).join('')}
+ <div style="margin-top:10px"><b>Pravidla pro další rozhodnutí</b>${l.rules.map((r,i)=>`<div class="row"><span>${i+1}. ${r}</span></div>`).join('')}</div>`;
+}
 function renderJournalTable(){
  const box=document.getElementById('jtable');if(!box)return;const f=document.getElementById('jfilter')?.value||'INVESTMENT';
+ const post=postSaleRows();
  let a=s.tradeJournal.trades.filter(x=>f==='ALL'||x.kind===f),m=s.tradeJournal.market?.prices||{};
- box.innerHTML=`<div style="overflow:auto"><table><thead><tr><th>Prodej</th><th>Datum</th><th>Realizováno</th><th>Prodejní cena</th><th>Dnes</th><th>Vs. držení</th><th>Verdikt</th></tr></thead><tbody>${a.map(x=>{let q=m[x.ticker],opp=null,ver='—';if(q?.price&&q?.fx&&x.kind==='INVESTMENT'){let hypothetical=x.volume*q.price*q.fx;opp=hypothetical-x.saleValue;ver=opp>500?'PŘEDČASNÝ PRODEJ':opp<-500?'DOBRÝ PRODEJ':'NEUTRÁLNÍ'}if(x.kind==='TRANSFER')ver='TECHNICKÝ PŘESUN';if(x.kind==='CFD')ver='CFD – odděleně';return `<tr><td><b>${x.name}</b><br><span class="muted">${x.ticker} · ${x.volume.toFixed(4)} ks</span></td><td>${new Date(x.closeDate).toLocaleDateString('cs-CZ')}</td><td class="${x.realized>=0?'green':'red'}">${x.realized>=0?'+':''}${cz(x.realized)}</td><td>${x.avgClose.toFixed(x.avgClose<1?4:2)}</td><td>${q?.price?q.price.toFixed(q.price<1?4:2):'—'}</td><td class="${opp==null?'':opp>0?'red':'green'}">${opp==null?'—':`${opp>0?'+':''}${cz(opp)}`}</td><td>${ver}</td></tr>`}).join('')}</tbody></table></div>`;
+ const postBy=new Map(post.map(x=>[`${x.ticker}|${x.closeDate}|${x.volume}`,x]));
+ box.innerHTML=`<div style="overflow:auto"><table><thead><tr><th>Prodej</th><th>Datum</th><th>Realizováno</th><th>Prodejní cena</th><th>Dnes</th><th>Po prodeji</th><th>Vs. držení</th><th>Verdikt</th></tr></thead><tbody>${a.map(x=>{
+   let q=m[x.ticker],opp=null,move=null,ver='—',grade='';
+   if(x.kind==='INVESTMENT'){
+     const p=postBy.get(`${x.ticker}|${x.closeDate}|${x.volume}`);
+     if(p){opp=p.opportunity;move=p.movePct;ver=p.verdict;grade=p.grade}
+   }
+   if(x.kind==='TRANSFER'){ver='TECHNICKÝ PŘESUN';grade='muted'}
+   if(x.kind==='CFD'){ver='CFD – ODDĚLENĚ';grade='muted'}
+   return `<tr><td><b>${x.name}</b><br><span class="muted">${x.ticker} · ${x.volume.toFixed(4)} ks</span></td><td>${new Date(x.closeDate).toLocaleDateString('cs-CZ')}</td><td class="${x.realized>=0?'green':'red'}">${x.realized>=0?'+':''}${cz(x.realized)}</td><td>${x.avgClose.toFixed(x.avgClose<1?4:2)}</td><td>${q?.price?q.price.toFixed(q.price<1?4:2):'—'}</td><td class="${move==null?'':move>0?'red':'green'}">${move==null?'—':`${move>0?'+':''}${(move*100).toFixed(1)} %`}</td><td class="${opp==null?'':opp>0?'red':'green'}">${opp==null?'—':`${opp>0?'+':''}${cz(opp)}`}</td><td class="${grade}"><b>${ver}</b></td></tr>`;
+ }).join('')}</tbody></table></div>`;
 }
 async function refreshJournal(){
  const m=document.getElementById('jmsg');try{
@@ -172,7 +277,7 @@ async function refreshJournal(){
   m.textContent='Načítám dnešní ceny…';
   const {data,error}=await sb.functions.invoke('market-refresh',{body:{tickers,asOf:'2026-08-18T15:27:00+02:00'}});if(error)throw error;
   const prices={};for(const q of data.results||[]){if(!q.ok)continue;let c=curForTicker(q.ticker),fx=1;if(c==='USD'&&data.fx?.USDCZK?.ok)fx=data.fx.USDCZK.price;if(c==='EUR'&&data.fx?.EURCZK?.ok)fx=data.fx.EURCZK.price;prices[q.ticker]={price:q.price,fx,currency:c,marketTime:q.marketTime}}
-  s.tradeJournal.market={asOf:data.asOf||new Date().toISOString(),prices};localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();render();setTimeout(()=>{let x=document.getElementById('jmsg');if(x)x.textContent=`Aktualizováno ${Object.keys(prices).length}/${tickers.length} titulů`},0)
+  s.tradeJournal.market={asOf:data.asOf||new Date().toISOString(),prices};localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();render();setTimeout(()=>{renderPostSaleSummary();renderLessonsLearned();renderJournalTable();let x=document.getElementById('jmsg');if(x)x.textContent=`Aktualizováno ${Object.keys(prices).length}/${tickers.length} titulů`},0)
  }catch(e){if(m)m.textContent='Refresh selhal: '+(e.message||e)}
 }
 </script><script>async function refreshMarket(){
@@ -263,11 +368,11 @@ sb.auth.onAuthStateChange(async(ev,session)=>{
    let {data,error}=await sb.from('kamil_os_state').select('payload').eq('user_id',session.user.id).maybeSingle();
    if(error)authMsg('Cloud načtení: '+error.message,'red');
    if(data?.payload){s=data.payload;merge();localStorage.setItem('kamil-os-state',JSON.stringify(s));render()}else cloudSave();
-   await loadCalendarCache();await loadXtbHub();
-   setTimeout(()=>{renderMorningBrief();renderDailyExecution();renderDelegationCenter();renderDelegationAccountability()},0);
+   await loadCalendarCache();await loadXtbHub();setTimeout(autoSyncOnLogin,500);
+   setTimeout(()=>{renderExecutiveHome();renderAutoPrioritizer();renderNextBestAction();renderSmartSync();renderFreshnessAlerts();renderControlCenter();renderInboxZero();renderWaitingFor();renderFollowUpRadar();renderDayPlanner();renderCapacityGuard();renderEveningClose();renderExecutionLearning();renderWeeklyOS();renderDecisionReview();renderMorningBrief();renderDailyExecution();renderDelegationCenter();renderDelegationAccountability()},0);
  }else cloud.textContent='LOCAL'
 });
-render();setTimeout(initAuthUI,0);
+render();setTimeout(initAuthUI,0);setTimeout(()=>{const q=document.getElementById('quickcapture');if(q)q.addEventListener('keydown',e=>{if(e.key==='Enter')quickCapture()})},0);
 
 </script><script>function xcol(ref){let n=0;for(const ch of ref.match(/[A-Z]+/)[0])n=n*26+ch.charCodeAt(0)-64;return n}
 function xdate(n){return new Date(Date.UTC(1899,11,30)+Number(n)*86400000).toISOString()}
@@ -371,8 +476,152 @@ async function refreshIntelligence(){
 }
 setTimeout(()=>{renderIntelligence();renderDecisionEngine();renderSimulator();renderMonthlyPlanner();renderActionCenter();renderPerformanceTracker();renderDecisionJournal();renderReviewEngine();renderInvestmentCommandCenter()},0);
 </script><script>
+
+
+function memoryStore(){
+ if(!s.portfolioMemory)s.portfolioMemory={};
+ return s.portfolioMemory;
+}
+function defaultMemoryFor(p){
+ const type=(p.type||'').toUpperCase();
+ let thesis='',buyMore='',sell='';
+ if(type==='ETF'){
+   thesis='Dlouhodobá diverzifikace portfolia a expozice na daný segment / region.';
+   buyMore='Přikupovat při pravidelném měsíčním vkladu, pokud nepřekračuje cílovou váhu.';
+   sell='Prodávat hlavně při změně dlouhodobé alokace, ne kvůli krátkodobému poklesu ceny.';
+ }else{
+   thesis='Držet, dokud platí původní fundamentální investiční teze a firma plní očekávání.';
+   buyMore='Přikoupit pouze pokud fundament zůstává zdravý, valuace dává smysl a pozice není příliš velká.';
+   sell='Prodat při porušení investiční teze, zásadním zhoršení fundamentu nebo nepřijatelné koncentraci.';
+ }
+ return {thesis,buyMore,sell,lastReviewed:null,note:''};
+}
+function getMemory(p){
+ const m=memoryStore();
+ if(!m[p.ticker])m[p.ticker]=defaultMemoryFor(p);
+ return m[p.ticker];
+}
+function updateMemory(ticker,key,value){
+ const p=allOpenPositions().find(x=>x.ticker===ticker) || calcIntelligence().rows.find(x=>x.ticker===ticker);
+ if(!p)return;
+ const m=getMemory(p);m[key]=value;m.lastReviewed=new Date().toISOString();
+ localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();
+ renderPortfolioMemory();renderGuardrails();renderDecisionEngine();
+}
+function renderPortfolioMemory(){
+ const box=document.getElementById('memorybox');if(!box)return;
+ const rows=calcIntelligence().rows;
+ box.innerHTML=`<div class="muted">PORTFOLIO MEMORY</div><h2>Proč tuhle pozici vlastně držíme?</h2>
+ <div class="muted">Teze se ukládá ke každému tickeru a používá ji Decision Engine. Cílem je neprodávat jen proto, že cena spadla.</div>
+ <div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Pozice</th><th>Investiční teze</th><th>Kdy přikoupit</th><th>Kdy prodat</th><th>Revize</th><th>Stav</th></tr></thead><tbody>
+ ${rows.map(p=>{const m=getMemory(p);return `<tr>
+   <td><b>${p.ticker}</b><br><span class="muted">${p.name||''}</span></td>
+   <td><textarea style="min-width:220px;min-height:74px" onchange="updateMemory('${p.ticker}','thesis',this.value)">${m.thesis||''}</textarea></td>
+   <td><textarea style="min-width:220px;min-height:74px" onchange="updateMemory('${p.ticker}','buyMore',this.value)">${m.buyMore||''}</textarea></td>
+   <td><textarea style="min-width:220px;min-height:74px" onchange="updateMemory('${p.ticker}','sell',this.value)">${m.sell||''}</textarea></td>
+   <td>${m.lastReviewed?new Date(m.lastReviewed).toLocaleDateString('cs-CZ'):'—'}</td>
+   <td><span class="${m.reviewStatus==='BROKEN'?'red':m.reviewStatus==='WATCH'?'amber':'green'}">${m.reviewStatus||'NOVÁ'}</span></td>
+ </tr>`}).join('')}</tbody></table></div>`;
+}
+function thesisSignal(p){
+ const m=getMemory(p);
+ const text=((m.thesis||'')+' '+(m.sell||'')+' '+(m.note||'')).toLowerCase();
+ let state='TEZE NENÍ OZNAČENA JAKO PORUŠENÁ',severity='green';
+ if(m.reviewStatus==='BROKEN'){state='TEZE PORUŠENA';severity='red'}
+ else if(m.reviewStatus==='WATCH'){state='TEZE POD DOHLEDEM';severity='amber'}
+ else if(/porušen|neplat|prodat nyní|ukončit|exit now|broken/.test(text)){state='TEZE OZNAČENA K REVIZI';severity='amber'}
+ return {state,severity,memory:m};
+}
+
+function thesisReviewQueue(){
+ const now=Date.now(), lessons=typeof lessonsLearned==='function'?lessonsLearned():null;
+ return calcIntelligence().rows.map(p=>{
+   const m=getMemory(p), last=m.lastReviewed?new Date(m.lastReviewed).getTime():0;
+   const ageDays=last?Math.floor((now-last)/86400000):9999;
+   const reasons=[]; let score=0;
+   if(!last){reasons.push('Teze ještě nebyla ručně revidována');score+=25}
+   else if(ageDays>=90){reasons.push(`Poslední revize před ${ageDays} dny`);score+=20}
+   else if(ageDays>=30){reasons.push(`Revize stará ${ageDays} dní`);score+=8}
+   if(p.weight>0.12){reasons.push(`Koncentrace ${(p.weight*100).toFixed(1)} %`);score+=30}
+   if((p.net_profit_pct||0)<=-10){reasons.push(`Ztráta ${Number(p.net_profit_pct).toFixed(1)} %`);score+=25}
+   if((p.net_profit_pct||0)>=30){reasons.push(`Zisk ${Number(p.net_profit_pct).toFixed(1)} % – ověř valuaci`);score+=12}
+   if(p.move!=null&&Math.abs(p.move)>=0.05){reasons.push(`Denní pohyb ${p.move>=0?'+':''}${(p.move*100).toFixed(1)} %`);score+=15}
+   const ts=thesisSignal(p);
+   if(ts.severity!=='green'){reasons.push('Portfolio Memory označila tezi k revizi');score+=40}
+   if(lessons?.winnerEarly?.length>=2&&(p.net_profit_pct||0)>10){reasons.push('Behavior: pozor na předčasný prodej vítěze');score+=8}
+   if(lessons?.loserBounce?.length>=2&&(p.net_profit_pct||0)<0){reasons.push('Behavior: před prodejem ověř fundament');score+=8}
+   let priority=score>=50?'KRITICKÁ':score>=30?'VYSOKÁ':score>=15?'STŘEDNÍ':'NÍZKÁ';
+   return {...p,memory:m,ageDays,reasons,reviewScore:score,reviewPriority:priority};
+ }).filter(x=>x.reviewScore>=15).sort((a,b)=>b.reviewScore-a.reviewScore);
+}
+function markThesisReviewed(ticker,status='VALID'){
+ const p=calcIntelligence().rows.find(x=>x.ticker===ticker);if(!p)return;
+ const m=getMemory(p);m.lastReviewed=new Date().toISOString();m.reviewStatus=status;
+ if(status==='BROKEN')m.note=((m.note||'')+' porušená teze').trim();
+ else if(status==='VALID')m.note=(m.note||'').replace(/porušená teze/gi,'').trim();
+ localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();
+ renderPortfolioMemory();renderThesisReviewQueue();renderGuardrails();renderDecisionEngine();
+}
+function renderThesisReviewQueue(){
+ const box=document.getElementById('thesisqueuebox');if(!box)return;
+ const q=thesisReviewQueue();
+ box.innerHTML=`<div class="muted">THESIS REVIEW QUEUE</div><h2>Co opravdu potřebuje zkontrolovat</h2>
+ <div class="muted">Automatická fronta podle stáří teze, koncentrace, P/L, LIVE pohybu a Lessons Learned.</div>
+ ${q.length?`<div class="grid" style="margin-top:10px">${q.slice(0,8).map((p,i)=>`<div class="card">
+   <div class="row"><div><span class="muted">#${i+1}</span> <b>${p.ticker}</b></div><span class="${p.reviewPriority==='KRITICKÁ'?'red':p.reviewPriority==='VYSOKÁ'?'amber':'muted'}">${p.reviewPriority} · ${p.reviewScore}</span></div>
+   ${p.reasons.map(r=>`<div class="muted" style="margin-top:5px">• ${r}</div>`).join('')}
+   <hr><div class="muted">${p.memory.thesis||'Bez teze'}</div>
+   <div class="form" style="margin-top:10px">
+    <button class="btn primary" onclick="markThesisReviewed('${p.ticker}','VALID')">Teze platí</button>
+    <button class="btn" onclick="markThesisReviewed('${p.ticker}','WATCH')">Sledovat</button>
+    <button class="btn" onclick="markThesisReviewed('${p.ticker}','BROKEN')">Teze porušena</button>
+   </div>
+ </div>`).join('')}</div>`:'<p class="green">Žádná pozice teď nepotřebuje mimořádnou revizi.</p>'}`;
+}
+function guardrailFor(p){
+ const lessons=typeof lessonsLearned==='function'?lessonsLearned():null;
+ const thesis=typeof thesisSignal==='function'?thesisSignal(p):null;
+ const checks=[];
+ const add=(name,pass,detail,weight=1)=>checks.push({name,pass,detail,weight});
+ if(thesis)add('Investiční teze',thesis.severity==='green',thesis.state,3);
+ add('Koncentrace',p.weight<=0.12,`váha ${(p.weight*100).toFixed(1)} % · limit 12 %`,2);
+ add('Jednodenní emoce',p.move==null||Math.abs(p.move)<0.05,p.move==null?'bez LIVE pohybu':`dnes ${p.move>=0?'+':''}${(p.move*100).toFixed(1)} %`,1);
+ add('Velká ztráta',(p.net_profit_pct||0)>-10,`od nákupu ${Number(p.net_profit_pct||0).toFixed(1)} %`,2);
+ add('Velký zisk',(p.net_profit_pct||0)<30,`od nákupu ${Number(p.net_profit_pct||0).toFixed(1)} %`,1);
+ if(lessons?.winnerEarly?.length>=2 && (p.net_profit_pct||0)>10)add('Behavior: early sell',false,'historie varuje před úplným prodejem vítěze',2);
+ if(lessons?.loserBounce?.length>=2 && (p.net_profit_pct||0)<0)add('Behavior: loser bounce',false,'před prodejem ověř změnu teze',2);
+ const risk=checks.reduce((a,c)=>a+(c.pass?0:c.weight),0);
+ const max=checks.reduce((a,c)=>a+c.weight,0)||1;
+ const rawConfidence=Math.max(35,Math.round(100-risk/max*55));
+ const confidence=freshnessAdjustedConfidence(rawConfidence,'investment');
+ let gate='OK';
+ const freshness=dataFreshnessScore();
+ if(freshness.score<65)gate='NEJDŘÍV SYNCHRONIZOVAT';
+ else if(thesis&&thesis.severity!=='green')gate='NEJDŘÍV REVIZE TEZE';
+ else if(p.weight>0.12)gate='REDUKCE DÁVÁ SMYSL';
+ else if((p.net_profit_pct||0)<=-10)gate='NEJDŘÍV REVIZE TEZE';
+ else if(lessons?.winnerEarly?.length>=2&&(p.net_profit_pct||0)>10)gate='NEPRODÁVAT 100 % BEZ DŮVODU';
+ else if(p.move!=null&&Math.abs(p.move)>=0.05)gate='POČKAT NA KONTEXT';
+ return {checks,risk,confidence,gate};
+}
+function renderGuardrails(){
+ const box=document.getElementById('guardrailsbox');if(!box)return;
+ const x=calcIntelligence(),rows=x.top.slice(0,3);
+ box.innerHTML=`<div class="muted">INVESTMENT GUARDRAILS</div><h2>Brzda před impulzivním rozhodnutím</h2>
+ <div class="muted">Kontroluje koncentraci, denní pohyb, P/L a tvoje vlastní historické chyby.</div>
+ <div class="grid" style="margin-top:10px">${rows.map(p=>{const g=guardrailFor(p);return `<div class="card">
+   <div class="muted">${p.ticker}</div><div class="title">${g.gate}</div>
+   <div class="kpi ${g.confidence>=75?'green':g.confidence>=55?'amber':'red'}">${g.confidence}%</div>
+   <div class="muted">confidence rozhodovacího rámce</div>
+   ${g.checks.map(c=>`<div class="row"><span>${c.name}</span><span class="${c.pass?'green':'amber'}">${c.pass?'OK':'CHECK'}</span></div>`).join('')}
+ </div>`}).join('')}</div>`;
+}
 function decisionFor(p,totalCzk){
  const reasons=[], actions=[];
+ const lessons=typeof lessonsLearned==='function'?lessonsLearned():null;
+ const guard=typeof guardrailFor==='function'?guardrailFor(p):null;
+ const thesis=typeof thesisSignal==='function'?thesisSignal(p):null;
+ const freshness=typeof dataFreshnessScore==='function'?dataFreshnessScore():{score:100};
  const targetMax=0.12, targetComfort=0.10;
  if(p.weight>targetMax){
    const excess=Math.max(0,p.valueCzk-totalCzk*targetComfort);
@@ -395,12 +644,31 @@ function decisionFor(p,totalCzk){
    reasons.push(`Od nákupu +${Number(p.net_profit_pct).toFixed(1)} %`);
    actions.push({type:'ZKONTROLOVAT VÁHU',amount:0,why:'silný zisk může zvýšit koncentraci'});
  }
+ if(lessons){
+   if((p.net_profit_pct||0)>10&&lessons.winnerEarly.length>=2){
+     reasons.push('Behavior: ziskové pozice často prodáváš příliš brzo');
+     actions.push({type:'ČÁSTEČNÝ EXIT',amount:0,why:'historie favorizuje částečný exit před úplným prodejem'});
+   }
+   if((p.net_profit_pct||0)<0&&lessons.loserBounce.length>=2){
+     reasons.push('Behavior: část ztrát se po prodeji odrazila');
+     actions.push({type:'OVĚŘIT TEZI',amount:0,why:'před exitem odliš cenu od změny fundamentu'});
+   }
+ }
+ if(freshness.score<65){
+   reasons.push('Data freshness: nejdřív synchronizovat zdroje');
+   actions.push({type:'SYNCHRONIZOVAT',amount:0,why:'confidence je nízké kvůli stáří dat'});
+ }
+ if(thesis&&thesis.severity!=='green'){
+   reasons.push('Portfolio Memory: investiční teze je označena k revizi');
+   actions.push({type:'REVIZE TEZE',amount:0,why:thesis.memory.sell||'ověřit důvod držení'});
+ }
  if(!reasons.length){
    reasons.push('Bez překročení hlavních limitů');
-   actions.push({type:'DRŽET',amount:0,why:'bez zásahu'});
+   if(thesis?.memory?.thesis)reasons.push('Teze: '+thesis.memory.thesis);
+   actions.push({type:'DRŽET',amount:0,why:'teze platí a není aktivní jiný guardrail'});
  }
  const primary=actions.find(a=>a.type==='REDUKCE')||actions[0];
- return {reasons,actions,primary};
+ return {reasons,actions,primary,guard};
 }
 function renderDecisionEngine(){
  const box=document.getElementById('decisionbox'); if(!box)return;
@@ -413,7 +681,7 @@ function renderDecisionEngine(){
    <div class="title">${p.name}</div>
    <div style="margin:8px 0">${d.reasons.map(r=>`<div>• ${r}</div>`).join('')}</div>
    <div class="${d.primary.type==='DRŽET'?'green':d.primary.type==='REDUKCE'?'amber':'red'}"><b>${d.primary.type}</b></div>
-   <div class="muted">${d.primary.why}</div>
+   <div class="muted">${d.primary.why}</div><div class="muted" style="margin-top:6px">${getMemory(p).thesis}</div>${d.guard?`<div class="row"><span>Guardrail</span><b>${d.guard.gate} · ${d.guard.confidence}%</b></div>`:''}
    ${d.primary.amount>500?`<div class="kpi">${cz(d.primary.amount)}</div><div class="muted">orientační velikost zásahu</div>`:''}
  </div>`}).join('')||'<div class="card">Nejsou načtená data.</div>'}
  </div>`;
@@ -812,6 +1080,778 @@ setTimeout(renderInvestmentCommandCenter,0);
 </script><script>
 function dayStart(d=new Date()){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
 function daysBetween(a,b){return Math.floor((dayStart(a)-dayStart(b))/86400000)}
+
+
+function priorityScoreItem(x){
+ const now=new Date(), today=dayStart(now);
+ let score=0,reasons=[];
+ const add=(pts,why)=>{score+=pts;reasons.push(why)};
+ const title=String(x.title||'');
+ const area=String(x.area||'');
+ if(x.kind==='task'){
+   if(x.due){
+     const dd=daysBetween(new Date(x.due),today);
+     if(dd<=0)add(35,'termín dnes / po termínu');
+     else if(dd===1)add(25,'termín zítra');
+     else if(dd<=3)add(15,'termín do 3 dnů');
+   }
+   const p=String(x.priority||'').toUpperCase();
+   if(p==='HIGH'||Number(x.priority)>=90)add(35,'vysoká ruční priorita');
+   else if(p==='NORMAL')add(12,'běžná priorita');
+   if(x.status==='ČEKÁM'){add(8,'čeká na externí krok');if(x.due)add(8,'čekání má termín');}
+   if(/faktur|platb|peněz|pokut|smlouv|termín|doklad|občank|řidič/i.test(title))add(18,'administrativní / finanční dopad');
+ }
+ if(x.kind==='routine'){
+   const diff=daysBetween(x.d,today);
+   if(diff<=0)add(40,'termín dnes / po termínu');
+   else if(diff===1)add(30,'termín zítra');
+   else if(diff<=3)add(18,'termín do 3 dnů');
+ }
+ if(x.kind==='delegation'){
+   if(x.overdue)add(38,'kontrola delegace po termínu');
+   else add(12,'aktivní delegace');
+   if(x.nudges)add(Math.min(18,x.nudges*6),`${x.nudges} urgence`);
+   if(!x.owner)add(20,'chybí vlastník');
+ }
+ if(x.kind==='calendar'){
+   const st=new Date(x.start),mins=(st-now)/60000;
+   if(mins>=0&&mins<=120)add(30,'schůzka do 2 hodin');
+   else if(daysBetween(st,today)===0)add(20,'dnes v kalendáři');
+   if(x.busy)add(6,'blokuje čas');
+ }
+ if(x.kind==='finance'){
+   const diff=daysBetween(new Date(x.start),today);
+   if(diff<=3)add(25,'platba do 3 dnů');
+   else if(diff<=7)add(15,'platba do týdne');
+   const a=Number(x.amount||0);
+   if(a>=50000)add(20,'významná částka');
+   else if(a>=10000)add(10,'vyšší částka');
+ }
+ if(x.kind==='investment'){
+   add(Math.min(45,Math.round((x.reviewScore||0)*0.7)),'investiční review score');
+   if(x.reviewPriority==='KRITICKÁ')add(20,'kritická investiční revize');
+   else if(x.reviewPriority==='VYSOKÁ')add(10,'vysoká investiční revize');
+ }
+ if(/Nová Zbrojovka|fakturace|docházka|cesták|karta zakázky/i.test(title))add(10,'pracovní provoz / deadline');
+ if(area==='Práce')add(5,'pracovní dopad');
+ return {score:Math.min(100,Math.round(score)),reasons};
+}
+function autoPriorityItems(){
+ const now=new Date(),today=dayStart(now),items=[];
+ for(const t of (s.tasks||[])){
+   if(t.status==='HOTOVO')continue;
+   items.push({kind:'task',title:t.title,area:t.area||'Úkoly',priority:t.priority,status:t.status,due:t.due});
+ }
+ for(const r of (s.routines||[])){
+   const d=due(r);if(s.routineDone?.[key(r,d)])continue;
+   const diff=daysBetween(d,today);if(diff>=0&&diff<=7)items.push({kind:'routine',title:r.title,area:r.area||'Rutiny',d});
+ }
+ try{
+   for(const d of delegationState()){
+     if(d.status==='DONE')continue;
+     items.push({kind:'delegation',title:d.title,area:'Delegace',owner:d.owner,nudges:d.lastNudgeAt?1:0,overdue:!!(d.followUpAt&&new Date(d.followUpAt)<now)});
+   }
+ }catch{}
+ for(const e of (s.calendar?.events||[])){
+   const st=new Date(e.start),diff=daysBetween(st,today);if(diff>=0&&diff<=1)items.push({kind:'calendar',title:e.title,area:'Kalendář',start:e.start,busy:e.busy});
+ }
+ try{
+   for(const p of financeCalendar().slice(0,10))items.push({kind:'finance',title:p.title,area:'Finance',start:p.start,amount:p.amount});
+ }catch{}
+ try{
+   for(const q of thesisReviewQueue().slice(0,8))items.push({kind:'investment',title:q.ticker+' · revize teze',area:'Investice',reviewScore:q.reviewScore,reviewPriority:q.reviewPriority});
+ }catch{}
+ return items.map(x=>({...x,...priorityScoreItem(x)})).sort((a,b)=>b.score-a.score);
+}
+
+function nextActionFor(x){
+ const t=String(x.title||'').toLowerCase();
+ if(x.kind==='delegation'){
+   if(x.overdue)return {verb:'URGOVAT',detail:x.owner?`Kontaktovat ${x.owner} a vyžádat stav.`:'Přiřadit vlastníka a vyžádat stav.'};
+   return {verb:'ČEKAT',detail:x.owner?`Čeká na ${x.owner}; zasáhnout až při follow-up termínu.`:'Nejdřív určit vlastníka.'};
+ }
+ if(x.kind==='calendar')return {verb:'PŘIPRAVIT',detail:'Otevřít podklady a připravit si 1–3 body před schůzkou.'};
+ if(x.kind==='finance'){
+   if(/faktur/i.test(t))return {verb:'ODESLAT',detail:'Zkontrolovat částku/podklady a dokončit fakturační krok.'};
+   return {verb:'ZKONTROLOVAT',detail:'Ověřit splatnost, částku a zda je platba připravená.'};
+ }
+ if(x.kind==='investment')return {verb:'REVIDOVAT',detail:'Otevřít Portfolio Memory, ověřit tezi a označit Platí / Sledovat / Porušena.'};
+ if(x.kind==='routine'){
+   if(/faktur/i.test(t))return {verb:'ODESLAT',detail:'Dokončit fakturační rutinu a označit ji hotovou.'};
+   if(/docház|cesták/i.test(t))return {verb:'VYPLNIT',detail:'Vyplnit podklady a uzavřít rutinu.'};
+   if(/karta zakázky/i.test(t))return {verb:'AKTUALIZOVAT',detail:'Projít stav zakázky a aktualizovat kartu.'};
+   return {verb:'UDĚLAT',detail:'Dokončit rutinu před termínem.'};
+ }
+ if(/občank|řidič/i.test(t))return {verb:'VYŘÍDIT',detail:'Dokončit žádost / návštěvu úřadu a pak úkol uzavřít.'};
+ if(/email|mail/i.test(t))return {verb:'ZKONTROLOVAT',detail:'Ověřit stav a uzavřít jen pokud už není potřeba další zásah.'};
+ if(/zavolat|telefon/i.test(t))return {verb:'ZAVOLAT',detail:'Provést telefonát a zapsat výsledek.'};
+ if(/poslat|odeslat/i.test(t))return {verb:'ODESLAT',detail:'Připravit finální verzi a odeslat.'};
+ return {verb:'UDĚLAT',detail:'Provést nejmenší konkrétní krok, který posune věc dopředu.'};
+}
+function completeNextAction(index){
+ const x=autoPriorityItems()[index];if(!x)return;
+ if(x.kind==='task'){
+   const t=(s.tasks||[]).find(t=>t.title===x.title);if(t)t.status='HOTOVO';
+ }else if(x.kind==='routine'){
+   const r=(s.routines||[]).find(r=>r.title===x.title);if(r){const d=due(r);s.routineDone[key(r,d)]=true}
+ }else if(x.kind==='delegation'){
+   const d=delegationState().find(d=>d.title===x.title);if(d){d.lastNudgeAt=new Date().toISOString();d.followUpAt=new Date(Date.now()+86400000).toISOString()}
+ }else if(x.kind==='investment'){
+   const ticker=x.title.split(' · ')[0];markThesisReviewed(ticker,'VALID');return;
+ }
+ save();
+}
+function renderNextBestAction(){
+ const box=document.getElementById('nextbestaction');if(!box)return;
+ const top=autoPriorityItems().slice(0,5);
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="muted">NEXT BEST ACTION</div><h2 style="margin:4px 0 12px">Nemysli co dál — udělej tohle</h2>
+  ${top.map((x,i)=>{const a=nextActionFor(x);return `<div class="row">
+    <div><span class="badge">${a.verb}</span> <b>${x.title}</b><div class="muted" style="margin-top:5px">${a.detail}</div></div>
+    <div class="form"><span class="${x.score>=75?'red':x.score>=50?'amber':'green'}">${x.score}</span>
+    ${x.kind!=='calendar'&&x.kind!=='finance'?`<button class="btn" onclick="completeNextAction(${i})">${x.kind==='delegation'?'Urgováno':'Hotovo'}</button>`:''}</div>
+  </div>`}).join('')||'<p class="green">Teď není žádná doporučená akce.</p>'}
+ </div>`;
+}
+function renderAutoPrioritizer(){
+ const box=document.getElementById('autoprioritizer');if(!box)return;
+ const a=autoPriorityItems(),top=a.slice(0,8);
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">AUTO-PRIORITIZER</div><h2 style="margin:4px 0">Dynamické pořadí podle dopadu</h2></div><span class="badge">${a.length} položek</span></div>
+  ${top.map((x,i)=>`<div class="row"><div><b>${i+1}. ${x.title}</b><div class="muted">${x.area} · ${x.reasons.slice(0,3).join(' · ')}</div></div><div class="kpi ${x.score>=75?'red':x.score>=50?'amber':'green'}" style="font-size:20px">${x.score}</div></div>`).join('')||'<p class="green">Nic aktivního k prioritizaci.</p>'}
+ </div>`;
+}
+
+function syncMeta(){
+ if(!s.syncMeta)s.syncMeta={calendar:null,xtb:null,market:null,cloud:null,lastAll:null,lastError:null};
+ return s.syncMeta;
+}
+function ageLabel(ts){
+ if(!ts)return 'nikdy';
+ const m=Math.max(0,Math.floor((Date.now()-new Date(ts))/60000));
+ if(m<1)return 'právě teď';
+ if(m<60)return `${m} min`;
+ const h=Math.floor(m/60);if(h<24)return `${h} h`;
+ return `${Math.floor(h/24)} d`;
+}
+function syncHealth(){
+ const m=syncMeta(), now=Date.now();
+ const stale=(ts,h)=>!ts||(now-new Date(ts).getTime())>h*3600000;
+ return {
+  calendar:{stale:stale(m.calendar||s.calendar?.asOf,24),ts:m.calendar||s.calendar?.asOf},
+  xtb:{stale:stale(m.xtb||s.xtbHub?.asOf||s.xtbReport?.asOf,24),ts:m.xtb||s.xtbHub?.asOf||s.xtbReport?.asOf},
+  market:{stale:stale(m.market||s.intelligence?.asOf||s.tradeJournal?.market?.asOf,6),ts:m.market||s.intelligence?.asOf||s.tradeJournal?.market?.asOf},
+  cloud:{stale:stale(m.cloud,24),ts:m.cloud}
+ };
+}
+async function syncAll(){
+ const box=document.getElementById('syncmsg');const m=syncMeta();
+ try{
+  if(box)box.textContent='Synchronizuji…';
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){m.lastError='Vyžaduje přihlášení';save();if(box)box.textContent='Nejdřív se přihlas v Cloud.';return}
+  try{await loadCalendarCache();m.calendar=new Date().toISOString()}catch(e){m.lastError='Kalendář: '+e.message}
+  try{await loadXtbHub();m.xtb=new Date().toISOString()}catch(e){m.lastError='XTB: '+e.message}
+  try{
+    const tickers=[...new Set(allOpenPositions().map(p=>p.ticker))];
+    if(tickers.length){
+      const {data,error}=await sb.functions.invoke('market-refresh',{body:{tickers,asOf:s.xtbHub?.asOf}});
+      if(!error&&data){
+        const market={};for(const q of data.results||[])if(q.ok)market[q.ticker]={price:q.price,refPrice:q.refPrice,movePct:q.refPrice&&q.price?q.price/q.refPrice-1:null};
+        market.__fx={EURCZK:data.fx?.EURCZK?.price||24.5,USDCZK:data.fx?.USDCZK?.price||null};
+        s.intelligence={asOf:data.asOf||new Date().toISOString(),market};m.market=new Date().toISOString();
+      }else if(error)m.lastError='Market: '+error.message;
+    }
+  }catch(e){m.lastError='Market: '+(e.message||e)}
+  m.cloud=new Date().toISOString();m.lastAll=new Date().toISOString();
+  localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();render();
+  if(box)box.textContent='Synchronizace dokončena.';
+ }catch(e){m.lastError=e.message||String(e);if(box)box.textContent='Chyba: '+m.lastError}
+}
+function renderSmartSync(){
+ const box=document.getElementById('smartsync');if(!box)return;
+ const h=syncHealth(),m=syncMeta();
+ const rows=[
+  ['Kalendář',h.calendar],['XTB report',h.xtb],['Tržní data',h.market],['Cloud session',h.cloud]
+ ];
+ const stale=rows.filter(x=>x[1].stale).length;
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">SMART DATA SYNC</div><h2 style="margin:4px 0">Jedním klikem aktualizovat všechno</h2></div><button class="btn primary" onclick="syncAll()">Synchronizovat vše</button></div>
+  <div class="grid">
+   ${rows.map(([n,v])=>`<div class="card"><div class="muted">${n}</div><div class="title ${v.stale?'amber':'green'}">${v.stale?'STARÉ':'OK'}</div><div class="muted">${ageLabel(v.ts)}</div></div>`).join('')}
+  </div>
+  <div class="row"><div><b>Celkový stav</b><div class="muted">${m.lastAll?'poslední kompletní sync '+new Date(m.lastAll).toLocaleString('cs-CZ'):'zatím neproběhl kompletní sync'}</div></div><span class="${stale?'amber':'green'}">${stale?stale+' zdroje staré':'VŠE ČERSTVÉ'}</span></div>
+  ${m.lastError?`<div class="muted">Poslední chyba: ${m.lastError}</div>`:''}
+  <div id="syncmsg" class="muted"></div>
+ </div>`;
+}
+async function autoSyncOnLogin(){
+ try{
+  const {data:{session}}=await sb.auth.getSession();if(!session)return;
+  const m=syncMeta();const old=!m.lastAll||(Date.now()-new Date(m.lastAll))>6*3600000;
+  if(old)await syncAll();
+ }catch{}
+}
+
+function dataFreshnessScore(){
+ const h=syncHealth();
+ let score=100; const issues=[];
+ const hit=(pts,label)=>{score-=pts;issues.push(label)};
+ if(h.calendar.stale)hit(15,'Kalendář je starý');
+ if(h.xtb.stale)hit(25,'XTB snapshot je starý');
+ if(h.market.stale)hit(30,'Tržní data jsou stará');
+ if(h.cloud.stale)hit(10,'Cloud session nebyla dlouho ověřena');
+ score=Math.max(25,score);
+ let state=score>=85?'ČERSTVÁ DATA':score>=65?'OMEZENÁ JISTOTA':'NEJDŘÍV SYNCHRONIZOVAT';
+ return {score,state,issues,h};
+}
+function freshnessAdjustedConfidence(base,domain='general'){
+ const f=dataFreshnessScore();
+ let penalty=100-f.score;
+ if(domain==='investment')penalty=Math.round(penalty*1.15);
+ if(domain==='calendar'&&f.h.calendar.stale)penalty+=10;
+ return Math.max(20,Math.round(base-penalty));
+}
+function renderFreshnessAlerts(){
+ const box=document.getElementById('freshnessalerts');if(!box)return;
+ const f=dataFreshnessScore();
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">DATA FRESHNESS ALERTS</div><h2 style="margin:4px 0">Důvěryhodnost doporučení podle stáří dat</h2></div><div class="kpi ${f.score>=85?'green':f.score>=65?'amber':'red'}">${f.score}%</div></div>
+  <div class="row"><b>Stav</b><span class="${f.score>=85?'green':f.score>=65?'amber':'red'}">${f.state}</span></div>
+  ${f.issues.length?f.issues.map(x=>`<div class="muted">• ${x}</div>`).join(''):'<div class="green">Všechny klíčové zdroje jsou dostatečně čerstvé.</div>'}
+  ${f.score<65?'<div class="row"><b>Doporučení</b><span class="red">Nejdřív klikni na Synchronizovat vše</span></div>':''}
+ </div>`;
+}
+
+
+function parseQuickCapture(text){
+ const raw=String(text||'').trim();
+ const low=raw.toLowerCase();
+ let kind='task',owner='',title=raw,due=null,priority='NORMAL';
+ if(/urgent|urgovat|urgence|follow.?up/.test(low))kind='delegation';
+ else if(/delegovat|předat/.test(low))kind='delegation';
+ else if(/poznámk|note/.test(low))kind='note';
+ else if(/invest|xtb|akci|etf/.test(low))kind='investment-note';
+ if(/dnes/.test(low))due=new Date();
+ else if(/zítra/.test(low)){due=new Date();due.setDate(due.getDate()+1)}
+ else if(/high|vysoká priorita|kritick/.test(low))priority='HIGH';
+ const m=raw.match(/(?:komu|pro|delegovat)\s+([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][\wÁ-ž-]+)/i);
+ if(m)owner=m[1];
+ title=raw.replace(/^(úkol|task|poznámka|note|delegovat|předat|urgovat|urgence|follow[- ]?up)\s*[:\-]?\s*/i,'').trim();
+ return {kind,title,owner,due,priority,raw};
+}
+function quickCapture(){
+ const inp=document.getElementById('quickcapture'),msg=document.getElementById('quickcapturemsg');
+ const p=parseQuickCapture(inp?.value);
+ if(!p.title){if(msg)msg.textContent='Napiš, co chceš přidat.';return}
+ if(p.kind==='delegation'){
+   const arr=delegationState();
+   const d=p.due||new Date(Date.now()+2*86400000);d.setHours(9,0,0,0);
+   arr.push({
+    id:crypto?.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),
+    title:p.title,week:weekKey(),owner:p.owner||'',status:'WAITING',
+    createdAt:new Date().toISOString(),followUpAt:d.toISOString(),note:'',doneAt:null,lastNudgeAt:null
+   });
+   if(msg)msg.textContent='Přidáno do Delegací.';
+ }else if(p.kind==='note'){
+   if(!s.notes)s.notes=[];
+   s.notes.unshift({id:crypto?.randomUUID?crypto.randomUUID():String(Date.now()),text:p.title,createdAt:new Date().toISOString()});
+   if(msg)msg.textContent='Poznámka uložena.';
+ }else if(p.kind==='investment-note'){
+   if(!s.investmentNotes)s.investmentNotes=[];
+   s.investmentNotes.unshift({id:crypto?.randomUUID?crypto.randomUUID():String(Date.now()),text:p.title,createdAt:new Date().toISOString()});
+   if(msg)msg.textContent='Investiční poznámka uložena.';
+ }else{
+   if(!s.tasks)s.tasks=[];
+   s.tasks.unshift({
+     id:crypto?.randomUUID?crypto.randomUUID():String(Date.now()),
+     title:p.title,area:'Inbox',status:'UDĚLAT',priority:p.priority,risk:0,
+     due:p.due?p.due.toISOString():null,createdAt:new Date().toISOString()
+   });
+   if(msg)msg.textContent='Úkol přidán.';
+ }
+ localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();render();
+ if(inp)inp.value='';
+}
+
+function inboxState(){
+ if(!s.inbox)s.inbox=[];
+ return s.inbox;
+}
+function normalizeInbox(){
+ const arr=inboxState();
+ const known=new Set(arr.map(x=>x.sourceId||x.id));
+ for(const t of (s.tasks||[])){
+   if(t.status==='HOTOVO')continue;
+   const id=t.id||t.title;
+   if(known.has(id))continue;
+   if((t.area||'')==='Inbox'){
+     arr.push({id:'inbox|'+id,sourceId:id,title:t.title,kind:'task',createdAt:t.createdAt||new Date().toISOString(),status:'NEW'});
+   }
+ }
+ return arr;
+}
+function routeInbox(id,action){
+ const item=inboxState().find(x=>x.id===id);if(!item)return;
+ item.status=action;item.routedAt=new Date().toISOString();
+ const title=item.title;
+ if(action==='UDĚLAT'){
+   const t=(s.tasks||[]).find(t=>(t.id||t.title)===item.sourceId);
+   if(t){t.area='Úkoly';t.status='UDĚLAT'}
+ }else if(action==='DELEGOVAT'){
+   const arr=delegationState();
+   const d=new Date(Date.now()+2*86400000);d.setHours(9,0,0,0);
+   arr.push({id:crypto?.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),title,week:weekKey(),owner:'',status:'WAITING',createdAt:new Date().toISOString(),followUpAt:d.toISOString(),note:'',doneAt:null,lastNudgeAt:null});
+   const t=(s.tasks||[]).find(t=>(t.id||t.title)===item.sourceId);if(t)t.status='HOTOVO';
+ }else if(action==='NAPLÁNOVAT'){
+   const t=(s.tasks||[]).find(t=>(t.id||t.title)===item.sourceId);
+   if(t){t.area='Plán';t.status='UDĚLAT';t.due=new Date(Date.now()+86400000).toISOString()}
+ }else if(action==='ČEKAT'){
+   const t=(s.tasks||[]).find(t=>(t.id||t.title)===item.sourceId);
+   if(t){t.area='Čekání';t.status='ČEKÁM'}
+ }else if(action==='ZAHODIT'){
+   const t=(s.tasks||[]).find(t=>(t.id||t.title)===item.sourceId);
+   if(t)t.status='HOTOVO';
+ }
+ localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();render();
+}
+function renderInboxZero(){
+ const box=document.getElementById('inboxzero');if(!box)return;
+ const all=normalizeInbox(),open=all.filter(x=>x.status==='NEW');
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">INBOX ZERO ENGINE</div><h2 style="margin:4px 0">Rozhodni, neukládej</h2></div><span class="badge">${open.length} v inboxu</span></div>
+  ${open.length?open.slice(0,10).map(x=>`<div class="row">
+   <div><b>${x.title}</b><div class="muted">${new Date(x.createdAt).toLocaleString('cs-CZ')}</div></div>
+   <div class="form">
+    <button class="btn primary" onclick="routeInbox('${x.id}','UDĚLAT')">Udělat</button>
+    <button class="btn" onclick="routeInbox('${x.id}','DELEGOVAT')">Delegovat</button>
+    <button class="btn" onclick="routeInbox('${x.id}','NAPLÁNOVAT')">Naplánovat</button>
+    <button class="btn" onclick="routeInbox('${x.id}','ČEKAT')">Čekat</button>
+    <button class="btn" onclick="routeInbox('${x.id}','ZAHODIT')">Zahodit</button>
+   </div>
+  </div>`).join(''):'<p class="green">Inbox je čistý.</p>'}
+ </div>`;
+}
+
+function waitingForItems(){
+ const now=Date.now(), rows=[];
+ // Tasks explicitly waiting
+ for(const t of (s.tasks||[])){
+   if(t.status!=='ČEKÁM')continue;
+   const since=t.updatedAt||t.createdAt||null;
+   const days=since?Math.floor((now-new Date(since))/86400000):null;
+   rows.push({id:'task|'+(t.id||t.title),kind:'task',title:t.title,owner:t.owner||'',since,days,followUpAt:t.followUpAt||null,source:t});
+ }
+ // Delegations
+ try{
+   for(const d of delegationState()){
+     if(d.status==='DONE')continue;
+     const since=d.createdAt||null;
+     const days=since?Math.floor((now-new Date(since))/86400000):null;
+     rows.push({id:'del|'+d.id,kind:'delegation',title:d.title,owner:d.owner||'',since,days,followUpAt:d.followUpAt||null,source:d});
+   }
+ }catch{}
+ return rows.sort((a,b)=>{
+   const ao=a.followUpAt?new Date(a.followUpAt).getTime():Infinity;
+   const bo=b.followUpAt?new Date(b.followUpAt).getTime():Infinity;
+   return ao-bo;
+ });
+}
+function waitingUrgency(x){
+ const now=Date.now(); let score=0,reasons=[];
+ if(x.followUpAt){
+   const diff=(new Date(x.followUpAt).getTime()-now)/86400000;
+   if(diff<0){score+=50;reasons.push('follow-up po termínu')}
+   else if(diff<=1){score+=30;reasons.push('follow-up do 24 h')}
+   else if(diff<=3){score+=15;reasons.push('follow-up do 3 dnů')}
+ }
+ if(x.days!=null){
+   if(x.days>=7){score+=30;reasons.push(`čeká ${x.days} dní`)}
+   else if(x.days>=3){score+=15;reasons.push(`čeká ${x.days} dny`)}
+ }
+ if(!x.owner){score+=20;reasons.push('chybí vlastník')}
+ return {score:Math.min(100,score),reasons};
+}
+function setWaitingFollowup(id,days){
+ const x=waitingForItems().find(x=>x.id===id);if(!x)return;
+ const d=new Date();d.setDate(d.getDate()+days);d.setHours(9,0,0,0);
+ if(x.kind==='delegation'){x.source.followUpAt=d.toISOString();x.source.status='WAITING'}
+ else {x.source.followUpAt=d.toISOString();x.source.updatedAt=new Date().toISOString()}
+ localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();render();
+}
+function closeWaitingItem(id){
+ const x=waitingForItems().find(x=>x.id===id);if(!x)return;
+ if(x.kind==='delegation'){x.source.status='DONE';x.source.doneAt=new Date().toISOString()}
+ else{x.source.status='HOTOVO';x.source.updatedAt=new Date().toISOString()}
+ localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();render();
+}
+function renderWaitingFor(){
+ const box=document.getElementById('waitingfor');if(!box)return;
+ const rows=waitingForItems(), hot=rows.filter(x=>waitingUrgency(x).score>=40);
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">WAITING FOR ENGINE</div><h2 style="margin:4px 0">Všechno, co čeká na někoho jiného</h2></div><span class="${hot.length?'red':'green'}">${hot.length} urgentní</span></div>
+  ${rows.length?rows.slice(0,12).map(x=>{const u=waitingUrgency(x);return `<div class="row">
+   <div><b>${x.title}</b><div class="muted">${x.owner?`čeká na ${x.owner}`:'bez vlastníka'}${x.days!=null?` · ${x.days} dní`:''}${u.reasons.length?` · ${u.reasons.join(' · ')}`:''}</div></div>
+   <div class="form">
+    <span class="${u.score>=60?'red':u.score>=30?'amber':'green'}">${u.score}</span>
+    <button class="btn" onclick="setWaitingFollowup('${x.id}',1)">Zítra</button>
+    <button class="btn" onclick="setWaitingFollowup('${x.id}',3)">+3 dny</button>
+    <button class="btn primary" onclick="closeWaitingItem('${x.id}')">Vyřešeno</button>
+   </div>
+  </div>`}).join(''):'<p class="green">Na nikoho teď nečekáš.</p>'}
+ </div>`;
+}
+function followUpRadarItems(){
+ return waitingForItems().map(x=>({...x,urgency:waitingUrgency(x)}))
+   .filter(x=>x.urgency.score>=20)
+   .sort((a,b)=>b.urgency.score-a.urgency.score);
+}
+function renderFollowUpRadar(){
+ const box=document.getElementById('followupradar');if(!box)return;
+ const rows=followUpRadarItems().slice(0,8);
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="muted">FOLLOW-UP RADAR</div><h2 style="margin:4px 0 12px">Co už visí moc dlouho</h2>
+  ${rows.map((x,i)=>`<div class="row">
+    <div><b>${i+1}. ${x.title}</b><div class="muted">${x.urgency.reasons.join(' · ')||'aktivní čekání'}</div></div>
+    <div class="form"><span class="${x.urgency.score>=60?'red':'amber'}">${x.urgency.score}</span>
+    <button class="btn primary" onclick="setWaitingFollowup('${x.id}',1)">Follow-up</button></div>
+  </div>`).join('')||'<p class="green">Radar je čistý.</p>'}
+ </div>`;
+}
+
+function todaysBusyBlocks(){
+ const now=new Date(),start=dayStart(now),end=new Date(start.getTime()+86400000);
+ return (s.calendar?.events||[])
+  .filter(e=>e.busy&&!e.allDay&&new Date(e.start)<end&&new Date(e.end)>start)
+  .map(e=>({title:e.title,start:new Date(e.start),end:new Date(e.end)}))
+  .sort((a,b)=>a.start-b.start);
+}
+function minutesBetween(a,b){return Math.max(0,Math.round((b-a)/60000))}
+function mergeBusy(blocks){
+ if(!blocks.length)return [];
+ const out=[{...blocks[0]}];
+ for(const b of blocks.slice(1)){
+   const last=out[out.length-1];
+   if(b.start<=last.end){if(b.end>last.end)last.end=b.end}
+   else out.push({...b});
+ }
+ return out;
+}
+function workingWindow(){
+ const now=new Date();
+ const start=new Date(now);start.setHours(8,0,0,0);
+ const end=new Date(now);end.setHours(17,0,0,0);
+ return {start,end};
+}
+function freeWindows(){
+ const w=workingWindow(),busy=mergeBusy(todaysBusyBlocks()
+   .map(b=>({start:new Date(Math.max(b.start,w.start)),end:new Date(Math.min(b.end,w.end)),title:b.title}))
+   .filter(b=>b.end>b.start));
+ const out=[];let cur=new Date(w.start);
+ for(const b of busy){
+   if(b.start>cur)out.push({start:new Date(cur),end:new Date(b.start)});
+   if(b.end>cur)cur=new Date(b.end);
+ }
+ if(cur<w.end)out.push({start:new Date(cur),end:new Date(w.end)});
+ return out.filter(x=>minutesBetween(x.start,x.end)>=20);
+}
+function baseEstimateDuration(x){
+ if(x.kind==='calendar')return 0;
+ if(x.kind==='investment')return 20;
+ if(x.kind==='delegation')return 10;
+ if(x.kind==='finance')return 15;
+ if(x.kind==='routine'){
+   const t=(x.title||'').toLowerCase();
+   if(/docház|cesták|faktur/.test(t))return 25;
+   return 20;
+ }
+ const t=(x.title||'').toLowerCase();
+ if(/email|mail|zavolat|telefon|urgovat/.test(t))return 10;
+ if(/občank|řidič|úřad/.test(t))return 45;
+ return x.score>=75?45:x.score>=50?30:20;
+}
+function estimateDuration(x){
+ const base=baseEstimateDuration(x);
+ return typeof learnedDuration==='function'?learnedDuration(base):base;
+}
+function buildDayPlan(){
+ const now=new Date(),items=autoPriorityItems()
+   .filter(x=>x.kind!=='calendar')
+   .slice(0,10)
+   .map(x=>({...x,duration:estimateDuration(x)}));
+ const windows=freeWindows();
+ const plan=[],unplanned=[];
+ for(const item of items){
+   let placed=false;
+   for(const win of windows){
+     const available=minutesBetween(win.start,win.end);
+     if(available>=item.duration){
+       const st=new Date(win.start),en=new Date(st.getTime()+item.duration*60000);
+       plan.push({...item,start:st,end:en});
+       win.start=new Date(en.getTime()+5*60000);
+       placed=true;break;
+     }
+   }
+   if(!placed)unplanned.push(item);
+ }
+ return {plan,unplanned,windows:freeWindows(),busy:todaysBusyBlocks(),now};
+}
+function renderDayPlanner(){
+ const box=document.getElementById('dayplanner');if(!box)return;
+ const d=buildDayPlan();
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">DAY PLANNER</div><h2 style="margin:4px 0">Navržený den podle kalendáře a priorit</h2></div><span class="badge">${d.plan.length} bloků</span></div>
+  ${d.plan.map((x,i)=>`<div class="row">
+   <div><b>${String(x.start.getHours()).padStart(2,'0')}:${String(x.start.getMinutes()).padStart(2,'0')}–${String(x.end.getHours()).padStart(2,'0')}:${String(x.end.getMinutes()).padStart(2,'0')} · ${x.title}</b>
+   <div class="muted">${x.area} · ${x.duration} min · score ${x.score}</div></div>
+   <span class="${x.score>=75?'red':x.score>=50?'amber':'green'}">${i+1}</span>
+  </div>`).join('')||'<p class="muted">Není co plánovat nebo není volný pracovní blok.</p>'}
+  ${d.unplanned.length?`<hr><div class="muted">Nevlezlo se do dne</div>${d.unplanned.map(x=>`<div class="row"><b>${x.title}</b><span class="amber">${x.duration} min</span></div>`).join('')}`:''}
+ </div>`;
+}
+function capacitySummary(){
+ const busy=todaysBusyBlocks(),free=freeWindows();
+ const busyMin=busy.reduce((a,b)=>a+minutesBetween(b.start,b.end),0);
+ const freeMin=free.reduce((a,b)=>a+minutesBetween(b.start,b.end),0);
+ const planned=buildDayPlan();
+ const workMin=planned.plan.reduce((a,x)=>a+x.duration,0);
+ const demand=workMin+planned.unplanned.reduce((a,x)=>a+x.duration,0);
+ const load=freeMin?Math.round(demand/freeMin*100):999;
+ let state='V POHODĚ',severity='green';
+ if(load>120){state='PŘETÍŽENO';severity='red'}
+ else if(load>90){state='NA HRANĚ';severity='amber'}
+ return {busyMin,freeMin,workMin,demand,load,state,severity,unplanned:planned.unplanned};
+}
+function renderCapacityGuard(){
+ const box=document.getElementById('capacityguard');if(!box)return;
+ const c=capacitySummary();
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">CAPACITY GUARD</div><h2 style="margin:4px 0">Je dnešní plán vůbec reálný?</h2></div><div class="kpi ${c.severity}">${c.load===999?'—':c.load+'%'}</div></div>
+  <div class="grid">
+   <div class="card"><div class="muted">Kalendář</div><div class="kpi">${Math.round(c.busyMin/60*10)/10} h</div></div>
+   <div class="card"><div class="muted">Volná kapacita</div><div class="kpi">${Math.round(c.freeMin/60*10)/10} h</div></div>
+   <div class="card"><div class="muted">Požadovaná práce</div><div class="kpi">${Math.round(c.demand/60*10)/10} h</div></div>
+  </div>
+  <div class="row"><b>Stav dne</b><span class="${c.severity}">${c.state}</span></div>
+  ${c.load>100?`<div class="muted">Doporučení: odlož nebo deleguj alespoň ${Math.max(1,c.unplanned.length)} méně důležitou položku.</div>`:'<div class="green">Plán se vejde do dostupné kapacity.</div>'}
+ </div>`;
+}
+
+function executionLog(){
+ if(!s.executionLog)s.executionLog=[];
+ return s.executionLog;
+}
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function logExecution(title,planned,actual,status='DONE'){
+ executionLog().push({id:String(Date.now())+Math.random(),date:todayKey(),title,planned:Number(planned||0),actual:Number(actual||planned||0),status,at:new Date().toISOString()});
+}
+function closeDayAction(title,action){
+ const t=(s.tasks||[]).find(x=>x.title===title&&x.status!=='HOTOVO');
+ if(action==='DONE'){
+   if(t)t.status='HOTOVO';
+   logExecution(title,estimateDuration({kind:'task',title,score:50}),estimateDuration({kind:'task',title,score:50}),'DONE');
+ }else if(action==='TOMORROW'){
+   if(t){const d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);t.due=d.toISOString();t.updatedAt=new Date().toISOString()}
+ }else if(action==='DROP'){
+   if(t)t.status='HOTOVO';
+   logExecution(title,estimateDuration({kind:'task',title,score:30}),0,'DROPPED');
+ }
+ localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();render();
+}
+function eveningCloseData(){
+ const p=buildDayPlan(), open=p.plan.filter(x=>{
+   const t=(s.tasks||[]).find(t=>t.title===x.title);
+   return !t||t.status!=='HOTOVO';
+ });
+ const done=executionLog().filter(x=>x.date===todayKey()&&x.status==='DONE');
+ return {plan:p,open,done};
+}
+function renderEveningClose(){
+ const box=document.getElementById('eveningclose');if(!box)return;
+ const d=eveningCloseData(),hour=new Date().getHours();
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">EVENING CLOSE</div><h2 style="margin:4px 0">Uzavři den bez mentálního bordelu</h2></div><span class="${d.open.length?'amber':'green'}">${d.open.length} otevřených</span></div>
+  <div class="muted">${hour<16?'Můžeš použít kdykoliv; večer tu uvidíš nedokončený plán.':'Rozhodni každou nedokončenou věc: dokončeno, zítra, nebo zahodit.'}</div>
+  ${d.open.slice(0,8).map(x=>`<div class="row"><div><b>${x.title}</b><div class="muted">plán ${x.duration} min · score ${x.score}</div></div>
+   <div class="form"><button class="btn primary" onclick="closeDayAction('${x.title.replace(/'/g,"\\'")}','DONE')">Hotovo</button>
+   <button class="btn" onclick="closeDayAction('${x.title.replace(/'/g,"\\'")}','TOMORROW')">Zítra</button>
+   <button class="btn" onclick="closeDayAction('${x.title.replace(/'/g,"\\'")}','DROP')">Zahodit</button></div></div>`).join('')||'<p class="green">Dnešní plán je uzavřený.</p>'}
+ </div>`;
+}
+function executionLearning(){
+ const log=executionLog().filter(x=>x.status==='DONE'&&x.planned>0&&x.actual>=0);
+ const recent=log.slice(-50);
+ const ratio=recent.length?recent.reduce((a,x)=>a+(x.actual/x.planned),0)/recent.length:1;
+ const accuracy=recent.length?Math.max(0,Math.round(100-Math.abs(1-ratio)*100)):100;
+ const byType={short:[],medium:[],long:[]};
+ recent.forEach(x=>byType[x.planned<=15?'short':x.planned<=30?'medium':'long'].push(x.actual/x.planned));
+ const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:1;
+ return {count:recent.length,ratio,accuracy,multipliers:{short:avg(byType.short),medium:avg(byType.medium),long:avg(byType.long)}};
+}
+function learnedDuration(base){
+ const l=executionLearning();
+ const k=base<=15?l.multipliers.short:base<=30?l.multipliers.medium:l.multipliers.long;
+ return Math.max(5,Math.round(base*k/5)*5);
+}
+function renderExecutionLearning(){
+ const box=document.getElementById('executionlearning');if(!box)return;
+ const l=executionLearning();
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">EXECUTION LEARNING</div><h2 style="margin:4px 0">Plán se učí z reality</h2></div><div class="kpi ${l.accuracy>=80?'green':l.accuracy>=60?'amber':'red'}">${l.accuracy}%</div></div>
+  <div class="grid">
+   <div class="card"><div class="muted">Vzorků</div><div class="kpi">${l.count}</div></div>
+   <div class="card"><div class="muted">Realita vs plán</div><div class="kpi">${Math.round(l.ratio*100)}%</div></div>
+   <div class="card"><div class="muted">Odhad dlouhých úkolů</div><div class="kpi">${Math.round(l.multipliers.long*100)}%</div></div>
+  </div>
+  <div class="muted">${l.count<5?'Zatím sbírám data. Po několika uzavřených dnech začnou odhady dávat větší smysl.':'Day Planner používá tvoje historické tempo pro realističtější odhady.'}</div>
+ </div>`;
+}
+
+function weekRange(offset=0){
+ const d=new Date();d.setHours(0,0,0,0);
+ const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day+offset*7);
+ const start=new Date(d),end=new Date(d);end.setDate(end.getDate()+7);
+ return {start,end};
+}
+function weeklyOSData(){
+ const {start,end}=weekRange(0),prev=weekRange(-1);
+ const log=executionLog();
+ const inRange=(x,r)=>new Date(x.at||x.date)>=r.start&&new Date(x.at||x.date)<r.end;
+ const cur=log.filter(x=>inRange(x,{start,end})),old=log.filter(x=>inRange(x,prev));
+ const done=cur.filter(x=>x.status==='DONE').length;
+ const dropped=cur.filter(x=>x.status==='DROPPED').length;
+ const planned=cur.reduce((a,x)=>a+(x.planned||0),0),actual=cur.reduce((a,x)=>a+(x.actual||0),0);
+ const oldDone=old.filter(x=>x.status==='DONE').length;
+ const waiting=waitingForItems();
+ const overdue=waiting.filter(x=>waitingUrgency(x).score>=50);
+ const inbox=normalizeInbox().filter(x=>x.status==='NEW');
+ const q=typeof thesisReviewQueue==='function'?thesisReviewQueue():[];
+ const criticalInvest=q.filter(x=>x.reviewPriority==='KRITICKÁ'||x.reviewPriority==='VYSOKÁ');
+ const followups=followUpRadarItems();
+ const score=Math.max(0,Math.min(100,
+   70 + done*3 - dropped*4 - overdue.length*5 - inbox.length*2 - criticalInvest.length*3
+ ));
+ return {start,end,done,dropped,planned,actual,oldDone,waiting,overdue,inbox,criticalInvest,followups,score};
+}
+function renderWeeklyOS(){
+ const box=document.getElementById('weeklyos');if(!box)return;
+ const w=weeklyOSData();
+ const trend=w.done-w.oldDone;
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">WEEKLY OPERATING SYSTEM</div><h2 style="margin:4px 0">Jak si systém vede tento týden</h2></div><div class="kpi ${w.score>=80?'green':w.score>=60?'amber':'red'}">${w.score}</div></div>
+  <div class="grid">
+   <div class="card"><div class="muted">Dokončeno</div><div class="kpi green">${w.done}</div><div class="muted">${trend>=0?'+':''}${trend} vs minulý týden</div></div>
+   <div class="card"><div class="muted">Po termínu čekání</div><div class="kpi ${w.overdue.length?'red':'green'}">${w.overdue.length}</div></div>
+   <div class="card"><div class="muted">Inbox</div><div class="kpi ${w.inbox.length?'amber':'green'}">${w.inbox.length}</div></div>
+   <div class="card"><div class="muted">Investiční review</div><div class="kpi ${w.criticalInvest.length?'amber':'green'}">${w.criticalInvest.length}</div></div>
+  </div>
+  <div class="row"><b>Plánovaný čas</b><span>${Math.round(w.planned/60*10)/10} h</span></div>
+  <div class="row"><b>Reálný čas</b><span>${Math.round(w.actual/60*10)/10} h</span></div>
+  <div class="row"><b>Follow-up radar</b><span>${w.followups.length}</span></div>
+ </div>`;
+}
+function decisionReviewData(){
+ const lessons=typeof lessonsLearned==='function'?lessonsLearned():null;
+ const exec=executionLearning();
+ const week=weeklyOSData();
+ const signals=[];
+ if(exec.count>=5&&exec.ratio>1.2)signals.push({type:'amber',title:'Podceňuješ čas',detail:`Úkoly trvají průměrně ${Math.round(exec.ratio*100)} % plánu.`});
+ if(exec.count>=5&&exec.ratio<0.8)signals.push({type:'green',title:'Plánuješ s rezervou',detail:`Úkoly trvají průměrně ${Math.round(exec.ratio*100)} % plánu.`});
+ if(week.overdue.length>=3)signals.push({type:'amber',title:'Follow-up disciplína potřebuje pozornost',detail:`${week.overdue.length} věcí je po termínu kontroly.`});
+ if(week.inbox.length>=5)signals.push({type:'amber',title:'Inbox se plní rychleji než čistí',detail:`${week.inbox.length} nerozhodnutých položek.`});
+ if(lessons?.winnerEarly?.length>=2)signals.push({type:'amber',title:'Investice: pozor na předčasný prodej vítězů',detail:`${lessons.winnerEarly.length} historických exitů pokračovalo nahoru.`});
+ if(lessons?.loserSaved?.length>=2)signals.push({type:'green',title:'Investice: dobré řezání části ztrát',detail:`${lessons.loserSaved.length} exitů zabránilo dalšímu poklesu.`});
+ if(!signals.length)signals.push({type:'green',title:'Bez výrazného slabého vzorce',detail:'Systém zatím nevidí opakující se problém.'});
+ return {signals,exec,week};
+}
+function renderDecisionReview(){
+ const box=document.getElementById('decisionreview');if(!box)return;
+ const d=decisionReviewData();
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="muted">DECISION REVIEW</div><h2 style="margin:4px 0 12px">Kde tě má systém příště brzdit</h2>
+  ${d.signals.map(s=>`<div class="row"><div><b>${s.title}</b><div class="muted">${s.detail}</div></div><span class="${s.type}">${s.type==='green'?'OK':'POZOR'}</span></div>`).join('')}
+ </div>`;
+}
+function controlCenterState(){
+ const a=autoPriorityItems(),fresh=dataFreshnessScore(),sync=syncHealth();
+ const fire=a.filter(x=>x.score>=70).slice(0,5);
+ const waiting=a.filter(x=>x.kind==='delegation'&&/čeká|aktivní/i.test((x.reasons||[]).join(' '))).slice(0,5);
+ const ignore=a.filter(x=>x.score<30).slice(0,5);
+ return {a,fresh,sync,fire,waiting,ignore};
+}
+function renderControlCenter(){
+ const box=document.getElementById('controlcenter');if(!box)return;
+ const c=controlCenterState();
+ box.innerHTML=`<div class="card full" style="margin-bottom:14px">
+  <div class="row"><div><div class="muted">KAMIL OS 5.0 · CONTROL CENTER</div><h2 style="margin:4px 0">Jeden pohled. Tři stavy.</h2></div><span class="${c.fresh.score>=85?'green':c.fresh.score>=65?'amber':'red'}">${c.fresh.score}% data</span></div>
+  <div class="grid">
+   <div class="card"><div class="muted">🔥 CO HOŘÍ</div><div class="kpi ${c.fire.length?'red':'green'}">${c.fire.length}</div>${c.fire.slice(0,3).map(x=>`<div class="muted">${x.title} · ${x.score}</div>`).join('')||'<div class="green">Nic kritického</div>'}</div>
+   <div class="card"><div class="muted">⏳ CO ČEKÁ</div><div class="kpi">${c.waiting.length}</div>${c.waiting.slice(0,3).map(x=>`<div class="muted">${x.title}</div>`).join('')||'<div class="muted">Nic zásadního</div>'}</div>
+   <div class="card"><div class="muted">✓ CO IGNOROVAT</div><div class="kpi green">${c.ignore.length}</div><div class="muted">nízký dopad · score &lt; 30</div></div>
+  </div>
+  <div class="row"><div><b>Režim rozhodování</b><div class="muted">${c.fresh.state}</div></div><button class="btn primary" onclick="syncAll()">Refresh vše</button></div>
+  ${(s.notes||[]).length?`<div class="row"><div><b>Poslední poznámka</b><div class="muted">${s.notes[0].text}</div></div><span>${new Date(s.notes[0].createdAt).toLocaleDateString('cs-CZ')}</span></div>`:''}
+ </div>`;
+}
+function executiveHomeData(){
+ const now=new Date(), today=dayStart(now);
+ const tasks=(s.tasks||[]).filter(t=>t.status!=='HOTOVO');
+ const highTasks=tasks.filter(t=>String(t.priority).toUpperCase()==='HIGH'||Number(t.priority)>=90);
+ const routines=(s.routines||[]).map(r=>({r,d:due(r)})).filter(x=>{
+   const diff=daysBetween(x.d,today); return diff>=0&&diff<=3&&!s.routineDone?.[key(x.r,x.d)];
+ });
+ const cal=(s.calendar?.events||[]).filter(e=>{
+   const st=new Date(e.start);return daysBetween(st,today)>=0&&daysBetween(st,today)<=1;
+ }).sort((a,b)=>new Date(a.start)-new Date(b.start));
+ const deleg=typeof delegationState==='function'?delegationState().filter(x=>x.status!=='DONE'):[];
+ const overdueDeleg=deleg.filter(x=>x.followUpAt&&new Date(x.followUpAt)<now);
+ const fs=typeof financeSummary==='function'?financeSummary():{scheduled:[],scheduledTotal:0};
+ const nextPayments=(fs.scheduled||[]).slice(0,5);
+ const thesisQ=typeof thesisReviewQueue==='function'?thesisReviewQueue():[];
+ const investCritical=thesisQ.filter(x=>x.reviewPriority==='KRITICKÁ'||x.reviewPriority==='VYSOKÁ').slice(0,3);
+ const next=typeof nextMeeting==='function'?nextMeeting():null;
+
+ const auto=autoPriorityItems();
+ const critical=auto.slice(0,5).map(x=>({area:x.area,title:x.title,why:x.reasons.slice(0,2).join(' · '),score:x.score}));
+ return {tasks,highTasks,routines,cal,deleg,overdueDeleg,fs,nextPayments,investCritical,next,critical,auto};
+}
+function renderExecutiveHome(){
+ const box=document.getElementById('executivehome');if(!box)return;
+ const d=executiveHomeData();
+ const fresh=dataFreshnessScore();
+ const focus=d.critical.slice(0,3);
+ box.innerHTML=`<div class="grid" style="margin-bottom:14px">
+  <div class="card hero wide">
+   <div class="muted">EXECUTIVE HOME</div>
+   <h1 style="margin:6px 0 14px">Co dnes opravdu řešit</h1>
+   ${fresh.score<65?`<div class="row"><b>⚠ Data nejsou dost čerstvá</b><span class="red">${fresh.score}% confidence</span></div>`:''}
+   ${focus.length?focus.map((x,i)=>`<div class="row"><div><b>${i+1}. ${x.title}</b><div class="muted">${x.area} · ${x.why}</div></div><span>${Math.round(x.score)}</span></div>`).join(''):'<p class="green">Nic kritického. Můžeš jet podle normálního plánu.</p>'}
+  </div>
+  <div class="card">
+   <div class="muted">Čeká na ostatní</div><div class="kpi">${d.deleg.length}</div>
+   <div class="${d.overdueDeleg.length?'red':'green'}">${d.overdueDeleg.length} po termínu kontroly</div>
+  </div>
+  <div class="card">
+   <div class="muted">Příští schůzka</div><div class="title">${d.next?d.next.e.title:'—'}</div>
+   <div class="muted">${d.next?(d.next.ongoing?'probíhá':d.next.mins<60?'za '+d.next.mins+' min':new Date(d.next.e.start).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})):'bez schůzky'}</div>
+  </div>
+  <div class="card">
+   <div class="muted">Platby 31 dní</div><div class="kpi">${cz(d.fs.scheduledTotal||0)}</div><div class="muted">${d.nextPayments.length} nejbližších plateb</div>
+  </div>
+  <div class="card">
+   <div class="muted">Investiční revize</div><div class="kpi ${d.investCritical.length?'amber':'green'}">${d.investCritical.length}</div>
+   <div class="muted">${d.investCritical.length?'vyžadují pozornost':'bez kritické revize'}</div>
+  </div>
+  <div class="card full">
+   <div class="row"><div><b>Dnes / zítra v kalendáři</b></div><span>${d.cal.length}</span></div>
+   ${d.cal.slice(0,6).map(e=>`<div class="row"><div><b>${e.title}</b><div class="muted">${new Date(e.start).toLocaleString('cs-CZ')}</div></div><span>${e.busy?'BUSY':'INFO'}</span></div>`).join('')||'<p class="muted">Nic zásadního.</p>'}
+  </div>
+  <div class="card full">
+   <div class="row"><div><b>Co můžeš ignorovat</b><div class="muted">Věci bez termínu, bez vysoké priority a bez aktivního rizika.</div></div><span class="green">FILTER</span></div>
+   <div class="muted">Dashboard schválně netlačí každou otevřenou položku. Cílem je zmenšit počet věcí, které musíš držet v hlavě.</div>
+  </div>
+ </div>`;
+}
 function morningCandidates(){
  const now=new Date(), today=dayStart(now), out=[];
 
@@ -1185,14 +2225,14 @@ function updateDelegation(id,key,value){
  if(key==='status'&&value==='DONE')x.doneAt=new Date().toISOString();
  if(key==='status'&&value==='NUDGE')x.lastNudgeAt=new Date().toISOString();
  localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();
- renderDelegationCenter();renderDelegationAccountability();renderMorningBrief();renderWeeklyPlanning();
+ renderDelegationCenter();renderDelegationAccountability();renderExecutiveHome();renderAutoPrioritizer();renderNextBestAction();renderSmartSync();renderFreshnessAlerts();renderControlCenter();renderInboxZero();renderWaitingFor();renderFollowUpRadar();renderDayPlanner();renderCapacityGuard();renderEveningClose();renderExecutionLearning();renderWeeklyOS();renderDecisionReview();renderMorningBrief();renderWeeklyPlanning();
 }
 function snoozeDelegation(id,days=2){
  const x=delegationState().find(d=>d.id===id);if(!x)return;
  const d=new Date();d.setDate(d.getDate()+days);d.setHours(9,0,0,0);
  x.followUpAt=d.toISOString();x.status='WAITING';
  localStorage.setItem('kamil-os-state',JSON.stringify(s));cloudSave();
- renderDelegationCenter();renderDelegationAccountability();renderMorningBrief();
+ renderDelegationCenter();renderDelegationAccountability();renderExecutiveHome();renderAutoPrioritizer();renderNextBestAction();renderSmartSync();renderFreshnessAlerts();renderControlCenter();renderInboxZero();renderWaitingFor();renderFollowUpRadar();renderDayPlanner();renderCapacityGuard();renderEveningClose();renderExecutionLearning();renderWeeklyOS();renderDecisionReview();renderMorningBrief();
 }
 function delegationCandidatesForMorning(){
  syncDelegationsFromPlanning();
