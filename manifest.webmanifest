@@ -1,0 +1,10 @@
+{
+  "name": "Kamil OS",
+  "short_name": "Kamil OS",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c0e12",
+  "theme_color": "#101319",
+  "description": "Kamil OS 20.0 Final Live Release"
+}
