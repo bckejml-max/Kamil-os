@@ -27,7 +27,7 @@ export function renderWork(){
    <div class="metric"><span>Aktivní projekty</span><b>${projects.length}</b></div>
   </div>
   <div class="work-layout">
-   <div class="card work-focus"><div class="card-head"><div><div class="eyebrow">AKČNÍ FRONTA</div><h2>Úkoly</h2></div><span class="status">${open} otevřených</span></div>
+   <div class="card work-focus"><div class="card-head"><div><div class="eyebrow">AKČNÍ FRONTA</div><h2>Úkoly</h2></div><div class="row-actions"><span class="status">${open} otevřených</span><button class="btn" data-capture-work>＋ Přidat</button></div></div>
     ${g.overdue.length?`<div class="work-section"><div class="work-section-title bad">Po termínu · ${g.overdue.length}</div>${g.overdue.map(t=>taskRow(t,'urgent')).join('')}</div>`:''}
     ${g.today.length?`<div class="work-section"><div class="work-section-title warn">Dnes · ${g.today.length}</div>${g.today.map(t=>taskRow(t,'today')).join('')}</div>`:''}
     ${g.week.length?`<div class="work-section"><div class="work-section-title">Tento týden · ${g.week.length}</div>${g.week.map(t=>taskRow(t)).join('')}</div>`:''}
@@ -41,6 +41,7 @@ export function renderWork(){
     </div>
    </div>
   </div>`;
+ qsa('[data-capture-work]',qs('#workView')).forEach(b=>b.onclick=()=>window.dispatchEvent(new CustomEvent('kamil:capture')));
  qsa('[data-work-done]',qs('#workView')).forEach(b=>b.onclick=()=>store.mutate('Hotovo: úkol',x=>{const t=x.tasks.find(y=>y.id===b.dataset.workDone);if(t){t.status='HOTOVO';t.updatedAt=new Date().toISOString()}}));
  qsa('[data-work-tomorrow]',qs('#workView')).forEach(b=>b.onclick=()=>store.mutate('Úkol přesunut na zítra',x=>{const t=x.tasks.find(y=>y.id===b.dataset.workTomorrow);if(t){const d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);t.due=d.toISOString();t.updatedAt=new Date().toISOString()}}));
  qsa('[data-project-next24]',qs('#workView')).forEach(b=>b.onclick=()=>editNext(b.dataset.projectNext24));
