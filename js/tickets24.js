@@ -21,12 +21,13 @@ export function renderTickets(){
    <div class="metric"><span>Brzy řešit</span><b class="${urgency?'warn':'good'}">${urgency}</b></div>
   </div>
   <div class="card ticket-table-card">
-   <div class="card-head"><div><div class="eyebrow">POZICE</div><h2>Všechny vstupenky</h2></div><span class="status">${items.length} pozic</span></div>
+   <div class="card-head"><div><div class="eyebrow">POZICE</div><h2>Všechny vstupenky</h2></div><div class="row-actions"><span class="status">${items.length} pozic</span><button class="btn" data-capture-tickets>＋ Přidat</button></div></div>
    <div class="ticket-table">
     <div class="ticket-head"><span>Akce</span><span>Stav</span><span>Datum</span><span>Nákup</span><span>Listing / prodej</span><span>P/L</span><span></span></div>
     ${items.map(row).join('')||'<div class="empty">Žádné vstupenky.</div>'}
    </div>
   </div>`;
+ qsa('[data-capture-tickets]',qs('#ticketsView')).forEach(b=>b.onclick=()=>window.dispatchEvent(new CustomEvent('kamil:capture')));
  qsa('[data-ticket-edit24]',qs('#ticketsView')).forEach(b=>b.onclick=()=>editTicket(b.dataset.ticketEdit24));
  qsa('[data-ticket-sell24]',qs('#ticketsView')).forEach(b=>b.onclick=()=>sellTicket(b.dataset.ticketSell24));
  qsa('[data-ticket-state24]',qs('#ticketsView')).forEach(b=>b.onclick=()=>store.mutate(`Vstupenka → ${b.dataset.ticketState24}`,s=>{const x=s.ticketBook.items.find(y=>y.id===b.dataset.ticketId24);if(x){x.workflow=b.dataset.ticketState24;if(x.workflow==='PAYOUT RECEIVED')x.payoutAt=new Date().toISOString()}}));
