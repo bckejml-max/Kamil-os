@@ -28,11 +28,11 @@ function eventMeta(e){
 
 export function renderToday(){
  const s=store.get(),rec=recommendation(s),sig=signals(s),nw=netWorth(s);
- const tasks=openTasks(s),urgentTasks=tasks.filter(x=>x.due&&dayDiff(x.due)<=1).slice(0,5);
+ const tasks=openTasks(s),urgentAll=tasks.filter(x=>x.due&&dayDiff(x.due)<=1),urgentTasks=urgentAll.slice(0,5);
  const projects=activeProjects(s).slice(0,4);
  const events=[...(s.calendar?.events||[])].filter(e=>{const v=eventStart(e);return !v||new Date(v).getTime()>=Date.now()-3600000}).sort((a,b)=>new Date(eventStart(a)||'9999')-new Date(eventStart(b)||'9999')).slice(0,5);
  const tickets=[...(s.ticketBook?.items||[])].map(x=>({x,st:ticketStatus(x)})).filter(y=>y.st.score>=60).sort((a,b)=>b.st.score-a.st.score).slice(0,4);
- const waiting=[...(s.delegations||[])].filter(x=>(x.status||'WAITING')!=='DONE').sort((a,b)=>waitAge(b)-waitAge(a)).slice(0,5);
+ const waitingAll=[...(s.delegations||[])].filter(x=>(x.status||'WAITING')!=='DONE').sort((a,b)=>waitAge(b)-waitAge(a)),waiting=waitingAll.slice(0,5);
  const doneToday=(s.audit||[]).filter(x=>x.label?.startsWith('Hotovo')&&new Date(x.at).toDateString()===new Date().toDateString()).length;
  const inbox=(s.inbox||[]).filter(x=>x.status!=='DONE').length;
  const nextSignals=sig.slice(1,4);
@@ -45,16 +45,18 @@ export function renderToday(){
     <div class="feedback"><button class="btn primary" id="focusOpen">Vyřešit teď</button><button class="btn" id="focusGood">Sedí</button><button class="btn" id="focusBad">Nesedí</button></div>
   </div>
 
-  <div class="grid" style="margin-bottom:14px">
-    <div class="kpi"><div class="l">Kritické / dnes</div><div class="v ${urgentTasks.length?'bad':'good'}">${urgentTasks.length}</div></div>
-    <div class="kpi"><div class="l">Čekám na</div><div class="v ${waiting.length?'warn':'good'}">${waiting.length}</div></div>
-    <div class="kpi"><div class="l">Potřebuje pozornost</div><div class="v">${attentionCount(s)}</div></div>
+  <div class="metric-strip today-metrics">
+    <div class="metric"><span>Kritické / dnes</span><b class="${urgentAll.length?'bad':'good'}">${urgentAll.length}</b></div>
+    <div class="metric"><span>Čekám na</span><b class="${waitingAll.length?'warn':'good'}">${waitingAll.length}</b></div>
+    <div class="metric"><span>Hotovo dnes</span><b>${doneToday}</b></div>
+    <div class="metric"><span>Potřebuje pozornost</span><b>${attentionCount(s)}</b></div>
   </div>
 
   <div class="grid two">
     <div class="card">
       <div class="eyebrow">DNES A PO TERMÍNU</div>
       ${urgentTasks.map(t=>`<div class="row"><div><b>${h(t.title)}</b><div class="muted">${taskMeta(t)}</div></div><div class="row-actions"><button class="btn primary" data-today-done="${t.id}">Hotovo</button><button class="btn" data-today-tomorrow="${t.id}">Zítra</button></div></div>`).join('')||'<div class="empty">Nic nehoří. Můžeš řešit další krok.</div>'}
+      ${urgentAll.length>urgentTasks.length?`<div class="muted" style="padding-top:8px">+ ${urgentAll.length-urgentTasks.length} dalších kritických úkolů</div>`:''}
       ${tasks.length>urgentTasks.length?`<button class="btn" data-nav="work" style="margin-top:10px">Všechny úkoly · ${tasks.length}</button>`:''}
     </div>
     <div class="card">
@@ -84,7 +86,7 @@ export function renderToday(){
   </div>
 
   <div class="grid two" style="margin-top:2px">
-    <div class="card"><div class="eyebrow">ČEKÁM NA</div>${waiting.map(x=>`<div class="row"><div><b>${h(x.title||x.person||'Čekající položka')}</b><div class="muted">${waitAge(x)} dní čekání</div></div><button class="btn" data-wait-done="${x.id}">Vyřešeno</button></div>`).join('')||'<div class="empty">Na nikoho kriticky nečekáš.</div>'}</div>
+    <div class="card"><div class="eyebrow">ČEKÁM NA</div>${waiting.map(x=>`<div class="row"><div><b>${h(x.title||x.person||'Čekající položka')}</b><div class="muted">${waitAge(x)} dní čekání</div></div><button class="btn" data-wait-done="${x.id}">Vyřešeno</button></div>`).join('')||'<div class="empty">Na nikoho kriticky nečekáš.</div>'}${waitingAll.length>waiting.length?`<div class="muted" style="padding-top:8px">+ ${waitingAll.length-waiting.length} dalších čekajících položek</div>`:''}</div>
     <div class="card"><div class="eyebrow">RADAR</div>${nextSignals.map(x=>`<div class="row"><div><b>${h(x.title)}</b><div class="muted">${h(x.type)} · ${h(x.reason)}</div></div><span class="status ${x.score>=85?'bad':x.score>=65?'warn':'good'}">${x.score}</span></div>`).join('')||'<div class="empty">Žádný další výrazný signál.</div>'}${inbox?`<div class="row"><div><b>Inbox</b><div class="muted">${inbox} položek čeká na rozhodnutí</div></div><button class="btn" data-more-nav="inbox">Projít</button></div>`:''}</div>
   </div>
  `;
