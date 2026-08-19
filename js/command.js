@@ -8,6 +8,10 @@ const navigateFromTarget=t=>{
   window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));
  }else window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:t||'today'}));
 };
+const openResult=x=>{
+ if(x?.kind==='Projekt'&&x.id){window.dispatchEvent(new CustomEvent('kamil:project',{detail:x.id}));return}
+ navigateFromTarget(x?.target);
+};
 const cmdFingerprints=new Map();
 function once(key,fn){
  const now=Date.now(),last=cmdFingerprints.get(key)||0;
@@ -18,7 +22,7 @@ const S=()=>store.get();
 export function search(q){
  q=norm(q);if(!q)return[];const out=[],add=(kind,title,detail,target,id)=>{if(norm(title+' '+detail).includes(q))out.push({kind,title,detail,target,id})};
  for(const x of S().tasks||[])if(x.status!=='HOTOVO')add('Úkol',x.title,x.area||'','work',x.id);
- for(const x of S().projects||[])add('Projekt',x.name,x.next||'','work',x.id);
+ for(const x of S().projects||[])if(!/hotov|archiv/i.test(x.status||''))add('Projekt',x.name,[x.owner,x.next].filter(Boolean).join(' · '),'work',x.id);
  for(const x of S().delegations||[])if((x.status||'WAITING')!=='DONE')add('Čekám',x.title||x.person||'Čekající položka',x.person||'čeká na reakci','waiting',x.id);
  for(const x of S().ticketBook?.items||[])add('Vstupenka',x.name,`${x.qty||1} ks`,'tickets',x.id);
  for(const x of S().debtBook?.items||[])if(x.status!=='PAID')add('Pohledávka',x.person,`${money(debtRemaining(x))}`,'debts',x.id);
@@ -44,7 +48,7 @@ export function execute(raw){
  }
  if(c.type==='project'){
    if(!c.name)return toast('Napiš název projektu.');
-   store.mutate('Přidán projekt',s=>{s.projects=s.projects||[];s.projects.unshift({id:uid('project'),name:c.name,status:'Aktivní',next:'Doplnit další krok',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})});toast('Projekt přidán');return
+   store.mutate('Přidán projekt',s=>{s.projects=s.projects||[];s.projects.unshift({id:uid('project'),name:c.name,status:'Aktivní',next:'Doplnit další krok',risk:'LOW',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})});toast('Projekt přidán');return
  }
  if(c.type==='payment'){
    const x=S().debtBook.items.find(d=>d.status!=='PAID'&&norm(d.person).includes(norm(c.person)));if(!x||!Number.isFinite(c.amount)||c.amount<=0)return toast('Pohledávku nebo částku jsem nenašel.');
@@ -61,7 +65,7 @@ export function execute(raw){
    store.mutate('Přidán úkol na zítra',s=>{const d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);s.tasks.unshift({id:uid('task'),title,status:'UDĚLAT',priority:'NORMAL',area:'Osobní',due:d.toISOString(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})});toast('Úkol přidán na zítra');return
  }
  const found=search(c.text);
- if(found.length===1){navigateFromTarget(found[0].target);return}
+ if(found.length===1){openResult(found[0]);return}
  if(found.length>1){renderResults(c.text);toast('Našel jsem více výsledků – vyber správný.');return}
  store.mutate('Přidán úkol',s=>s.tasks.unshift({id:uid('task'),title:c.text,status:'UDĚLAT',priority:'NORMAL',area:'Osobní',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));
  toast('Úkol přidán');
@@ -69,5 +73,5 @@ export function execute(raw){
 export function renderResults(q){
  const box=qs('#commandResults'),a=search(q);if(!q.trim()||!a.length){box.classList.add('hidden');box.innerHTML='';return}
  box.classList.remove('hidden');box.innerHTML=a.map((x,i)=>`<div class="search-row"><div><b>${h(x.title)}</b><div class="muted">${h(x.kind)} · ${h(x.detail||'')}</div></div><button class="btn" data-search="${i}">Otevřít</button></div>`).join('');
- qsa('[data-search]',box).forEach(b=>b.onclick=()=>{navigateFromTarget(a[Number(b.dataset.search)].target);box.classList.add('hidden')});
+ qsa('[data-search]',box).forEach(b=>b.onclick=()=>{openResult(a[Number(b.dataset.search)]);box.classList.add('hidden')});
 }
