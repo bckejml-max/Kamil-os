@@ -1,4 +1,4 @@
-const CACHE='kamil-os-24.2.0-shell-r2';
+const CACHE='kamil-os-24.3.0-shell-r1';
 const ASSETS=['./','./index.html','./styles.css','./styles24.css','./capture24.css','./manifest.webmanifest','./js/config.js','./js/utils.js','./js/state.js','./js/cloud.js','./js/intelligence.js','./js/today24.js','./js/work24.js','./js/money24.js','./js/tickets24.js','./js/more24.js','./js/capture24.js','./js/command.js','./js/app.js','./js/preflight.js','./icons/icon-192.png','./icons/icon-512.png'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
