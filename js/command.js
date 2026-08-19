@@ -3,7 +3,7 @@ import {norm,h,money,uid,qs,qsa,toast} from './utils.js';
 import {debtRemaining} from './intelligence.js';
 
 const navigateFromTarget=t=>{
- if(t==='debts'||t==='inbox'||t==='terms'||t==='backup'||t==='settings'||t==='system'){
+ if(t==='debts'||t==='inbox'||t==='waiting'||t==='terms'||t==='backup'||t==='settings'||t==='system'){
   window.dispatchEvent(new CustomEvent('kamil:more',{detail:t}));
   window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));
  }else window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:t||'today'}));
@@ -19,14 +19,14 @@ export function search(q){
  q=norm(q);if(!q)return[];const out=[],add=(kind,title,detail,target,id)=>{if(norm(title+' '+detail).includes(q))out.push({kind,title,detail,target,id})};
  for(const x of S().tasks||[])if(x.status!=='HOTOVO')add('Úkol',x.title,x.area||'','work',x.id);
  for(const x of S().projects||[])add('Projekt',x.name,x.next||'','work',x.id);
- for(const x of S().delegations||[])if((x.status||'WAITING')!=='DONE')add('Čekám',x.title||x.person||'Čekající položka','čeká na reakci','today',x.id);
+ for(const x of S().delegations||[])if((x.status||'WAITING')!=='DONE')add('Čekám',x.title||x.person||'Čekající položka',x.person||'čeká na reakci','waiting',x.id);
  for(const x of S().ticketBook?.items||[])add('Vstupenka',x.name,`${x.qty||1} ks`,'tickets',x.id);
  for(const x of S().debtBook?.items||[])if(x.status!=='PAID')add('Pohledávka',x.person,`${money(debtRemaining(x))}`,'debts',x.id);
  return out.slice(0,10);
 }
 export function parse(raw){
  const t=String(raw||'').trim(),n=norm(t);if(!n)return{type:'empty'};
- const nav={'ukaž dluhy':'debts','ukaz dluhy':'debts','ukaž pohledávky':'debts','ukaz pohledavky':'debts','ukaž vstupenky':'tickets','ukaz vstupenky':'tickets','ukaž práci':'work','ukaz praci':'work','ukaž peníze':'money','ukaz penize':'money','ukaž inbox':'inbox','ukaz inbox':'inbox','ukaž termíny':'terms','ukaz terminy':'terms'};
+ const nav={'ukaž dluhy':'debts','ukaz dluhy':'debts','ukaž pohledávky':'debts','ukaz pohledavky':'debts','ukaž vstupenky':'tickets','ukaz vstupenky':'tickets','ukaž práci':'work','ukaz praci':'work','ukaž peníze':'money','ukaz penize':'money','ukaž inbox':'inbox','ukaz inbox':'inbox','ukaž termíny':'terms','ukaz terminy':'terms','ukaž čekám na':'waiting','ukaz cekam na':'waiting','co čeká':'waiting','co ceka':'waiting'};
  if(nav[n])return{type:'nav',target:nav[n]};
  let m=t.match(/^ček[aá]m\s+na\s+(.+)$/i);if(m)return{type:'waiting',title:m[1].trim()};
  m=t.match(/^projekt\s+(.+)$/i);if(m)return{type:'project',name:m[1].trim()};
