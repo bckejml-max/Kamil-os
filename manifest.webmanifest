@@ -1,11 +1,11 @@
 {
-  "name": "Kamil OS 22.3.4",
+  "name": "Kamil OS 24",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 22.3.4 Reliability",
+  "description": "Kamil OS 24 Personal Command Center",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0b0f15",
-  "theme_color": "#0d1118",
+  "background_color": "#080b10",
+  "theme_color": "#080b10",
   "icons": [
     {
       "src": "./icons/icon-192.png",
