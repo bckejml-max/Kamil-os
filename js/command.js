@@ -1,9 +1,13 @@
 import {store} from './state.js';
 import {norm,h,money,uid,qs,qsa,toast} from './utils.js';
 import {debtRemaining} from './intelligence.js';
-import {navigateFromTarget} from './render.js';
 
-
+const navigateFromTarget=t=>{
+ if(t==='debts'||t==='inbox'||t==='terms'||t==='backup'||t==='settings'||t==='system'){
+  window.dispatchEvent(new CustomEvent('kamil:more',{detail:t}));
+  window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));
+ }else window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:t||'today'}));
+};
 const cmdFingerprints=new Map();
 function once(key,fn){
  const now=Date.now(),last=cmdFingerprints.get(key)||0;
@@ -16,12 +20,12 @@ export function search(q){
  for(const x of S().tasks||[])if(x.status!=='HOTOVO')add('Úkol',x.title,x.area||'','work',x.id);
  for(const x of S().projects||[])add('Projekt',x.name,x.next||'','work',x.id);
  for(const x of S().ticketBook?.items||[])add('Vstupenka',x.name,`${x.qty||1} ks`,'tickets',x.id);
- for(const x of S().debtBook?.items||[])if(x.status!=='PAID')add('Dluh',x.person,`${money(debtRemaining(x))}`,'debts',x.id);
+ for(const x of S().debtBook?.items||[])if(x.status!=='PAID')add('Pohledávka',x.person,`${money(debtRemaining(x))}`,'debts',x.id);
  return out.slice(0,10);
 }
 export function parse(raw){
  const t=String(raw||'').trim(),n=norm(t);if(!n)return{type:'empty'};
- const nav={'ukaž dluhy':'debts','ukaz dluhy':'debts','ukaž vstupenky':'tickets','ukaz vstupenky':'tickets','ukaž práci':'work','ukaz praci':'work','ukaž peníze':'money','ukaz penize':'money','ukaž inbox':'inbox','ukaz inbox':'inbox'};
+ const nav={'ukaž dluhy':'debts','ukaz dluhy':'debts','ukaž pohledávky':'debts','ukaz pohledavky':'debts','ukaž vstupenky':'tickets','ukaz vstupenky':'tickets','ukaž práci':'work','ukaz praci':'work','ukaž peníze':'money','ukaz penize':'money','ukaž inbox':'inbox','ukaz inbox':'inbox','ukaž termíny':'terms','ukaz terminy':'terms'};
  if(nav[n])return{type:'nav',target:nav[n]};
  let m=n.match(/^(.+?)\s+spl[aá]tka\s+([\d\s.,]+)$/);if(m)return{type:'payment',person:m[1],amount:Number(m[2].replace(/\s/g,'').replace(',','.'))};
  m=n.match(/^(.+?)\s+prod[aá]no$/);if(m)return{type:'sold',name:m[1]};
@@ -30,9 +34,9 @@ export function parse(raw){
 }
 export function execute(raw){
  const c=parse(raw);if(c.type==='empty')return;
- if(c.type==='nav'){if(c.target==='inbox'){window.dispatchEvent(new CustomEvent('kamil:more',{detail:'inbox'}));window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}))}else navigateFromTarget(c.target);return}
+ if(c.type==='nav'){navigateFromTarget(c.target);return}
  if(c.type==='payment'){
-   const x=S().debtBook.items.find(d=>d.status!=='PAID'&&norm(d.person).includes(norm(c.person)));if(!x||!Number.isFinite(c.amount)||c.amount<=0)return toast('Dluh nebo částku jsem nenašel.');
+   const x=S().debtBook.items.find(d=>d.status!=='PAID'&&norm(d.person).includes(norm(c.person)));if(!x||!Number.isFinite(c.amount)||c.amount<=0)return toast('Pohledávku nebo částku jsem nenašel.');
    once(`pay|${x.id}|${c.amount}`,()=>store.mutate(`Splátka ${x.person}`,s=>{const d=s.debtBook.items.find(y=>y.id===x.id);d.payments=d.payments||[];d.payments.push({id:uid('payment'),amount:c.amount,at:new Date().toISOString()});d.lastContactAt=new Date().toISOString()}));return
  }
  if(c.type==='sold'){
@@ -46,7 +50,6 @@ export function execute(raw){
  const found=search(c.text);
  if(found.length===1){navigateFromTarget(found[0].target);return}
  if(found.length>1){renderResults(c.text);toast('Našel jsem více výsledků – vyber správný.');return}
- // Only unmatched free text becomes a new task.
  store.mutate('Přidán úkol',s=>s.tasks.unshift({id:uid('task'),title:c.text,status:'UDĚLAT',priority:'NORMAL',area:'Osobní',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));
  toast('Úkol přidán');
 }
