@@ -2,7 +2,7 @@ import {APP_VERSION} from './config.js';
 import {store} from './state.js';
 import {sb,login,logout,session,loadCloud,loadDataHubs,resolveConflict,conflictSummary,onSyncStatus,flushQueue,sendPasswordReset,updatePassword} from './cloud.js';
 import {qs,qsa,toast,modal} from './utils.js';
-import {renderMore,setMoreMode} from './render.js';
+import {renderMore,setMoreMode} from './more24.js';
 import {renderToday} from './today24.js';
 import {renderWork} from './work24.js';
 import {renderMoney} from './money24.js';
