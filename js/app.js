@@ -23,6 +23,8 @@ let current='today';
 let recoveryMode=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
 const renderers={today:renderToday,work:renderWork,money:renderMoney,tickets:renderTickets,more:renderMore};
 const pageTitles={today:'DNES',work:'PRÁCE',money:'PENÍZE',tickets:'VSTUPENKY',more:'VÍCE'};
+const captureTypeForView=()=>({work:'task',money:'debt',tickets:'ticket'})[current]||null;
+const openCapture=(type=null)=>withActionLock(()=>openQuickCapture(type||captureTypeForView()));
 
 function maybeNotify(){
  if(!('Notification'in window)||Notification.permission!=='granted'||document.visibilityState==='visible')return;
@@ -39,6 +41,7 @@ function updateChrome(){
  const count=attentionCount(s),b=qs('#moreBadge');if(b){b.textContent=count;b.classList.toggle('hidden',!count)}
  qsa('[data-view]').forEach(x=>x.classList.toggle('on',x.dataset.view===current));
  qs('#undoBtn').disabled=!(s.undo||[]).length;
+ const add=qs('#quickAddBtn');if(add){const label={work:'Úkol',money:'Pohledávka',tickets:'Vstupenka'}[current]||'Přidat';const text=qs('b',add);if(text)text.textContent=label;add.title=`Rychle přidat ${label.toLowerCase()} · Ctrl N`}
 }
 function render(){
  updateChrome();renderers[current]?.();
@@ -54,12 +57,12 @@ qsa('[data-view]').forEach(x=>x.onclick=()=>navigate(x.dataset.view));
 window.addEventListener('kamil:navigate',e=>navigate(e.detail));
 window.addEventListener('kamil:more',e=>setMoreMode(e.detail));
 window.addEventListener('kamil:logout',()=>logout());
-window.addEventListener('kamil:capture',()=>withActionLock(()=>openQuickCapture()));
+window.addEventListener('kamil:capture',e=>openCapture(e.detail||null));
 
 store.subscribe(()=>{render();maybeNotify()});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
 qs('#logoutBtn').onclick=()=>logout();
-qs('#quickAddBtn')?.addEventListener('click',()=>withActionLock(()=>openQuickCapture()));
+qs('#quickAddBtn')?.addEventListener('click',()=>openCapture());
 
 const input=qs('#commandInput');
 input.oninput=()=>renderResults(input.value);
@@ -67,7 +70,7 @@ input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const v=input.value;w
 qs('#commandGo').onclick=()=>{const v=input.value;withActionLock(()=>execute(v));input.value='';renderResults('')};
 document.addEventListener('keydown',e=>{
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();input.focus();input.select()}
- if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='n'){e.preventDefault();withActionLock(()=>openQuickCapture())}
+ if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='n'){e.preventDefault();openCapture()}
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)){e.preventDefault();store.undo()}
 });
 document.addEventListener('click',e=>{if(!e.target.closest('.command-wrap'))renderResults('')});
