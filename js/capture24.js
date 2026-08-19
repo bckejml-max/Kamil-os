@@ -24,11 +24,11 @@ export async function openQuickCapture(initialType=null){
 }
 
 async function addTask(){
- const body=`<div class="form-grid capture-form"><label class="wide-field">Co je potřeba udělat<input id="capTaskTitle" autofocus placeholder="Např. Poslat PKS finální ZL"></label><label>Termín<input id="capTaskDue" type="date"></label><label>Projekt<select id="capTaskProject">${projectOptions()}</select></label><label>Oblast<input id="capTaskArea" value="Práce"></label><label>Priorita<select id="capTaskPriority"><option value="NORMAL">Normální</option><option value="HIGH">Vysoká</option></select></label></div>`;
+ const body=`<div class="form-grid capture-form"><label class="wide-field">Co je potřeba udělat<input id="capTaskTitle" autofocus placeholder="Např. Poslat PKS finální ZL"></label><label>Termín<input id="capTaskDue" type="date"></label><label>Projekt<select id="capTaskProject">${projectOptions()}</select></label><label>Odpovědnost<input id="capTaskOwner" placeholder="Kdo to má udělat"></label><label>Oblast<input id="capTaskArea" value="Práce"></label><label>Priorita<select id="capTaskPriority"><option value="NORMAL">Normální</option><option value="HIGH">Vysoká</option></select></label></div>`;
  const ok=await modal('Nový úkol',body,[{label:'Zrušit',value:false},{label:'Přidat úkol',value:true,primary:true}]);if(!ok)return false;
  const title=qs('#capTaskTitle')?.value?.trim();if(!title)return toast('Napiš název úkolu');
- const due=qs('#capTaskDue')?.value||'',projectId=qs('#capTaskProject')?.value||null,project=activeProjects().find(p=>p.id===projectId),area=project?.name||qs('#capTaskArea')?.value?.trim()||'Práce',priority=qs('#capTaskPriority')?.value||'NORMAL';
- store.mutate(`Přidán úkol: ${title}`,s=>s.tasks.unshift({id:uid('task'),title,status:'UDĚLAT',priority,area,projectId,due:isoFromDate(due),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));toast('Úkol přidán');return true;
+ const due=qs('#capTaskDue')?.value||'',projectId=qs('#capTaskProject')?.value||null,project=activeProjects().find(p=>p.id===projectId),area=project?.name||qs('#capTaskArea')?.value?.trim()||'Práce',owner=qs('#capTaskOwner')?.value?.trim()||project?.owner||'',priority=qs('#capTaskPriority')?.value||'NORMAL';
+ store.mutate(`Přidán úkol: ${title}`,s=>s.tasks.unshift({id:uid('task'),title,status:'UDĚLAT',priority,owner,area,projectId,due:isoFromDate(due),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));toast('Úkol přidán');return true;
 }
 
 async function addWaiting(){
