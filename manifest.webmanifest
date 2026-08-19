@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 24.1",
+  "name": "Kamil OS 24.2",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 24.1 Personal Command Center",
+  "description": "Kamil OS 24.2 Personal Command Center",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
