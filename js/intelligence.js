@@ -1,4 +1,5 @@
 import {money,dayDiff} from './utils.js';
+import {xtbBoard,xtbDataAge,ticketDecision} from './decision24.js';
 
 export const debtPaid=x=>(x.payments||[]).reduce((n,p)=>n+(Number(p.amount)||0),0);
 export const debtRemaining=x=>Math.max(0,(Number(x.amount)||0)-debtPaid(x));
@@ -57,7 +58,8 @@ export function signals(s){
    if(score>=55)add('Čekám',x.title||x.person||'Čekající položka',score,reason,'waiting',x.id,'Dlouhé čekání blokuje další krok.');
  }
  for(const x of s.debtBook?.items||[]){if(x.status==='PAID')continue;const st=debtStatus(x),rem=debtRemaining(x);if(st.score>=60)add('Dluh',`${x.person} · ${money(rem)}`,st.score,st.label,'debts',x.id,'Je vhodné udržet pohledávku aktivní.')}
- for(const x of s.ticketBook?.items||[]){const st=ticketStatus(x);if(st.score>=60)add('Vstupenky',x.name,st.score,st.label,'tickets',x.id,'Čas do akce ovlivňuje prodejní hodnotu.')}
+ for(const x of s.ticketBook?.items||[]){const d=ticketDecision(x);if(d.priority>=65)add('Vstupenky',x.name,d.priority,`${d.action} · ${d.when}`,'tickets',x.id,d.sellRule)}
+ const age=xtbDataAge(s);if(age.days!==null&&age.days<=3){for(const {p,d} of xtbBoard(s).slice(0,4)){if(d.priority>=75)add('XTB',`${p.ticker} · ${d.action}`,d.priority,d.when,'money',p.ticker,d.reason)}}
  const learned=s.learning?.typeBias||{};
  return out.map(x=>({...x,score:Math.max(0,Math.min(100,x.score+(learned[x.type]||0)))})).sort((a,b)=>b.score-a.score);
 }

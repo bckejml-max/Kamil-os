@@ -1,3 +1,17 @@
+# Kamil OS 24.5 — Buy / Sell Intelligence
+
+## 24.5.0 — XTB + Ticket decision cockpit
+- XTB má nově rozhodovací tabuli pro každou importovanou pozici: **PŘIKOUPIT / DRŽET / REDUKOVAT / PRODAT / PROVĚŘIT**
+- u každé XTB pozice je zvlášť pravidlo **kdy nakoupit** a **kdy prodat**, včetně váhy pozice a P/L
+- XTB pravidla jsou automatická, ale lze je ručně přepsat pro konkrétní ticker; ruční override se ukládá do stavu a cloudu
+- aplikace upozorňuje na stáří XTB importu, aby stará data nevypadala jako live doporučení
+- XTB rozhodnutí s vysokou prioritou vstupují do hlavního Radaru na Dnes
+- Vstupenky dostaly samostatný **SELL / HOLD radar** s pravidly podle času do akce, workflow, tržní ceny, floor ceny a sell-by termínu
+- u vstupenky lze uložit tržní cenu/ks, floor cenu/ks, max cenu pro další nákup a nejpozdější termín prodeje
+- přidaný **BUY radar** na budoucí presale/on-sale příležitosti s max nákupní cenou a cílovým resale
+- ticket intelligence vstupuje do hlavního Radaru stejně jako XTB
+- schema posunuto na v36; PWA shell a QA gate sjednoceny na 24.5
+
 # Kamil OS 24.4 — Passwordless Daily Use
 
 ## 24.4.0 — Open instantly + richer task control
@@ -66,33 +80,3 @@
 - Backup / restore JSON.
 - PWA update banner a verzovaný app shell.
 - Mobilní bottom navigation.
-
-## 22.3.1 — Cloud Hardened
-- ověřeno proti reálnému produkčnímu Supabase schématu a datům
-- explicitní a serverem potvrzené `updated_at` při každém cloud save
-- DB trigger garantuje fresh `updated_at` i pro jiné klienty
-- zpřesněná detekce konfliktu lokální vs cloud
-- produkční SECURITY DEFINER helper už není spustitelný z anon/authenticated klienta
-
-## 22.3.4 — Reliability
-- pending cloud queue se zapisuje okamžitě při každé cloudové změně
-- zavření aplikace během debounce okna už nemůže způsobit ztrátu lokální změny
-- `cloud:false` refresh kalendáře/XTB už nezvedá dirty flag ani audit
-- durable queue se flushne před lokální refreshí data hubů
-- PWA má 192/512 PNG ikony včetně maskable režimu
-- sjednocena viditelná verze 22.3.4
-
-## 22.3.4 — Release Candidate
-- ochrana proti dvojkliku/dvojímu Enteru u command akcí
-- idempotentní SOLD workflow
-- unikátní ID každé splátky dluhu
-- před zavřením aplikace se dirty stav znovu uloží do durable pending queue
-- integrační QA command/search → state → ticket/debt/task workflow
-
-## 22.3.4 — Release Gate
-- validace a bezpečná oprava struktury stavu
-- import poškozené zálohy se zablokuje
-- opravitelné problémy zálohy se ukážou před importem
-- startup preflight a lokální release status
-- cloud konflikt ukazuje rozdíly v počtech hlavních datových oblastí
-- nový release-gate automatický test

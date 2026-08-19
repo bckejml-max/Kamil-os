@@ -1,24 +1,14 @@
 {
-  "name": "Kamil OS 24.4",
+  "name": "Kamil OS 24.5",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 24.4 Personal Command Center",
+  "description": "Kamil OS 24.5 Personal Command Center",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
   "theme_color": "#080b10",
   "icons": [
-    {
-      "src": "./icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    {"src":"./icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"./icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ],
   "scope": "./"
 }

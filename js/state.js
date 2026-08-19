@@ -6,8 +6,8 @@ const blank=()=>({
  tasks:[],projects:[],routines:[],routineDone:{},calendar:{events:[],asOf:null,source:null},
  financePlan:{cashNow:0,expectedIncome:0,reserveFloor:0,plannedInvestment:0},
  xtbReport:{czkValue:0,eurValue:0,czkProfit:0,eurProfit:0,asOf:null},
- xtbHub:{},tradeJournal:{trades:[]},
- ticketBook:{items:[],history:[],review:[]},
+ xtbHub:{},xtbStrategy:{overrides:{}},tradeJournal:{trades:[]},
+ ticketBook:{items:[],watchlist:[],history:[],review:[]},
  debtBook:{items:[],review:[]},
  inbox:[],delegations:[],learning:{typeBias:{},feedback:[]},
  ui:{},audit:[],undo:[]
@@ -22,24 +22,23 @@ export function migrate(input){
  s.calendar=s.calendar||{events:[]};s.calendar.events=Array.isArray(s.calendar.events)?s.calendar.events:[];
  s.financePlan={cashNow:0,expectedIncome:0,reserveFloor:0,plannedInvestment:0,...(s.financePlan||{})};
  s.xtbReport={czkValue:0,eurValue:0,czkProfit:0,eurProfit:0,...(s.xtbReport||{})};
- s.ticketBook=s.ticketBook||{items:[],history:[],review:[]};s.ticketBook.items=Array.isArray(s.ticketBook.items)?s.ticketBook.items:[];
+ s.xtbStrategy={overrides:{},...(s.xtbStrategy||{})};s.xtbStrategy.overrides=s.xtbStrategy.overrides&&typeof s.xtbStrategy.overrides==='object'?s.xtbStrategy.overrides:{};
+ s.ticketBook=s.ticketBook||{items:[],watchlist:[],history:[],review:[]};s.ticketBook.items=Array.isArray(s.ticketBook.items)?s.ticketBook.items:[];s.ticketBook.watchlist=Array.isArray(s.ticketBook.watchlist)?s.ticketBook.watchlist:[];
  s.debtBook=s.debtBook||{items:[],review:[]};s.debtBook.items=Array.isArray(s.debtBook.items)?s.debtBook.items:[];
  s.inbox=Array.isArray(s.inbox)?s.inbox:[];
  s.delegations=Array.isArray(s.delegations)?s.delegations:[];
  s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};s.learning.feedback=Array.isArray(s.learning.feedback)?s.learning.feedback:[];
  s.audit=Array.isArray(s.audit)?s.audit:[];
  s.undo=Array.isArray(s.undo)?s.undo:[];
- // Legacy inbox recovery.
  if(Array.isArray(s.inboxItems)&&!s.inbox.length)s.inbox=s.inboxItems;
- // Normalize essential IDs without deleting legacy fields.
  for(const t of s.tasks)if(!t.id)t.id=uid('task');
  for(const p of s.projects)if(!p.id)p.id=uid('project');
  for(const x of s.ticketBook.items)if(!x.id)x.id=uid('ticket');
+ for(const x of s.ticketBook.watchlist)if(!x.id)x.id=uid('ticket-watch');
  for(const x of s.debtBook.items)if(!x.id)x.id=uid('debt');
  s.meta.migratedFrom=from;s.meta.schemaVersion=SCHEMA_VERSION;
  return s;
 }
-
 
 export function validateState(input){
  const issues=[],fatal=[];
@@ -51,7 +50,7 @@ export function validateState(input){
  if(input.financePlan!==undefined&&typeof input.financePlan!=='object')issues.push('financePlan má neplatný formát');
  const ids=new Set(),dupIds=[];
  const scan=(a,label)=>Array.isArray(a)&&a.forEach(x=>{if(x?.id){if(ids.has(x.id))dupIds.push(`${label}:${x.id}`);ids.add(x.id)}});
- scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.debtBook?.items,'debt');
+ scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');
  if(dupIds.length)issues.push(`Duplicitní ID: ${dupIds.slice(0,5).join(', ')}`);
  return {ok:!fatal.length,issues,fatal};
 }
@@ -59,7 +58,7 @@ export function repairState(input){
  const report=validateState(input),fixed=migrate(input);
  const dedupe=a=>{const seen=new Set();return (Array.isArray(a)?a:[]).filter(x=>{if(!x?.id)return true;if(seen.has(x.id))return false;seen.add(x.id);return true})};
  fixed.tasks=dedupe(fixed.tasks);fixed.projects=dedupe(fixed.projects);
- fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.debtBook.items=dedupe(fixed.debtBook.items);
+ fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.ticketBook.watchlist=dedupe(fixed.ticketBook.watchlist);fixed.debtBook.items=dedupe(fixed.debtBook.items);
  return {state:fixed,report};
 }
 class Store{
@@ -78,10 +77,7 @@ class Store{
    if(undo){this.s.undo=this.s.undo||[];this.s.undo.unshift({label,at:new Date().toISOString(),state:before});this.s.undo=this.s.undo.slice(0,MAX_UNDO)}
    if(audit){this.s.audit=this.s.audit||[];this.s.audit.unshift({id:uid('audit'),label,at:new Date().toISOString()});this.s.audit=this.s.audit.slice(0,100)}
    this.persist();
-   if(cloud){
-     this.dirty=true;
-     this.queueSync(this.s);
-   }
+   if(cloud){this.dirty=true;this.queueSync(this.s)}
    this.emit(label);if(cloud&&this.cloudWriter)this.cloudWriter();
  }
  undo(){
