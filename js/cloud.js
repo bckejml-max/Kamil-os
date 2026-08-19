@@ -10,6 +10,11 @@ const status=(s,detail='')=>statusFn(s,detail);
 export async function session(){const {data}=await sb.auth.getSession();return data.session}
 export async function login(email,password){return sb.auth.signInWithPassword({email,password})}
 export async function logout(){return sb.auth.signOut()}
+export async function sendPasswordReset(email){
+ const redirectTo=`${window.location.origin}${window.location.pathname}`;
+ return sb.auth.resetPasswordForEmail(email,{redirectTo});
+}
+export async function updatePassword(password){return sb.auth.updateUser({password})}
 
 async function saveNow(){
  const sess=await session();if(!sess)return;
@@ -37,13 +42,11 @@ export async function loadCloud(){
  if(!data?.payload){await saveNow();return {ok:true,new:true}}
  const local=store.get(),cloudAt=new Date(data.updated_at||0).getTime(),localAt=new Date(local.meta?.lastMutationAt||0).getTime();
  const lastCloudAt=new Date(store.meta().lastCloudAt||0).getTime();
- // Conflict only when BOTH sides changed after the last cloud version acknowledged by this device.
  if(store.dirty && localAt>lastCloudAt && cloudAt>lastCloudAt){
    status('conflict');return {ok:false,conflict:true,cloud:data.payload,updatedAt:data.updated_at,localAt:local.meta?.lastMutationAt,lastCloudAt:store.meta().lastCloudAt};
  }
  store.replace(data.payload,'cloud');store.dirty=false;store.setMeta({lastCloudAt:data.updated_at});status('ok');return {ok:true}
 }
-
 
 export function conflictSummary(local,cloud){
  const count=(x,path)=>{try{const v=path.split('.').reduce((o,k)=>o?.[k],x);return Array.isArray(v)?v.length:0}catch{return 0}};
