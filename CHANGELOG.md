@@ -1,3 +1,15 @@
+# Kamil OS 24.7 — XTB Portfolio Audit
+
+## 24.7.0 — Allocation & concentration control
+- Peníze dostaly nový **XTB / PORTFOLIO AUDIT** nad právě drženými pozicemi
+- audit počítá podíl širokých akciových ETF, dluhopisů a satelitních pozic a porovnává je s cílovými pásmy
+- zobrazuje největší jednotlivou pozici a konzervativní tematické součty pro známé koncentrace (např. zdravotnictví a čipy / AI)
+- nové **skóre alokace 0–100** penalizuje příliš malé globální jádro, nízkou dluhopisovou složku a vysokou koncentraci jedné pozice nebo tématu
+- sekce **Další nový vklad** navrhuje, kterou část portfolia má nový kapitál primárně dorovnávat; nejde o live tržní doporučení
+- audit používá stejné ruční označení prodaných pozic jako Decision Cockpit, takže už prodaná pozice neznečišťuje alokaci
+- přidaný samostatný modul `xtbAudit24.js`, integrační test mixu a koncentrace a PWA cache pro nový modul
+- PWA shell a QA gate sjednoceny na 24.7
+
 # Kamil OS 24.5 — Buy / Sell Intelligence
 
 ## 24.5.0 — XTB + Ticket decision cockpit
