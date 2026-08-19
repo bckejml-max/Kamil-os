@@ -1,6 +1,19 @@
-# Kamil OS 22.3 — Clean Product
+# Kamil OS 24.1 — Personal Command Center
 
-## Co se změnilo
+## 24.1.0 — UI/UX overhaul
+- nový full-width desktop shell s levým sidebarem a samostatným workspace
+- nový přihlašovací a password-recovery flow
+- kompletně přestavěná stránka Dnes: priorita, úkoly, kalendář, finance, vstupenky, projekty, čekání a radar
+- nová Práce: akční fronta, pozdější úkoly a projektové karty s dalším krokem
+- nové Peníze: majetek, likvidita, struktura peněz, XTB a pohledávky
+- nové Vstupenky: tabulkový portfolio pohled s workflow, P/L a ROI
+- nové Více: Inbox, Pohledávky, Termíny, Záloha, Nastavení a Systém
+- command palette už není závislá na legacy rendereru
+- waiting/delegation položky vstupují do intelligence a mohou se zobrazit jako priorita
+- responsive mobilní layout zůstává zachovaný
+- PWA shell a manifest sjednoceny na 24.1
+
+## 22.3 — Clean Product
 - Kompletní odříznutí legacy UI a stovek historických rendererů.
 - Modulární architektura: state, cloud, intelligence, rendering, commands.
 - Jednotný State Manager pro lokální uložení, undo, audit a cloud save.
