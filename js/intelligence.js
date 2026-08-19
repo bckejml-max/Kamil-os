@@ -1,5 +1,5 @@
 import {money,dayDiff} from './utils.js';
-import {xtbBoard,xtbDataAge,ticketDecision} from './decision24.js';
+import {xtbBoard,xtbDataAge,ticketDecision} from './live24.js';
 
 export const debtPaid=x=>(x.payments||[]).reduce((n,p)=>n+(Number(p.amount)||0),0);
 export const debtRemaining=x=>Math.max(0,(Number(x.amount)||0)-debtPaid(x));
@@ -45,34 +45,21 @@ export function signals(s){
    if(String(t.priority).toUpperCase()==='HIGH'||Number(t.priority)>=90)score+=15;
    if(score>=55)add('Úkol',t.title,Math.min(100,score),reason.join(' · ')||'důležitý úkol','work',t.id,'Odkladem roste riziko skluzu.');
  }
- for(const p of s.projects||[]){
-   if(/hotov|archiv/i.test(p.status||''))continue;const st=projectStatus(p,s);
-   if(st.score>=55)add('Projekt',p.name||'Projekt',st.score,st.label,'work',p.id,'Projekt potřebuje manažerskou pozornost.');
- }
+ for(const p of s.projects||[]){if(/hotov|archiv/i.test(p.status||''))continue;const st=projectStatus(p,s);if(st.score>=55)add('Projekt',p.name||'Projekt',st.score,st.label,'work',p.id,'Projekt potřebuje manažerskou pozornost.')}
  for(const x of s.delegations||[]){
    if((x.status||'WAITING')==='DONE')continue;
-   const touched=x.lastContactAt||x.updatedAt||x.createdAt,age=touched?Math.max(0,Math.floor((now-new Date(touched))/86400000)):0;
-   const follow=x.followUpAt?dayDiff(x.followUpAt):null;
+   const touched=x.lastContactAt||x.updatedAt||x.createdAt,age=touched?Math.max(0,Math.floor((now-new Date(touched))/86400000)):0,follow=x.followUpAt?dayDiff(x.followUpAt):null;
    let score=age>=14?88:age>=7?74:age>=4?60:35,reason=age?`${age} dní čekání`:'čeká na reakci';
    if(follow!==null&&follow<=0){score=Math.max(score,82);reason+=follow<0?` · kontrola po termínu ${Math.abs(follow)} d`:' · kontrola dnes'}
    if(score>=55)add('Čekám',x.title||x.person||'Čekající položka',score,reason,'waiting',x.id,'Dlouhé čekání blokuje další krok.');
  }
  for(const x of s.debtBook?.items||[]){if(x.status==='PAID')continue;const st=debtStatus(x),rem=debtRemaining(x);if(st.score>=60)add('Dluh',`${x.person} · ${money(rem)}`,st.score,st.label,'debts',x.id,'Je vhodné udržet pohledávku aktivní.')}
- for(const x of s.ticketBook?.items||[]){const d=ticketDecision(x);if(d.priority>=65)add('Vstupenky',x.name,d.priority,`${d.action} · ${d.when}`,'tickets',x.id,d.sellRule)}
+ for(const x of s.ticketBook?.items||[]){const d=ticketDecision(x,s);if(d.priority>=65)add('Vstupenky',x.name,d.priority,`${d.action} · ${d.when}`,'tickets',x.id,d.sellRule)}
  const age=xtbDataAge(s);if(age.days!==null&&age.days<=3){for(const {p,d} of xtbBoard(s).slice(0,4)){if(d.priority>=75)add('XTB',`${p.ticker} · ${d.action}`,d.priority,d.when,'money',p.ticker,d.reason)}}
  const learned=s.learning?.typeBias||{};
  return out.map(x=>({...x,score:Math.max(0,Math.min(100,x.score+(learned[x.type]||0)))})).sort((a,b)=>b.score-a.score);
 }
 export function recommendation(s){return signals(s)[0]||{type:'Klid',title:'Nic kritického. Drž fokus.',score:10,reason:'Bez významných výjimek.',impact:'Není potřeba nic hasit.',target:'work'}}
-export function feedback(s,type,value){
- s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};
- s.learning.typeBias[type]=Math.max(-20,Math.min(20,(s.learning.typeBias[type]||0)+(value>0?4:-4)));
- s.learning.feedback.unshift({at:new Date().toISOString(),type,value});s.learning.feedback=s.learning.feedback.slice(0,100);
-}
+export function feedback(s,type,value){s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};s.learning.typeBias[type]=Math.max(-20,Math.min(20,(s.learning.typeBias[type]||0)+(value>0?4:-4)));s.learning.feedback.unshift({at:new Date().toISOString(),type,value});s.learning.feedback=s.learning.feedback.slice(0,100)}
 export function attentionCount(s){return signals(s).filter(x=>x.score>=70).length+(s.inbox||[]).filter(x=>x.status!=='DONE').length}
-export function netWorth(s){
- const cash=Number(s.financePlan?.cashNow||0),fx=Number(s.xtbHub?.report?.fx?.EURCZK?.price||s.xtb?.marketEstimate?.fx?.EURCZK?.price||24.5),xtb=Number(s.xtbReport?.czkValue||0)+(Number(s.xtbReport?.eurValue||0)*fx);
- const tickets=(s.ticketBook?.items||[]).filter(x=>!['SOLD','PAYOUT RECEIVED'].includes(x.workflow)).reduce((n,x)=>n+(Number(x.buy)||0),0);
- const debts=(s.debtBook?.items||[]).filter(x=>x.status!=='PAID').reduce((n,x)=>n+debtRemaining(x),0);
- return {cash,xtb,tickets,debts,adjusted:cash+xtb+tickets*.65+debts*.8};
-}
+export function netWorth(s){const cash=Number(s.financePlan?.cashNow||0),fx=Number(s.xtbHub?.report?.fx?.EURCZK?.price||s.xtb?.marketEstimate?.fx?.EURCZK?.price||24.5),xtb=Number(s.xtbReport?.czkValue||0)+(Number(s.xtbReport?.eurValue||0)*fx),tickets=(s.ticketBook?.items||[]).filter(x=>!['SOLD','PAYOUT RECEIVED'].includes(x.workflow)).reduce((n,x)=>n+(Number(x.buy)||0),0),debts=(s.debtBook?.items||[]).filter(x=>x.status!=='PAID').reduce((n,x)=>n+debtRemaining(x),0);return {cash,xtb,tickets,debts,adjusted:cash+xtb+tickets*.65+debts*.8}}
