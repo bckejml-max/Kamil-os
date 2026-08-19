@@ -19,10 +19,16 @@ const mergeLive=(auto,live,meta)=>{
  const action=upper(live.action);
  return {...auto,...live,action,priority:Math.max(0,Math.min(100,n(live.priority)||n(auto.priority))),confidence:live.confidence===undefined||live.confidence===null?null:Math.max(0,Math.min(100,n(live.confidence))),when:live.when||auto.when,reason:live.reason||auto.reason,buyRule:live.buyRule||auto.buyRule,sellRule:live.sellRule||auto.sellRule,source:'ŽIVĚ',tone:actionTone(action),live:true,asOf:meta.raw,sourceUrls:Array.isArray(live.sourceUrls)?live.sourceUrls:[]};
 };
+const closedByNewerUserAction=(s,ticker)=>{
+ const raw=s.xtbStrategy?.closedTickers?.[ticker];if(!raw)return false;
+ const closedAt=new Date(typeof raw==='string'?raw:raw.at||0).getTime();if(!Number.isFinite(closedAt))return false;
+ const importAt=new Date(s.xtbHub?.asOf||s.xtbReport?.asOf||0).getTime();
+ return !Number.isFinite(importAt)||importAt<=closedAt;
+};
 
 export function xtbBoard(s){
  const meta=xtbIntelligenceAge(s),positions=s.xtbStrategy?.live?.positions||{};
- return ruleXtbBoard(s).map(item=>{
+ return ruleXtbBoard(s).filter(item=>!closedByNewerUserAction(s,item.p.ticker)).map(item=>{
    if(item.d.source==='RUČNĚ')return item;
    return {...item,d:mergeLive(item.d,positions[item.p.ticker],meta)};
  }).sort((a,b)=>b.d.priority-a.d.priority);
