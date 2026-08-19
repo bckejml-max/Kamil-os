@@ -1,5 +1,5 @@
 import fs from 'fs';
-const files=['index.html','styles.css','sw.js','manifest.webmanifest','js/config.js','js/utils.js','js/state.js','js/cloud.js','js/intelligence.js','js/render.js','js/command.js','js/app.js','js/preflight.js'];
+const files=['index.html','styles.css','sw.js','manifest.webmanifest','js/config.js','js/utils.js','js/state.js','js/cloud.js','js/intelligence.js','js/render.js','js/today24.js','js/command.js','js/app.js','js/preflight.js'];
 for(const f of files)if(!fs.existsSync(f))throw new Error('Missing '+f);
 const html=fs.readFileSync('index.html','utf8');
 const ids=[...html.matchAll(/\bid=["']([^"']+)["']/g)].map(x=>x[1]);
@@ -8,6 +8,6 @@ if(dup.length)throw new Error('Duplicate DOM IDs: '+[...new Set(dup)].join(','))
 const legacy=html.match(/renderExecutiveHome|renderMissionControl|renderRiskRadar|renderAutopilotActions/g)||[];
 if(legacy.length)throw new Error('Legacy UI references remain');
 const js=files.filter(f=>f.endsWith('.js')).map(f=>fs.readFileSync(f,'utf8')).join('\n');
-for(const required of ['scheduleSave','migrate','resolveConflict','recommendation','renderToday','execute'])if(!js.includes(required))throw new Error('Missing '+required);
+for(const required of ['scheduleSave','migrate','resolveConflict','recommendation','renderToday','sendPasswordReset','updatePassword','execute'])if(!js.includes(required))throw new Error('Missing '+required);
 console.log('STATIC QA PASS');
 console.log('Files:',files.length,'DOM IDs:',ids.length,'Legacy refs:',legacy.length);
