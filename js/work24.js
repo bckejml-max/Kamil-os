@@ -135,3 +135,8 @@ async function finishProject(id){
  selectedProjectId=null;
  store.mutate(`Dokončen projekt: ${p.name}`,s=>{const x=s.projects.find(y=>y.id===id);if(x){x.status='Hotovo';x.completedAt=new Date().toISOString();x.updatedAt=new Date().toISOString()}});
 }
+
+window.addEventListener('kamil:project',e=>{
+ selectedProjectId=e.detail||null;
+ window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'work'}));
+});
