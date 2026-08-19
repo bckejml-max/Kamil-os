@@ -12,12 +12,16 @@ for(const required of ['scheduleSave','migrate','resolveConflict','recommendatio
 const app=fs.readFileSync('js/app.js','utf8');
 for(const module of ['today24.js','work24.js','money24.js','tickets24.js','more24.js','capture24.js'])if(!app.includes(module))throw new Error('App missing '+module);
 if(app.includes("from './render.js'"))throw new Error('Legacy renderer still imported');
-if(fs.readFileSync('js/command.js','utf8').includes("from './render.js'"))throw new Error('Command still imports legacy renderer');
+const command=fs.readFileSync('js/command.js','utf8');
+if(command.includes("from './render.js'"))throw new Error('Command still imports legacy renderer');
+for(const feature of ['openResult','kamil:project'])if(!command.includes(feature))throw new Error('Command project deep link missing '+feature);
 const capture=fs.readFileSync('js/capture24.js','utf8');
 for(const area of ['task','wait','project','debt','ticket','inbox'])if(!capture.includes(`type==='${area}'`))throw new Error('Capture missing '+area);
 for(const field of ['capTaskProject','capProjectOwner','capProjectDeadline','capProjectRisk'])if(!capture.includes(field))throw new Error('Project capture missing '+field);
 const work=fs.readFileSync('js/work24.js','utf8');
-for(const feature of ['selectedProjectId','renderProjectDetail','editProject','addProjectTask','projectId'])if(!work.includes(feature))throw new Error('Project command center missing '+feature);
+for(const feature of ['selectedProjectId','renderProjectDetail','editProject','addProjectTask','projectId','kamil:project'])if(!work.includes(feature))throw new Error('Project command center missing '+feature);
+const today=fs.readFileSync('js/today24.js','utf8');
+for(const feature of ['data-today-project','data-radar-open','openSignal'])if(!today.includes(feature))throw new Error('Today project navigation missing '+feature);
 const version=fs.readFileSync('js/config.js','utf8').match(/APP_VERSION\s*=\s*['"]([^'"]+)/)?.[1];
 if(!version||!html.includes(version))throw new Error('Visible version mismatch');
 if(!fs.readFileSync('sw.js','utf8').includes(version))throw new Error('Service worker version mismatch');
