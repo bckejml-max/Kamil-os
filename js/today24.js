@@ -8,6 +8,7 @@ const openTasks=s=>(s.tasks||[]).filter(x=>x.status!=='HOTOVO').sort((a,b)=>{
  const ad=a.due?new Date(a.due).getTime():Infinity,bd=b.due?new Date(b.due).getTime():Infinity;
  return ad-bd;
 });
+const waitAge=x=>{const at=x.lastContactAt||x.updatedAt||x.createdAt;if(!at)return 0;return Math.max(0,Math.floor((Date.now()-new Date(at).getTime())/86400000))};
 
 function navigate(target){
  if(['today','work','money','tickets','more'].includes(target))window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target}));
@@ -31,6 +32,7 @@ export function renderToday(){
  const projects=activeProjects(s).slice(0,4);
  const events=[...(s.calendar?.events||[])].filter(e=>{const v=eventStart(e);return !v||new Date(v).getTime()>=Date.now()-3600000}).sort((a,b)=>new Date(eventStart(a)||'9999')-new Date(eventStart(b)||'9999')).slice(0,5);
  const tickets=[...(s.ticketBook?.items||[])].map(x=>({x,st:ticketStatus(x)})).filter(y=>y.st.score>=60).sort((a,b)=>b.st.score-a.st.score).slice(0,4);
+ const waiting=[...(s.delegations||[])].filter(x=>(x.status||'WAITING')!=='DONE').sort((a,b)=>waitAge(b)-waitAge(a)).slice(0,5);
  const doneToday=(s.audit||[]).filter(x=>x.label?.startsWith('Hotovo')&&new Date(x.at).toDateString()===new Date().toDateString()).length;
  const inbox=(s.inbox||[]).filter(x=>x.status!=='DONE').length;
  const nextSignals=sig.slice(1,4);
@@ -45,7 +47,7 @@ export function renderToday(){
 
   <div class="grid" style="margin-bottom:14px">
     <div class="kpi"><div class="l">Kritické / dnes</div><div class="v ${urgentTasks.length?'bad':'good'}">${urgentTasks.length}</div></div>
-    <div class="kpi"><div class="l">Hotovo dnes</div><div class="v">${doneToday}</div></div>
+    <div class="kpi"><div class="l">Čekám na</div><div class="v ${waiting.length?'warn':'good'}">${waiting.length}</div></div>
     <div class="kpi"><div class="l">Potřebuje pozornost</div><div class="v">${attentionCount(s)}</div></div>
   </div>
 
@@ -81,7 +83,10 @@ export function renderToday(){
     </div>
   </div>
 
-  ${nextSignals.length||inbox?`<div class="card" style="margin-top:2px"><div class="eyebrow">RADAR</div>${nextSignals.map(x=>`<div class="row"><div><b>${h(x.title)}</b><div class="muted">${h(x.type)} · ${h(x.reason)}</div></div><span class="status ${x.score>=85?'bad':x.score>=65?'warn':'good'}">${x.score}</span></div>`).join('')}${inbox?`<div class="row"><div><b>Inbox</b><div class="muted">${inbox} položek čeká na rozhodnutí</div></div><button class="btn" data-more-nav="inbox">Projít</button></div>`:''}</div>`:''}
+  <div class="grid two" style="margin-top:2px">
+    <div class="card"><div class="eyebrow">ČEKÁM NA</div>${waiting.map(x=>`<div class="row"><div><b>${h(x.title||x.person||'Čekající položka')}</b><div class="muted">${waitAge(x)} dní čekání</div></div><button class="btn" data-wait-done="${x.id}">Vyřešeno</button></div>`).join('')||'<div class="empty">Na nikoho kriticky nečekáš.</div>'}</div>
+    <div class="card"><div class="eyebrow">RADAR</div>${nextSignals.map(x=>`<div class="row"><div><b>${h(x.title)}</b><div class="muted">${h(x.type)} · ${h(x.reason)}</div></div><span class="status ${x.score>=85?'bad':x.score>=65?'warn':'good'}">${x.score}</span></div>`).join('')||'<div class="empty">Žádný další výrazný signál.</div>'}${inbox?`<div class="row"><div><b>Inbox</b><div class="muted">${inbox} položek čeká na rozhodnutí</div></div><button class="btn" data-more-nav="inbox">Projít</button></div>`:''}</div>
+  </div>
  `;
 
  qs('#focusOpen').onclick=()=>navigate(rec.target||'work');
@@ -89,6 +94,7 @@ export function renderToday(){
  qs('#focusBad').onclick=()=>store.mutate('Doporučení neužitečné',x=>feedback(x,rec.type,-1),{undo:false});
  qsa('[data-nav]',qs('#todayView')).forEach(b=>b.onclick=()=>navigate(b.dataset.nav));
  qsa('[data-more-nav]',qs('#todayView')).forEach(b=>b.onclick=()=>navigate(b.dataset.moreNav));
+ qsa('[data-wait-done]',qs('#todayView')).forEach(b=>b.onclick=()=>store.mutate('Čekání vyřešeno',x=>{const w=x.delegations?.find(y=>y.id===b.dataset.waitDone);if(w){w.status='DONE';w.updatedAt=new Date().toISOString()}}));
  qsa('[data-today-done]',qs('#todayView')).forEach(b=>b.onclick=()=>store.mutate('Hotovo: úkol',x=>{const t=x.tasks.find(y=>y.id===b.dataset.todayDone);if(t){t.status='HOTOVO';t.updatedAt=new Date().toISOString()}}));
  qsa('[data-today-tomorrow]',qs('#todayView')).forEach(b=>b.onclick=()=>store.mutate('Úkol přesunut na zítra',x=>{const t=x.tasks.find(y=>y.id===b.dataset.todayTomorrow);if(t){const d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);t.due=d.toISOString();t.updatedAt=new Date().toISOString()}}));
 }
