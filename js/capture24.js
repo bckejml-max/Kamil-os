@@ -1,8 +1,10 @@
 import {store} from './state.js';
-import {uid,qs,modal,toast} from './utils.js';
+import {uid,qs,modal,toast,h} from './utils.js';
 
 const isoFromDate=(v,hour='09:00:00')=>v?new Date(`${v}T${hour}`).toISOString():null;
 const TYPES=new Set(['task','wait','project','debt','ticket','inbox']);
+const activeProjects=()=>store.get().projects?.filter(x=>!/hotov|archiv/i.test(x.status||''))||[];
+const projectOptions=()=>`<option value="">Bez projektu</option>${activeProjects().map(p=>`<option value="${h(p.id)}">${h(p.name)}</option>`).join('')}`;
 
 export async function openQuickCapture(initialType=null){
  let type=TYPES.has(initialType)?initialType:null;
@@ -22,11 +24,11 @@ export async function openQuickCapture(initialType=null){
 }
 
 async function addTask(){
- const body=`<div class="form-grid capture-form"><label class="wide-field">Co je potřeba udělat<input id="capTaskTitle" autofocus placeholder="Např. Poslat PKS finální ZL"></label><label>Termín<input id="capTaskDue" type="date"></label><label>Oblast<input id="capTaskArea" value="Práce"></label><label>Priorita<select id="capTaskPriority"><option value="NORMAL">Normální</option><option value="HIGH">Vysoká</option></select></label></div>`;
+ const body=`<div class="form-grid capture-form"><label class="wide-field">Co je potřeba udělat<input id="capTaskTitle" autofocus placeholder="Např. Poslat PKS finální ZL"></label><label>Termín<input id="capTaskDue" type="date"></label><label>Projekt<select id="capTaskProject">${projectOptions()}</select></label><label>Oblast<input id="capTaskArea" value="Práce"></label><label>Priorita<select id="capTaskPriority"><option value="NORMAL">Normální</option><option value="HIGH">Vysoká</option></select></label></div>`;
  const ok=await modal('Nový úkol',body,[{label:'Zrušit',value:false},{label:'Přidat úkol',value:true,primary:true}]);if(!ok)return false;
  const title=qs('#capTaskTitle')?.value?.trim();if(!title)return toast('Napiš název úkolu');
- const due=qs('#capTaskDue')?.value||'',area=qs('#capTaskArea')?.value?.trim()||'Práce',priority=qs('#capTaskPriority')?.value||'NORMAL';
- store.mutate(`Přidán úkol: ${title}`,s=>s.tasks.unshift({id:uid('task'),title,status:'UDĚLAT',priority,area,due:isoFromDate(due),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));toast('Úkol přidán');return true;
+ const due=qs('#capTaskDue')?.value||'',projectId=qs('#capTaskProject')?.value||null,project=activeProjects().find(p=>p.id===projectId),area=project?.name||qs('#capTaskArea')?.value?.trim()||'Práce',priority=qs('#capTaskPriority')?.value||'NORMAL';
+ store.mutate(`Přidán úkol: ${title}`,s=>s.tasks.unshift({id:uid('task'),title,status:'UDĚLAT',priority,area,projectId,due:isoFromDate(due),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));toast('Úkol přidán');return true;
 }
 
 async function addWaiting(){
@@ -38,11 +40,11 @@ async function addWaiting(){
 }
 
 async function addProject(){
- const body=`<div class="form-grid capture-form"><label class="wide-field">Název projektu<input id="capProjectName" autofocus placeholder="Např. Nová Zbrojovka D4"></label><label class="wide-field">Nejbližší konkrétní krok<input id="capProjectNext" placeholder="Co musí následovat?"></label></div>`;
+ const body=`<div class="form-grid capture-form"><label class="wide-field">Název projektu<input id="capProjectName" autofocus placeholder="Např. Nová Zbrojovka D4"></label><label>Odpovědná osoba<input id="capProjectOwner" placeholder="Kdo to drží"></label><label>Deadline<input id="capProjectDeadline" type="date"></label><label>Riziko<select id="capProjectRisk"><option value="LOW">Nízké</option><option value="MEDIUM">Střední</option><option value="HIGH">Vysoké</option></select></label><label class="wide-field">Nejbližší konkrétní krok<input id="capProjectNext" placeholder="Co musí následovat?"></label><label class="wide-field">Poznámka<textarea id="capProjectNotes" rows="3" placeholder="Kontext, riziko, blokace…"></textarea></label></div>`;
  const ok=await modal('Nový projekt',body,[{label:'Zrušit',value:false},{label:'Přidat projekt',value:true,primary:true}]);if(!ok)return false;
  const name=qs('#capProjectName')?.value?.trim();if(!name)return toast('Napiš název projektu');
- const next=qs('#capProjectNext')?.value?.trim()||'Doplnit další krok';
- store.mutate(`Přidán projekt: ${name}`,s=>s.projects.unshift({id:uid('project'),name,status:'Aktivní',next,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));toast('Projekt přidán');return true;
+ const next=qs('#capProjectNext')?.value?.trim()||'Doplnit další krok',owner=qs('#capProjectOwner')?.value?.trim()||'',deadline=qs('#capProjectDeadline')?.value||null,risk=qs('#capProjectRisk')?.value||'LOW',notes=qs('#capProjectNotes')?.value?.trim()||'';
+ store.mutate(`Přidán projekt: ${name}`,s=>s.projects.unshift({id:uid('project'),name,status:'Aktivní',next,owner,deadline,risk,notes,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));toast('Projekt přidán');return true;
 }
 
 async function addDebt(){
