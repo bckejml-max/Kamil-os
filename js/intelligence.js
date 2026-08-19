@@ -23,6 +23,17 @@ export function debtStatus(x){
  return {label:'Čekat',score:30};
 }
 
+export function projectStatus(p,s){
+ let score=25,reason=[];
+ const risk=String(p.risk||'LOW').toUpperCase();
+ if(risk==='HIGH'){score+=45;reason.push('vysoké riziko')}else if(risk==='MEDIUM'){score+=20;reason.push('střední riziko')}
+ if(p.deadline){const d=dayDiff(p.deadline);if(d<0){score+=50;reason.push(`projekt po termínu ${Math.abs(d)} d`)}else if(d===0){score+=42;reason.push('deadline dnes')}else if(d<=7){score+=30;reason.push(`deadline za ${d} d`)}else if(d<=14){score+=18;reason.push(`deadline za ${d} d`)}}
+ if(!String(p.next||'').trim()||/chybí|doplnit další krok/i.test(p.next||'')){score+=20;reason.push('chybí jasný další krok')}
+ const linked=(s.tasks||[]).filter(t=>t.projectId===p.id&&t.status!=='HOTOVO'),over=linked.filter(t=>t.due&&dayDiff(t.due)<0).length;
+ if(over){score+=Math.min(24,over*8);reason.push(`${over} úkolů po termínu`)}
+ return {score:Math.min(100,score),label:reason.join(' · ')||'projekt je pod kontrolou'};
+}
+
 export function signals(s){
  const out=[],add=(type,title,score,reason,target,id,impact='')=>out.push({type,title,score,reason,target,id,impact});
  const now=Date.now();
@@ -32,6 +43,10 @@ export function signals(s){
    const touched=t.updatedAt||t.createdAt;if(touched){const age=Math.floor((now-new Date(touched))/86400000);if(age>=7){score+=Math.min(24,age);reason.push(`${age} dní bez pohybu`)}}
    if(String(t.priority).toUpperCase()==='HIGH'||Number(t.priority)>=90)score+=15;
    if(score>=55)add('Úkol',t.title,Math.min(100,score),reason.join(' · ')||'důležitý úkol','work',t.id,'Odkladem roste riziko skluzu.');
+ }
+ for(const p of s.projects||[]){
+   if(/hotov|archiv/i.test(p.status||''))continue;const st=projectStatus(p,s);
+   if(st.score>=55)add('Projekt',p.name||'Projekt',st.score,st.label,'work',p.id,'Projekt potřebuje manažerskou pozornost.');
  }
  for(const x of s.delegations||[]){
    if((x.status||'WAITING')==='DONE')continue;
