@@ -132,5 +132,6 @@ async function addProjectTask(id){
 async function finishProject(id){
  const p=store.get().projects.find(x=>x.id===id);if(!p)return;
  const ok=await modal('Označit projekt jako hotový?',`<p class="muted">Projekt <b>${h(p.name)}</b> zmizí z aktivních projektů. Jeho úkoly nemažu.</p>`,[{label:'Zrušit',value:false},{label:'Dokončit projekt',value:true,primary:true}]);if(!ok)return;
- store.mutate(`Dokončen projekt: ${p.name}`,s=>{const x=s.projects.find(y=>y.id===id);if(x){x.status='Hotovo';x.completedAt=new Date().toISOString();x.updatedAt=new Date().toISOString()}});selectedProjectId=null;
+ selectedProjectId=null;
+ store.mutate(`Dokončen projekt: ${p.name}`,s=>{const x=s.projects.find(y=>y.id===id);if(x){x.status='Hotovo';x.completedAt=new Date().toISOString();x.updatedAt=new Date().toISOString()}});
 }
