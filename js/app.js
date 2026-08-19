@@ -58,6 +58,7 @@ window.addEventListener('kamil:navigate',e=>navigate(e.detail));
 window.addEventListener('kamil:more',e=>setMoreMode(e.detail));
 window.addEventListener('kamil:logout',()=>logout());
 window.addEventListener('kamil:capture',e=>openCapture(e.detail||null));
+window.addEventListener('kamil:cloud-login',()=>showLoginView('Cloud je volitelný. Kamil OS funguje i bez přihlášení.'));
 
 store.subscribe(()=>{render();maybeNotify()});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
@@ -81,6 +82,10 @@ onSyncStatus((s,detail)=>{
  el.innerHTML=`<i></i> ${s==='ok'?'Uloženo':s==='saving'?'Ukládám…':s==='offline'?'Offline – uložím později':s==='conflict'?'Konflikt dat':'Cloud'}`;
  if(detail)el.title=detail;
 });
+function localSyncStatus(){
+ const el=qs('#syncStatus');if(!el)return;
+ el.className='sync local';el.innerHTML='<i></i> Jen toto zařízení';el.title='Kamil OS je otevřený bez hesla. Cloud se použije pouze pokud v prohlížeči zůstala platná Supabase session.';
+}
 
 function showResetView(){
  qs('#authView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#resetView').classList.remove('hidden');
@@ -90,38 +95,47 @@ function showLoginView(message=''){
  qs('#resetView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#authView').classList.remove('hidden');
  if(message)qs('#authMessage').textContent=message;
 }
+function showApp(){
+ qs('#authView').classList.add('hidden');qs('#resetView').classList.add('hidden');qs('#appView').classList.remove('hidden');
+}
 
 async function handleSession(sess){
  if(recoveryMode){showResetView();return}
- if(!sess){showLoginView();return}
- qs('#authView').classList.add('hidden');qs('#resetView').classList.add('hidden');qs('#appView').classList.remove('hidden');
- const email=qs('#userEmail');if(email)email.textContent=sess.user?.email||'Přihlášený účet';
- const result=await loadCloud();
- if(result?.conflict){
-   const diff=conflictSummary(store.get(),result.cloud);
-   const rows=diff.map(x=>`<div class="row"><span>${x.label}</span><span>toto zařízení <b>${x.local}</b> · cloud <b>${x.cloud}</b></span></div>`).join('');
-   const choice=await modal('Cloud a zařízení mají různé změny',`<p class="muted">Nic nepřepisuju automaticky. Nejdřív se podívej na rozdíly:</p>${rows}<p class="muted">Pokud si nejsi jistý, zvol toto zařízení a potom udělej export zálohy.</p>`,[
-     {label:'Použít cloud',value:'cloud'},{label:'Použít toto zařízení',value:'local',primary:true}
-   ]);
-   if(choice)await resolveConflict(choice,result.cloud);
- }
- await flushQueue();await loadDataHubs();const pf=runPreflight();store.get().meta.preflight=pf;store.persist();render();
+ showApp();
+ const email=qs('#userEmail'),logoutBtn=qs('#logoutBtn');
+ store.get().meta.cloudMode=sess?'cloud':'local';store.persist();
+ if(email)email.textContent=sess?.user?.email||'Toto zařízení';
+ if(logoutBtn)logoutBtn.classList.toggle('hidden',!sess);
+ if(sess){
+   const result=await loadCloud();
+   if(result?.conflict){
+     const diff=conflictSummary(store.get(),result.cloud);
+     const rows=diff.map(x=>`<div class="row"><span>${x.label}</span><span>toto zařízení <b>${x.local}</b> · cloud <b>${x.cloud}</b></span></div>`).join('');
+     const choice=await modal('Cloud a zařízení mají různé změny',`<p class="muted">Nic nepřepisuju automaticky. Nejdřív se podívej na rozdíly:</p>${rows}<p class="muted">Pokud si nejsi jistý, zvol toto zařízení a potom udělej export zálohy.</p>`,[
+       {label:'Použít cloud',value:'cloud'},{label:'Použít toto zařízení',value:'local',primary:true}
+     ]);
+     if(choice)await resolveConflict(choice,result.cloud);
+   }
+   await flushQueue();await loadDataHubs();
+ }else localSyncStatus();
+ const pf=runPreflight();store.get().meta.preflight=pf;store.persist();render();
 }
 
 qs('#loginBtn').onclick=async()=>{
  const email=qs('#loginEmail').value.trim(),password=qs('#loginPassword').value,msg=qs('#authMessage');
- if(!email||!password){msg.textContent='Vyplň e-mail i heslo.';return}
- msg.textContent='Přihlašuji…';
+ if(!email||!password){msg.textContent='Vyplň e-mail i heslo, jen pokud chceš znovu připojit cloud.';return}
+ msg.textContent='Připojuji cloud…';
  const {error}=await login(email,password);msg.textContent=error?error.message:'';
 };
 qs('#loginPassword').onkeydown=e=>{if(e.key==='Enter')qs('#loginBtn').click()};
+qs('#skipLoginBtn')?.addEventListener('click',async()=>{recoveryMode=false;await handleSession(await session())});
 
 qs('#forgotPasswordBtn').onclick=async()=>{
  const email=qs('#loginEmail').value.trim(),msg=qs('#authMessage');
  if(!email){msg.textContent='Nejdřív napiš e-mail, na který mám poslat reset.';qs('#loginEmail').focus();return}
  msg.textContent='Posílám resetovací odkaz…';
  const {error}=await sendPasswordReset(email);
- msg.textContent=error?error.message:'Hotovo. Otevři odkaz v e-mailu a nastavíš si nové heslo.';
+ msg.textContent=error?error.message:'Hotovo. Reset je potřeba jen pro cloud účet; aplikace sama heslo nevyžaduje.';
 };
 
 qs('#setPasswordBtn').onclick=async()=>{
@@ -131,7 +145,7 @@ qs('#setPasswordBtn').onclick=async()=>{
  msg.textContent='Ukládám nové heslo…';
  const {error}=await updatePassword(p1);
  if(error){msg.textContent=error.message;return}
- msg.textContent='Heslo změněno.';
+ msg.textContent='Cloudové heslo změněno.';
  recoveryMode=false;
  history.replaceState({},document.title,location.pathname+location.search.replace(/([?&])type=recovery(&|$)/,'$1').replace(/[?&]$/,''));
  await handleSession(await session());
@@ -146,13 +160,13 @@ sb.auth.onAuthStateChange((ev,sess)=>{
 const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
 if(hashParams.get('error')){
  recoveryMode=false;
- const expired=hashParams.get('error_code')==='otp_expired';
  history.replaceState({},document.title,location.pathname+location.search);
- showLoginView(expired?'Resetovací odkaz už vypršel. Pošli si nový přes „Zapomněl jsem heslo“.':(hashParams.get('error_description')||'Reset hesla se nepodařil.'));
+ toast(hashParams.get('error_code')==='otp_expired'?'Reset cloudu vypršel. Kamil OS ale můžeš používat bez hesla.':'Cloudové přihlášení se nepodařilo. Kamil OS běží lokálně.');
+ await handleSession(await session());
 }else if(recoveryMode){
  showResetView();
 }else{
- handleSession(await session());
+ await handleSession(await session());
 }
 
 if('serviceWorker'in navigator){
