@@ -1,81 +1,38 @@
 import {store} from './state.js';
-import {h,money,date,qs,qsa,modal} from './utils.js';
+import {h,money,date,qs,qsa,modal,toast} from './utils.js';
 import {netWorth,debtRemaining} from './intelligence.js';
-import {xtbBoard,xtbDataAge,actionLabel} from './decision24.js';
+import {xtbBoard,xtbDataAge,xtbIntelligenceAge,actionLabel} from './live24.js';
+import {refreshIntelligence} from './cloud.js';
 
 export function renderMoney(){
- const s=store.get(),nw=netWorth(s),f=s.financePlan||{},board=xtbBoard(s),age=xtbDataAge(s);
- const debts=(s.debtBook?.items||[]).filter(x=>x.status!=='PAID');
- const debtTotal=debts.reduce((n,x)=>n+debtRemaining(x),0);
- const expected=Number(f.expectedIncome||0),reserve=Number(f.reserveFloor||0),cash=Number(f.cashNow||0),planned=Number(f.plannedInvestment||0);
- const free=cash-reserve,afterPlanned=free-planned,invested=nw.xtb;
- const totalRaw=Math.max(1,cash+invested+nw.tickets+debtTotal);
- const pct=v=>Math.max(0,Math.min(100,Math.round(Number(v||0)/totalRaw*100)));
+ const s=store.get(),nw=netWorth(s),f=s.financePlan||{},board=xtbBoard(s),age=xtbDataAge(s),liveAge=xtbIntelligenceAge(s);
+ const debts=(s.debtBook?.items||[]).filter(x=>x.status!=='PAID'),debtTotal=debts.reduce((n,x)=>n+debtRemaining(x),0);
+ const expected=Number(f.expectedIncome||0),reserve=Number(f.reserveFloor||0),cash=Number(f.cashNow||0),planned=Number(f.plannedInvestment||0),free=cash-reserve,afterPlanned=free-planned,invested=nw.xtb,totalRaw=Math.max(1,cash+invested+nw.tickets+debtTotal),pct=v=>Math.max(0,Math.min(100,Math.round(Number(v||0)/totalRaw*100)));
  const buy=board.filter(x=>x.d.action==='BUY').length,trim=board.filter(x=>['TRIM','SELL'].includes(x.d.action)).length,review=board.filter(x=>x.d.action==='REVIEW').length,hold=board.filter(x=>x.d.action==='HOLD').length;
  qs('#moneyView').innerHTML=`
   <div class="view-head"><div><div class="eyebrow">PENÍZE / OVERVIEW</div><h1>Majetek a investiční rozhodnutí</h1><p>Likvidita, XTB a konkrétní pravidla kdy držet, přikoupit nebo redukovat.</p></div><div class="view-head-stat"><b>${money(nw.adjusted)}</b><span>opatrný odhad majetku</span></div></div>
-  <div class="metric-strip money-metrics">
-   <div class="metric"><span>Hotovost</span><b>${money(cash)}</b></div>
-   <div class="metric"><span>XTB</span><b>${money(invested)}</b></div>
-   <div class="metric"><span>Pohledávky</span><b>${money(debtTotal)}</b></div>
-   <div class="metric"><span>Vstupenky</span><b>${money(nw.tickets)}</b></div>
-  </div>
-  <div class="money-layout">
-   <div class="card money-main">
-    <div class="card-head"><div><div class="eyebrow">STRUKTURA</div><h2>Kde jsou peníze</h2></div><button class="btn" id="editFinance24">Upravit plán</button></div>
-    ${bar('Hotovost',cash,pct(cash))}${bar('XTB',invested,pct(invested))}${bar('Pohledávky',debtTotal,pct(debtTotal))}${bar('Vstupenky',nw.tickets,pct(nw.tickets))}
-   </div>
-   <div class="card liquidity-card">
-    <div class="eyebrow">LIKVIDITA</div><div class="liquidity-number ${free<0?'bad':''}">${money(free)}</div><div class="muted">nad rezervním minimem</div>
-    <div class="row"><span>Rezervní minimum</span><b>${money(reserve)}</b></div>
-    <div class="row"><span>Plánovaná investice</span><b>${money(planned)}</b></div>
-    <div class="row"><span>Po plánované investici</span><b class="${afterPlanned>=0?'good':'bad'}">${money(afterPlanned)}</b></div>
-    <div class="row"><span>Očekávané příjmy</span><b>${money(expected)}</b></div>
-   </div>
-  </div>
+  <div class="metric-strip money-metrics"><div class="metric"><span>Hotovost</span><b>${money(cash)}</b></div><div class="metric"><span>XTB</span><b>${money(invested)}</b></div><div class="metric"><span>Pohledávky</span><b>${money(debtTotal)}</b></div><div class="metric"><span>Vstupenky</span><b>${money(nw.tickets)}</b></div></div>
+  <div class="money-layout"><div class="card money-main"><div class="card-head"><div><div class="eyebrow">STRUKTURA</div><h2>Kde jsou peníze</h2></div><button class="btn" id="editFinance24">Upravit plán</button></div>${bar('Hotovost',cash,pct(cash))}${bar('XTB',invested,pct(invested))}${bar('Pohledávky',debtTotal,pct(debtTotal))}${bar('Vstupenky',nw.tickets,pct(nw.tickets))}</div><div class="card liquidity-card"><div class="eyebrow">LIKVIDITA</div><div class="liquidity-number ${free<0?'bad':''}">${money(free)}</div><div class="muted">nad rezervním minimem</div><div class="row"><span>Rezervní minimum</span><b>${money(reserve)}</b></div><div class="row"><span>Plánovaná investice</span><b>${money(planned)}</b></div><div class="row"><span>Po plánované investici</span><b class="${afterPlanned>=0?'good':'bad'}">${money(afterPlanned)}</b></div><div class="row"><span>Očekávané příjmy</span><b>${money(expected)}</b></div></div></div>
 
   <div class="card" style="margin-top:12px">
-   <div class="card-head"><div><div class="eyebrow">XTB / DECISION COCKPIT</div><h2>Co teď dělat s každou pozicí</h2></div><span class="status ${age.stale?'warn':''}">data ${h(age.label)}</span></div>
-   <div class="decision-strip">
-    <div class="decision-mini"><span>Přikoupit</span><b class="good">${buy}</b></div><div class="decision-mini"><span>Držet</span><b>${hold}</b></div><div class="decision-mini"><span>Redukovat / prodat</span><b class="warn">${trim}</b></div><div class="decision-mini"><span>Prověřit</span><b class="${review?'warn':''}">${review}</b></div>
-   </div>
-   <div class="decision-note ${age.stale?'warn':''}">${age.stale?'Pozor: XTB import už není čerstvý. ':''}Vyhodnocení je pravidlové z posledního XTB importu a alokace. Není to live kurz ani live news feed; ruční pravidlo můžeš u každé pozice přepsat.</div>
-   <div class="decision-table-wrap"><div class="decision-table">
-    <div class="decision-head"><span>Pozice</span><span>P/L</span><span>Váha účtu</span><span>Teď</span><span>Kdy nakoupit</span><span>Kdy prodat</span><span></span></div>
-    ${board.map(({p,d})=>decisionRow(p,d)).join('')||'<div class="empty">XTB import zatím neobsahuje jednotlivé pozice.</div>'}
-   </div></div>
+   <div class="card-head"><div><div class="eyebrow">XTB / DECISION COCKPIT</div><h2>Co teď dělat s každou pozicí</h2></div><div class="intel-toolbar"><span class="live-chip ${liveAge.fresh?'':'stale'}"><i></i>${liveAge.fresh?'živá analýza':'pravidlový režim'} · ${h(liveAge.label)}</span><button class="btn refresh-intel" id="refreshXtbIntel">Načíst analýzu</button></div></div>
+   <div class="decision-strip"><div class="decision-mini"><span>Přikoupit</span><b class="good">${buy}</b></div><div class="decision-mini"><span>Držet</span><b>${hold}</b></div><div class="decision-mini"><span>Redukovat / prodat</span><b class="warn">${trim}</b></div><div class="decision-mini"><span>Prověřit</span><b class="${review?'warn':''}">${review}</b></div></div>
+   <div class="decision-note ${liveAge.fresh?'live':''} ${age.stale?'warn':''}">${age.stale?'Pozor: samotný XTB import už není čerstvý. ':''}${liveAge.fresh?'Živá vrstva přepisuje pravidlový verdikt jen tam, kde má čerstvé vyhodnocení. Ruční pravidlo má vždy přednost.':`Živá analýza není čerstvá; používám bezpečnější pravidla z posledního XTB importu. Import: ${h(age.label)}.`}</div>
+   <div class="decision-table-wrap"><div class="decision-table"><div class="decision-head"><span>Pozice</span><span>P/L</span><span>Váha účtu</span><span>Teď</span><span>Kdy nakoupit</span><span>Kdy prodat</span><span></span></div>${board.map(({p,d})=>decisionRow(p,d)).join('')||'<div class="empty">XTB import zatím neobsahuje jednotlivé pozice.</div>'}</div></div>
   </div>
 
-  <div class="grid two">
-   <div class="card"><div class="card-head"><div><div class="eyebrow">XTB</div><h2>Investice</h2></div><span class="status">${s.xtbHub?.positionCount||0} pozic</span></div>
-    <div class="row"><span>CZK účet</span><b>${money(s.xtbReport?.czkValue)}</b></div>
-    <div class="row"><span>CZK P/L</span><b class="${Number(s.xtbReport?.czkProfit||0)>=0?'good':'bad'}">${money(s.xtbReport?.czkProfit)}</b></div>
-    <div class="row"><span>EUR účet</span><b>${Number(s.xtbReport?.eurValue||0).toLocaleString('cs-CZ')} €</b></div>
-    <div class="row"><span>Aktualizováno</span><b>${date(s.xtbReport?.asOf)}</b></div>
-   </div>
-   <div class="card"><div class="card-head"><div><div class="eyebrow">POHLEDÁVKY</div><h2>Co ti dluží</h2></div><div class="row-actions"><span class="status">${debts.length} aktivních</span><button class="btn" data-capture-money>＋ Přidat</button></div></div>
-    ${debts.slice(0,6).map(x=>`<div class="row"><div><b>${h(x.person||'Neznámý')}</b><div class="muted">${h(x.reason||'Pohledávka')}</div></div><b>${money(debtRemaining(x))}</b></div>`).join('')||'<div class="empty">Žádné aktivní pohledávky.</div>'}
-   </div>
-  </div>`;
- qs('#editFinance24').onclick=editFinance;
- qs('[data-capture-money]',qs('#moneyView'))?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:capture')));
- qsa('[data-xtb-rule]',qs('#moneyView')).forEach(b=>b.onclick=()=>editXtbRule(b.dataset.xtbRule));
+  <div class="grid two"><div class="card"><div class="card-head"><div><div class="eyebrow">XTB</div><h2>Investice</h2></div><span class="status">${s.xtbHub?.positionCount||0} pozic</span></div><div class="row"><span>CZK účet</span><b>${money(s.xtbReport?.czkValue)}</b></div><div class="row"><span>CZK P/L</span><b class="${Number(s.xtbReport?.czkProfit||0)>=0?'good':'bad'}">${money(s.xtbReport?.czkProfit)}</b></div><div class="row"><span>EUR účet</span><b>${Number(s.xtbReport?.eurValue||0).toLocaleString('cs-CZ')} €</b></div><div class="row"><span>Import</span><b>${date(s.xtbReport?.asOf)}</b></div></div><div class="card"><div class="card-head"><div><div class="eyebrow">POHLEDÁVKY</div><h2>Co ti dluží</h2></div><div class="row-actions"><span class="status">${debts.length} aktivních</span><button class="btn" data-capture-money>＋ Přidat</button></div></div>${debts.slice(0,6).map(x=>`<div class="row"><div><b>${h(x.person||'Neznámý')}</b><div class="muted">${h(x.reason||'Pohledávka')}</div></div><b>${money(debtRemaining(x))}</b></div>`).join('')||'<div class="empty">Žádné aktivní pohledávky.</div>'}</div></div>`;
+ qs('#editFinance24').onclick=editFinance;qs('[data-capture-money]',qs('#moneyView'))?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:capture')));qsa('[data-xtb-rule]',qs('#moneyView')).forEach(b=>b.onclick=()=>editXtbRule(b.dataset.xtbRule));qs('#refreshXtbIntel')?.addEventListener('click',refreshXtb);
 }
 
 const bar=(label,value,pct)=>`<div class="money-bar"><div class="money-bar-head"><span>${label}</span><b>${money(value)}</b></div><div class="money-track"><i style="width:${pct}%"></i></div><span class="money-pct">${pct} %</span></div>`;
-const decisionRow=(p,d)=>`<div class="decision-row"><div class="decision-asset"><b>${h(p.name||p.ticker)}</b><span>${h(p.ticker)} · ${h(p.category||'')}</span></div><div class="decision-cell"><b class="${Number(p.net_profit_pct||0)>=0?'good':'bad'}">${Number(p.net_profit_pct||0).toFixed(1)} %</b><small>${Number(p.net_profit||0).toLocaleString('cs-CZ')} ${h(p.accountCurrency||'')}</small></div><div class="decision-cell"><b>${Number(p.weightPct||0).toFixed(1)} %</b><small>účtu</small></div><div><span class="decision-action ${d.tone||''}">${h(actionLabel(d.action))}</span><small class="muted">${h(d.source)}</small></div><div class="decision-cell">${h(d.buyRule)}</div><div class="decision-cell">${h(d.sellRule)}</div><button class="btn" data-xtb-rule="${h(p.ticker)}">Pravidlo</button></div>`;
+const decisionRow=(p,d)=>{
+ const confidence=d.confidence===null||d.confidence===undefined?'':` · ${Math.round(Number(d.confidence)||0)} %`;
+ const price=d.currentPrice?`${Number(d.currentPrice).toLocaleString('cs-CZ')} ${h(d.priceCurrency||'')}`:'';
+ const context=[d.trimQty?`prodat ${d.trimQty} ks`:'',d.trimAmount?`≈ ${money(d.trimAmount)}`:''].filter(Boolean);
+ return `<div class="decision-row"><div class="decision-asset"><b>${h(p.name||p.ticker)}</b><span>${h(p.ticker)} · ${h(p.category||'')}</span>${d.headline?`<span class="live-headline">${h(d.headline)}</span>`:''}</div><div class="decision-cell"><b class="${Number(p.net_profit_pct||0)>=0?'good':'bad'}">${Number(p.net_profit_pct||0).toFixed(1)} %</b><small>${price||`${Number(p.net_profit||0).toLocaleString('cs-CZ')} ${h(p.accountCurrency||'')}`}</small></div><div class="decision-cell"><b>${Number(p.weightPct||0).toFixed(1)} %</b><small>účtu</small></div><div><span class="decision-action ${d.tone||''}">${h(actionLabel(d.action))}</span><small class="live-meta">${h(d.source||'AUTO')}${confidence}</small><span class="decision-when">${h(d.when||'')}</span>${context.length?`<div class="decision-context">${context.map(x=>`<span>${h(x)}</span>`).join('')}</div>`:''}</div><div class="decision-cell">${h(d.buyRule)}</div><div class="decision-cell">${h(d.sellRule)}</div><button class="btn" data-xtb-rule="${h(p.ticker)}">Pravidlo</button></div>`;
+};
 
-async function editFinance(){
- const f=store.get().financePlan||{};
- const body=`<div class="form-grid"><label>Hotovost<input id="cash24" type="number" value="${Number(f.cashNow)||0}"></label><label>Očekávané příjmy<input id="income24" type="number" value="${Number(f.expectedIncome)||0}"></label><label>Rezervní minimum<input id="reserve24" type="number" value="${Number(f.reserveFloor)||0}"></label><label>Plánovaná investice<input id="invest24" type="number" value="${Number(f.plannedInvestment)||0}"></label></div>`;
- const ok=await modal('Finanční plán',body,[{label:'Zrušit',value:false},{label:'Uložit',value:true,primary:true}]);if(!ok)return;
- store.mutate('Upraven finanční plán',s=>Object.assign(s.financePlan,{cashNow:Number(qs('#cash24')?.value||0),expectedIncome:Number(qs('#income24')?.value||0),reserveFloor:Number(qs('#reserve24')?.value||0),plannedInvestment:Number(qs('#invest24')?.value||0)}));
-}
-
-async function editXtbRule(ticker){
- const s=store.get(),p=xtbBoard(s).find(x=>x.p.ticker===ticker),o=s.xtbStrategy?.overrides?.[ticker]||{};if(!p)return;
- const body=`<div class="form-grid capture-form"><label>Režim<select id="xtbRuleAction"><option value="">AUTO</option>${['BUY','HOLD','TRIM','SELL','REVIEW'].map(a=>`<option value="${a}" ${o.action===a?'selected':''}>${actionLabel(a)}</option>`).join('')}</select></label><label>Priorita 0–100<input id="xtbRulePriority" type="number" min="0" max="100" value="${Number(o.priority||85)}"></label><label class="wide-field">Kdy jednat<input id="xtbRuleWhen" value="${h(o.when||p.d.when||'')}"></label><label class="wide-field">Kdy nakoupit<textarea id="xtbRuleBuy" rows="2">${h(o.buyRule||p.d.buyRule||'')}</textarea></label><label class="wide-field">Kdy prodat<textarea id="xtbRuleSell" rows="2">${h(o.sellRule||p.d.sellRule||'')}</textarea></label><label class="wide-field">Důvod<textarea id="xtbRuleReason" rows="2">${h(o.reason||p.d.reason||'')}</textarea></label></div>`;
- const ok=await modal(`XTB pravidlo · ${ticker}`,body,[{label:'Zrušit',value:false},{label:'Uložit',value:true,primary:true}]);if(!ok)return;
- const action=qs('#xtbRuleAction')?.value||'';
- store.mutate(`XTB strategie ${ticker}`,x=>{x.xtbStrategy=x.xtbStrategy||{overrides:{}};x.xtbStrategy.overrides=x.xtbStrategy.overrides||{};if(!action){delete x.xtbStrategy.overrides[ticker];return}x.xtbStrategy.overrides[ticker]={action,priority:Number(qs('#xtbRulePriority')?.value||85),when:qs('#xtbRuleWhen')?.value?.trim()||'',buyRule:qs('#xtbRuleBuy')?.value?.trim()||'',sellRule:qs('#xtbRuleSell')?.value?.trim()||'',reason:qs('#xtbRuleReason')?.value?.trim()||'',updatedAt:new Date().toISOString()}});
-}
+async function refreshXtb(){const b=qs('#refreshXtbIntel');if(b){b.disabled=true;b.textContent='Načítám…'}const r=await refreshIntelligence();toast(!r.ok?(r.error?.message||'Cloud není dostupný'):r.xtb?'Živá XTB analýza načtena':'V cloudu zatím není nová XTB analýza');renderMoney()}
+async function editFinance(){const f=store.get().financePlan||{},body=`<div class="form-grid"><label>Hotovost<input id="cash24" type="number" value="${Number(f.cashNow)||0}"></label><label>Očekávané příjmy<input id="income24" type="number" value="${Number(f.expectedIncome)||0}"></label><label>Rezervní minimum<input id="reserve24" type="number" value="${Number(f.reserveFloor)||0}"></label><label>Plánovaná investice<input id="invest24" type="number" value="${Number(f.plannedInvestment)||0}"></label></div>`,ok=await modal('Finanční plán',body,[{label:'Zrušit',value:false},{label:'Uložit',value:true,primary:true}]);if(!ok)return;store.mutate('Upraven finanční plán',s=>Object.assign(s.financePlan,{cashNow:Number(qs('#cash24')?.value||0),expectedIncome:Number(qs('#income24')?.value||0),reserveFloor:Number(qs('#reserve24')?.value||0),plannedInvestment:Number(qs('#invest24')?.value||0)}))}
+async function editXtbRule(ticker){const s=store.get(),p=xtbBoard(s).find(x=>x.p.ticker===ticker),o=s.xtbStrategy?.overrides?.[ticker]||{};if(!p)return;const body=`<div class="form-grid capture-form"><label>Režim<select id="xtbRuleAction"><option value="">AUTO / ŽIVĚ</option>${['BUY','HOLD','TRIM','SELL','REVIEW'].map(a=>`<option value="${a}" ${o.action===a?'selected':''}>${actionLabel(a)}</option>`).join('')}</select></label><label>Priorita 0–100<input id="xtbRulePriority" type="number" min="0" max="100" value="${Number(o.priority||85)}"></label><label class="wide-field">Kdy jednat<input id="xtbRuleWhen" value="${h(o.when||p.d.when||'')}"></label><label class="wide-field">Kdy nakoupit<textarea id="xtbRuleBuy" rows="2">${h(o.buyRule||p.d.buyRule||'')}</textarea></label><label class="wide-field">Kdy prodat<textarea id="xtbRuleSell" rows="2">${h(o.sellRule||p.d.sellRule||'')}</textarea></label><label class="wide-field">Důvod<textarea id="xtbRuleReason" rows="2">${h(o.reason||p.d.reason||'')}</textarea></label></div>`,ok=await modal(`XTB pravidlo · ${ticker}`,body,[{label:'Zrušit',value:false},{label:'Uložit',value:true,primary:true}]);if(!ok)return;const action=qs('#xtbRuleAction')?.value||'';store.mutate(`XTB strategie ${ticker}`,x=>{x.xtbStrategy=x.xtbStrategy||{overrides:{}};x.xtbStrategy.overrides=x.xtbStrategy.overrides||{};if(!action){delete x.xtbStrategy.overrides[ticker];return}x.xtbStrategy.overrides[ticker]={action,priority:Number(qs('#xtbRulePriority')?.value||85),when:qs('#xtbRuleWhen')?.value?.trim()||'',buyRule:qs('#xtbRuleBuy')?.value?.trim()||'',sellRule:qs('#xtbRuleSell')?.value?.trim()||'',reason:qs('#xtbRuleReason')?.value?.trim()||'',updatedAt:new Date().toISOString()}})}
