@@ -1,3 +1,15 @@
+# Kamil OS 24.3 — Project Command Center
+
+## 24.3.0 — Project management
+- Práce dostala skutečný projektový command center místo jednoduchých karet
+- projekt má odpovědnou osobu, deadline, riziko, stav, další krok a poznámku
+- detail projektu ukazuje otevřené a prošlé úkoly, termín, riziko, odpovědnost a další krok
+- úkoly lze přímo navázat na konkrétní projekt a zakládat z jeho detailu
+- rychlé založení úkolu nabízí výběr aktivního projektu
+- projekt lze upravit nebo označit jako hotový bez mazání jeho úkolů
+- intelligence nově počítá projektové riziko, deadline, chybějící další krok a prošlé projektové úkoly
+- PWA shell, schema a QA gate sjednoceny na 24.3
+
 # Kamil OS 24.2 — Faster Capture & Follow-up
 
 ## 24.2.0 — Quick capture + Waiting hub
