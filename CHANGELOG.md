@@ -1,3 +1,16 @@
+# Kamil OS 24.2 — Faster Capture & Follow-up
+
+## 24.2.0 — Quick capture + Waiting hub
+- univerzální tlačítko **Přidat** v horní liště a klávesová zkratka `Ctrl+N`
+- rychlé založení úkolu, čekání, projektu, pohledávky, vstupenkové pozice nebo Inbox položky
+- nový samostatný hub **Čekám na** pod Více
+- čekající položky se řadí podle stáří, lze je označit jako připomenuté nebo vyřešené
+- intelligence zohledňuje stáří čekání i naplánovaný follow-up a posílá prioritu přímo do správného hubu
+- globální vyhledávání umí najít a otevřít čekající položky
+- příkazy `ukaž čekám na` / `co čeká` otevřou Waiting hub
+- Dnes odkazuje na kompletní seznam čekajících položek
+- rozšířený statický QA gate o capture modul a nové shell assety
+
 # Kamil OS 24.1 — Personal Command Center
 
 ## 24.1.0 — UI/UX overhaul
