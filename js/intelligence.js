@@ -37,7 +37,7 @@ export function signals(s){
    if((x.status||'WAITING')==='DONE')continue;
    const touched=x.lastContactAt||x.updatedAt||x.createdAt,age=touched?Math.max(0,Math.floor((now-new Date(touched))/86400000)):0;
    const score=age>=14?88:age>=7?74:age>=4?60:35;
-   if(score>=55)add('Čekám',x.title||x.person||'Čekající položka',score,age?`${age} dní čekání`:'čeká na reakci','waiting',x.id,'Dlouhé čekání blokuje další krok.');
+   if(score>=55)add('Čekám',x.title||x.person||'Čekající položka',score,age?`${age} dní čekání`:'čeká na reakci','today',x.id,'Dlouhé čekání blokuje další krok.');
  }
  for(const x of s.debtBook?.items||[]){if(x.status==='PAID')continue;const st=debtStatus(x),rem=debtRemaining(x);if(st.score>=60)add('Dluh',`${x.person} · ${money(rem)}`,st.score,st.label,'debts',x.id,'Je vhodné udržet pohledávku aktivní.')}
  for(const x of s.ticketBook?.items||[]){const st=ticketStatus(x);if(st.score>=60)add('Vstupenky',x.name,st.score,st.label,'tickets',x.id,'Čas do akce ovlivňuje prodejní hodnotu.')}
