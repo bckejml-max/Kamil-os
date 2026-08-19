@@ -48,7 +48,7 @@ function renderMenu(s){
    ${hubTile('debts','Kč','Pohledávky',`${money(debtTotal)} · ${debts.length} aktivních`,urgentDebts?'warn':'good')}
    ${hubTile('terms','30','Termíny',`${next30} položek v příštích 30 dnech`,next30?'':'good')}
    ${hubTile('backup','↧','Záloha','Export a bezpečná obnova dat','')}
-   ${hubTile('settings','⚙','Nastavení','Upozornění a chování aplikace','')}
+   ${hubTile('settings','⚙','Nastavení',s.meta?.cloudMode==='cloud'?'Bez hesla · cloud připojen':'Bez hesla · lokální režim','good')}
    ${hubTile('system','●','Systém',pf?.ok===false?'Preflight vyžaduje pozornost':'Cloud a diagnostika',pf?.ok===false?'bad':'good')}
   </div>`;
  qsa('[data-more24]',qs('#moreView')).forEach(b=>b.onclick=()=>{moreMode=b.dataset.more24;renderMore()});
@@ -106,20 +106,23 @@ function backupHtml(s){
 
 function settingsHtml(s){
  const notification=('Notification'in window)?Notification.permission:'unsupported';
- const learned=(s.learning?.feedback||[]).length;
- return `<div class="view-head compact"><div><div class="eyebrow">NASTAVENÍ</div><h1>Chování Kamil OS</h1><p>Upozornění a naučené preference bez zbytečných voleb.</p></div></div>
- <div class="card settings24-list"><div class="settings24-row"><div><b>Upozornění v prohlížeči</b><span>Vysoká priorita, když aplikace není v popředí.</span></div><span class="status ${notification==='granted'?'good':notification==='denied'?'bad':'warn'}">${h(notification)}</span><button class="btn" id="notify24Btn" ${notification==='unsupported'?'disabled':''}>${notification==='granted'?'Povoleno':'Povolit'}</button></div>
- <div class="settings24-row"><div><b>Inteligence</b><span>${learned} uložených reakcí na doporučení.</span></div><span></span><button class="btn" id="resetLearning24">Resetovat učení</button></div>
- <div class="settings24-row"><div><b>Účet</b><span>Odhlášení neodstraní cloudová data.</span></div><span></span><button class="btn danger" id="systemLogout24">Odhlásit</button></div></div>`;
+ const learned=(s.learning?.feedback||[]).length,cloud=s.meta?.cloudMode==='cloud';
+ return `<div class="view-head compact"><div><div class="eyebrow">NASTAVENÍ</div><h1>Chování Kamil OS</h1><p>Aplikace se otevírá rovnou bez hesla. Cloud je jen volitelná synchronizační vrstva.</p></div></div>
+ <div class="card settings24-list">
+  <div class="settings24-row"><div><b>Přístup</b><span>Žádná přihlašovací obrazovka při běžném otevření aplikace.</span></div><span class="status good">BEZ HESLA</span><span></span></div>
+  <div class="settings24-row"><div><b>Cloud</b><span>${cloud?'Supabase session je aktivní a data se synchronizují.':'Aplikace běží pouze z tohoto zařízení. Cloudová data nejsou zpřístupněná anonymně.'}</span></div><span class="status ${cloud?'good':'warn'}">${cloud?'PŘIPOJEN':'LOKÁLNÍ'}</span><button class="btn ${cloud?'danger':''}" id="cloudMode24">${cloud?'Odpojit cloud':'Připojit cloud'}</button></div>
+  <div class="settings24-row"><div><b>Upozornění v prohlížeči</b><span>Vysoká priorita, když aplikace není v popředí.</span></div><span class="status ${notification==='granted'?'good':notification==='denied'?'bad':'warn'}">${h(notification)}</span><button class="btn" id="notify24Btn" ${notification==='unsupported'?'disabled':''}>${notification==='granted'?'Povoleno':'Povolit'}</button></div>
+  <div class="settings24-row"><div><b>Inteligence</b><span>${learned} uložených reakcí na doporučení.</span></div><span></span><button class="btn" id="resetLearning24">Resetovat učení</button></div>
+ </div>`;
 }
 
 function systemHtml(s){
  const pf=s.meta?.preflight,checks=pf?.checks||[],failed=checks.filter(x=>!x.ok);
- const cloud=s.meta?.lastCloudAt||store.meta()?.lastCloudAt;
+ const cloud=s.meta?.lastCloudAt||store.meta()?.lastCloudAt,cloudMode=s.meta?.cloudMode==='cloud';
  return `<div class="view-head compact"><div><div class="eyebrow">SYSTÉM / DIAGNOSTIKA</div><h1>${failed.length?'Potřebuje kontrolu':'Všechno vypadá dobře'}</h1><p>Lokální stav, cloud, schema a release kontrola.</p></div><div class="view-head-stat"><b class="${failed.length?'bad':'good'}">${failed.length?'CHECK':'OK'}</b><span>preflight</span></div></div>
- <div class="metric-strip"><div class="metric"><span>Verze</span><b>${h(APP_VERSION)}</b></div><div class="metric"><span>Schema</span><b>v${SCHEMA_VERSION}</b></div><div class="metric"><span>Cloud</span><b>${cloud?date(cloud):'—'}</b></div><div class="metric"><span>Poslední změna</span><b>${s.meta?.lastMutationAt?date(s.meta.lastMutationAt):'—'}</b></div></div>
+ <div class="metric-strip"><div class="metric"><span>Verze</span><b>${h(APP_VERSION)}</b></div><div class="metric"><span>Schema</span><b>v${SCHEMA_VERSION}</b></div><div class="metric"><span>Režim</span><b class="${cloudMode?'good':'warn'}">${cloudMode?'CLOUD':'LOCAL'}</b></div><div class="metric"><span>Poslední změna</span><b>${s.meta?.lastMutationAt?date(s.meta.lastMutationAt):'—'}</b></div></div>
  <div class="grid two"><div class="card"><div class="card-head"><div><div class="eyebrow">PREFLIGHT</div><h2>Kontroly</h2></div><span class="status ${failed.length?'bad':'good'}">${checks.length-failed.length}/${checks.length||0}</span></div>${checks.map(x=>`<div class="system-check"><span class="check-dot ${x.ok?'good':'bad'}"></span><div><b>${h(x.name)}</b><small>${h(x.detail||'')}</small></div><strong class="${x.ok?'good':'bad'}">${x.ok?'OK':'CHYBA'}</strong></div>`).join('')||'<div class="empty">Preflight ještě neběžel.</div>'}</div>
- <div class="card"><div class="eyebrow">STAV</div><div class="row"><span>Poslední cloud</span><b>${cloud?dateTime(cloud):'—'}</b></div><div class="row"><span>Lokální změna</span><b>${s.meta?.lastMutationAt?dateTime(s.meta.lastMutationAt):'—'}</b></div><div class="row"><span>Pending sync</span><b class="${store.dirty?'warn':'good'}">${store.dirty?'ANO':'NE'}</b></div><div class="row"><span>Undo body</span><b>${(s.undo||[]).length}</b></div></div></div>`;
+ <div class="card"><div class="eyebrow">STAV</div><div class="row"><span>Přístup</span><b class="good">Bez hesla</b></div><div class="row"><span>Poslední cloud</span><b>${cloud?dateTime(cloud):'—'}</b></div><div class="row"><span>Lokální změna</span><b>${s.meta?.lastMutationAt?dateTime(s.meta.lastMutationAt):'—'}</b></div><div class="row"><span>Pending sync</span><b class="${store.dirty?'warn':'good'}">${store.dirty?'ANO':'NE'}</b></div><div class="row"><span>Undo body</span><b>${(s.undo||[]).length}</b></div></div></div>`;
 }
 
 function bindActions(){
@@ -137,7 +140,7 @@ function bindActions(){
  qs('#backup24Import')?.addEventListener('change',e=>importBackup(e.target.files?.[0]));
  qs('#notify24Btn')?.addEventListener('click',async()=>{if('Notification'in window){await Notification.requestPermission();renderMore()}});
  qs('#resetLearning24')?.addEventListener('click',async()=>{const ok=await modal('Resetovat učení?',`<p class="muted">Smažu pouze reakce na doporučení. Tvoje úkoly ani další data se nezmění.</p>`,[{label:'Zrušit',value:false},{label:'Resetovat',value:true,danger:true}]);if(ok)store.mutate('Resetováno učení',s=>{s.learning={typeBias:{},feedback:[]}})});
- qs('#systemLogout24')?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:logout')));
+ qs('#cloudMode24')?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent(S().meta?.cloudMode==='cloud'?'kamil:logout':'kamil:cloud-login')));
 }
 
 async function debtPayment(id){
