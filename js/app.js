@@ -103,7 +103,6 @@ async function handleSession(sess){
  if(recoveryMode){showResetView();return}
  showApp();
  const email=qs('#userEmail'),logoutBtn=qs('#logoutBtn');
- store.get().meta.cloudMode=sess?'cloud':'local';store.persist();
  if(email)email.textContent=sess?.user?.email||'Toto zařízení';
  if(logoutBtn)logoutBtn.classList.toggle('hidden',!sess);
  if(sess){
@@ -118,6 +117,7 @@ async function handleSession(sess){
    }
    await flushQueue();await loadDataHubs();
  }else localSyncStatus();
+ store.get().meta.cloudMode=sess?'cloud':'local';
  const pf=runPreflight();store.get().meta.preflight=pf;store.persist();render();
 }
 
