@@ -1,3 +1,16 @@
+# Kamil OS 24.4 — Passwordless Daily Use
+
+## 24.4.0 — Open instantly + richer task control
+- Kamil OS se při běžném otevření spustí rovnou bez hesla
+- existující Supabase session se dál použije pro cloud sync, ale bez session aplikace normálně funguje lokálně
+- cloudová data nejsou kvůli pohodlí otevřená anonymním návštěvníkům
+- Nastavení jasně ukazuje režim CLOUD / LOKÁLNÍ a cloud lze volitelně připojit nebo odpojit
+- úkoly mají nově odpovědnou osobu, lze je kompletně upravit a kdykoliv přiřadit k projektu
+- projektový detail umí připojit už existující otevřený úkol
+- projektové úkoly dědí odpovědnost projektu a lze je dál individuálně upravit
+- vizuálně dotažený projektový command center a stav lokálního režimu
+- PWA shell a QA gate sjednoceny na 24.4
+
 # Kamil OS 24.3 — Project Command Center
 
 ## 24.3.0 — Project management
