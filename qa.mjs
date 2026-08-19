@@ -8,13 +8,16 @@ if(dup.length)throw new Error('Duplicate DOM IDs: '+[...new Set(dup)].join(','))
 for(const asset of ['styles24.css','capture24.css','js/app.js'])if(!html.includes(asset))throw new Error('Missing shell asset '+asset);
 for(const id of ['quickAddBtn','commandInput','undoBtn','syncStatus'])if(!ids.includes(id))throw new Error('Missing shell control '+id);
 const js=files.filter(f=>f.endsWith('.js')).map(f=>fs.readFileSync(f,'utf8')).join('\n');
-for(const required of ['scheduleSave','migrate','resolveConflict','recommendation','renderToday','renderWork','renderMoney','renderTickets','renderMore','openQuickCapture','sendPasswordReset','updatePassword','execute'])if(!js.includes(required))throw new Error('Missing '+required);
+for(const required of ['scheduleSave','migrate','resolveConflict','recommendation','projectStatus','renderToday','renderWork','renderMoney','renderTickets','renderMore','openQuickCapture','sendPasswordReset','updatePassword','execute'])if(!js.includes(required))throw new Error('Missing '+required);
 const app=fs.readFileSync('js/app.js','utf8');
 for(const module of ['today24.js','work24.js','money24.js','tickets24.js','more24.js','capture24.js'])if(!app.includes(module))throw new Error('App missing '+module);
 if(app.includes("from './render.js'"))throw new Error('Legacy renderer still imported');
 if(fs.readFileSync('js/command.js','utf8').includes("from './render.js'"))throw new Error('Command still imports legacy renderer');
 const capture=fs.readFileSync('js/capture24.js','utf8');
 for(const area of ['task','wait','project','debt','ticket','inbox'])if(!capture.includes(`type==='${area}'`))throw new Error('Capture missing '+area);
+for(const field of ['capTaskProject','capProjectOwner','capProjectDeadline','capProjectRisk'])if(!capture.includes(field))throw new Error('Project capture missing '+field);
+const work=fs.readFileSync('js/work24.js','utf8');
+for(const feature of ['selectedProjectId','renderProjectDetail','editProject','addProjectTask','projectId'])if(!work.includes(feature))throw new Error('Project command center missing '+feature);
 const version=fs.readFileSync('js/config.js','utf8').match(/APP_VERSION\s*=\s*['"]([^'"]+)/)?.[1];
 if(!version||!html.includes(version))throw new Error('Visible version mismatch');
 if(!fs.readFileSync('sw.js','utf8').includes(version))throw new Error('Service worker version mismatch');
