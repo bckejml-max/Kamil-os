@@ -7,6 +7,7 @@ import {renderToday} from './today24.js';
 import {renderWork} from './work24.js';
 import {renderMoney} from './money24.js';
 import {renderTickets} from './tickets24.js';
+import {openQuickCapture} from './capture24.js';
 import {execute,renderResults} from './command.js';
 import {attentionCount,recommendation} from './intelligence.js';
 import {runPreflight} from './preflight.js';
@@ -53,10 +54,12 @@ qsa('[data-view]').forEach(x=>x.onclick=()=>navigate(x.dataset.view));
 window.addEventListener('kamil:navigate',e=>navigate(e.detail));
 window.addEventListener('kamil:more',e=>setMoreMode(e.detail));
 window.addEventListener('kamil:logout',()=>logout());
+window.addEventListener('kamil:capture',()=>withActionLock(()=>openQuickCapture()));
 
 store.subscribe(()=>{render();maybeNotify()});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
 qs('#logoutBtn').onclick=()=>logout();
+qs('#quickAddBtn')?.addEventListener('click',()=>withActionLock(()=>openQuickCapture()));
 
 const input=qs('#commandInput');
 input.oninput=()=>renderResults(input.value);
@@ -64,6 +67,7 @@ input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const v=input.value;w
 qs('#commandGo').onclick=()=>{const v=input.value;withActionLock(()=>execute(v));input.value='';renderResults('')};
 document.addEventListener('keydown',e=>{
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();input.focus();input.select()}
+ if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='n'){e.preventDefault();withActionLock(()=>openQuickCapture())}
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)){e.preventDefault();store.undo()}
 });
 document.addEventListener('click',e=>{if(!e.target.closest('.command-wrap'))renderResults('')});
