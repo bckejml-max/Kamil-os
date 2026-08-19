@@ -1,0 +1,47 @@
+# Kamil OS 22.3 — Clean Product
+
+## Co se změnilo
+- Kompletní odříznutí legacy UI a stovek historických rendererů.
+- Modulární architektura: state, cloud, intelligence, rendering, commands.
+- Jednotný State Manager pro lokální uložení, undo, audit a cloud save.
+- Offline fronta pro neodeslané změny.
+- Bezpečná detekce cloud/lokálního konfliktu bez automatického přepsání.
+- Migrace starého stavu na schema v34 bez mazání legacy dat.
+- Hlavní navigace pouze Dnes / Práce / Peníze / Vstupenky / Více.
+- Inbox Zero, Dluhy, Termíny, Záloha, Nastavení a Systém jsou pod Více.
+- Jedno hlavní doporučení + maximálně 3 další signály.
+- Jednotný command/search řádek.
+- Globální Undo.
+- Backup / restore JSON.
+- PWA update banner a verzovaný app shell.
+- Mobilní bottom navigation.
+
+## 22.3.1 — Cloud Hardened
+- ověřeno proti reálnému produkčnímu Supabase schématu a datům
+- explicitní a serverem potvrzené `updated_at` při každém cloud save
+- DB trigger garantuje fresh `updated_at` i pro jiné klienty
+- zpřesněná detekce konfliktu lokální vs cloud
+- produkční SECURITY DEFINER helper už není spustitelný z anon/authenticated klienta
+
+## 22.3.4 — Reliability
+- pending cloud queue se zapisuje okamžitě při každé cloudové změně
+- zavření aplikace během debounce okna už nemůže způsobit ztrátu lokální změny
+- `cloud:false` refresh kalendáře/XTB už nezvedá dirty flag ani audit
+- durable queue se flushne před lokální refreshí data hubů
+- PWA má 192/512 PNG ikony včetně maskable režimu
+- sjednocena viditelná verze 22.3.4
+
+## 22.3.4 — Release Candidate
+- ochrana proti dvojkliku/dvojímu Enteru u command akcí
+- idempotentní SOLD workflow
+- unikátní ID každé splátky dluhu
+- před zavřením aplikace se dirty stav znovu uloží do durable pending queue
+- integrační QA command/search → state → ticket/debt/task workflow
+
+## 22.3.4 — Release Gate
+- validace a bezpečná oprava struktury stavu
+- import poškozené zálohy se zablokuje
+- opravitelné problémy zálohy se ukážou před importem
+- startup preflight a lokální release status
+- cloud konflikt ukazuje rozdíly v počtech hlavních datových oblastí
+- nový release-gate automatický test

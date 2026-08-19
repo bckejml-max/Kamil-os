@@ -1,0 +1,11 @@
+export const APP_VERSION = '22.3.4';
+export const SCHEMA_VERSION = 34;
+export const SUPABASE_URL = 'https://tswqfbkmxywxxczsoddr.supabase.co';
+export const SUPABASE_KEY = 'sb_publishable_kLy9FrQ7cpNEVhvqcCEsfw_MFVqBlFg';
+export const STATE_TABLE = 'kamil_os_state';
+export const CALENDAR_TABLE = 'kamil_calendar_cache';
+export const XTB_TABLE = 'kamil_xtb_data';
+export const LOCAL_KEY = 'kamil-os-state';
+export const META_KEY = 'kamil-os-22-meta';
+export const QUEUE_KEY = 'kamil-os-22-sync-queue';
+export const MAX_UNDO = 15;

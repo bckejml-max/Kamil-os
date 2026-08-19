@@ -1,10 +1,24 @@
 {
-  "name": "Kamil OS",
+  "name": "Kamil OS 22.3.4",
   "short_name": "Kamil OS",
+  "description": "Kamil OS 22.3.4 Reliability",
   "start_url": "./",
-  "scope": "./",
   "display": "standalone",
-  "background_color": "#0c0e12",
-  "theme_color": "#101319",
-  "description": "Kamil OS 20.0 Final Live Release"
+  "background_color": "#0b0f15",
+  "theme_color": "#0d1118",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "scope": "./"
 }
