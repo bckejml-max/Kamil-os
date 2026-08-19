@@ -6,8 +6,8 @@ export function renderMoney(){
  const s=store.get(),nw=netWorth(s),f=s.financePlan||{};
  const debts=(s.debtBook?.items||[]).filter(x=>x.status!=='PAID');
  const debtTotal=debts.reduce((n,x)=>n+debtRemaining(x),0);
- const expected=Number(f.expectedIncome||0),reserve=Number(f.reserveFloor||0),cash=Number(f.cashNow||0);
- const free=Math.max(0,cash-reserve),invested=nw.xtb;
+ const expected=Number(f.expectedIncome||0),reserve=Number(f.reserveFloor||0),cash=Number(f.cashNow||0),planned=Number(f.plannedInvestment||0);
+ const free=cash-reserve,afterPlanned=free-planned,invested=nw.xtb;
  const totalRaw=Math.max(1,cash+invested+nw.tickets+debtTotal);
  const pct=v=>Math.max(0,Math.min(100,Math.round(Number(v||0)/totalRaw*100)));
  qs('#moneyView').innerHTML=`
@@ -24,10 +24,11 @@ export function renderMoney(){
     ${bar('Hotovost',cash,pct(cash))}${bar('XTB',invested,pct(invested))}${bar('Pohledávky',debtTotal,pct(debtTotal))}${bar('Vstupenky',nw.tickets,pct(nw.tickets))}
    </div>
    <div class="card liquidity-card">
-    <div class="eyebrow">LIKVIDITA</div><div class="liquidity-number">${money(free)}</div><div class="muted">nad rezervním minimem</div>
+    <div class="eyebrow">LIKVIDITA</div><div class="liquidity-number ${free<0?'bad':''}">${money(free)}</div><div class="muted">nad rezervním minimem</div>
     <div class="row"><span>Rezervní minimum</span><b>${money(reserve)}</b></div>
+    <div class="row"><span>Plánovaná investice</span><b>${money(planned)}</b></div>
+    <div class="row"><span>Po plánované investici</span><b class="${afterPlanned>=0?'good':'bad'}">${money(afterPlanned)}</b></div>
     <div class="row"><span>Očekávané příjmy</span><b>${money(expected)}</b></div>
-    <div class="row"><span>Po očekávaných příjmech</span><b>${money(cash+expected)}</b></div>
    </div>
   </div>
   <div class="grid two">
@@ -37,11 +38,12 @@ export function renderMoney(){
     <div class="row"><span>EUR účet</span><b>${Number(s.xtbReport?.eurValue||0).toLocaleString('cs-CZ')} €</b></div>
     <div class="row"><span>Aktualizováno</span><b>${date(s.xtbReport?.asOf)}</b></div>
    </div>
-   <div class="card"><div class="card-head"><div><div class="eyebrow">POHLEDÁVKY</div><h2>Co ti dluží</h2></div><span class="status">${debts.length} aktivních</span></div>
+   <div class="card"><div class="card-head"><div><div class="eyebrow">POHLEDÁVKY</div><h2>Co ti dluží</h2></div><div class="row-actions"><span class="status">${debts.length} aktivních</span><button class="btn" data-capture-money>＋ Přidat</button></div></div>
     ${debts.slice(0,6).map(x=>`<div class="row"><div><b>${x.person||'Neznámý'}</b><div class="muted">${x.reason||'Pohledávka'}</div></div><b>${money(debtRemaining(x))}</b></div>`).join('')||'<div class="empty">Žádné aktivní pohledávky.</div>'}
    </div>
   </div>`;
  qs('#editFinance24').onclick=editFinance;
+ qs('[data-capture-money]',qs('#moneyView'))?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:capture')));
 }
 
 const bar=(label,value,pct)=>`<div class="money-bar"><div class="money-bar-head"><span>${label}</span><b>${money(value)}</b></div><div class="money-track"><i style="width:${pct}%"></i></div><span class="money-pct">${pct} %</span></div>`;
