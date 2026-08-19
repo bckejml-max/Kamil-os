@@ -1,0 +1,21 @@
+name: Kamil OS QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Static QA
+        run: node qa.mjs
+      - name: Integration QA
+        run: node integration.mjs
+      - name: Release gate
+        run: node release_gate.mjs
