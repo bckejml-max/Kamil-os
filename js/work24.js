@@ -8,6 +8,7 @@ const riskTone=p=>String(p.risk||'LOW').toUpperCase()==='HIGH'?'bad':String(p.ri
 const projectDeadlineTone=p=>{if(!p.deadline)return'';const d=dayDiff(p.deadline);return d<0?'bad':d<=14?'warn':'good'};
 const linkedTasks=(s,id)=>(s.tasks||[]).filter(t=>t.projectId===id);
 const openLinked=(s,id)=>linkedTasks(s,id).filter(t=>t.status!=='HOTOVO');
+const projectOptions=(s,selected='')=>`<option value="">Bez projektu</option>${activeProjects(s).map(p=>`<option value="${h(p.id)}" ${p.id===selected?'selected':''}>${h(p.name)}</option>`).join('')}`;
 
 const groups=s=>{
  const g={overdue:[],today:[],week:[],later:[],nodate:[]},now=new Date(),today=now.toDateString();
@@ -22,7 +23,14 @@ const groups=s=>{
  return g;
 };
 const projectName=(s,id)=>id?(s.projects||[]).find(p=>p.id===id)?.name:'';
-const taskRow=(s,t,tone='')=>`<div class="work-task ${tone}"><div class="work-check"></div><div class="work-task-main"><b>${h(t.title)}</b><span>${h(projectName(s,t.projectId)||t.area||'Úkol')}${t.due?' · '+date(t.due):' · bez termínu'}</span></div><div class="row-actions"><button class="btn primary" data-work-done="${t.id}">Hotovo</button><button class="btn" data-work-tomorrow="${t.id}">Zítra</button></div></div>`;
+const taskMeta=(s,t)=>{
+ const bits=[projectName(s,t.projectId)||t.area||'Úkol'];
+ if(t.owner)bits.push(t.owner);
+ bits.push(t.due?date(t.due):'bez termínu');
+ if(String(t.priority||'').toUpperCase()==='HIGH')bits.push('vysoká priorita');
+ return bits.join(' · ');
+};
+const taskRow=(s,t,tone='')=>`<div class="work-task ${tone}"><div class="work-check"></div><div class="work-task-main"><b>${h(t.title)}</b><span>${h(taskMeta(s,t))}</span></div><div class="row-actions"><button class="btn primary" data-work-done="${t.id}">Hotovo</button><button class="btn" data-work-tomorrow="${t.id}">Zítra</button><button class="btn quiet-action" data-work-edit="${t.id}">Upravit</button></div></div>`;
 
 export function renderWork(){
  const s=store.get();
@@ -73,9 +81,10 @@ function projectCard(s,p){
 
 function renderProjectDetail(s,p){
  const tasks=linkedTasks(s,p.id),open=tasks.filter(t=>t.status!=='HOTOVO'),over=open.filter(t=>t.due&&dayDiff(t.due)<0),done=tasks.length-open.length;
+ const available=(s.tasks||[]).filter(t=>t.status!=='HOTOVO'&&!t.projectId);
  qs('#workView').innerHTML=`
   <div class="subview-bar"><button class="btn" id="projectBack24">← Projekty</button><div><span>PRÁCE / PROJEKT</span><b>${h(p.name)}</b></div></div>
-  <div class="view-head project-detail-head"><div><div class="eyebrow">PROJEKTOVÝ COMMAND CENTER</div><h1>${h(p.name)}</h1><p>${h(p.notes||'Doplň kontext projektu, odpovědnost a konkrétní další krok.')}</p></div><div class="row-actions"><button class="btn" id="projectEditDetail24">Upravit projekt</button><button class="btn primary" id="projectAddTask24">＋ Úkol</button></div></div>
+  <div class="view-head project-detail-head"><div><div class="eyebrow">PROJEKTOVÝ COMMAND CENTER</div><h1>${h(p.name)}</h1><p>${h(p.notes||'Doplň kontext projektu, odpovědnost a konkrétní další krok.')}</p></div><div class="row-actions"><button class="btn" id="projectEditDetail24">Upravit projekt</button><button class="btn" id="projectLinkTask24" ${available.length?'':'disabled'}>Připojit úkol</button><button class="btn primary" id="projectAddTask24">＋ Úkol</button></div></div>
   <div class="metric-strip project-metrics">
    <div class="metric"><span>Otevřené úkoly</span><b>${open.length}</b></div>
    <div class="metric"><span>Po termínu</span><b class="${over.length?'bad':'good'}">${over.length}</b></div>
@@ -86,7 +95,7 @@ function renderProjectDetail(s,p){
    <div class="card project-brief"><div class="eyebrow">ŘÍZENÍ</div><div class="project-fact"><span>Odpovědnost</span><b>${h(p.owner||'Neurčeno')}</b></div><div class="project-fact"><span>Stav</span><b>${h(p.status||'Aktivní')}</b></div><div class="project-fact"><span>Hotovo</span><b>${done} úkolů</b></div><div class="project-fact"><span>Deadline</span><b class="${projectDeadlineTone(p)}">${p.deadline?date(p.deadline):'Bez termínu'}</b></div></div>
    <div class="card project-next-card"><div class="eyebrow">DALŠÍ KROK</div><div class="project-big-next">${h(p.next||'Chybí konkrétní další krok')}</div><p class="muted">Projekt by měl mít vždy jeden jasný nejbližší krok. Když chybí, Kamil OS ho bude považovat za riziko.</p><button class="btn" id="projectEditNext24">Upravit další krok</button></div>
   </div>
-  <div class="card project-task-card"><div class="card-head"><div><div class="eyebrow">ÚKOLY PROJEKTU</div><h2>${open.length} otevřených · ${done} hotovo</h2></div><button class="btn primary" id="projectAddTask24b">＋ Přidat úkol</button></div>
+  <div class="card project-task-card"><div class="card-head"><div><div class="eyebrow">ÚKOLY PROJEKTU</div><h2>${open.length} otevřených · ${done} hotovo</h2></div><div class="row-actions"><button class="btn" id="projectLinkTask24b" ${available.length?'':'disabled'}>Připojit existující</button><button class="btn primary" id="projectAddTask24b">＋ Přidat úkol</button></div></div>
    ${over.length?`<div class="work-section"><div class="work-section-title bad">Po termínu · ${over.length}</div>${over.map(t=>taskRow(s,t,'urgent')).join('')}</div>`:''}
    ${open.filter(t=>!over.includes(t)).map(t=>taskRow(s,t,t.due&&dayDiff(t.due)===0?'today':'')).join('')||(!over.length?'<div class="empty">Projekt zatím nemá otevřené úkoly.</div>':'')}
   </div>
@@ -95,6 +104,7 @@ function renderProjectDetail(s,p){
  qs('#projectEditDetail24').onclick=()=>editProject(p.id);
  qs('#projectEditNext24').onclick=()=>editNext(p.id);
  qs('#projectAddTask24').onclick=()=>addProjectTask(p.id);qs('#projectAddTask24b').onclick=()=>addProjectTask(p.id);
+ qs('#projectLinkTask24').onclick=()=>linkExistingTask(p.id);qs('#projectLinkTask24b').onclick=()=>linkExistingTask(p.id);
  qs('#projectArchive24').onclick=()=>finishProject(p.id);
  bindTaskActions();
 }
@@ -102,6 +112,15 @@ function renderProjectDetail(s,p){
 function bindTaskActions(){
  qsa('[data-work-done]',qs('#workView')).forEach(b=>b.onclick=()=>store.mutate('Hotovo: úkol',x=>{const t=x.tasks.find(y=>y.id===b.dataset.workDone);if(t){t.status='HOTOVO';t.updatedAt=new Date().toISOString()}}));
  qsa('[data-work-tomorrow]',qs('#workView')).forEach(b=>b.onclick=()=>store.mutate('Úkol přesunut na zítra',x=>{const t=x.tasks.find(y=>y.id===b.dataset.workTomorrow);if(t){const d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);t.due=d.toISOString();t.updatedAt=new Date().toISOString()}}));
+ qsa('[data-work-edit]',qs('#workView')).forEach(b=>b.onclick=()=>editTask(b.dataset.workEdit));
+}
+
+async function editTask(id){
+ const s=store.get(),t=s.tasks.find(x=>x.id===id);if(!t)return;
+ const body=`<div class="form-grid capture-form"><label class="wide-field">Úkol<input id="taskTitle24" autofocus value="${h(t.title||'')}"></label><label>Termín<input id="taskDue24" type="date" value="${t.due?String(t.due).slice(0,10):''}"></label><label>Projekt<select id="taskProject24">${projectOptions(s,t.projectId||'')}</select></label><label>Odpovědnost<input id="taskOwner24" value="${h(t.owner||'')}"></label><label>Oblast<input id="taskArea24" value="${h(t.area||'Práce')}"></label><label>Priorita<select id="taskPriority24"><option value="NORMAL" ${String(t.priority||'NORMAL').toUpperCase()==='NORMAL'?'selected':''}>Normální</option><option value="HIGH" ${String(t.priority||'').toUpperCase()==='HIGH'?'selected':''}>Vysoká</option></select></label></div>`;
+ const ok=await modal('Upravit úkol',body,[{label:'Zrušit',value:false},{label:'Uložit úkol',value:true,primary:true}]);if(!ok)return;
+ const title=qs('#taskTitle24')?.value?.trim();if(!title)return toast('Úkol musí mít název');
+ store.mutate(`Upraven úkol: ${title}`,x=>{const q=x.tasks.find(y=>y.id===id);if(!q)return;const projectId=qs('#taskProject24')?.value||null,project=(x.projects||[]).find(p=>p.id===projectId);q.title=title;q.due=qs('#taskDue24')?.value?new Date(qs('#taskDue24').value+'T09:00:00').toISOString():null;q.projectId=projectId;q.owner=qs('#taskOwner24')?.value?.trim()||'';q.area=project?.name||qs('#taskArea24')?.value?.trim()||'Práce';q.priority=qs('#taskPriority24')?.value||'NORMAL';q.updatedAt=new Date().toISOString()});
 }
 
 async function editProject(id){
@@ -109,7 +128,7 @@ async function editProject(id){
  const body=`<div class="form-grid capture-form"><label class="wide-field">Název<input id="projectName24" autofocus value="${h(p.name||'')}"></label><label>Odpovědná osoba<input id="projectOwner24" value="${h(p.owner||'')}"></label><label>Deadline<input id="projectDeadline24" type="date" value="${p.deadline?String(p.deadline).slice(0,10):''}"></label><label>Riziko<select id="projectRisk24"><option value="LOW" ${String(p.risk||'LOW').toUpperCase()==='LOW'?'selected':''}>Nízké</option><option value="MEDIUM" ${String(p.risk||'').toUpperCase()==='MEDIUM'?'selected':''}>Střední</option><option value="HIGH" ${String(p.risk||'').toUpperCase()==='HIGH'?'selected':''}>Vysoké</option></select></label><label>Stav<input id="projectStatus24" value="${h(p.status||'Aktivní')}"></label><label class="wide-field">Další krok<input id="projectNext24" value="${h(p.next||'')}"></label><label class="wide-field">Poznámka<textarea id="projectNotes24" rows="3">${h(p.notes||'')}</textarea></label></div>`;
  const ok=await modal('Upravit projekt',body,[{label:'Zrušit',value:false},{label:'Uložit projekt',value:true,primary:true}]);if(!ok)return;
  const name=qs('#projectName24')?.value?.trim();if(!name)return toast('Projekt musí mít název');
- store.mutate(`Upraven projekt: ${name}`,s=>{const x=s.projects.find(y=>y.id===id);if(!x)return;x.name=name;x.owner=qs('#projectOwner24')?.value?.trim()||'';x.deadline=qs('#projectDeadline24')?.value||null;x.risk=qs('#projectRisk24')?.value||'LOW';x.status=qs('#projectStatus24')?.value?.trim()||'Aktivní';x.next=qs('#projectNext24')?.value?.trim()||'Chybí konkrétní další krok';x.notes=qs('#projectNotes24')?.value?.trim()||'';x.updatedAt=new Date().toISOString()});
+ store.mutate(`Upraven projekt: ${name}`,s=>{const x=s.projects.find(y=>y.id===id);if(!x)return;x.name=name;x.owner=qs('#projectOwner24')?.value?.trim()||'';x.deadline=qs('#projectDeadline24')?.value||null;x.risk=qs('#projectRisk24')?.value||'LOW';x.status=qs('#projectStatus24')?.value?.trim()||'Aktivní';x.next=qs('#projectNext24')?.value?.trim()||'Chybí konkrétní další krok';x.notes=qs('#projectNotes24')?.value?.trim()||'';x.updatedAt=new Date().toISOString();for(const t of s.tasks||[])if(t.projectId===id&&!t.area)t.area=name});
 }
 
 async function editNext(id){
@@ -122,11 +141,21 @@ async function editNext(id){
 
 async function addProjectTask(id){
  const p=store.get().projects.find(x=>x.id===id);if(!p)return;
- const body=`<div class="form-grid capture-form"><label class="wide-field">Úkol<input id="projectTaskTitle24" autofocus placeholder="Co se musí udělat?"></label><label>Termín<input id="projectTaskDue24" type="date"></label><label>Priorita<select id="projectTaskPriority24"><option value="NORMAL">Normální</option><option value="HIGH">Vysoká</option></select></label></div>`;
+ const body=`<div class="form-grid capture-form"><label class="wide-field">Úkol<input id="projectTaskTitle24" autofocus placeholder="Co se musí udělat?"></label><label>Termín<input id="projectTaskDue24" type="date"></label><label>Odpovědnost<input id="projectTaskOwner24" value="${h(p.owner||'')}"></label><label>Priorita<select id="projectTaskPriority24"><option value="NORMAL">Normální</option><option value="HIGH">Vysoká</option></select></label></div>`;
  const ok=await modal(`Nový úkol · ${p.name}`,body,[{label:'Zrušit',value:false},{label:'Přidat úkol',value:true,primary:true}]);if(!ok)return;
  const title=qs('#projectTaskTitle24')?.value?.trim();if(!title)return toast('Napiš název úkolu');
- const due=qs('#projectTaskDue24')?.value||null,priority=qs('#projectTaskPriority24')?.value||'NORMAL';
- store.mutate(`Přidán projektový úkol: ${title}`,s=>s.tasks.unshift({id:uid('task'),title,status:'UDĚLAT',priority,area:p.name,projectId:id,due:due?new Date(due+'T09:00:00').toISOString():null,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));
+ const due=qs('#projectTaskDue24')?.value||null,priority=qs('#projectTaskPriority24')?.value||'NORMAL',owner=qs('#projectTaskOwner24')?.value?.trim()||'';
+ store.mutate(`Přidán projektový úkol: ${title}`,s=>s.tasks.unshift({id:uid('task'),title,status:'UDĚLAT',priority,owner,area:p.name,projectId:id,due:due?new Date(due+'T09:00:00').toISOString():null,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));
+}
+
+async function linkExistingTask(id){
+ const s=store.get(),p=s.projects.find(x=>x.id===id);if(!p)return;
+ const available=(s.tasks||[]).filter(t=>t.status!=='HOTOVO'&&!t.projectId);
+ if(!available.length){toast('Žádný volný otevřený úkol k připojení');return}
+ const body=`<label>Existující úkol<select id="projectExistingTask24" autofocus>${available.map(t=>`<option value="${h(t.id)}">${h(t.title)}${t.due?' · '+h(date(t.due)):''}</option>`).join('')}</select></label>`;
+ const ok=await modal(`Připojit úkol · ${p.name}`,body,[{label:'Zrušit',value:false},{label:'Připojit',value:true,primary:true}]);if(!ok)return;
+ const taskId=qs('#projectExistingTask24')?.value;if(!taskId)return;
+ store.mutate(`Úkol připojen k projektu: ${p.name}`,x=>{const t=x.tasks.find(y=>y.id===taskId);if(t){t.projectId=id;t.area=p.name;if(!t.owner&&p.owner)t.owner=p.owner;t.updatedAt=new Date().toISOString()}});
 }
 
 async function finishProject(id){
