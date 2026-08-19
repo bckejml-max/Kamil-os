@@ -1,12 +1,11 @@
 import {APP_VERSION} from './config.js';
 import {store} from './state.js';
-import {sb,login,logout,session,loadCloud,loadDataHubs,resolveConflict,conflictSummary,onSyncStatus,flushQueue} from './cloud.js';
+import {sb,login,logout,session,loadCloud,loadDataHubs,resolveConflict,conflictSummary,onSyncStatus,flushQueue,sendPasswordReset,updatePassword} from './cloud.js';
 import {qs,qsa,toast,modal} from './utils.js';
 import {renderToday,renderWork,renderMoney,renderTickets,renderMore,setMoreMode} from './render.js';
 import {execute,renderResults} from './command.js';
 import {attentionCount,recommendation} from './intelligence.js';
 import {runPreflight} from './preflight.js';
-
 
 let actionLock=false;
 export async function withActionLock(fn){
@@ -14,9 +13,11 @@ export async function withActionLock(fn){
  actionLock=true;
  try{return await fn()}finally{setTimeout(()=>{actionLock=false},250)}
 }
-let current='today';
-const renderers={today:renderToday,work:renderWork,money:renderMoney,tickets:renderTickets,more:renderMore};
 
+let current='today';
+let recoveryMode=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
+const renderers={today:renderToday,work:renderWork,money:renderMoney,tickets:renderTickets,more:renderMore};
+const pageTitles={today:'DNES',work:'PRÁCE',money:'PENÍZE',tickets:'VSTUPENKY',more:'VÍCE'};
 
 function maybeNotify(){
  if(!('Notification'in window)||Notification.permission!=='granted'||document.visibilityState==='visible')return;
@@ -28,16 +29,22 @@ function maybeNotify(){
 function updateChrome(){
  const s=store.get();
  qs('#todayLabel').textContent=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
- const count=attentionCount(s);const b=qs('#moreBadge');b.textContent=count;b.classList.toggle('hidden',!count);
+ const page=qs('#pageTitle');if(page)page.textContent=pageTitles[current]||'DNES';
+ qsa('.version').forEach(x=>x.textContent=APP_VERSION);
+ const count=attentionCount(s),b=qs('#moreBadge');if(b){b.textContent=count;b.classList.toggle('hidden',!count)}
  qsa('[data-view]').forEach(x=>x.classList.toggle('on',x.dataset.view===current));
  qs('#undoBtn').disabled=!(s.undo||[]).length;
 }
 function render(){
  updateChrome();renderers[current]?.();
- // Keep non-current lightweight views fresh enough after mutation.
  if(current!=='today')renderToday();
 }
-function navigate(v){current=renderers[v]?v:'today';qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`).classList.add('on');updateChrome();renderers[current]?.();window.scrollTo({top:0,behavior:'smooth'})}
+function navigate(v){
+ current=renderers[v]?v:'today';
+ qsa('.view').forEach(x=>x.classList.remove('on'));
+ qs(`#view-${current}`).classList.add('on');
+ updateChrome();renderers[current]?.();window.scrollTo({top:0,behavior:'smooth'});
+}
 qsa('[data-view]').forEach(x=>x.onclick=()=>navigate(x.dataset.view));
 window.addEventListener('kamil:navigate',e=>navigate(e.detail));
 window.addEventListener('kamil:more',e=>setMoreMode(e.detail));
@@ -45,6 +52,7 @@ window.addEventListener('kamil:logout',()=>logout());
 
 store.subscribe(()=>{render();maybeNotify()});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
+qs('#logoutBtn').onclick=()=>logout();
 
 const input=qs('#commandInput');
 input.oninput=()=>renderResults(input.value);
@@ -57,13 +65,26 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',e=>{if(!e.target.closest('.command-wrap'))renderResults('')});
 
 onSyncStatus((s,detail)=>{
- const el=qs('#syncStatus');el.className='sync '+(s==='ok'?'ok':s);el.textContent=s==='ok'?'Uloženo':s==='saving'?'Ukládám…':s==='offline'?'Offline – uložím později':s==='conflict'?'Konflikt dat':'Cloud';
+ const el=qs('#syncStatus');if(!el)return;
+ el.className='sync '+(s==='ok'?'ok':s);
+ el.innerHTML=`<i></i> ${s==='ok'?'Uloženo':s==='saving'?'Ukládám…':s==='offline'?'Offline – uložím později':s==='conflict'?'Konflikt dat':'Cloud'}`;
  if(detail)el.title=detail;
 });
 
+function showResetView(){
+ qs('#authView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#resetView').classList.remove('hidden');
+ setTimeout(()=>qs('#resetPassword1')?.focus(),30);
+}
+function showLoginView(message=''){
+ qs('#resetView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#authView').classList.remove('hidden');
+ if(message)qs('#authMessage').textContent=message;
+}
+
 async function handleSession(sess){
- if(!sess){qs('#authView').classList.remove('hidden');qs('#appView').classList.add('hidden');return}
- qs('#authView').classList.add('hidden');qs('#appView').classList.remove('hidden');
+ if(recoveryMode){showResetView();return}
+ if(!sess){showLoginView();return}
+ qs('#authView').classList.add('hidden');qs('#resetView').classList.add('hidden');qs('#appView').classList.remove('hidden');
+ const email=qs('#userEmail');if(email)email.textContent=sess.user?.email||'Přihlášený účet';
  const result=await loadCloud();
  if(result?.conflict){
    const diff=conflictSummary(store.get(),result.cloud);
@@ -77,12 +98,51 @@ async function handleSession(sess){
 }
 
 qs('#loginBtn').onclick=async()=>{
- const email=qs('#loginEmail').value.trim(),password=qs('#loginPassword').value,msg=qs('#authMessage');msg.textContent='Přihlašuji…';
+ const email=qs('#loginEmail').value.trim(),password=qs('#loginPassword').value,msg=qs('#authMessage');
+ if(!email||!password){msg.textContent='Vyplň e-mail i heslo.';return}
+ msg.textContent='Přihlašuji…';
  const {error}=await login(email,password);msg.textContent=error?error.message:'';
 };
 qs('#loginPassword').onkeydown=e=>{if(e.key==='Enter')qs('#loginBtn').click()};
-sb.auth.onAuthStateChange((ev,sess)=>setTimeout(()=>handleSession(sess),0));
-handleSession(await session());
+
+qs('#forgotPasswordBtn').onclick=async()=>{
+ const email=qs('#loginEmail').value.trim(),msg=qs('#authMessage');
+ if(!email){msg.textContent='Nejdřív napiš e-mail, na který mám poslat reset.';qs('#loginEmail').focus();return}
+ msg.textContent='Posílám resetovací odkaz…';
+ const {error}=await sendPasswordReset(email);
+ msg.textContent=error?error.message:'Hotovo. Otevři odkaz v e-mailu a nastavíš si nové heslo.';
+};
+
+qs('#setPasswordBtn').onclick=async()=>{
+ const p1=qs('#resetPassword1').value,p2=qs('#resetPassword2').value,msg=qs('#resetMessage');
+ if(p1.length<8){msg.textContent='Heslo musí mít alespoň 8 znaků.';return}
+ if(p1!==p2){msg.textContent='Hesla se neshodují.';return}
+ msg.textContent='Ukládám nové heslo…';
+ const {error}=await updatePassword(p1);
+ if(error){msg.textContent=error.message;return}
+ msg.textContent='Heslo změněno.';
+ recoveryMode=false;
+ history.replaceState({},document.title,location.pathname+location.search.replace(/([?&])type=recovery(&|$)/,'$1').replace(/[?&]$/,''));
+ await handleSession(await session());
+};
+qs('#resetPassword2').onkeydown=e=>{if(e.key==='Enter')qs('#setPasswordBtn').click()};
+
+sb.auth.onAuthStateChange((ev,sess)=>{
+ if(ev==='PASSWORD_RECOVERY'){recoveryMode=true;setTimeout(showResetView,0);return}
+ if(!recoveryMode)setTimeout(()=>handleSession(sess),0);
+});
+
+const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
+if(hashParams.get('error')){
+ recoveryMode=false;
+ const expired=hashParams.get('error_code')==='otp_expired';
+ history.replaceState({},document.title,location.pathname+location.search);
+ showLoginView(expired?'Resetovací odkaz už vypršel. Pošli si nový přes „Zapomněl jsem heslo“.':(hashParams.get('error_description')||'Reset hesla se nepodařil.'));
+}else if(recoveryMode){
+ showResetView();
+}else{
+ handleSession(await session());
+}
 
 if('serviceWorker'in navigator){
  const reg=await navigator.serviceWorker.register('./sw.js');
