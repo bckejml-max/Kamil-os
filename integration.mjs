@@ -15,12 +15,12 @@ globalThis.CustomEvent=class{constructor(type,opts){this.type=type;this.detail=o
 globalThis.Notification={permission:'default'};
 const {store,migrate}=await import('./js/state.js');
 const {parse,search,execute}=await import('./js/command.js');
-const {debtRemaining}=await import('./js/intelligence.js');
+const {debtRemaining,projectStatus}=await import('./js/intelligence.js');
 const assert=(x,m)=>{if(!x)throw new Error(m)};
 
 store.replace(migrate({
- tasks:[{id:'t1',title:'Zbrojovka report',status:'UDĚLAT',area:'Práce'}],
- projects:[{id:'p1',name:'Nová Zbrojovka',next:'Kontrola'}],
+ tasks:[{id:'t1',title:'Zbrojovka report',status:'UDĚLAT',area:'Práce',projectId:'p1'}],
+ projects:[{id:'p1',name:'Nová Zbrojovka',owner:'Kamil',next:'Kontrola ZL',risk:'HIGH',status:'Aktivní'}],
  delegations:[{id:'w1',title:'Tereza – podklady',status:'WAITING',createdAt:new Date(Date.now()-8*86400000).toISOString()}],
  ticketBook:{items:[{id:'tk1',name:'Sparta Praha',workflow:'LISTED',buy:1000,date:'2026-09-01'}]},
  debtBook:{items:[{id:'d1',person:'Petr',amount:5000,payments:[],status:'OPEN'}]}
@@ -33,7 +33,9 @@ assert(parse('Zbrojovka report zítra').type==='tomorrow','tomorrow parser');
 assert(parse('čekám na dodání rozvaděče').type==='waiting','waiting parser');
 assert(parse('projekt Brno servis').type==='project','project parser');
 assert(search('zbrojovka').length>=2,'global search tasks+projects');
+assert(search('kamil').some(x=>x.kind==='Projekt'),'project owner searchable');
 assert(search('tereza').some(x=>x.kind==='Čekám'),'global search waiting');
+assert(projectStatus(store.get().projects[0],store.get()).score>=70,'high risk project intelligence');
 
 execute('Petr splátka 500');
 assert(debtRemaining(store.get().debtBook.items[0])===4500,'command payment');
@@ -46,4 +48,4 @@ const soldAt=store.get().ticketBook.items[0].soldAt;
 execute('Sparta prodáno');
 assert(store.get().ticketBook.items[0].soldAt===soldAt,'sold idempotent');
 
-console.log('COMMAND INTEGRATION QA PASS');
+console.log('COMMAND + PROJECT INTEGRATION QA PASS');
