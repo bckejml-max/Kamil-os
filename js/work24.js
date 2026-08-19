@@ -27,11 +27,12 @@ export function renderWork(){
    <div class="metric"><span>Aktivní projekty</span><b>${projects.length}</b></div>
   </div>
   <div class="work-layout">
-   <div class="card work-focus"><div class="card-head"><div><div class="eyebrow">AKČNÍ FRONTa</div><h2>Úkoly</h2></div><span class="status">${open} otevřených</span></div>
+   <div class="card work-focus"><div class="card-head"><div><div class="eyebrow">AKČNÍ FRONTA</div><h2>Úkoly</h2></div><span class="status">${open} otevřených</span></div>
     ${g.overdue.length?`<div class="work-section"><div class="work-section-title bad">Po termínu · ${g.overdue.length}</div>${g.overdue.map(t=>taskRow(t,'urgent')).join('')}</div>`:''}
     ${g.today.length?`<div class="work-section"><div class="work-section-title warn">Dnes · ${g.today.length}</div>${g.today.map(t=>taskRow(t,'today')).join('')}</div>`:''}
     ${g.week.length?`<div class="work-section"><div class="work-section-title">Tento týden · ${g.week.length}</div>${g.week.map(t=>taskRow(t)).join('')}</div>`:''}
-    ${g.nodate.length?`<div class="work-section"><div class="work-section-title">Bez termínu · ${g.nodate.length}</div>${g.nodate.slice(0,8).map(t=>taskRow(t)).join('')}</div>`:''}
+    ${g.later.length?`<div class="work-section"><div class="work-section-title">Později · ${g.later.length}</div>${g.later.slice(0,12).map(t=>taskRow(t)).join('')}${g.later.length>12?`<div class="muted" style="padding-top:8px">+ ${g.later.length-12} dalších úkolů</div>`:''}</div>`:''}
+    ${g.nodate.length?`<div class="work-section"><div class="work-section-title">Bez termínu · ${g.nodate.length}</div>${g.nodate.slice(0,8).map(t=>taskRow(t)).join('')}${g.nodate.length>8?`<div class="muted" style="padding-top:8px">+ ${g.nodate.length-8} dalších bez termínu</div>`:''}</div>`:''}
     ${!open?'<div class="empty">Žádné otevřené úkoly. Můžeš řešit další krok projektu.</div>':''}
    </div>
    <div class="work-projects">
