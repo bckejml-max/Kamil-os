@@ -69,10 +69,11 @@ export function xtbTradePlanner(s){
  }
  plans.sort((a,b)=>b.priority-a.priority);
  const reductions=plans.filter(x=>['TRIM','SELL'].includes(x.action));
- const knownReduction=reductions.reduce((sum,x)=>sum+n(x.amount),0);
- const currencies=[...new Set(reductions.map(x=>x.currency).filter(Boolean))];
+ const reductionByCurrency=reductions.reduce((out,x)=>{if(!x.amount)return out;const currency=String(x.currency||'NEZNÁMÁ').toUpperCase();out[currency]=(out[currency]||0)+n(x.amount);return out},{});
+ const currencies=Object.keys(reductionByCurrency);
+ const knownReduction=currencies.length===1?reductionByCurrency[currencies[0]]:null;
  const top=plans[0]||null;
  let summary='Není tu žádný obchod, který by planner považoval za nutný. Držet plán a čekat na čerstvější signál.';
  if(top)summary=`Nejvyšší priorita: ${top.ticker} — ${top.action}. ${top.method}.`;
- return {plans,top,audit,knownReduction,currencies,summary,generatedAt:new Date().toISOString(),note:'Planner pouze převádí aktuální verdikty a alokační audit do návrhu velikosti kroku. Neprovádí obchody a při chybějících datech částku raději neurčí.'};
+ return {plans,top,audit,knownReduction,reductionByCurrency,currencies,summary,generatedAt:new Date().toISOString(),note:'Planner pouze převádí aktuální verdikty a alokační audit do návrhu velikosti kroku. Neprovádí obchody a při chybějících datech částku raději neurčí.'};
 }
