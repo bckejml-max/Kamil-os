@@ -1,0 +1,13 @@
+await import('./qa_29_4.mjs');
+import fs from 'fs';
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const text=f=>fs.readFileSync(f,'utf8');
+for(const f of ['js/spendingIntelligence29.js','js/spendingIntelligenceUi29.js','spending_intelligence_29_test.mjs','spending_intelligence_integration_29_test.mjs'])assert(fs.existsSync(f),'Missing 29.5 file '+f);
+const config=text('js/config.js');assert(config.includes("APP_VERSION = '29.5.0'")&&config.includes('SCHEMA_VERSION = 41'),'29.5 version/schema mismatch');
+const html=text('index.html');assert(html.includes('Kamil OS 29.5')&&html.includes('29.5.0'),'29.5 visible version missing');assert(html.includes('./js/spendingIntelligenceUi29.js'),'Spending Intelligence UI not loaded');
+const engine=text('js/spendingIntelligence29.js');for(const x of ['spendingIntelligence','previousComparable','transferVolume','aggregateCategories','aggregateMerchants','recurringCandidates','monthlyAverage','měny se nikdy nesčítají'])assert(engine.includes(x),'Spending Intelligence engine missing '+x);assert(!engine.includes('totalMixed'),'Spending engine must not expose mixed total');
+const ui=text('js/spendingIntelligenceUi29.js');for(const x of ['Kam skutečně mizí peníze','Denní tempo','Tempo měsíce','projekce jen pokud zůstane stejné tempo','Smart Import','Převody mimo spotřebu'])assert(ui.includes(x),'Spending UI missing '+x);
+const sw=text('sw.js');assert(sw.includes('kamil-os-29.5.0-shell-r1'),'PWA cache version mismatch');for(const x of ['spendingIntelligence29.js','spendingIntelligenceUi29.js'])assert(sw.includes(x),'PWA missing '+x);
+const manifest=text('manifest.webmanifest');assert(manifest.includes('Kamil OS 29.5')&&manifest.includes('Spending Intelligence'),'29.5 manifest missing');
+const workflow=text('.github/workflows/qa.yml');assert(workflow.includes('spending_intelligence_29_test.mjs')&&workflow.includes('spending_intelligence_integration_29_test.mjs'),'GitHub QA missing Spending Intelligence coverage');
+console.log('KAMIL OS 29.5 STATIC QA PASS');
