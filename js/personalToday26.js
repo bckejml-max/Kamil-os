@@ -23,7 +23,7 @@ export function buildPersonalToday(s={},now=new Date()){
   out.push(item(x.target==='tickets'?'tickets':'home',x.title,p,x.days<0?`${Math.abs(x.days)} dní po termínu`:`${x.type} za ${x.days} dní`,x.target||'home',{kind:x.domain,homeMode:x.homeMode,source:x.source||'ULOŽENÁ DATA',id:x.key}));
  }
  const renewal=renewals.rows.find(x=>x.priority>=75);
- if(renewal)out.push(item('home',renewal.title,renewal.priority,`${renewal.action}. ${renewal.reason}`,'home',{kind:'Renewal Radar',homeMode:renewal.homeMode,source:renewal.source,id:`admin:${renewal.id}`}));
+ if(renewal)out.push(item('home',renewal.title,renewal.priority,`${renewal.action}. ${renewal.reason}`,'home',{kind:'Smlouvy k prověření',homeMode:renewal.homeMode,source:renewal.source,id:`admin:${renewal.id}`}));
  for(const {p,d} of xtbBoard(s)){
   if((d.priority||0)<60)continue;
   out.push(item('money',`${p.ticker} · ${actionLabel(d.action)}`,d.priority,d.reason,'money',{kind:'XTB',action:d.action,confidence:d.confidence,source:d.source||'PRAVIDLA',id:p.ticker}));
