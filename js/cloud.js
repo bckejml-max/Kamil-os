@@ -56,9 +56,11 @@ export async function refreshIntelligence(){
 export function conflictSummary(local,cloud){
  const count=(x,path)=>{try{const v=path.split('.').reduce((o,k)=>o?.[k],x);return Array.isArray(v)?v.length:0}catch{return 0}};
  const personalTasks=x=>(x?.tasks||[]).filter(t=>String(t.area||'').toLocaleLowerCase('cs-CZ').includes('osob')&&t.status!=='HOTOVO').length;
+ const emergencyCount=x=>count(x,'emergencyFile.contacts')+count(x,'emergencyFile.assets');
  return [
   {label:'Osobní administrativa',local:count(local,'personalAdmin.items'),cloud:count(cloud,'personalAdmin.items')},
   {label:'Rodina',local:count(local,'familyHome.members'),cloud:count(cloud,'familyHome.members')},
+  {label:'Emergency File',local:emergencyCount(local),cloud:emergencyCount(cloud)},
   {label:'Osobní úkoly',local:personalTasks(local),cloud:personalTasks(cloud)},
   {label:'Vstupenky',local:count(local,'ticketBook.items'),cloud:count(cloud,'ticketBook.items')},
   {label:'Pohledávky',local:count(local,'debtBook.items'),cloud:count(cloud,'debtBook.items')}
