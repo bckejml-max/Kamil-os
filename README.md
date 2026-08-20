@@ -1,11 +1,16 @@
-# Kamil OS 32.1
+# Kamil OS 32.2
 
 Kamil OS je osobní **local-first Personal Autopilot**. Viditelné rozhraní je soustředěné do pěti hlavních oblastí: **Dnes / Peníze / Vstupenky / Domov / Více**. Aplikace funguje bez hesla a bez povinného cloudu; Supabase se načte až při existující cloud session nebo explicitním připojení.
+
+## Copilot 2.0 Foundation 32.2
+32.2 zavádí jednotné bezpečnostní pravidlo pro zapisovací příkazy v Command Baru: **UNDERSTAND → PROPOSE → PREVIEW → CONFIRM → EXECUTE**. Známé příkazy jako splátka pohledávky, označení vstupenky jako prodané nebo přesun/vytvoření osobního úkolu na zítra nejdřív vytvoří čistý návrh a zobrazí konkrétní náhled změny. State se během preview nemění.
+
+Zápis vznikne až po explicitním tlačítku **Potvrdit změnu**. Před provedením se návrh znovu sestaví z aktuálních dat; pokud se dotčená entita mezitím změnila, fingerprint nesedí a zápis se zablokuje. Samotné provedení dál používá standardní `store.mutate`, takže zachovává undo, audit i sync cestu. Navigace, vyhledávání a read-only dotazy zůstávají okamžité. Neznámý příkaz dál nic nezapíše bez explicitního potvrzení vytvoření osobního úkolu.
 
 ## Data Engine v3 32.1
 32.1 přidává bezpečný **dual-write dlouhé historie**. Decision Journal, Net Worth historie, ticket historie, Trade Journal a historie Smart Importů se dál zrcadlí do lokálního IndexedDB `kamil-os-data-v2` a při připojeném cloudu se stejné záznamy idempotentně ukládají také jako samostatné entity do `kamil_os_history`.
 
-Cloudová historie má vlastní RLS a explicitní Data API oprávnění pouze **SELECT / INSERT / UPDATE** pro přihlášeného vlastníka. Klient nemá `DELETE`. Raw dokumenty, Vault ani auth tokeny nejsou v history allowlistu. Hlavní `kamil_os_state` se v 32.1 zatím nezkracuje — dual-write je ověřovací vrstva před budoucím cutoverem.
+Cloudová historie má vlastní RLS a explicitní Data API oprávnění pouze **SELECT / INSERT / UPDATE** pro přihlášeného vlastníka. Klient nemá `DELETE`. Raw dokumenty, Vault ani auth tokeny nejsou v history allowlistu. Hlavní `kamil_os_state` se zatím nezkracuje — dual-write je ověřovací vrstva před budoucím cutoverem.
 
 ## Trust & Sync 32.0
 32.0 zpevňuje login, cloudový state a multi-device synchronizaci. Magic link a reset hesla mají 60sekundový cooldown a srozumitelnou hlášku pro Supabase rate limit. Po úspěšném připojení je stav cloudu viditelný přímo v horní liště.
@@ -24,9 +29,6 @@ Smart Sync vede vedle bezpečného celého cloud snapshotu append-only item-leve
 
 Cloudová cesta pro čtení změn z jiných zařízení zůstává SELECT-only. Stažené payloady se před porovnáním znovu sanitizují; password/secret/token/CVV/seed/raw OCR/image klíče se do Remote Inboxu nedostanou.
 
-## Data Engine 31.3
-Kamil OS používá lokální **IndexedDB history mirror** `kamil-os-data-v2`. Nedestruktivně zrcadlí Decision Journal, Net Worth historii, ticket historii, Trade Journal a historii Smart Importů. Raw dokumenty, Vault, auth tokeny ani jiné citlivé úložiště se do tohoto mirroru nezařazují.
-
 ## Data Recovery 31.2+
 Kamil OS rozpozná, když běží na zařízení/browseru s prázdným lokálním profilem. Na Dnes zobrazí recovery kartu **„Tvoje data nejsou na tomto zařízení“**. Nejjednodušší obnova je přes **Připojit moje data → Poslat přihlašovací odkaz bez hesla**. Magic link používá existující Supabase účet, má `shouldCreateUser: false` a canonical redirect na `https://kamil-os-smoke.vercel.app/`.
 
@@ -41,7 +43,7 @@ Kamil OS rozpozná, když běží na zařízení/browseru s prázdným lokální
 ## Command Bar / Copilot
 Ctrl+K umí hledat osobní administrativu, rodinu, majetek, cíle, XTB, vstupenky a pohledávky a odpovídat například na `jak jsem na tom`, `co se změnilo od minule`, `co jsme doporučili`, `co koupit za 25 000 Kč`, `jak jsou na tom vstupenky`, `co příští měsíc`, `12 měsíců dopředu` nebo `co chybí doplnit`.
 
-Pokud Command Bar textu nerozumí, **nic automaticky nezapisuje**. Nabídne vytvoření osobního úkolu pouze po explicitním potvrzení.
+Read-only příkaz může odpovědět nebo navigovat hned. Write příkaz musí nejprve ukázat náhled a čekat na explicitní potvrzení. Pokud Command Bar textu nerozumí, **nic automaticky nezapisuje** a nabídne vytvoření osobního úkolu pouze po potvrzení.
 
 ## Peníze / XTB
 Kamil OS obsahuje 90denní cashflow, cíle a fondy, Spending Intelligence, True Net Worth, Portfolio Rebalancer, Portfolio Risk Map a XTB decision engine. Měny se bez skutečného FX kurzu nesčítají ani nepřepočítávají. Investiční rozhodnutí jsou oddělená na pravidlový AUTO výstup a volitelnou čerstvou live intelligence.
@@ -72,7 +74,7 @@ Osobní administrativa zahrnuje pojištění, doklady, platby, smlouvy, rodinu, 
 Kamil OS je statická PWA. Produkce používá main-only Vercel deployment policy, Content Security Policy, `nosniff`, frame deny, omezený referrer policy a browser permissions. Offline shell je cachovaný Service Workerem. Klient obsahuje pouze publishable Supabase key; `service_role`/secret key se do browseru nesmí dostat.
 
 ## QA
-GitHub Actions spouští unit/integration regresi pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta, Decision Journal, Data Recovery, Data Engine, Smart Sync a Remote Inbox. 32.0 přidává samostatné testy pro auth cooldown/rate-limit, cloud payload hygiene, future-schema guard a confirmed merge. 32.1 přidává unit/static safety testy cloud historie a Playwright kontrolu Data Engine v3, allowlistu a local-first startu bez eager Supabase SDK.
+GitHub Actions spouští unit/integration regresi pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta, Decision Journal, Data Recovery, Data Engine, Smart Sync a Remote Inbox. 32.0 přidává testy auth/cloud/confirmed merge, 32.1 cloud history/Data Engine a 32.2 pure write proposal + static zákaz legacy silent-write větví + Chromium potvrzení zápisu.
 
 ## Architektonický směr
-32.x pokračuje v **Core v2**: compact cloud state, per-device undo, potvrzené multi-device merge a postupný přesun velkých historií mimo hlavní JSON. Data Engine v3 dual-write je v 32.1 připravený pro ověřený cutover; další velká vrstva je Copilot 2.0 a source-backed Live Brain. Žádná vrstva nesmí obejít preview/confirm pravidlo u zápisů.
+32.x pokračuje v **Core v2**: compact cloud state, per-device undo, potvrzené multi-device merge, postupný přesun velkých historií mimo hlavní JSON a Copilot s povinným preview/confirm pro zápisy. Další velká vrstva je source-backed Live Brain a real-market Ticket Intelligence; žádná z nich nesmí obejít potvrzovací pravidla u mutací.

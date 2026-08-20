@@ -8,7 +8,7 @@ assert(config.includes("from './releaseMeta.js'")&&!/APP_VERSION\s*=\s*['"]/m.te
 assert(index.includes(`<title>Kamil OS ${major}.`)&&index.includes('systemHealthUi31.js'),'Core v2 shell/system health missing');
 assert(!index.includes('@supabase/supabase-js@2'),'Supabase must not be eagerly loaded by index');
 assert(cloud.includes('async function loadSdk()')&&cloud.includes('hasStoredCloudSession')&&!cloud.includes('export const sb='),'cloud must lazy-load SDK');
-assert(command.includes('Tomuhle příkazu zatím nerozumím')&&command.includes('Vytvořit osobní úkol'),'unknown command must require confirmation');
+assert(command.includes("modal('Náhled změny'")&&command.includes('Vytvořit osobní úkol')&&command.includes('Potvrdit vytvoření úkolu'),'unknown command must require explicit preview confirmation');
 assert(query.includes('decisionDelta30')&&query.includes('Co se změnilo od minule'),'Copilot must expose Decision Delta');
 assert(sw.includes(`const CACHE='kamil-os-${version}-shell-r`)&&sw.includes('./js/systemHealth31.js'),'Core v2 service-worker shell missing');
 assert(vercel.includes('Content-Security-Policy')&&vercel.includes('X-Content-Type-Options'),'security headers missing');

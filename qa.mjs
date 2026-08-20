@@ -1,1 +1,1 @@
-await import('./qa_32_1.mjs');
+await import('./qa_32_2.mjs');

@@ -52,8 +52,8 @@ qs('#quickAddBtn')?.addEventListener('click',()=>openCapture());
 
 const input=qs('#commandInput');
 input.oninput=()=>renderResults(input.value);
-input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const v=input.value;withActionLock(()=>execute(v));input.value='';renderResults('')}if(e.key==='Escape'){input.value='';renderResults('');input.blur()}};
-qs('#commandGo').onclick=()=>{const v=input.value;withActionLock(()=>execute(v));input.value='';renderResults('')};
+input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const v=input.value;execute(v);input.value='';renderResults('')}if(e.key==='Escape'){input.value='';renderResults('');input.blur()}};
+qs('#commandGo').onclick=()=>{const v=input.value;execute(v);input.value='';renderResults('')};
 document.addEventListener('keydown',e=>{
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();input.focus();input.select()}
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='n'){e.preventDefault();openCapture()}

@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 32.1",
+  "name": "Kamil OS 32.2",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 32.1 Data Engine v3 — IndexedDB history plus safe cloud dual-write",
+  "description": "Kamil OS 32.2 Copilot 2.0 — preview, confirm and execute for write actions",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",

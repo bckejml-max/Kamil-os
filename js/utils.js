@@ -19,7 +19,7 @@ export const modal=(title,body,buttons=[])=>new Promise(resolve=>{
   el.innerHTML=`<div class="modal-box"><div class="eyebrow">Kamil OS</div><h2>${h(title)}</h2><div>${body}</div><div class="row-actions" style="margin-top:15px" data-modal-buttons></div></div>`;
   host.appendChild(el);let closed=false;
   const cleanup=()=>document.removeEventListener('keydown',onKey,true);
-  const close=v=>{if(closed)return;closed=true;cleanup();resolve(v);setTimeout(()=>el.remove(),0)};
+  const close=v=>{if(closed)return;closed=true;cleanup();el.remove();resolve(v)};
   let primaryBtn=null;
   buttons.forEach(b=>{const x=document.createElement('button');x.className='btn '+(b.primary?'primary':'')+(b.danger?' danger':'');x.textContent=b.label;x.type='button';x.onclick=()=>close(b.value);qs('[data-modal-buttons]',el).appendChild(x);if(b.primary)primaryBtn=x});
   const onKey=e=>{
@@ -34,5 +34,5 @@ export const modal=(title,body,buttons=[])=>new Promise(resolve=>{
   requestAnimationFrame(()=>{const target=qs('[autofocus]',el)||qs('input,select,textarea,button',el);target?.focus()});
 });
 export const downloadJson=(name,data)=>{
- const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ const b=new Blob([JSON.stringify(data,null,2),],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
