@@ -57,6 +57,10 @@ jobs:
         run: node decision_explain_30_test.mjs
       - name: Decision Explainability integration 30.3
         run: node decision_explain_30_integration_test.mjs
+      - name: Next Trigger 30.4
+        run: node decision_next_30_test.mjs
+      - name: Next Trigger integration 30.4
+        run: node decision_next_30_integration_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
