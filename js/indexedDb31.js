@@ -43,7 +43,7 @@ export async function remoteInboxMeta31(){
  if(!indexedDbSupported31())return {seenIds:[],lastCheckedAt:null};const db=await openDataDb31();try{const tx=db.transaction(META,'readonly'),done=txDone(tx),meta=await req(tx.objectStore(META).get('remote-inbox'));await done;return {seenIds:Array.isArray(meta?.seenIds)?meta.seenIds:[],lastCheckedAt:meta?.lastCheckedAt||null}}finally{db.close()}
 }
 export async function markRemoteInboxSeen31(ids=[],checkedAt=new Date().toISOString()){
- const db=await openDataDb31();try{const tx=db.transaction(META,'readwrite'),done=txDone(tx),store=tx.objectStore(META),current=await req(store.get('remote-inbox')),merged=[...new Set([...(Array.isArray(ids)?ids:[]),...(Array.isArray(current?.seenIds)?current.seenIds:[])])].filter(Boolean).slice(0,1000);store.put({key:'remote-inbox',seenIds:merged,lastCheckedAt:checkedAt});await done;return {seenIds:merged,lastCheckedAt:checkedAt}}finally{db.close()}
+ const current=await remoteInboxMeta31(),merged=[...new Set([...(Array.isArray(ids)?ids:[]),...current.seenIds])].filter(Boolean).slice(0,1000),db=await openDataDb31();try{const tx=db.transaction(META,'readwrite'),done=txDone(tx);tx.objectStore(META).put({key:'remote-inbox',seenIds:merged,lastCheckedAt:checkedAt});await done;return {seenIds:merged,lastCheckedAt:checkedAt}}finally{db.close()}
 }
 
 export const indexedDb31Info={dbName:DB_NAME,version:DB_VERSION,historyStore:HISTORY,metaStore:META,syncShadowStore:SYNC_SHADOW,syncOpsStore:SYNC_OPS};
