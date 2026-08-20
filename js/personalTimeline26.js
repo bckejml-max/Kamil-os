@@ -24,6 +24,11 @@ export function personalTimeline(s={},now=new Date()){
   add({key:`${base}:doc-expiry`,title,at:x.document?.expiryDate||((x.category==='DOCUMENT')?(x.renewalDate||x.endDate):null),domain:'Doklady',type:'Expirace',homeMode:'documents',detail:x.document?.holder||''});
   add({key:`${base}:doc-reminder`,title,at:x.document?.reminderDate,domain:'Doklady',type:'Začít řešit',homeMode:'documents',detail:x.document?.holder||''});
  }
+ for(const x of (s.assetBook?.items||[]).filter(active)){
+  const title=x.title||'Majetek',base=`asset:${x.id||title}`,domain=x.kind==='VEHICLE'?'Auto':'Dům';
+  add({key:`${base}:service`,title,at:x.nextServiceAt,domain,type:'Servis / kontrola',homeMode:'dashboard',detail:x.serviceContact||x.location||'',source:'ASSET BOOK'});
+  add({key:`${base}:warranty`,title,at:x.warrantyUntil,domain,type:'Konec záruky',homeMode:'dashboard',detail:x.location||'',source:'ASSET BOOK'});
+ }
  for(const m of (s.familyHome?.members||[]).filter(active)){
   const b=nextAnnualDate(m.birthday,now),a=nextAnnualDate(m.anniversary,now);
   add({key:`family:${m.id}:birthday`,title:`${m.name||'Rodina'} · narozeniny`,at:b,domain:'Rodina',type:'Narozeniny',homeMode:'family'});
@@ -34,5 +39,5 @@ export function personalTimeline(s={},now=new Date()){
  for(const e of s.calendar?.events||[]){if(!personalCalendar(e))continue;const at=e?.start?.dateTime||e?.start?.date||e?.start||e?.date||e?.begin||e?.dtstart||null;add({key:`calendar:${e.id||e.uid||e.title||e.summary}`,title:e.title||e.summary||'Osobní kalendář',at,domain:'Kalendář',type:'Událost',target:'today',homeMode:null,detail:e.location||'',source:'OSOBNÍ KALENDÁŘ'})}
  out.sort((a,b)=>(a.days<0?0:1)-(b.days<0?0:1)||a.days-b.days||b.priority-a.priority||String(a.title).localeCompare(String(b.title),'cs'));
  const overdue=out.filter(x=>x.days<0),future=out.filter(x=>x.days>=0);
- return {items:out,overdue:overdue.length,due7:future.filter(x=>x.days<=7).length,due30:future.filter(x=>x.days<=30).length,due90:future.filter(x=>x.days<=90).length,next7:future.filter(x=>x.days<=7),next30:future.filter(x=>x.days<=30),next90:future,personalCalendarItems:out.filter(x=>x.source==='OSOBNÍ KALENDÁŘ').length,note:'Timeline používá jen uložené osobní termíny. Kalendář zahrne pouze události výslovně označené jako osobní; pracovní kalendář se do Personal OS nepřimíchává.'};
+ return {items:out,overdue:overdue.length,due7:future.filter(x=>x.days<=7).length,due30:future.filter(x=>x.days<=30).length,due90:future.filter(x=>x.days<=90).length,next7:future.filter(x=>x.days<=7),next30:future.filter(x=>x.days<=30),next90:future,personalCalendarItems:out.filter(x=>x.source==='OSOBNÍ KALENDÁŘ').length,assetItems:out.filter(x=>x.source==='ASSET BOOK').length,note:'Timeline používá jen uložené osobní termíny. Kalendář zahrne pouze události výslovně označené jako osobní; pracovní kalendář se do Personal OS nepřimíchává. Asset Book přidává pouze skutečně uložené servisní a záruční termíny.'};
 }
