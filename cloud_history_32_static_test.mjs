@@ -1,13 +1,9 @@
 import fs from 'node:fs';
 const assert=(x,m)=>{if(!x)throw new Error(m)},text=f=>fs.readFileSync(f,'utf8');
-const cloud=text('js/cloudHistory32.js'),engine=text('js/dataEngine31.js'),sql=text('DATA-ENGINE-V3-32.1-SCHEMA.sql');
-assert(cloud.includes("const TABLE='kamil_os_history'")&&cloud.includes("cloudClient(false)"),'Data Engine must use lazy cloud client and history table');
-assert(cloud.includes("new Set(['decision','networth','ticket','trade','import'])")&&!cloud.includes("'vault'"),'history allowlist must exclude Vault');
-assert(cloud.includes(".upsert(batch,{onConflict:'user_id,record_key'})"),'history upsert must be idempotent');
-assert(cloud.includes(".eq('user_id',sess.user.id)")&&cloud.includes("deleteEnabled:false"),'history reads/counts must stay user scoped and deletes disabled');
+const plan=text('js/cloudHistoryPlan32.js'),cloud=text('js/cloudHistory32.js'),engine=text('js/dataEngine31.js'),sql=text('DATA-ENGINE-V3-32.1-SCHEMA.sql');
+assert(plan.includes("['decision','networth','ticket','trade','import']")&&!plan.includes("'vault'"),'history allowlist must exclude Vault');assert(plan.includes('cloudHistoryRows32')&&plan.includes("deleteEnabled:false"),'pure history mapper contract missing');
+assert(cloud.includes("const TABLE='kamil_os_history'")&&cloud.includes("cloudClient(false)"),'Data Engine must use lazy cloud client and history table');assert(cloud.includes(".upsert(batch,{onConflict:'user_id,record_key'})"),'history upsert must be idempotent');assert(cloud.includes(".eq('user_id',sess.user.id)")&&cloud.includes("deleteEnabled:false"),'history reads/counts must stay user scoped and deletes disabled');
 for(const bad of ['.delete(','store.mutate','store.replace','service_role'])assert(!cloud.includes(bad),'unsafe cloud history primitive: '+bad);
 assert(engine.includes('syncCloudHistory32()')&&!engine.includes('store.mutate')&&!engine.includes('store.replace'),'Data Engine dual-write must not mutate primary state');
-assert(sql.includes('enable row level security')&&sql.includes('for select to authenticated')&&sql.includes('for insert to authenticated')&&sql.includes('for update to authenticated'),'history RLS policies missing');
-assert(sql.includes('revoke all privileges on table public.kamil_os_history from anon')&&sql.includes('grant select, insert, update on table public.kamil_os_history to authenticated'),'Data API grants must be explicit');
-assert(!sql.includes('grant delete')&&!sql.includes('for delete'),'client DELETE must remain unavailable');
+assert(sql.includes('enable row level security')&&sql.includes('for select to authenticated')&&sql.includes('for insert to authenticated')&&sql.includes('for update to authenticated'),'history RLS policies missing');assert(sql.includes('revoke all privileges on table public.kamil_os_history from anon')&&sql.includes('grant select, insert, update on table public.kamil_os_history to authenticated'),'Data API grants must be explicit');assert(!sql.includes('grant delete')&&!sql.includes('for delete'),'client DELETE must remain unavailable');
 console.log('KAMIL OS 32.1 CLOUD HISTORY STATIC PASS');
