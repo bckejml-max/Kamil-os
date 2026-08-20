@@ -1,0 +1,13 @@
+import {dataEngineStatus31,runDataMirror31} from './dataEngine31.js';
+import {qs,h,date} from './utils.js';
+const id='dataEngine31Host';let seq=0;
+const bucketLabel=k=>({decision:'Decision Journal',networth:'Net Worth',ticket:'Ticket historie',trade:'Trade Journal',import:'Import historie'}[k]||k);
+async function render(){
+ const n=++seq,view=qs('#moreView');if(!view)return;const isSystem=[...view.querySelectorAll('h1')].some(x=>String(x.textContent||'').includes('Kamil OS'));let host=qs(`#${id}`,view);if(!isSystem){host?.remove();return}
+ const s=await dataEngineStatus31();if(n!==seq)return;if(!host){host=document.createElement('div');host.id=id;const health=qs('#systemHealth31Host',view),target=health||view.querySelector('.view-head');if(target)target.insertAdjacentElement('afterend',host);else view.prepend(host)}
+ const rows=Object.entries(s.byBucket||{}).map(([k,v])=>`<div class="row"><span>${h(bucketLabel(k))}</span><b>${Number(v||0).toLocaleString('cs-CZ')}</b></div>`).join('');
+ host.innerHTML=`<div class="card"><div class="card-head"><div><div class="eyebrow">CORE V2 / DATA ENGINE 31.3</div><h2>IndexedDB history mirror</h2><p class="muted">Dlouhá historie má vlastní lokální úložiště. 31.3 pouze zrcadlí data; z hlavního state nic nemaže.</p></div><span class="status ${s.ready?'good':s.supported?'warn':'bad'}">${s.ready?'READY':s.supported?'POZOR':'NEDOSTUPNÉ'}</span></div><div class="metric-strip"><div class="metric"><span>Zrcadlené záznamy</span><b>${Number(s.total||0).toLocaleString('cs-CZ')}</b></div><div class="metric"><span>Poslední batch</span><b>${Number(s.lastBatch||0).toLocaleString('cs-CZ')}</b></div></div>${rows||'<div class="empty">Zatím není historický záznam k zrcadlení.</div>'}<div class="decision-note">${s.lastMirrorAt?`Poslední mirror ${h(date(s.lastMirrorAt))}. `:''}IndexedDB je jen na tomto browseru. Cloudový state, schema 42 a Backup Guard zůstávají beze změny.${s.error?` Chyba: ${h(s.error)}`:''}</div><button class="btn" data-data-engine-sync>Zrcadlit teď</button></div>`;
+ host.querySelector('[data-data-engine-sync]')?.addEventListener('click',async e=>{e.currentTarget.disabled=true;await runDataMirror31();render()});
+}
+function start(){const view=qs('#moreView');if(!view)return;new MutationObserver(()=>queueMicrotask(render)).observe(view,{childList:true,subtree:false});window.addEventListener('kamil:navigate',()=>queueMicrotask(render));window.addEventListener('kamil:data-engine',()=>queueMicrotask(render));render()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
