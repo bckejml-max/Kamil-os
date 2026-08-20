@@ -21,5 +21,7 @@ for(const forbidden of ['rawText:','ocrText:','sourceName:','fileName:','filenam
 assert(ui.includes("T.recognize(file,'ces+eng'")&&ui.includes('capture="environment"'),'mobile local OCR path missing');
 assert(ui.includes('raw OCR text ani filename ne')&&ui.includes('při uložení se zahodí'),'UI must disclose raw-data discard');
 assert(ui.includes('store.mutate')&&ui.includes('...draft.record'),'UI saves only reviewed draft record');
-assert(!ui.includes('rawText,')&&!ui.includes('rawText:')&&!ui.includes('file,')&&!ui.includes('file:'),'UI must not persist raw scan payload');
+const write=ui.match(/store\.mutate\(`Document Scanner:[\s\S]*?s\.personalAdmin\.items\.unshift\(record\)\}\)/)?.[0]||'';
+assert(write&&write.includes('...draft.record')===false,'state write should only receive the already-built record');
+for(const forbidden of ['rawText','rawPreview','file.','source.name','Tesseract'])assert(!write.includes(forbidden),'actual state write contains raw scan payload: '+forbidden);
 console.log('DOCUMENT SCANNER 30.1 INTEGRATION PASS');
