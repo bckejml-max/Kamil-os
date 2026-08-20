@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 31.4",
+  "name": "Kamil OS 31.5",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 31.4.1 Smart Sync Foundation — shell consistency hotfix",
+  "description": "Kamil OS 31.5 Remote Change Inbox — read-only multi-device change review",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
