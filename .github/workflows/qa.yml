@@ -27,6 +27,10 @@ jobs:
         run: node true_net_worth_29_test.mjs
       - name: True Net Worth integration 29.6
         run: node true_net_worth_integration_29_test.mjs
+      - name: Portfolio Rebalancer 29.7
+        run: node portfolio_rebalancer_29_test.mjs
+      - name: Portfolio Rebalancer integration 29.7
+        run: node portfolio_rebalancer_integration_29_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
