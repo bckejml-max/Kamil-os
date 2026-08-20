@@ -29,7 +29,8 @@ export function backupPayload(state){
  const base=obj(state)?{...state,undo:[]}:{undo:[]};
  // Normalize through the exact JSON representation that will be downloaded.
  // This removes runtime-only undefined values before the fingerprint is calculated.
- return jsonClone(base);
+ const payload=jsonClone(base);payload.undo=[];
+ return payload;
 }
 
 export function createBackupEnvelope(state,now=new Date()){
