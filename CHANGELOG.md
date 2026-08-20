@@ -1,3 +1,15 @@
+# Kamil OS 24.8 — XTB Trade Planner
+
+## 24.8.0 — From verdict to executable plan
+- nový **XTB / TRADE PLANNER** převádí BUY / TRIM / SELL / REVIEW verdikty do konkrétnějšího návrhu velikosti kroku
+- u TRIM/SELL používá živé nebo ruční `trimQty` / `trimAmount`, pokud existují; jinak konzervativně dopočítá redukci podle váhy pozice a typu aktiva
+- u BUY používá plánovanou investici a alokační mezeru; pokud investiční rozpočet chybí, částku nevymýšlí
+- po redukci navrhuje bezpečný cíl kapitálu: přednostně dorovnání širokého globálního jádra, potom dluhopisů nebo nejvyšší BUY priority
+- planner upozorňuje na rozdílnou měnu zdrojového a cílového účtu a výslovně zakazuje automatickou FX migraci jen kvůli přesunu pozice
+- každý návrh zobrazuje confidence, zdroj verdiktu, velikost kroku, důvod a měnové doporučení
+- planner nic neobchoduje; při chybějících datech raději ponechá částku neurčenou
+- nový modul `xtbPlanner24.js`, rozšířené integrační testy, QA gate a PWA cache
+
 # Kamil OS 24.7 — XTB Portfolio Audit
 
 ## 24.7.0 — Allocation & concentration control
