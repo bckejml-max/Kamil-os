@@ -13,6 +13,7 @@ export function runPreflight(){
  add('Emergency File položky',Array.isArray(s.emergencyFile?.assets));
  add('Personal Inbox',Array.isArray(s.personalInbox?.items));
  add('Asset Book',Array.isArray(s.assetBook?.items));
+ add('Cíle a fondy',Array.isArray(s.personalGoals?.items));
  add('Osobní úkoly',Array.isArray(s.tasks));
  add('Vstupenky',Array.isArray(s.ticketBook?.items));
  add('Pohledávky',Array.isArray(s.debtBook?.items));
