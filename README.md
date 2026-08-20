@@ -1,6 +1,11 @@
-# Kamil OS 32.0
+# Kamil OS 32.1
 
 Kamil OS je osobní **local-first Personal Autopilot**. Viditelné rozhraní je soustředěné do pěti hlavních oblastí: **Dnes / Peníze / Vstupenky / Domov / Více**. Aplikace funguje bez hesla a bez povinného cloudu; Supabase se načte až při existující cloud session nebo explicitním připojení.
+
+## Data Engine v3 32.1
+32.1 přidává bezpečný **dual-write dlouhé historie**. Decision Journal, Net Worth historie, ticket historie, Trade Journal a historie Smart Importů se dál zrcadlí do lokálního IndexedDB `kamil-os-data-v2` a při připojeném cloudu se stejné záznamy idempotentně ukládají také jako samostatné entity do `kamil_os_history`.
+
+Cloudová historie má vlastní RLS a explicitní Data API oprávnění pouze **SELECT / INSERT / UPDATE** pro přihlášeného vlastníka. Klient nemá `DELETE`. Raw dokumenty, Vault ani auth tokeny nejsou v history allowlistu. Hlavní `kamil_os_state` se v 32.1 zatím nezkracuje — dual-write je ověřovací vrstva před budoucím cutoverem.
 
 ## Trust & Sync 32.0
 32.0 zpevňuje login, cloudový state a multi-device synchronizaci. Magic link a reset hesla mají 60sekundový cooldown a srozumitelnou hlášku pro Supabase rate limit. Po úspěšném připojení je stav cloudu viditelný přímo v horní liště.
@@ -51,6 +56,7 @@ Osobní administrativa zahrnuje pojištění, doklady, platby, smlouvy, rodinu, 
 - schema: **80**
 - hlavní state: `kamil_os_state`
 - IndexedDB: `kamil-os-data-v2`
+- cloud history dual-write: `kamil_os_history`
 - Smart Sync shadow: `kamil_os_changes`
 - kalendář cache: `kamil_calendar_cache`
 - XTB cache: `kamil_xtb_data`
@@ -60,12 +66,13 @@ Osobní administrativa zahrnuje pojištění, doklady, platby, smlouvy, rodinu, 
 - Supabase SDK se na čistém local-first startu nestahuje
 - cloud s novějším schema se nikdy potichu nepřepíše
 - konflikt ani vzdálené smazání se automaticky neaplikují
+- cloudová historie nemá klientské DELETE oprávnění
 
 ## PWA a security
 Kamil OS je statická PWA. Produkce používá main-only Vercel deployment policy, Content Security Policy, `nosniff`, frame deny, omezený referrer policy a browser permissions. Offline shell je cachovaný Service Workerem. Klient obsahuje pouze publishable Supabase key; `service_role`/secret key se do browseru nesmí dostat.
 
 ## QA
-GitHub Actions spouští unit/integration regresi pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta, Decision Journal, Data Recovery, Data Engine, Smart Sync a Remote Inbox. 32.0 přidává samostatné testy pro auth cooldown/rate-limit, cloud payload hygiene, future-schema guard a confirmed merge. Playwright/Chromium E2E ověřuje local-first recovery, cooldown UI, IndexedDB history, item-level outbox a Remote Inbox bez eager Supabase SDK.
+GitHub Actions spouští unit/integration regresi pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta, Decision Journal, Data Recovery, Data Engine, Smart Sync a Remote Inbox. 32.0 přidává samostatné testy pro auth cooldown/rate-limit, cloud payload hygiene, future-schema guard a confirmed merge. 32.1 přidává unit/static safety testy cloud historie a Playwright kontrolu Data Engine v3, allowlistu a local-first startu bez eager Supabase SDK.
 
 ## Architektonický směr
-32.x pokračuje v **Core v2**: compact cloud state, per-device undo, potvrzené multi-device merge a postupný přesun velkých historií mimo hlavní JSON. Další vrstvy jsou Data Engine v3, Copilot 2.0 a source-backed Live Brain; žádná z nich nesmí obejít preview/confirm pravidlo u zápisů.
+32.x pokračuje v **Core v2**: compact cloud state, per-device undo, potvrzené multi-device merge a postupný přesun velkých historií mimo hlavní JSON. Data Engine v3 dual-write je v 32.1 připravený pro ověřený cutover; další velká vrstva je Copilot 2.0 a source-backed Live Brain. Žádná vrstva nesmí obejít preview/confirm pravidlo u zápisů.
