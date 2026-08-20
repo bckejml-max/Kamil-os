@@ -66,6 +66,8 @@ export function conflictSummary(local,cloud){
   {label:'Cíle & fondy',local:count(local,'personalGoals.items'),cloud:count(cloud,'personalGoals.items')},
   {label:'Importované transakce',local:count(local,'personalSpending.transactions'),cloud:count(cloud,'personalSpending.transactions')},
   {label:'Historie importů',local:count(local,'importCenter.history'),cloud:count(cloud,'importCenter.history')},
+  {label:'Net Worth ledger',local:count(local,'netWorthBook.items'),cloud:count(cloud,'netWorthBook.items')},
+  {label:'Net Worth historie',local:count(local,'netWorthBook.history'),cloud:count(cloud,'netWorthBook.history')},
   {label:'Osobní úkoly',local:personalTasks(local),cloud:personalTasks(cloud)},
   {label:'Vstupenky',local:count(local,'ticketBook.items'),cloud:count(cloud,'ticketBook.items')},
   {label:'Pohledávky',local:count(local,'debtBook.items'),cloud:count(cloud,'debtBook.items')}
