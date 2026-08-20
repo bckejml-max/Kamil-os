@@ -14,6 +14,12 @@ const blank=()=>({
  ui:{},audit:[],undo:[]
 });
 
+const compactUndo=a=>(Array.isArray(a)?a:[]).map(entry=>{
+ const x=entry&&typeof entry==='object'?clone(entry):entry;
+ if(x?.state&&typeof x.state==='object')x.state.undo=[];
+ return x;
+});
+
 export function migrate(input){
  const s=input&&typeof input==='object'?clone(input):blank();
  s.meta=s.meta||{};
@@ -34,7 +40,7 @@ export function migrate(input){
  s.delegations=Array.isArray(s.delegations)?s.delegations:[];
  s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};s.learning.feedback=Array.isArray(s.learning.feedback)?s.learning.feedback:[];
  s.audit=Array.isArray(s.audit)?s.audit:[];
- s.undo=Array.isArray(s.undo)?s.undo:[];
+ s.undo=compactUndo(s.undo);
  if(Array.isArray(s.inboxItems)&&!s.inbox.length)s.inbox=s.inboxItems;
  for(const t of s.tasks)if(!t.id)t.id=uid('task');
  for(const p of s.projects)if(!p.id)p.id=uid('project');
@@ -88,7 +94,7 @@ class Store{
  persist(){localStorage.setItem(LOCAL_KEY,JSON.stringify(this.s))}
  replace(next,reason='replace'){this.s=migrate(next);this.persist();this.emit(reason)}
  mutate(label,fn,{undo=true,cloud=true,audit=true}={}){
-   const before=undo?clone(this.s):null;fn(this.s);
+   const before=undo?clone(this.s):null;if(before)before.undo=[];fn(this.s);
    this.s.meta=this.s.meta||{};this.s.meta.schemaVersion=SCHEMA_VERSION;
    if(cloud)this.s.meta.lastMutationAt=new Date().toISOString();
    if(undo){this.s.undo=this.s.undo||[];this.s.undo.unshift({label,at:new Date().toISOString(),state:before});this.s.undo=this.s.undo.slice(0,MAX_UNDO)}
@@ -99,7 +105,7 @@ class Store{
  }
  undo(){
    const x=this.s.undo?.shift();if(!x)return false;
-   const rest=clone(this.s.undo||[]);this.s=migrate(x.state);this.s.undo=rest;
+   const rest=compactUndo(this.s.undo||[]);this.s=migrate(x.state);this.s.undo=rest;
    this.s.meta.lastMutationAt=new Date().toISOString();
    this.s.audit.unshift({id:uid('audit'),label:`Vráceno: ${x.label}`,at:new Date().toISOString()});
    this.persist();this.dirty=true;this.queueSync(this.s);this.emit('undo');if(this.cloudWriter)this.cloudWriter();return true;
