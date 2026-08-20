@@ -31,5 +31,7 @@ jobs:
         run: node action_plan_test.mjs
       - name: Director OS
         run: node director_os_test.mjs
+      - name: Delegation Center
+        run: node delegation_center_test.mjs
       - name: Release gate
         run: node release_gate.mjs
