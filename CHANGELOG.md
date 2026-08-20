@@ -1,3 +1,20 @@
+# Kamil OS 26.0 — Personal OS
+
+## 26.0.0 — Personal-only operating system
+- viditelná navigace je nově **Dnes / Peníze / Vstupenky / Domov / Více**; pracovní UI a pracovní runtime moduly se nenačítají
+- starší pracovní data se **nemažou** a zůstávají v uloženém stavu a JSON záloze pouze kvůli zpětné kompatibilitě
+- nové **Dnes** skládá Top 5 pouze z osobních rizik, cashflow, osobních termínů, XTB a vstupenek; pracovní projekty ani firemní úkoly do fronty nevstupují
+- nový první-class **Domov** sjednocuje Platby, Pojištění, Smlouvy, Doklady, Auto, Dům, Rodinu, Osobní rizika a 90denní timeline
+- 90denní timeline používá pouze uložené osobní termíny; kalendář zahrne jen události explicitně označené jako osobní
+- **Kolik stojí život** počítá známé opakované náklady po jednotlivých měnách; CZK/EUR/USD se nikdy nesčítají ani automaticky nepřepočítávají
+- Ctrl+K je osobní Search Everything přes osobní administrativu, rodinu, XTB, vstupenky a pohledávky; pracovní projekty a citlivá čísla smluv/dokladů nejsou indexována
+- citlivá čísla smluv a dokladů jsou v UI standardně maskovaná; přechod mezi typy osobní položky čistí neplatná specializovaná metadata, aby nevznikaly falešné termíny
+- schema je aditivně zvýšeno na **v37** a formalizuje `personalAdmin.items`, `familyHome.members` a `personalSettings`; Supabase URL/key/tabulky a legacy localStorage klíče zůstávají beze změny
+- cloud conflict dialog nově porovnává osobní administrativu, rodinu, osobní úkoly, vstupenky a pohledávky
+- rychlé přidání je personal-only: osobní úkol, domácnost/smlouva, pohledávka nebo vstupenka
+- **Více** obsahuje pouze Zálohu / Nastavení / Systém
+- nový Personal OS static QA, integrační test, schema/release gate a PWA shell kryjí personal-only invariantu a zachování starých dat
+
 # Kamil OS 25.11 — Project Health
 
 ## 25.11.0 — Health score for every active project
@@ -124,6 +141,6 @@
 - Nastavení jasně ukazuje režim CLOUD / LOKÁLNÍ a cloud lze volitelně připojit nebo odpojit
 - úkoly mají nově odpovědnou osobu, lze je kompletně upravit a kdykoliv přiřadit k projektu
 - projektový detail umí připojit už existující otevřený úkol
-- projektové úkoly dědí odpovědnost projektu a lze je dál individuálně upravit
+- projektové úkoly dědí odpovědnost projektu a lze je dál individuálně upravovat
 - vizuálně dotažený projektový command center a stav lokálního režimu
 - PWA shell a QA gate sjednoceny na 24.4
