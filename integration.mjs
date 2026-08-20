@@ -5,6 +5,7 @@ const {parse,search,execute}=await import('./js/command.js');
 const {personalTimeline}=await import('./js/personalTimeline26.js');
 const {personalMoney}=await import('./js/personalMoney26.js');
 const {buildPersonalToday}=await import('./js/personalToday26.js');
+const {emergencySnapshotText}=await import('./js/emergencyFile26.js');
 const {xtbBoard,ticketDecision}=await import('./js/live24.js');
 const {debtRemaining}=await import('./js/intelligence.js');
 const assert=(x,m)=>{if(!x)throw new Error(m)};
@@ -19,6 +20,7 @@ store.replace(migrate({
   {id:'doc1',title:'Cestovní pas',category:'DOCUMENT',status:'ACTIVE',document:{kind:'PASSPORT',holder:'Kamil',number:'DOC-123',expiryDate:'2026-09-01'}}
  ]},
  familyHome:{members:[{id:'fam1',name:'Mia',relation:'CHILD',birthday:'2026-08-25',status:'ACTIVE'}]},
+ emergencyFile:{contacts:[{id:'ec1',name:'Rodinný kontakt',role:'FAMILY',phone:'+420999888777',email:'kontakt@example.cz',status:'ACTIVE'}],assets:[{id:'ea1',title:'Modré nouzové desky',kind:'DOCUMENTS',location:'Skříň v pracovně',contact:'Rodina',status:'ACTIVE'}]},
  familySettings:{},
  calendar:{events:[{id:'workcal',title:'Firemní porada',start:'2026-08-21T08:00:00+02:00',source:'Outlook'},{id:'perscal',title:'Rodinná návštěva',start:'2026-08-22T15:00:00+02:00',personal:true}]},
  financePlan:{cashNow:100000,reserveFloor:50000,plannedInvestment:0,cashflow:[{id:'cf1',label:'Nájem / hypotéka',amount:-20000,date:'2026-08-25',cadence:'monthly',active:true}]},
@@ -28,10 +30,11 @@ store.replace(migrate({
  debtBook:{items:[{id:'d1',person:'Petr',amount:5000,payments:[],status:'OPEN'}]},audit:[]
 }),'personal-integration');
 
-assert(store.get().meta.schemaVersion===37,'schema migrated to v37');assert(store.get().projects[0].name==='Nová Zbrojovka','legacy work data preserved');
+assert(store.get().meta.schemaVersion===38,'schema migrated to v38');assert(store.get().projects[0].name==='Nová Zbrojovka','legacy work data preserved');assert(store.get().emergencyFile.contacts.length===1&&store.get().emergencyFile.assets.length===1,'emergency data preserved');
 const tl=personalTimeline(store.get(),ref);assert(tl.items.some(x=>x.title==='Elektřina'&&x.days===0),'personal bill in timeline');assert(tl.items.some(x=>x.title.includes('Mia')&&x.days===5),'family birthday in timeline');assert(tl.items.some(x=>x.title==='Rodinná návštěva'),'explicit personal calendar included');assert(!tl.items.some(x=>x.title==='Firemní porada'),'work calendar excluded');assert(!tl.items.some(x=>x.title==='Firemní report'),'work task excluded');
 const pm=personalMoney(store.get(),ref);assert(Math.round(pm.byCurrency.CZK.monthly)===4000,'CZK recurring costs separated');assert(Math.round(pm.byCurrency.EUR.monthly)===10,'EUR recurring costs separated');assert(!('totalMixed' in pm),'no mixed-currency total');
-assert(search('allianz').some(x=>x.target==='home'&&x.homeMode==='insurance'),'insurance searchable');assert(search('mia').some(x=>x.kind==='Rodina'),'family searchable');assert(search('vwce').some(x=>x.kind==='XTB'),'XTB searchable');assert(search('secret-7788').length===0&&search('doc-123').length===0,'sensitive identifiers not searchable');assert(search('nová zbrojovka').length===0,'legacy projects hidden from personal search');assert(parse('ukaž domov').type==='nav'&&parse('ukaž domov').target==='home','personal nav parser');assert(parse('ukaž práci').type==='free','work nav removed');
+assert(search('allianz').some(x=>x.target==='home'&&x.homeMode==='insurance'),'insurance searchable');assert(search('mia').some(x=>x.kind==='Rodina'),'family searchable');assert(search('rodinný kontakt').some(x=>x.kind==='Nouzový kontakt'),'emergency contact name searchable');assert(search('modré nouzové desky').some(x=>x.kind==='Emergency File'),'emergency asset title searchable');assert(search('999888777').length===0&&search('kontakt@example.cz').length===0&&search('skříň v pracovně').length===0,'Emergency File private detail not searchable');assert(search('vwce').some(x=>x.kind==='XTB'),'XTB searchable');assert(search('secret-7788').length===0&&search('doc-123').length===0,'sensitive identifiers not searchable');assert(search('nová zbrojovka').length===0,'legacy projects hidden from personal search');assert(parse('ukaž domov').type==='nav'&&parse('ukaž domov').target==='home','personal nav parser');assert(parse('ukaž emergency file').type==='nav','Emergency File nav parser');assert(parse('ukaž práci').type==='free','work nav removed');
+const snapshot=emergencySnapshotText(store.get());assert(snapshot.includes('Rodinný kontakt')&&snapshot.includes('Modré nouzové desky'),'emergency snapshot useful');assert(!snapshot.includes('SECRET-7788')&&!snapshot.includes('DOC-123'),'emergency snapshot excludes sensitive identifiers');
 assert(xtbBoard(store.get()).some(x=>x.p.ticker==='GROW.US'&&x.d.action==='SELL'),'XTB live decisions preserved');assert(ticketDecision(store.get().ticketBook.items[0],store.get()).action==='REPRICE','ticket live decisions preserved');
 const today=buildPersonalToday(store.get(),ref);assert(today.length<=5&&today.length>=2,'personal top five bounded');assert(today.every(x=>!['work','project'].includes(x.domain)),'no work domain in Personal Today');assert(today.some(x=>x.kind==='XTB'),'Personal Today can include XTB');assert(today.some(x=>x.kind==='Vstupenky'),'Personal Today can include tickets');
 execute('Petr splátka 500');assert(debtRemaining(store.get().debtBook.items[0])===4500,'personal receivable payment command');execute('Sparta prodáno');assert(store.get().ticketBook.items[0].workflow==='SOLD','ticket sold command');execute('Koupit plenky');assert(store.get().tasks.some(x=>x.title==='Koupit plenky'&&x.area==='Osobní'),'free command creates personal task');
