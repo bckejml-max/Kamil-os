@@ -23,6 +23,8 @@ jobs:
         run: node scenario_simulator_test.mjs
       - name: Emergency File
         run: node emergency_file_test.mjs
+      - name: Backup & Recovery Guard
+        run: node backup_guard_test.mjs
       - name: Ticket event aggregation
         run: node ticket_events_test.mjs
       - name: Ticket lessons
