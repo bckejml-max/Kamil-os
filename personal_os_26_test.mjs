@@ -1,0 +1,14 @@
+globalThis.localStorage={_d:new Map(),getItem(k){return this._d.has(k)?this._d.get(k):null},setItem(k,v){this._d.set(k,String(v))},removeItem(k){this._d.delete(k)}};
+globalThis.document={querySelector(){return null},querySelectorAll(){return []}};globalThis.window={dispatchEvent(){},addEventListener(){}};globalThis.CustomEvent=class{constructor(type,opts){this.type=type;this.detail=opts?.detail}};
+const {migrate,validateState}=await import('./js/state.js');
+const {personalTimeline}=await import('./js/personalTimeline26.js');
+const {personalMoney}=await import('./js/personalMoney26.js');
+const {buildPersonalToday}=await import('./js/personalToday26.js');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const ref=new Date('2026-08-20T10:00:00+02:00');
+const s=migrate({meta:{schemaVersion:36},projects:[{id:'legacy',name:'Legacy work'}],tasks:[{id:'p',title:'Osobní úkol',area:'Osobní',status:'UDĚLAT',due:'2026-08-21'},{id:'w',title:'Pracovní úkol',area:'Práce',status:'UDĚLAT',due:'2026-08-21'}],personalAdmin:{items:[{id:'czk',title:'Hypotéka',category:'LOAN',amount:18000,currency:'CZK',cadence:'MONTHLY',nextDue:'2026-08-21',status:'ACTIVE'},{id:'eur',title:'EU služba',category:'SUBSCRIPTION',amount:12,currency:'EUR',cadence:'MONTHLY',nextDue:'2026-08-22',status:'ACTIVE'}]},familyHome:{members:[]},calendar:{events:[{id:'work',title:'Porada',start:'2026-08-22',source:'Outlook'},{id:'personal',title:'Osobní schůzka',start:'2026-08-23',personal:true}]},ticketBook:{items:[],watchlist:[]},debtBook:{items:[]},financePlan:{cashNow:80000,reserveFloor:40000}});
+assert(s.meta.schemaVersion===37,'schema v37');assert(Array.isArray(s.personalAdmin.items)&&Array.isArray(s.familyHome.members),'personal arrays');assert(s.personalSettings.maskSensitive===true,'sensitive mode default');assert(s.projects[0].name==='Legacy work','legacy data preserved');assert(validateState(s).ok,'state valid');
+const tl=personalTimeline(s,ref);assert(tl.items.some(x=>x.title==='Osobní úkol'),'personal task included');assert(!tl.items.some(x=>x.title==='Pracovní úkol'),'work task excluded');assert(tl.items.some(x=>x.title==='Osobní schůzka'),'personal calendar included');assert(!tl.items.some(x=>x.title==='Porada'),'unmarked work calendar excluded');
+const pm=personalMoney(s,ref);assert(pm.byCurrency.CZK.monthly===18000,'CZK cost');assert(pm.byCurrency.EUR.monthly===12,'EUR cost');assert(Object.keys(pm.byCurrency).length===2,'currencies kept separate');
+const d=buildPersonalToday(s,ref);assert(d.every(x=>!['work','project'].includes(x.domain)),'Personal Today has no work domain');
+console.log('PERSONAL OS 26 TEST PASS');
