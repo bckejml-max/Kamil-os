@@ -88,6 +88,6 @@ export function cashflow90(s,now=new Date()){
  const note=coverage
   ?`Výhled používá ručně zadané cashflow, datované pohledávky a osobní závazky se skutečnou částkou a termínem v ${personal.currency}. Cizí měny se bez FX kurzu ignorují. Neznámé příjmy ani výdaje se nedopočítávají.`
   :'Výhled zatím nemá naplánované peněžní toky; zobrazuje pouze dnešní hotovost proti rezervnímu minimu.';
- return {days:90,cash,reserve,inflow,outflow,endBalance,minBalance,minDate:dateKey(minAt),headroom,status,belowReserveDate:belowReserveAt===null?null:dateKey(belowReserveAt),events:timeline.length,next,
+ return {days:90,cash,reserve,inflow,outflow,endBalance,minBalance,minDate:dateKey(minAt),headroom,status,belowReserveDate:belowReserveAt===null?null:dateKey(belowReserveAt),events:timeline.length,next,timeline,
   coverage,manualEntries:manual.length,receivables:receivable.length,personalObligations:personal.entries.length,personalIgnoredCurrency:personal.ignoredCurrency,personalMissingAmount:personal.missingAmount,personalMissingDate:personal.missingDate,primaryCurrency:personal.currency,note};
 }
