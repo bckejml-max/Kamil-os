@@ -1,3 +1,4 @@
+import fs from 'fs';
 import {directorOS} from './js/director25.js';
 const assert=(x,m)=>{if(!x)throw new Error(m)};
 const now=new Date('2026-08-20T12:00:00Z');
@@ -24,4 +25,9 @@ assert(d.items.some(x=>x.id==='project-next:p1'),'project without next step must
 assert(d.items.some(x=>x.id==='wait:w1'&&x.action==='FOLLOW-UP'),'overdue waiting item must create follow-up');
 assert(!d.items.some(x=>x.id==='task:done'),'completed task must never enter director queue');
 assert(d.items.every((x,i,a)=>i===0||a[i-1].priority>=x.priority),'queue must be priority sorted');
+const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),ui=fs.readFileSync('js/directorUi25.js','utf8'),config=fs.readFileSync('js/config.js','utf8');
+for(const required of ['js/directorUi25.js','25.9.0'])assert(html.includes(required),'Director OS shell missing '+required);
+for(const required of ['director25.js','directorUi25.js','25.9.0'])assert(sw.includes(required),'Director OS PWA missing '+required);
+for(const required of ['DIRECTOR OS / 25.9','director25Host','data-director-project','data-director-task'])assert(ui.includes(required),'Director OS UI missing '+required);
+assert(config.includes("APP_VERSION = '25.9.0'"),'Director OS version mismatch');
 console.log('DIRECTOR OS QA PASS');
