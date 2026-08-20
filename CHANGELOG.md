@@ -1,3 +1,15 @@
+# Kamil OS 25.1 — Decision Feed
+
+## 25.1.0 — Current priorities plus real change history
+- stránka **Dnes** dostala nový **DECISION FEED** přímo pod TOP 5 rozhodnutími
+- feed kombinuje tři nejvyšší právě platná rozhodnutí s timestampovanou historií skutečných změn z existujícího auditu
+- čerstvý XTB intelligence refresh a ticket intelligence refresh se zobrazují jako samostatné historické události pouze tehdy, když opravdu existuje jejich `liveAsOf` / `intelligenceAsOf`
+- systém nevyrábí falešnou historii při každém renderu a kvůli feedu nic nového nezapisuje do Supabase ani localStorage
+- aktuální rozhodnutí jsou jasně označená jako **AKTUÁLNÍ**, historické položky jako **INTELLIGENCE** nebo **AKCE**, včetně relativního času
+- položky s bezpečně odvoditelným cílem lze jedním klikem otevřít ve správném modulu; nejasné auditní události zůstávají pouze informativní
+- feed je omezený na 10 položek, deduplikuje duplicity a zachovává pravidlo, že live doporučení musí mít skutečný timestamp a pravidlový fallback se netváří jako historická událost
+- rozšířený integrační test ověřuje kombinaci aktuálních rozhodnutí, XTB/ticket intelligence a reálné auditní historie; QA/PWA shell sjednoceny na 25.1
+
 # Kamil OS 25.0 — Today Decision Command Center
 
 ## 25.0.0 — One queue across work, money and tickets
