@@ -14,20 +14,21 @@ export function buildCommandWriteProposal32(command,state={},now=new Date()){
   const amount=Number(c.amount),debt=arr(state.debtBook?.items).find(d=>activeDebt(d)&&norm(d.person).includes(norm(c.person)));
   if(!debt||!Number.isFinite(amount)||amount<=0)return {ok:false,code:'PAYMENT_NOT_FOUND',message:'Pohledávku nebo částku jsem nenašel.'};
   const before=debtRemaining(debt),after=Math.max(0,before-amount);
-  return {ok:true,kind:'DEBT_PAYMENT',entityType:'debt',entityId:String(debt.id),title:`Zapsat splátku: ${debt.person||debt.reason||'Pohledávka'}`,summary:`Splátka ${amount.toLocaleString('cs-CZ')} Kč · zbývá ${after.toLocaleString('cs-CZ')} Kč`,before:{remaining:before},after:{remaining:after,payment:amount},mutationLabel:`Splátka ${debt.person||'pohledávky'}`,fingerprint:`debt-payment|${debt.id}|${amount}`};
+  return {ok:true,kind:'DEBT_PAYMENT',entityType:'debt',entityId:String(debt.id),title:`Zapsat splátku: ${debt.person||debt.reason||'Pohledávka'}`,summary:`Splátka ${amount.toLocaleString('cs-CZ')} Kč · zbývá ${after.toLocaleString('cs-CZ')} Kč`,before:{remaining:before},after:{remaining:after,payment:amount},mutationLabel:`Splátka ${debt.person||'pohledávky'}`,fingerprint:`debt-payment|${debt.id}|${amount}|${before}`};
  }
  if(type==='sold'){
   const ticket=arr(state.ticketBook?.items).find(t=>norm(t.name).includes(norm(c.name)));
   if(!ticket)return {ok:false,code:'TICKET_NOT_FOUND',message:'Vstupenku jsem nenašel.'};
   if(String(ticket.workflow||'').toUpperCase()==='SOLD')return {ok:false,code:'ALREADY_SOLD',message:'Vstupenka už je označená jako prodaná.'};
-  return {ok:true,kind:'TICKET_SOLD',entityType:'ticket',entityId:String(ticket.id),title:`Označit jako prodané: ${ticket.name||'Vstupenka'}`,summary:`Workflow ${ticket.workflow||'—'} → SOLD`,before:{workflow:ticket.workflow||null,soldAt:ticket.soldAt||null},after:{workflow:'SOLD'},mutationLabel:'Vstupenka prodána',fingerprint:`ticket-sold|${ticket.id}`};
+  const workflow=ticket.workflow||null;
+  return {ok:true,kind:'TICKET_SOLD',entityType:'ticket',entityId:String(ticket.id),title:`Označit jako prodané: ${ticket.name||'Vstupenka'}`,summary:`Workflow ${ticket.workflow||'—'} → SOLD`,before:{workflow,soldAt:ticket.soldAt||null},after:{workflow:'SOLD'},mutationLabel:'Vstupenka prodána',fingerprint:`ticket-sold|${ticket.id}|${workflow||''}|${ticket.soldAt||''}`};
  }
  if(type==='tomorrow'){
   const task=arr(state.tasks).find(t=>String(t.status||'').toUpperCase()!=='HOTOVO'&&personalTask(t)&&norm(t.title).includes(norm(c.name)));
   const due=tomorrow9(now);
-  if(task)return {ok:true,kind:'TASK_TOMORROW',entityType:'task',entityId:String(task.id),title:`Přesunout na zítra: ${task.title}`,summary:`Termín → ${new Date(due).toLocaleString('cs-CZ')}`,before:{due:task.due||null},after:{due},mutationLabel:'Osobní úkol přesunut na zítra',fingerprint:`task-tomorrow|${task.id}|${due.slice(0,10)}`};
+  if(task)return {ok:true,kind:'TASK_TOMORROW',entityType:'task',entityId:String(task.id),title:`Přesunout na zítra: ${task.title}`,summary:`Termín → ${new Date(due).toLocaleString('cs-CZ')}`,before:{due:task.due||null},after:{due},mutationLabel:'Osobní úkol přesunut na zítra',fingerprint:`task-tomorrow|${task.id}|${task.due||''}|${due.slice(0,10)}`};
   const title=String(c.name||'').replace(/^úkol\s+/i,'').trim();if(!title)return {ok:false,code:'TASK_TITLE_MISSING',message:'Napiš název úkolu.'};
-  return {ok:true,kind:'TASK_CREATE_TOMORROW',entityType:'task',entityId:null,title:`Vytvořit osobní úkol: ${title}`,summary:`Nový úkol · zítra v 9:00`,before:null,after:{title,due},mutationLabel:'Přidán osobní úkol na zítra',fingerprint:`task-create-tomorrow|${norm(title)}|${due.slice(0,10)}`};
+  return {ok:true,kind:'TASK_CREATE_TOMORROW',entityType:'task',entityId:null,title:`Vytvořit osobní úkol: ${title}`,summary:'Nový úkol · zítra v 9:00',before:null,after:{title,due},mutationLabel:'Přidán osobní úkol na zítra',fingerprint:`task-create-tomorrow|${norm(title)}|${due.slice(0,10)}`};
  }
  return {ok:false,code:'READ_ONLY_OR_UNKNOWN',message:'Tento příkaz není zapisovací akce.'};
 }
