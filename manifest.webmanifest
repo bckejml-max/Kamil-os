@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 30.2",
+  "name": "Kamil OS 30.3",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 30.2 Smart Filing & Follow-up",
+  "description": "Kamil OS 30.3 Decision Explainability",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
