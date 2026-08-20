@@ -13,6 +13,8 @@ jobs:
           node-version: 22
       - name: Static QA
         run: node qa.mjs
+      - name: Personal Plus 29 static hardening
+        run: node personal_plus_29_static_test.mjs
       - name: Personal Autopilot integration
         run: node integration.mjs
       - name: Personal OS invariants
