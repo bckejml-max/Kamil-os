@@ -25,5 +25,7 @@ jobs:
         run: node ticket_learning_test.mjs
       - name: Cashflow 90 days
         run: node cashflow90_test.mjs
+      - name: Capital Allocation
+        run: node capital_allocation_test.mjs
       - name: Release gate
         run: node release_gate.mjs
