@@ -4,6 +4,7 @@ import {ticketStatus} from './intelligence.js';
 import {ticketDecision,ticketOpportunityDecision,ticketIntelligenceAge,actionLabel} from './live24.js';
 import {ticketSellCockpit} from './ticketCockpit24.js';
 import {ticketEventGroups,ticketEventStats} from './ticketEvents25.js';
+import {ticketLessons} from './ticketLessons25.js';
 import {refreshIntelligence} from './cloud.js';
 
 let ticketFilter='active',selectedEventKey=null;
@@ -16,12 +17,19 @@ const matchesFilter=x=>ticketFilter==='all'||(ticketFilter==='active'&&['HOLD','
 export function renderTickets(){
  const s=store.get(),groups=ticketEventGroups(s);
  if(selectedEventKey){const g=groups.find(x=>x.key===selectedEventKey);if(g){renderEventDetail(s,g);return}selectedEventKey=null}
- const items=[...(s.ticketBook?.items||[])].sort((a,b)=>new Date(a.date||'9999')-new Date(b.date||'9999')),watch=[...(s.ticketBook?.watchlist||[])],liveAge=ticketIntelligenceAge(s),cockpit=ticketSellCockpit(s),eventStats=ticketEventStats(groups);
+ const items=[...(s.ticketBook?.items||[])].sort((a,b)=>new Date(a.date||'9999')-new Date(b.date||'9999')),watch=[...(s.ticketBook?.watchlist||[])],liveAge=ticketIntelligenceAge(s),cockpit=ticketSellCockpit(s),eventStats=ticketEventStats(groups),lessons=ticketLessons(s);
  const active=items.filter(x=>['HOLD','LISTED'].includes(workflow(x))),decisions=active.map(x=>({x,d:ticketDecision(x,s)})).sort((a,b)=>b.d.priority-a.d.priority);
  const waiting=items.filter(x=>['SOLD','PAYOUT WAIT'].includes(workflow(x))).length,done=items.filter(x=>workflow(x)==='PAYOUT RECEIVED').length,capital=active.reduce((n,x)=>n+Number(x.buy||0),0),urgency=decisions.filter(x=>x.d.priority>=80).length,realized=items.filter(x=>Number(x.sell||0)>0).reduce((n,x)=>n+actualProfit(x),0),shown=items.filter(matchesFilter),buyNow=watch.map(x=>({x,d:ticketOpportunityDecision(x,s)})).filter(y=>y.d.action==='BUY').length;
  qs('#ticketsView').innerHTML=`
   <div class="view-head"><div><div class="eyebrow">VSTUPENKY / INTELLIGENCE</div><h1>Kdy koupit a kdy prodat</h1><p>Portfolio, sell timing, cenová pravidla a radar oficiálních nákupních příležitostí.</p></div><div class="view-head-stat"><b>${money(capital)}</b><span>kapitál v aktivních pozicích</span></div></div>
   <div class="metric-strip ticket-metrics"><div class="metric"><span>Aktivní pozice</span><b>${active.length}</b></div><div class="metric"><span>K řešení teď</span><b class="${urgency?'warn':'good'}">${urgency}</b></div><div class="metric"><span>Nákupní radar</span><b class="${buyNow?'good':''}">${buyNow}</b></div><div class="metric"><span>Realizovaný P/L</span><b class="${realized>=0?'good':'bad'}">${money(realized)}</b></div></div>
+
+  <div class="card"><div class="card-head"><div><div class="eyebrow">TICKET LESSONS</div><h2>Co říká realizovaná historie</h2></div><span class="status ${lessons.totalProfit<0?'warn':'good'}">${lessons.trades} obchodů · ${lessons.hitRate===null?'—':Math.round(lessons.hitRate)+' %'} win rate</span></div>
+   <div class="metric-strip"><div class="metric"><span>Realizovaný P/L historie</span><b class="${lessons.totalProfit>=0?'good':'bad'}">${money(lessons.totalProfit)}</b></div><div class="metric"><span>ROI realizovaných</span><b class="${Number(lessons.roi||0)>=0?'good':'bad'}">${lessons.roi===null?'—':lessons.roi.toFixed(1)+' %'}</b></div><div class="metric"><span>Nejlepší obchod</span><b class="good">${lessons.best?money(lessons.best.lessonProfit):'—'}</b></div><div class="metric"><span>Nejhorší obchod</span><b class="${lessons.worst&&lessons.worst.lessonProfit<0?'bad':''}">${lessons.worst?money(lessons.worst.lessonProfit):'—'}</b></div></div>
+   <div class="intel-list">${lessons.lessons.map((x,i)=>`<div class="intel-row"><div class="intel-main"><b>${i===0?'Hlavní poučení':'Další signál'}</b><span>${h(x)}</span></div></div>`).join('')}</div>
+   ${lessons.categories.length?`<div class="intel-rules">${lessons.categories.slice(0,4).map(x=>`<div class="intel-rule"><span>${h(x.category)}</span><b class="${x.profit>=0?'good':'bad'}">${money(x.profit)} · ${Math.round(x.hitRate)} % win · Ø ${x.avgQty.toFixed(1)} ks</b></div>`).join('')}</div>`:''}
+   <div class="decision-note">${h(lessons.evidence)} Lessons jsou zpětný pohled, ne živá predikce trhu.</div>
+  </div>
 
   <div class="card ticket-events-card"><div class="card-head"><div><div class="eyebrow">EVENT PORTFOLIO</div><h2>Akce místo jednotlivých sektorů</h2></div><span class="status ${eventStats.urgentEvents?'warn':'good'}">${eventStats.activeEvents} aktivních akcí · ${eventStats.activeQty} ks</span></div>
    <div class="event-portfolio-grid">${groups.filter(g=>g.activeQty>0||g.soldQty>0).slice(0,10).map(eventCard).join('')||'<div class="empty">Zatím nejsou žádné vstupenkové akce.</div>'}</div>
