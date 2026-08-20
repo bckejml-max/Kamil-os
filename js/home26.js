@@ -54,7 +54,7 @@ function archiveMember(id){store.mutate('Archivován člen rodiny',s=>{const x=s
 function markPaid(id){store.mutate('Potvrzena osobní platba',s=>{const x=s.personalAdmin?.items?.find(y=>y.id===id);if(!x)return;const next=nextBillDue(x.nextDue,x.cadence);x.lastPaidAt=new Date().toISOString();if(next)x.nextDue=next;else if((x.cadence||'ONCE')==='ONCE')x.status='ARCHIVED';x.updatedAt=new Date().toISOString()});toast('Zaznamenáno jako zaplacené. Žádná bankovní platba nebyla provedena.');renderHome()}
 function toggleSensitive(){store.mutate('Změněn citlivý režim',s=>{s.personalSettings=s.personalSettings||{};s.personalSettings.maskSensitive=!(s.personalSettings.maskSensitive!==false)},{undo:true,cloud:true,audit:true});renderHome()}
 
-const header=(title,sub='')=>`<div class="subview-bar"><button class="btn" data-home-back>← Domov</button><div><span>DOMOV</span><b>${h(title)}</b></div></div><div class="view-head compact"><div><div class="eyebrow">PERSONAL OS / 26.0</div><h1>${h(title)}</h1><p>${h(sub)}</p></div></div>`;
+const header=(title,sub='')=>`<div class="subview-bar"><button class="btn" data-home-back>← Domov</button><div><span>DOMOV</span><b>${h(title)}</b></div></div><div class="view-head compact"><div><div class="eyebrow">PERSONAL OS / 26.2</div><h1>${h(title)}</h1><p>${h(sub)}</p></div></div>`;
 const empty=txt=>`<div class="empty">${h(txt)}</div>`;
 
 function dashboard(){
