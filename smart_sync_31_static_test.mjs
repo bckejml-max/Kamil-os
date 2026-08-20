@@ -9,6 +9,6 @@ assert(sync.includes("TABLE='kamil_os_changes'")&&sync.includes("mode:'SHADOW_ON
 for(const destructive of ['store.mutate','store.replace','resolveConflict(','deleteDatabase'])assert(!sync.includes(destructive),'Smart Sync must not apply remote ops or mutate primary state: '+destructive);
 assert(sync.includes('.insert(rows)')&&!sync.includes('.update(')&&!sync.includes('.delete(')&&!sync.includes('.upsert('),'cloud shadow must be append-only from client');
 assert(ui.includes('SHADOW ONLY')&&ui.includes('vzdálené operace automaticky nepoužívá')&&ui.includes('Snapshot `kamil_os_state` zůstává autoritativní'),'Smart Sync UI safety copy missing');
-assert(schema.includes('enable row level security')&&schema.includes('grant select, insert')&&schema.includes('revoke update, delete')&&schema.includes('(select auth.uid()) = user_id'),'RLS/append-only schema invariant missing');
+assert(schema.includes('enable row level security')&&schema.includes('revoke all privileges on table public.kamil_os_changes from authenticated')&&schema.includes('grant select, insert on table public.kamil_os_changes to authenticated')&&schema.includes('revoke all privileges on table public.kamil_os_changes from anon')&&schema.includes('(select auth.uid()) = user_id'),'RLS/least-privilege schema invariant missing');
 assert(cloud.includes('STATE_TABLE')&&cloud.includes('upsert({user_id:sess.user.id,payload'),'authoritative snapshot sync changed unexpectedly');
 console.log('KAMIL OS 31.4 SMART SYNC STATIC PASS');
