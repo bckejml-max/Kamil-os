@@ -45,5 +45,9 @@ jobs:
         run: node insurance_center_test.mjs
       - name: Insurance Center static
         run: node insurance_static_test.mjs
+      - name: Household Bills
+        run: node household_bills_test.mjs
+      - name: Household Bills static
+        run: node household_bills_static_test.mjs
       - name: Release gate
         run: node release_gate.mjs
