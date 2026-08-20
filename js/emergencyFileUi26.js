@@ -46,7 +46,9 @@ function detailHtml(e){
 }
 
 function render(){
- const view=qs('#homeView');if(!view||!view.childElementCount)return;const e=emergencyFile(store.get());let host=qs(`#${hostId}`,view);
+ const view=qs('#homeView');if(!view||!view.childElementCount)return;
+ if(view.querySelector('.subview-bar')){qs(`#${hostId}`,view)?.remove();return}
+ const e=emergencyFile(store.get());let host=qs(`#${hostId}`,view);
  if(!host){host=document.createElement('div');host.id=hostId;host.className='card';const head=view.querySelector('.view-head');if(head)head.insertAdjacentElement('afterend',host);else view.prepend(host)}
  host.innerHTML=`<div class="card-head"><div><div class="eyebrow">EMERGENCY FILE / 26.4</div><h2>Nouzový přehled domácnosti</h2></div><span class="status ${tone(e.score)}">EVIDENCE ${e.score}/100</span></div>
  <div class="metric-strip"><div class="metric"><span>Nouzové kontakty</span><b>${e.totalContacts}</b></div><div class="metric"><span>Kde co najít</span><b>${e.totalAssets}</b></div><div class="metric"><span>Bez spojení</span><b class="${e.contactsWithoutChannel?'warn':'good'}">${e.contactsWithoutChannel}</b></div><div class="metric"><span>Bez umístění</span><b class="${e.assetsWithoutLocation?'warn':'good'}">${e.assetsWithoutLocation}</b></div></div>
