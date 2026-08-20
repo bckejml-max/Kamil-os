@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+const assert=(x,m)=>{if(!x)throw new Error(m)};const text=f=>fs.readFileSync(f,'utf8');
+const files=['index.html','manifest.webmanifest','sw.js','package.json','js/config.js','js/releaseMeta.js','js/historyPlan31.js','js/indexedDb31.js','js/dataEngine31.js','js/dataEngineUi31.js','history_plan_31_test.mjs','data_engine_31_static_test.mjs','e2e_31.spec.mjs','release_gate_31_3.mjs'];for(const f of files)assert(fs.existsSync(f),'Missing 31.3 file '+f);
+const config=text('js/config.js'),meta=text('js/releaseMeta.js'),html=text('index.html'),sw=text('sw.js'),plan=text('js/historyPlan31.js'),idb=text('js/indexedDb31.js'),engine=text('js/dataEngine31.js'),e2e=text('e2e_31.spec.mjs');
+assert(meta.includes("APP_VERSION='31.3.0'")&&meta.includes("APP_RELEASE='31.3'"),'31.3 release metadata missing');assert(config.includes('SCHEMA_VERSION = 42'),'31.3 must remain schema 42');
+for(const immutable of ['kamil_os_state','kamil_calendar_cache','kamil_xtb_data','kamil-os-state','kamil-os-22-meta','kamil-os-22-sync-queue'])assert(config.includes(immutable),'immutable storage key missing '+immutable);
+assert(html.includes('Kamil OS 31.3')&&html.includes('31.3.0')&&html.includes('./js/dataEngineUi31.js'),'31.3 shell missing');assert(sw.includes('kamil-os-31.3.0-shell-r1')&&sw.includes('./js/historyPlan31.js')&&sw.includes('./js/indexedDb31.js')&&sw.includes('./js/dataEngine31.js'),'31.3 PWA cache missing');
+for(const x of ['historyPlan31','LIMITS','trade'])assert(plan.includes(x),'history planner invariant missing '+x);for(const browser of ['document.','window.','localStorage','navigator.','indexedDB','fetch(','store.'])assert(!plan.includes(browser),'history planner must stay pure: '+browser);
+assert(idb.includes("kamil-os-data-v2")&&idb.includes('mirrorHistory31')&&idb.includes('dataEngineSummary31'),'IndexedDB engine invariant missing');
+for(const destructive of ['store.mutate','store.replace','store.persist','deleteDatabase'])assert(!engine.includes(destructive),'31.3 mirror must not alter primary state: '+destructive);
+assert(e2e.includes("indexedDB.open('kamil-os-data-v2')")&&e2e.includes("get('decision|e2e-decision')"),'31.3 browser persistence coverage missing');
+const workflow=text('.github/workflows/qa.yml');assert(workflow.includes('history_plan_31_test.mjs')&&workflow.includes('data_engine_31_static_test.mjs')&&workflow.includes('test:e2e'),'31.3 CI coverage missing');
+console.log('KAMIL OS 31.3 STATIC QA PASS');
