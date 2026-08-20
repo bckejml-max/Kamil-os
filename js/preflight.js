@@ -16,6 +16,8 @@ export function runPreflight(){
  add('Cíle a fondy',Array.isArray(s.personalGoals?.items));
  add('Importované transakce',Array.isArray(s.personalSpending?.transactions));
  add('Historie importů',Array.isArray(s.importCenter?.history));
+ add('Net Worth ledger',Array.isArray(s.netWorthBook?.items));
+ add('Net Worth historie',Array.isArray(s.netWorthBook?.history));
  add('Osobní úkoly',Array.isArray(s.tasks));
  add('Vstupenky',Array.isArray(s.ticketBook?.items));
  add('Pohledávky',Array.isArray(s.debtBook?.items));
