@@ -1,5 +1,5 @@
 import {xtbPositions} from './decision24.js';
-import {secRequestedFromPositions32,secTickerForPosition32,secSourceSummary32} from './secSource32.js';
+import {SEC_SOURCE_32,secRequestedFromPositions32,secTickerForPosition32,secSourceSummary32} from './secSource32.js';
 
 const KEY='kamil-os-source-ingest-32';
 const CACHE_MS=6*3600000;
@@ -10,7 +10,7 @@ export function readSourceIngest32(){
  try{const x=JSON.parse(localStorage.getItem(KEY)||'null');return x&&typeof x==='object'?x:null}catch{return null}
 }
 function writeSourceIngest32(value){try{localStorage.setItem(KEY,JSON.stringify(value))}catch{};return value}
-export function secTickersFromState32(state={}){return secRequestedFromPositions32(xtbPositions(state),8)}
+export function secTickersFromState32(state={}){return secRequestedFromPositions32(xtbPositions(state),SEC_SOURCE_32.maxTickers)}
 export function sourceEvidenceForPosition32(position={}){
  const ticker=secTickerForPosition32(position);if(!ticker)return [];
  const cache=readSourceIngest32();return (cache?.evidence||[]).filter(x=>x?.ticker===ticker).sort((a,b)=>Date.parse(b.asOf||0)-Date.parse(a.asOf||0));
@@ -34,4 +34,4 @@ export async function refreshSecEvidence32(state={},opts={}){
   finally{running=null}
  })();return running;
 }
-export const sourceIngest32Info={provider:'SEC_EDGAR',storage:'device-local',cacheHours:6,autoTrade:false,factsOnly:true};
+export const sourceIngest32Info={provider:'SEC_EDGAR',storage:'device-local',cacheHours:6,maxTickers:SEC_SOURCE_32.maxTickers,autoTrade:false,factsOnly:true};
