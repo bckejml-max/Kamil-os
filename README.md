@@ -1,4 +1,4 @@
-# Kamil OS 31.0
+# Kamil OS 31.1
 
 Kamil OS je osobní **local-first Personal Autopilot**. Viditelné rozhraní je soustředěné do pěti hlavních oblastí: **Dnes / Peníze / Vstupenky / Domov / Více**. Aplikace funguje bez hesla a bez povinného cloudu; Supabase se načte až při existující cloud session nebo explicitním připojení.
 
@@ -8,11 +8,18 @@ Kamil OS je osobní **local-first Personal Autopilot**. Viditelné rozhraní je 
 - **Blíží se** — osobní termíny v režimu připravit → naplánovat → řešit → teď.
 - **Co se změnilo** — Decision Delta porovnává aktuální rozhodnutí s posledním potvrzeným lokálním snapshotem.
 - **Proč teď? / Kdy změnit názor?** — explainability + skutečné `when / buyRule / sellRule` z původního decision enginu.
+- **Decision Journal** — auditní historie potvrzených doporučení a bezpečných pozorovaných metrik.
+
+## Decision Journal 31.1
+Journal ukládá, co Kamil OS v okamžiku snapshotu skutečně doporučil: doménu, věc, akci, prioritu, důvod, další trigger a zdroj. Pro XTB může bezpečný snapshot obsahovat P/L %, váhu, hodnotu a měnu; pro tickety workflow, dny do akce a známé buy/list/market/floor hodnoty.
+
+Journal má pevný allowlist pozorovaných polí, maximálně 250 záznamů a identické snapshoty neduplikuje. Změna P/L nebo workflow se zobrazuje jako **pozorovaný posun**, nikoli jako zpětně vymyšlený důkaz správnosti doporučení. Decision Delta baseline zůstává lokální; Decision Journal je naopak součást běžného state, backupu a případného cloud syncu.
 
 ## Command Bar / Copilot
 Ctrl+K umí hledat osobní administrativu, rodinu, majetek, cíle, XTB, vstupenky a pohledávky a odpovídat například na:
 - `jak jsem na tom`
 - `co se změnilo od minule`
+- `co jsme doporučili`
 - `co koupit za 25 000 Kč`
 - `jak jsou na tom vstupenky`
 - `co příští měsíc`
@@ -31,15 +38,7 @@ Ticket workflow pokrývá nákup, holding, listing, repricing, prodej a payout. 
 Osobní administrativa zahrnuje pojištění, doklady, platby, smlouvy, rodinu, majetek, servis, Emergency File a Renewal Radar. Document Scanner umí lokální browser OCR obrázků přes připnutý Tesseract.js; raw obrázek ani raw OCR text se neukládají do běžného state. Sensitive Vault je oddělený, lokální a šifrovaný AES-GCM.
 
 ## System Health 31
-Sekce **Více → Systém** zobrazuje diagnostiku:
-- release + schema konzistenci,
-- velikost local state a pending sync,
-- stáří zálohy,
-- stav lokální/cloud synchronizace,
-- PWA/Service Worker,
-- stáří XTB a ticket intelligence dat.
-
-System Health je read-only diagnostika; nic sama neopravuje ani neposílá.
+Sekce **Více → Systém** zobrazuje diagnostiku release/schema konzistence, velikosti local state + pending sync, stáří zálohy, lokální/cloud synchronizace, PWA/Service Workeru a stáří XTB/ticket intelligence dat. System Health je read-only diagnostika; nic sama neopravuje ani neposílá.
 
 ## Cloud a local-first režim
 - schema: **42**
@@ -55,7 +54,7 @@ System Health je read-only diagnostika; nic sama neopravuje ani neposílá.
 Kamil OS je statická PWA. Produkce používá main-only Vercel deployment policy, Content Security Policy, `nosniff`, frame deny, omezený referrer policy a browser permissions. Offline shell je cachovaný Service Workerem.
 
 ## QA
-GitHub Actions spouští rozsáhlou sadu unit/integration testů pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta a System Health. Od 31.0 je součástí release gate také **Playwright/Chromium E2E**, který ověřuje kritický local-first flow v reálném browseru.
+GitHub Actions spouští rozsáhlou sadu unit/integration testů pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta, System Health a Decision Journal. Součástí release gate je také **Playwright/Chromium E2E**, který ověřuje kritický local-first flow a skutečné otevření Decision Journalu v browseru.
 
 ## Architektonický směr
-31.0 je **Core v2 Foundation**. Nové doménové enginy mají zůstávat pure a nezávislé na DOM/storage/network API. Browserové UI a transportní vrstvy se mají držet odděleně, aby bylo možné postupně přesunout velká historická data do robustnějšího úložiště a později použít stejné enginy v nativním shellu.
+31.x je **Core v2**. Nové doménové enginy zůstávají pure a nezávislé na DOM/storage/network API. Browserové UI a transportní vrstvy se drží odděleně, aby bylo možné postupně přesunout velká historická data do robustnějšího úložiště, zlepšit item-level sync a později použít stejné enginy v nativním shellu.
