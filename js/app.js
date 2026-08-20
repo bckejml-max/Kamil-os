@@ -1,6 +1,6 @@
-import {APP_VERSION} from './config.js';
+import {APP_VERSION} from './releaseMeta.js';
 import {store} from './state.js';
-import {sb,login,logout,session,loadCloud,loadDataHubs,resolveConflict,conflictSummary,onSyncStatus,flushQueue,sendPasswordReset,updatePassword} from './cloud.js';
+import {login,logout,session,loadCloud,loadDataHubs,resolveConflict,conflictSummary,onSyncStatus,flushQueue,sendPasswordReset,updatePassword,watchAuth} from './cloud.js';
 import {qs,qsa,toast,modal} from './utils.js';
 import {renderMore,setMoreMode} from './more26.js';
 import {renderToday} from './today29.js';
@@ -17,7 +17,7 @@ import {renderPersonalPlus,runReminderNotifications} from './personalPlusUi29.js
 let actionLock=false;
 export async function withActionLock(fn){if(actionLock)return false;actionLock=true;try{return await fn()}finally{setTimeout(()=>{actionLock=false},250)}}
 
-let current='today';
+let current='today',stopAuthWatch=()=>{};
 let recoveryMode=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
 const renderers={today:renderToday,money:renderMoney,tickets:renderTickets,home:renderHome,more:renderMore};
 const pageTitles={today:'DNES',money:'PENÍZE',tickets:'VSTUPENKY',home:'DOMOV',more:'VÍCE'};
@@ -39,14 +39,14 @@ function navigate(v){current=renderers[v]?v:'today';qsa('.view').forEach(x=>x.cl
 qsa('[data-view]').forEach(x=>x.onclick=()=>navigate(x.dataset.view));
 window.addEventListener('kamil:navigate',e=>navigate(e.detail));
 window.addEventListener('kamil:more',e=>{setMoreMode(e.detail);queueMicrotask(()=>{renderAutopilot('more');renderPersonalPlus('more')})});
-window.addEventListener('kamil:logout',()=>logout());
+window.addEventListener('kamil:logout',()=>withActionLock(async()=>{await logout();await handleSession(null)}));
 window.addEventListener('kamil:capture',e=>openCapture(e.detail||null));
 window.addEventListener('kamil:cloud-login',()=>showLoginView('Cloud je volitelný. Kamil OS funguje i bez přihlášení.'));
 
 store.subscribe(()=>{render();runAutopilotNotifications();runReminderNotifications()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){runAutopilotNotifications();runReminderNotifications()}});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
-qs('#logoutBtn').onclick=()=>logout();
+qs('#logoutBtn').onclick=()=>withActionLock(async()=>{await logout();await handleSession(null)});
 qs('#quickAddBtn')?.addEventListener('click',()=>openCapture());
 
 const input=qs('#commandInput');
@@ -61,7 +61,7 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',e=>{if(!e.target.closest('.command-wrap'))renderResults('')});
 
 onSyncStatus((s,detail)=>{const el=qs('#syncStatus');if(!el)return;el.className='sync '+(s==='ok'?'ok':s);el.innerHTML=`<i></i> ${s==='ok'?'Uloženo':s==='saving'?'Ukládám…':s==='offline'?'Offline – uložím později':s==='conflict'?'Konflikt dat':'Cloud'}`;if(detail)el.title=detail});
-function localSyncStatus(){const el=qs('#syncStatus');if(!el)return;el.className='sync local';el.innerHTML='<i></i> Jen toto zařízení';el.title='Kamil OS je otevřený bez hesla. Cloud se použije pouze pokud v prohlížeči zůstala platná Supabase session.'}
+function localSyncStatus(){const el=qs('#syncStatus');if(!el)return;el.className='sync local';el.innerHTML='<i></i> Jen toto zařízení';el.title='Kamil OS je otevřený bez hesla. Supabase SDK se načte až při existující cloud session nebo po explicitním připojení cloudu.'}
 function showResetView(){qs('#authView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#resetView').classList.remove('hidden');setTimeout(()=>qs('#resetPassword1')?.focus(),30)}
 function showLoginView(message=''){qs('#resetView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#authView').classList.remove('hidden');if(message)qs('#authMessage').textContent=message}
 function showApp(){qs('#authView').classList.add('hidden');qs('#resetView').classList.add('hidden');qs('#appView').classList.remove('hidden')}
@@ -71,17 +71,17 @@ async function handleSession(sess){
  if(sess){const result=await loadCloud();if(result?.conflict){const diff=conflictSummary(store.get(),result.cloud),rows=diff.map(x=>`<div class="row"><span>${x.label}</span><span>toto zařízení <b>${x.local}</b> · cloud <b>${x.cloud}</b></span></div>`).join('');const choice=await modal('Cloud a zařízení mají různé osobní změny',`<p class="muted">Nic nepřepisuju automaticky. Osobní data porovnám po hlavních skupinách:</p>${rows}<p class="muted">Pokud si nejsi jistý, zvol toto zařízení a potom udělej export zálohy.</p>`,[{label:'Použít cloud',value:'cloud'},{label:'Použít toto zařízení',value:'local',primary:true}]);if(choice)await resolveConflict(choice,result.cloud)}await flushQueue();await loadDataHubs()}else localSyncStatus();
  store.get().meta.cloudMode=sess?'cloud':'local';const pf=runPreflight();store.get().meta.preflight=pf;store.persist();render();
 }
+async function startAuthWatch(){stopAuthWatch();stopAuthWatch=await watchAuth((ev,sess)=>{if(ev==='PASSWORD_RECOVERY'){recoveryMode=true;setTimeout(showResetView,0);return}if(!recoveryMode)setTimeout(()=>handleSession(sess),0)})}
 
-qs('#loginBtn').onclick=async()=>{const email=qs('#loginEmail').value.trim(),password=qs('#loginPassword').value,msg=qs('#authMessage');if(!email||!password){msg.textContent='Vyplň e-mail i heslo, jen pokud chceš znovu připojit cloud.';return}msg.textContent='Připojuji cloud…';const {error}=await login(email,password);msg.textContent=error?error.message:''};
+qs('#loginBtn').onclick=async()=>{const email=qs('#loginEmail').value.trim(),password=qs('#loginPassword').value,msg=qs('#authMessage');if(!email||!password){msg.textContent='Vyplň e-mail i heslo, jen pokud chceš znovu připojit cloud.';return}msg.textContent='Připojuji cloud…';const {data,error}=await login(email,password);if(error){msg.textContent=error.message;return}msg.textContent='';await handleSession(data?.session||await session());await startAuthWatch()};
 qs('#loginPassword').onkeydown=e=>{if(e.key==='Enter')qs('#loginBtn').click()};
 qs('#skipLoginBtn')?.addEventListener('click',async()=>{recoveryMode=false;await handleSession(await session())});
 qs('#forgotPasswordBtn').onclick=async()=>{const email=qs('#loginEmail').value.trim(),msg=qs('#authMessage');if(!email){msg.textContent='Nejdřív napiš e-mail, na který mám poslat reset.';qs('#loginEmail').focus();return}msg.textContent='Posílám resetovací odkaz…';const {error}=await sendPasswordReset(email);msg.textContent=error?error.message:'Hotovo. Reset je potřeba jen pro cloud účet; aplikace sama heslo nevyžaduje.'};
-qs('#setPasswordBtn').onclick=async()=>{const p1=qs('#resetPassword1').value,p2=qs('#resetPassword2').value,msg=qs('#resetMessage');if(p1.length<8){msg.textContent='Heslo musí mít alespoň 8 znaků.';return}if(p1!==p2){msg.textContent='Hesla se neshodují.';return}msg.textContent='Ukládám nové heslo…';const {error}=await updatePassword(p1);if(error){msg.textContent=error.message;return}msg.textContent='Cloudové heslo změněno.';recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search.replace(/([?&])type=recovery(&|$)/,'$1').replace(/[?&]$/,''));await handleSession(await session())};
+qs('#setPasswordBtn').onclick=async()=>{const p1=qs('#resetPassword1').value,p2=qs('#resetPassword2').value,msg=qs('#resetMessage');if(p1.length<8){msg.textContent='Heslo musí mít alespoň 8 znaků.';return}if(p1!==p2){msg.textContent='Hesla se neshodují.';return}msg.textContent='Ukládám nové heslo…';const {error}=await updatePassword(p1);if(error){msg.textContent=error.message;return}msg.textContent='Cloudové heslo změněno.';recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search.replace(/([?&])type=recovery(&|$)/,'$1').replace(/[?&]$/,''));await handleSession(await session());await startAuthWatch()};
 qs('#resetPassword2').onkeydown=e=>{if(e.key==='Enter')qs('#setPasswordBtn').click()};
 
-sb.auth.onAuthStateChange((ev,sess)=>{if(ev==='PASSWORD_RECOVERY'){recoveryMode=true;setTimeout(showResetView,0);return}if(!recoveryMode)setTimeout(()=>handleSession(sess),0)});
 const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
-if(hashParams.get('error')){recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search);toast(hashParams.get('error_code')==='otp_expired'?'Reset cloudu vypršel. Kamil OS ale můžeš používat bez hesla.':'Cloudové přihlášení se nepodařilo. Kamil OS běží lokálně.');await handleSession(await session())}else if(recoveryMode){showResetView()}else{await handleSession(await session())}
+if(hashParams.get('error')){recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search);toast(hashParams.get('error_code')==='otp_expired'?'Reset cloudu vypršel. Kamil OS ale můžeš používat bez hesla.':'Cloudové přihlášení se nepodařilo. Kamil OS běží lokálně.');await handleSession(await session())}else if(recoveryMode){await session();showResetView();await startAuthWatch()}else{const sess=await session();await handleSession(sess);if(sess)await startAuthWatch()}
 
 if('serviceWorker'in navigator){const reg=await navigator.serviceWorker.register('./sw.js');reg.addEventListener('updatefound',()=>{const w=reg.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)qs('#updateBanner').classList.remove('hidden')})});qs('#reloadAppBtn').onclick=()=>location.reload()}
 window.addEventListener('beforeunload',()=>{if(store.dirty){store.queueSync(store.get());store.setMeta({pendingAt:new Date().toISOString()})}});
