@@ -10,7 +10,7 @@ export const scenarioLabNote='Scenario Lab je pouze hypotetický výpočet nad k
 const startDay=v=>{const d=new Date(v);d.setHours(0,0,0,0);return d};
 const dateKey=v=>new Date(v).toISOString().slice(0,10);
 const addMonthsSafe=(value,months)=>{const d=new Date(value),wanted=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+months);const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(wanted,last));d.setHours(0,0,0,0);return d};
-const validDate=v=>{const d=new Date(v||0);return Number.isFinite(d.getTime())?d:null};
+const validDate=v=>{if(v===null||v===undefined||v==='')return null;const d=new Date(v);return Number.isFinite(d.getTime())?d:null};
 
 function addRecurring(out,{id,label,amount,date,cadence='once',source='MANUAL'},start,end){
  const first=validDate(date);if(!first||!amount)return;
