@@ -9,7 +9,8 @@ const blank=()=>({
  xtbHub:{},xtbStrategy:{overrides:{}},tradeJournal:{trades:[]},
  ticketBook:{items:[],watchlist:[],history:[],review:[]},
  debtBook:{items:[],review:[]},
- personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true},emergencyFile:{contacts:[],assets:[]},
+ personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true,notificationMode:'IMPORTANT'},emergencyFile:{contacts:[],assets:[]},
+ personalInbox:{items:[]},assetBook:{items:[]},
  inbox:[],delegations:[],learning:{typeBias:{},feedback:[]},
  ui:{},audit:[],undo:[]
 });
@@ -34,8 +35,10 @@ export function migrate(input){
  s.debtBook=s.debtBook||{items:[],review:[]};s.debtBook.items=Array.isArray(s.debtBook.items)?s.debtBook.items:[];
  s.personalAdmin={items:[],...(s.personalAdmin||{})};s.personalAdmin.items=Array.isArray(s.personalAdmin.items)?s.personalAdmin.items:[];
  s.familyHome={members:[],...(s.familyHome||{})};s.familyHome.members=Array.isArray(s.familyHome.members)?s.familyHome.members:[];
- s.personalSettings={maskSensitive:true,...(s.personalSettings||{})};
+ s.personalSettings={maskSensitive:true,notificationMode:'IMPORTANT',...(s.personalSettings||{})};
  s.emergencyFile={contacts:[],assets:[],...(s.emergencyFile||{})};s.emergencyFile.contacts=Array.isArray(s.emergencyFile.contacts)?s.emergencyFile.contacts:[];s.emergencyFile.assets=Array.isArray(s.emergencyFile.assets)?s.emergencyFile.assets:[];
+ s.personalInbox={items:[],...(s.personalInbox||{})};s.personalInbox.items=Array.isArray(s.personalInbox.items)?s.personalInbox.items:[];
+ s.assetBook={items:[],...(s.assetBook||{})};s.assetBook.items=Array.isArray(s.assetBook.items)?s.assetBook.items:[];
  s.inbox=Array.isArray(s.inbox)?s.inbox:[];
  s.delegations=Array.isArray(s.delegations)?s.delegations:[];
  s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};s.learning.feedback=Array.isArray(s.learning.feedback)?s.learning.feedback:[];
@@ -51,6 +54,8 @@ export function migrate(input){
  for(const x of s.familyHome.members)if(!x.id)x.id=uid('family');
  for(const x of s.emergencyFile.contacts)if(!x.id)x.id=uid('emergency-contact');
  for(const x of s.emergencyFile.assets)if(!x.id)x.id=uid('emergency-asset');
+ for(const x of s.personalInbox.items)if(!x.id)x.id=uid('personal-inbox');
+ for(const x of s.assetBook.items)if(!x.id)x.id=uid('asset');
  s.meta.migratedFrom=from;s.meta.schemaVersion=SCHEMA_VERSION;
  return s;
 }
@@ -70,9 +75,13 @@ export function validateState(input){
  if(input.emergencyFile!==undefined&&typeof input.emergencyFile!=='object')issues.push('emergencyFile má neplatný formát');
  if(input.emergencyFile?.contacts!==undefined&&!Array.isArray(input.emergencyFile.contacts))issues.push('emergencyFile.contacts nebylo pole');
  if(input.emergencyFile?.assets!==undefined&&!Array.isArray(input.emergencyFile.assets))issues.push('emergencyFile.assets nebylo pole');
+ if(input.personalInbox!==undefined&&typeof input.personalInbox!=='object')issues.push('personalInbox má neplatný formát');
+ if(input.personalInbox?.items!==undefined&&!Array.isArray(input.personalInbox.items))issues.push('personalInbox.items nebylo pole');
+ if(input.assetBook!==undefined&&typeof input.assetBook!=='object')issues.push('assetBook má neplatný formát');
+ if(input.assetBook?.items!==undefined&&!Array.isArray(input.assetBook.items))issues.push('assetBook.items nebylo pole');
  const ids=new Set(),dupIds=[];
  const scan=(a,label)=>Array.isArray(a)&&a.forEach(x=>{if(x?.id){if(ids.has(x.id))dupIds.push(`${label}:${x.id}`);ids.add(x.id)}});
- scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');
+ scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');scan(input.personalInbox?.items,'personal-inbox');scan(input.assetBook?.items,'asset');
  if(dupIds.length)issues.push(`Duplicitní ID: ${dupIds.slice(0,5).join(', ')}`);
  return {ok:!fatal.length,issues,fatal};
 }
@@ -81,7 +90,7 @@ export function repairState(input){
  const dedupe=a=>{const seen=new Set();return (Array.isArray(a)?a:[]).filter(x=>{if(!x?.id)return true;if(seen.has(x.id))return false;seen.add(x.id);return true})};
  fixed.tasks=dedupe(fixed.tasks);fixed.projects=dedupe(fixed.projects);
  fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.ticketBook.watchlist=dedupe(fixed.ticketBook.watchlist);fixed.debtBook.items=dedupe(fixed.debtBook.items);
- fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);
+ fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);
  return {state:fixed,report};
 }
 class Store{
