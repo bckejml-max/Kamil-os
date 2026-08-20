@@ -1,3 +1,15 @@
+# Kamil OS 25.2 — XTB Position Detail
+
+## 25.2.0 — One decision page per holding
+- každá aktivní XTB pozice má nově tlačítko **Detail** a vlastní rozhodovací stránku uvnitř Peněz
+- detail spojuje hodnotu pozice, P/L, váhu účtu, množství, importovanou open price a případnou aktuální cenu z čerstvé intelligence
+- na jednom místě ukazuje **verdikt, confidence, zdroj, kdy jednat, kdy nakoupit a kdy prodat**; pravidlový fallback se stále jasně odlišuje od živé analýzy
+- execution část přebírá konkrétní velikost kroku a cíl kapitálu z Trade Planneru včetně FX/účtové poznámky; nic automaticky neobchoduje
+- živé veřejné zdrojové odkazy se zobrazují jen pokud je intelligence skutečně dodala; neplatné nebo domyšlené URL se nezobrazují
+- historie pozice bezpečně spojuje dostupný XTB trade journal a skutečné uživatelské auditní akce vztahující se k tickeru; při absenci historie nic nevymýšlí
+- detail zachovává možnost upravit ruční pravidlo nebo potvrdit prodej a po prodeji se korektně vrátí do portfolia
+- nový modul `xtbDetail25.js`, samostatné `xtbDetail25.css`, integrační coverage pro source provenance/history/planner sizing a rozšířený QA/PWA release gate
+
 # Kamil OS 25.1 — Decision Feed
 
 ## 25.1.0 — Current priorities plus real change history
