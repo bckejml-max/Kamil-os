@@ -21,6 +21,13 @@ export async function uploadPendingSmartSync31(){
  }catch(error){lastError=String(error?.message||error);return {ok:false,error:lastError}}
 }
 
+export async function fetchRemoteChanges31({limit=100}={}){
+ if(typeof navigator!=='undefined'&&!navigator.onLine)return {ok:false,reason:'OFFLINE',rows:[]};
+ const c=await cloudClient(false);if(!c)return {ok:false,reason:'LOCAL_ONLY',rows:[]};
+ const sess=(await c.auth.getSession()).data.session;if(!sess)return {ok:false,reason:'NO_SESSION',rows:[]};
+ try{const deviceId=deviceId31(),safeLimit=Math.max(1,Math.min(250,Number(limit)||100)),{data,error}=await c.from(TABLE).select('id,device_id,seq,domain,entity_id,op,payload,client_at,created_at').neq('device_id',deviceId).order('created_at',{ascending:false}).limit(safeLimit);if(error)throw error;return {ok:true,deviceId,rows:data||[],fetchedAt:new Date().toISOString()}}catch(error){return {ok:false,error:String(error?.message||error),rows:[]}}
+}
+
 export async function runSmartSync31({rebase=false,discardOps=false,upload=true}={}){
  if(running)return null;if(!indexedDbSupported31()){lastError='IndexedDB není podporovaný';return {ok:false,error:lastError}}
  running=true;try{
@@ -40,4 +47,4 @@ function start(){
 }
 if(typeof document!=='undefined'){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start()}
 
-export const smartSync31Info={table:TABLE,mode:'SHADOW_ONLY',authoritative:'kamil_os_state',autoApplyRemote:false};
+export const smartSync31Info={table:TABLE,mode:'SHADOW_ONLY',authoritative:'kamil_os_state',autoApplyRemote:false,remoteReadOnly:true};
