@@ -6,6 +6,7 @@ import {FAMILY_RELATIONS} from './familyHome25.js';
 import {INSURANCE_KINDS} from './insurance25.js';
 import {DOCUMENT_KINDS} from './documents25.js';
 import {EMERGENCY_CONTACT_ROLES,EMERGENCY_ASSET_KINDS} from './emergencyFile26.js';
+import {personalQuery,ASSET_KINDS,INBOX_KINDS,INBOX_SOURCES} from './autopilot28.js';
 
 const navigateFromTarget=(target,homeMode=null)=>{
  if(target==='home'){
@@ -33,6 +34,8 @@ export function search(q){
  for(const m of S().familyHome?.members||[])if(active(m))add('Rodina',m.name,[FAMILY_RELATIONS[m.relation]||'',m.notes||''].filter(Boolean).join(' · '),'home',m.id,{homeMode:'family'});
  for(const x of S().emergencyFile?.contacts||[])if(active(x))add('Nouzový kontakt',x.name||'Kontakt',EMERGENCY_CONTACT_ROLES[x.role]||EMERGENCY_CONTACT_ROLES.OTHER,'home',x.id,{homeMode:'dashboard'});
  for(const x of S().emergencyFile?.assets||[])if(active(x))add('Emergency File',x.title||'Nouzová položka',EMERGENCY_ASSET_KINDS[x.kind]||EMERGENCY_ASSET_KINDS.OTHER,'home',x.id,{homeMode:'dashboard'});
+ for(const x of S().assetBook?.items||[])if(active(x))add('Majetek',x.title||'Majetek',ASSET_KINDS[x.kind]||ASSET_KINDS.OTHER,'home',x.id,{homeMode:'dashboard'});
+ for(const x of S().personalInbox?.items||[])if(String(x.status||'NEW').toUpperCase()==='NEW')add('Personal Inbox',x.title||'Inbox',`${INBOX_SOURCES[x.source]||INBOX_SOURCES.OTHER} · ${INBOX_KINDS[x.kind]||INBOX_KINDS.OTHER}`,'today',x.id);
  for(const x of S().ticketBook?.items||[])add('Vstupenka',x.name,`${x.qty||1} ks`,'tickets',x.id);
  for(const x of S().debtBook?.items||[])if(x.status!=='PAID')add('Pohledávka',x.person||x.reason||'Pohledávka',`${money(debtRemaining(x))}`,'money',x.id);
  for(const a of Object.values(S().xtbHub?.accounts||{}))for(const p of a?.positions||[])add('XTB',p.ticker||p.name||'Pozice',[p.name,p.category,a.currency].filter(Boolean).join(' · '),'money',p.ticker||p.name);
@@ -74,13 +77,16 @@ export function execute(raw){
   const title=c.name.replace(/^úkol\s+/i,'').trim();if(!title)return toast('Napiš název úkolu.');
   store.mutate('Přidán osobní úkol na zítra',s=>{const d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);s.tasks.unshift({id:uid('task'),title,status:'UDĚLAT',priority:'NORMAL',area:'Osobní',due:d.toISOString(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})});toast('Osobní úkol přidán na zítra');return
  }
+ const answer=personalQuery(c.text,S(),store.meta(),new Date());if(answer){window.dispatchEvent(new CustomEvent('kamil:copilot-answer',{detail:answer}));return}
  const found=search(c.text);
  if(found.length===1){openResult(found[0]);return}
  if(found.length>1){renderResults(c.text);toast('Našel jsem více osobních výsledků – vyber správný.');return}
  store.mutate('Přidán osobní úkol',s=>s.tasks.unshift({id:uid('task'),title:c.text,status:'UDĚLAT',priority:'NORMAL',area:'Osobní',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));toast('Osobní úkol přidán');
 }
 export function renderResults(q){
- const box=qs('#commandResults'),a=search(q);if(!q.trim()||!a.length){box.classList.add('hidden');box.innerHTML='';return}
+ const box=qs('#commandResults');if(!q.trim()){box.classList.add('hidden');box.innerHTML='';return}
+ const answer=personalQuery(q,S(),store.meta(),new Date());if(answer){box.classList.remove('hidden');box.innerHTML=`<div class="search-row"><div><b>${h(answer.title)}</b><div class="muted">Osobní copilot · odpověď z uložených dat</div></div><button class="btn" id="commandCopilot28">Zobrazit</button></div>`;qs('#commandCopilot28',box)?.addEventListener('click',()=>{window.dispatchEvent(new CustomEvent('kamil:copilot-answer',{detail:answer}));box.classList.add('hidden')});return}
+ const a=search(q);if(!a.length){box.classList.add('hidden');box.innerHTML='';return}
  box.classList.remove('hidden');box.innerHTML=a.map((x,i)=>`<div class="search-row"><div><b>${h(x.title)}</b><div class="muted">${h(x.kind)} · ${h(x.detail||'')}</div></div><button class="btn" data-search="${i}">Otevřít</button></div>`).join('');
  qsa('[data-search]',box).forEach(b=>b.onclick=()=>{openResult(a[Number(b.dataset.search)]);box.classList.add('hidden')});
 }
