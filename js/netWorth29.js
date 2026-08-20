@@ -3,8 +3,8 @@ const finite=v=>Number.isFinite(Number(v));
 const ccy=v=>String(v||'CZK').toUpperCase();
 const active=x=>!['ARCHIVED','PAID','CLOSED'].includes(String(x?.status||'ACTIVE').toUpperCase());
 const flow=x=>String(x?.workflow||'HOLD').toUpperCase();
-const todayKey=d=>new Date(d).toISOString().slice(0,10);
-const yearKey=d=>todayKey(d).slice(0,4);
+const todayKey=d=>{const x=new Date(d);return Number.isFinite(x.getTime())?x.toISOString().slice(0,10):null};
+const yearKey=d=>(todayKey(d)||'').slice(0,4);
 const debtPaid=x=>(x?.payments||[]).reduce((sum,p)=>sum+(Number(p?.amount)||0),0);
 const debtRemaining=x=>Math.max(0,(Number(x?.amount)||0)-debtPaid(x));
 
@@ -45,7 +45,7 @@ function aggregateBase(s,byCurrency,baseCurrency){
  for(const row of rows){const rate=netWorthFxRate(s,row.currency,baseCurrency);if(rate===null){missing.push(row.currency);continue}rates[row.currency]=rate;totals.assets+=row.assets*rate;totals.liabilities+=row.liabilities*rate;totals.net+=row.net*rate}
  return {currency:baseCurrency,complete:missing.length===0,missingCurrencies:missing,rates,assets:missing.length?null:totals.assets,liabilities:missing.length?null:totals.liabilities,net:missing.length?null:totals.net};
 }
-function normalizeHistory(s){return (s?.netWorthBook?.history||[]).filter(x=>x&&x.at&&x.byCurrency&&typeof x.byCurrency==='object').slice().sort((a,b)=>new Date(b.at)-new Date(a.at))}
+function normalizeHistory(s){return (s?.netWorthBook?.history||[]).filter(x=>x&&todayKey(x.at)&&x.byCurrency&&typeof x.byCurrency==='object').slice().sort((a,b)=>new Date(b.at)-new Date(a.at))}
 function deltaMap(current,snapshot){
  if(!snapshot)return null;const currencies=[...new Set([...Object.keys(current),...Object.keys(snapshot.byCurrency||{})])].sort(),out={};
  for(const c of currencies){const now=n(current[c]?.net),before=n(snapshot.byCurrency?.[c]?.net??snapshot.byCurrency?.[c]);out[c]={currency:c,current:now,previous:before,delta:now-before,pct:before!==0?((now-before)/Math.abs(before))*100:null}}
@@ -61,10 +61,10 @@ export function trueNetWorth(s={},now=new Date()){
  addXtb(s,byCurrency);addReceivables(s,byCurrency);addTickets(s,byCurrency);addManual(s,byCurrency);
  for(const b of Object.values(byCurrency)){b.net=b.assets-b.liabilities;b.sources.sort((a,b)=>b.value-a.value||a.label.localeCompare(b.label,'cs'))}
  const base=aggregateBase(s,byCurrency,baseCurrency),history=normalizeHistory(s),comparisons=historyComparisons(history,byCurrency,now),manualLiabilities=(s?.netWorthBook?.items||[]).filter(x=>active(x)&&String(x.side||'ASSET').toUpperCase()==='LIABILITY').length,staleManual=(s?.netWorthBook?.items||[]).filter(x=>active(x)&&x.updatedAt&&((new Date(now)-new Date(x.updatedAt))/86400000)>90).length;
- const ticketBookValue=Object.values(byCurrency).flatMap(x=>x.sources).filter(x=>x.kind==='TICKET_INVENTORY').reduce((z,x)=>z+x.value,0),gaps=[];
+ const hasTicketBookValue=Object.values(byCurrency).some(x=>x.sources.some(y=>y.kind==='TICKET_INVENTORY')),gaps=[];
  if(!manualLiabilities)gaps.push('Nejsou uložené žádné ruční závazky. Pokud máš hypotéku, úvěr nebo kreditku, doplň je, jinak čisté jmění bude nadhodnocené.');
  if(base.missingCurrencies.length)gaps.push(`Chybí skutečný FX kurz pro ${base.missingCurrencies.join(', ')} → ${baseCurrency}; společný součet proto nezobrazuji.`);
- if(ticketBookValue>0)gaps.push('Aktivní vstupenky jsou oceněné pořizovací cenou, nikoli odhadovanou budoucí prodejní cenou.');
+ if(hasTicketBookValue)gaps.push('Aktivní vstupenky jsou oceněné pořizovací cenou, nikoli odhadovanou budoucí prodejní cenou.');
  if(staleManual)gaps.push(`${staleManual} ruční ${staleManual===1?'ocenění je':'ocenění jsou'} starší než 90 dní.`);
  return {asOf:new Date(now).toISOString(),baseCurrency,byCurrency,currencies:Object.keys(byCurrency).sort(),base,history,comparisons,gaps,coverage:{manualItems:(s?.netWorthBook?.items||[]).filter(active).length,manualLiabilities,historySnapshots:history.length},note:'True Net Worth používá pouze explicitně uložené hodnoty. Hotovost, XTB a pohledávky bere z existujících dat; vstupenky drží v pořizovací ceně a ruční majetek/závazky jen v zadané hodnotě. Měny se nikdy nesčítají bez skutečného FX kurzu.'};
 }
