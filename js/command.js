@@ -5,6 +5,7 @@ import {PERSONAL_CATEGORIES} from './personalAdmin25.js';
 import {FAMILY_RELATIONS} from './familyHome25.js';
 import {INSURANCE_KINDS} from './insurance25.js';
 import {DOCUMENT_KINDS} from './documents25.js';
+import {EMERGENCY_CONTACT_ROLES,EMERGENCY_ASSET_KINDS} from './emergencyFile26.js';
 
 const navigateFromTarget=(target,homeMode=null)=>{
  if(target==='home'){
@@ -30,6 +31,8 @@ export function search(q){
   add(cat,x.title||cat,detail,'home',x.id,{homeMode:homeModeFor(x)});
  }
  for(const m of S().familyHome?.members||[])if(active(m))add('Rodina',m.name,[FAMILY_RELATIONS[m.relation]||'',m.notes||''].filter(Boolean).join(' · '),'home',m.id,{homeMode:'family'});
+ for(const x of S().emergencyFile?.contacts||[])if(active(x))add('Nouzový kontakt',x.name||'Kontakt',EMERGENCY_CONTACT_ROLES[x.role]||EMERGENCY_CONTACT_ROLES.OTHER,'home',x.id,{homeMode:'dashboard'});
+ for(const x of S().emergencyFile?.assets||[])if(active(x))add('Emergency File',x.title||'Nouzová položka',EMERGENCY_ASSET_KINDS[x.kind]||EMERGENCY_ASSET_KINDS.OTHER,'home',x.id,{homeMode:'dashboard'});
  for(const x of S().ticketBook?.items||[])add('Vstupenka',x.name,`${x.qty||1} ks`,'tickets',x.id);
  for(const x of S().debtBook?.items||[])if(x.status!=='PAID')add('Pohledávka',x.person||x.reason||'Pohledávka',`${money(debtRemaining(x))}`,'money',x.id);
  for(const a of Object.values(S().xtbHub?.accounts||{}))for(const p of a?.positions||[])add('XTB',p.ticker||p.name||'Pozice',[p.name,p.category,a.currency].filter(Boolean).join(' · '),'money',p.ticker||p.name);
@@ -43,6 +46,7 @@ export function parse(raw){
   'ukaž platby':['home','payments'],'ukaz platby':['home','payments'],'ukaž pojištění':['home','insurance'],'ukaz pojisteni':['home','insurance'],'ukaž smlouvy':['home','contracts'],'ukaz smlouvy':['home','contracts'],
   'ukaž doklady':['home','documents'],'ukaz doklady':['home','documents'],'ukaž auto':['home','car'],'ukaz auto':['home','car'],
   'ukaž rodinu':['home','family'],'ukaz rodinu':['home','family'],'ukaž rizika':['home','risk'],'ukaz rizika':['home','risk'],
+  'ukaž emergency file':['home','dashboard'],'ukaz emergency file':['home','dashboard'],'ukaž nouzový přehled':['home','dashboard'],'ukaz nouzovy prehled':['home','dashboard'],
   'ukaž termíny':['home','timeline'],'ukaz terminy':['home','timeline'],'ukaž vstupenky':['tickets',null],'ukaz vstupenky':['tickets',null],
   'ukaž peníze':['money',null],'ukaz penize':['money',null],'ukaž pohledávky':['money',null],'ukaz pohledavky':['money',null]
  };
