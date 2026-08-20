@@ -103,6 +103,10 @@ jobs:
         run: node cloud_history_32_test.mjs
       - name: Cloud History safety 32.1
         run: node cloud_history_32_static_test.mjs
+      - name: Copilot write proposals 32.2
+        run: node copilot_write_32_test.mjs
+      - name: Copilot write safety 32.2
+        run: node copilot_write_32_static_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
@@ -157,7 +161,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser E2E 32.1
+      - name: Browser E2E 32.2
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
