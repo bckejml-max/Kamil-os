@@ -121,7 +121,7 @@ test('Kamil OS 32.4 Market Edge exposes XTB execution and ticket tuning',async({
   });
   await page.goto(BASE,{waitUntil:'networkidle'});
   await page.locator('#mainNav').getByRole('button',{name:'Peníze'}).click();
-  await expect(page.getByRole('heading',{name:'Execution & Filing Radar'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Execution, Quote & Filing Radar'})).toBeVisible();
   await expect(page.locator('#marketEdgeXtb32Host')).toContainText('Redukce cca');
   const execution=await page.evaluate(async()=>{const {xtbBoard}=await import('./js/live24.js'),{store}=await import('./js/state.js');return xtbBoard(store.get())[0].d.execution});
   expect(execution.trimPct).toBeGreaterThanOrEqual(30);expect(execution.blocked).toBe(false);
