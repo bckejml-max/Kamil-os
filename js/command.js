@@ -18,6 +18,7 @@ function once(key,fn){const now=Date.now(),last=cmdFingerprints.get(key)||0;if(n
 const S=()=>store.get();
 const personalTask=t=>String(t?.area||'').toLocaleLowerCase('cs-CZ').includes('osob');
 const active=x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED';
+const homeModeFor=x=>x.category==='INSURANCE'?'insurance':x.category==='DOCUMENT'?'documents':x.category==='VEHICLE'?'car':x.category==='FAMILY'?'family':['HOME','UTILITY'].includes(x.category)?'house':['SUBSCRIPTION','LOAN','FEE'].includes(x.category)?'contracts':x.category==='PAYMENT'?'payments':'contracts';
 
 export function search(q){
  q=norm(q);if(!q)return[];const out=[],add=(kind,title,detail,target,id,extra={})=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,...extra})};
@@ -26,8 +27,7 @@ export function search(q){
   if(!active(x))continue;
   const cat=PERSONAL_CATEGORIES[x.category]||PERSONAL_CATEGORIES.OTHER,ins=x.insurance||{},doc=x.document||{};
   const detail=[cat,x.provider,x.notes,ins.insured,INSURANCE_KINDS[ins.kind],doc.holder,DOCUMENT_KINDS[doc.kind],doc.issuer].filter(Boolean).join(' · ');
-  const mode=x.category==='INSURANCE'?'insurance':x.category==='DOCUMENT'?'documents':x.category==='VEHICLE'?'car':['HOME','UTILITY'].includes(x.category)?'house':x.category==='FAMILY'?'family':['PAYMENT','SUBSCRIPTION','LOAN','FEE'].includes(x.category)?'payments':'contracts';
-  add(cat,x.title||cat,detail,'home',x.id,{homeMode:mode});
+  add(cat,x.title||cat,detail,'home',x.id,{homeMode:homeModeFor(x)});
  }
  for(const m of S().familyHome?.members||[])if(active(m))add('Rodina',m.name,[FAMILY_RELATIONS[m.relation]||'',m.notes||''].filter(Boolean).join(' · '),'home',m.id,{homeMode:'family'});
  for(const x of S().ticketBook?.items||[])add('Vstupenka',x.name,`${x.qty||1} ks`,'tickets',x.id);
@@ -39,8 +39,8 @@ export function search(q){
 export function parse(raw){
  const t=String(raw||'').trim(),n=norm(t);if(!n)return{type:'empty'};
  const nav={
-  'ukaž domov':['home','dashboard'],'ukaz domov':['home','dashboard'],'ukaž platby':['home','payments'],'ukaz platby':['home','payments'],
-  'ukaž pojištění':['home','insurance'],'ukaz pojisteni':['home','insurance'],'ukaž smlouvy':['home','contracts'],'ukaz smlouvy':['home','contracts'],
+  'ukaž domov':['home','dashboard'],'ukaz domov':['home','dashboard'],'ukaž domácnost':['home','house'],'ukaz domacnost':['home','house'],'ukaž dům':['home','house'],'ukaz dum':['home','house'],
+  'ukaž platby':['home','payments'],'ukaz platby':['home','payments'],'ukaž pojištění':['home','insurance'],'ukaz pojisteni':['home','insurance'],'ukaž smlouvy':['home','contracts'],'ukaz smlouvy':['home','contracts'],
   'ukaž doklady':['home','documents'],'ukaz doklady':['home','documents'],'ukaž auto':['home','car'],'ukaz auto':['home','car'],
   'ukaž rodinu':['home','family'],'ukaz rodinu':['home','family'],'ukaž rizika':['home','risk'],'ukaz rizika':['home','risk'],
   'ukaž termíny':['home','timeline'],'ukaz terminy':['home','timeline'],'ukaž vstupenky':['tickets',null],'ukaz vstupenky':['tickets',null],
