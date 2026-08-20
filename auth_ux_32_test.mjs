@@ -1,0 +1,4 @@
+import {AUTH_EMAIL_COOLDOWN_MS,authCooldownSeconds32,authErrorMessage32,authConnectedLabel32} from './js/authUx32.js';
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const now=Date.parse('2026-08-20T22:00:00Z'),last=new Date(now-30000).toISOString();assert(AUTH_EMAIL_COOLDOWN_MS===60000,'cooldown changed');assert(authCooldownSeconds32(last,now)===30,'cooldown math wrong');assert(authCooldownSeconds32(new Date(now-61000).toISOString(),now)===0,'expired cooldown wrong');assert(authErrorMessage32({status:429,message:'email rate limit exceeded'}).includes('omezuje'),'429 message missing');assert(authErrorMessage32({message:'Invalid login credentials'}).includes('heslo'),'credential message missing');const c=authConnectedLabel32({email:'k@example.com',lastCloudAt:'2026-08-20T21:00:00Z'});assert(c.short.includes('Cloud')&&c.detail.includes('k@example.com'),'connected label missing');
+console.log('KAMIL OS 32.0 AUTH UX TEST PASS');

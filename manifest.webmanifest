@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 31.5",
+  "name": "Kamil OS 32.0",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 31.5 Remote Change Inbox — read-only multi-device change review",
+  "description": "Kamil OS 32.0 Trust & Sync — hardened login, compact cloud state and confirmed multi-device merge",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
