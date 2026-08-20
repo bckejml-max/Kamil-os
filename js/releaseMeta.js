@@ -1,2 +1,3 @@
-export const APP_VERSION='30.5.0';
-export const APP_RELEASE='30.5';
+export const APP_VERSION='31.0.0';
+export const APP_RELEASE='31.0';
+export const APP_NAME='Kamil OS';

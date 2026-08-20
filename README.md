@@ -1,84 +1,61 @@
-# Kamil OS
+# Kamil OS 31.0
 
-Kamil OS **29.0** je osobní autopilot. Viditelné rozhraní zůstává pouze osobní: **Dnes / Peníze / Vstupenky / Domov / Více**. Starší pracovní data se při migraci nemažou, ale Personal OS je nezobrazuje ani dále nerozvíjí.
+Kamil OS je osobní **local-first Personal Autopilot**. Viditelné rozhraní je soustředěné do pěti hlavních oblastí: **Dnes / Peníze / Vstupenky / Domov / Více**. Aplikace funguje bez hesla a bez povinného cloudu; Supabase se načte až při existující cloud session nebo explicitním připojení.
 
-## 29.0 — Personal Autopilot Complete
+## Dnes — Morning Command Center
+- **Udělej dnes** — hlavní osobní kroky podle priority.
+- **Pozor na peníze** — cashflow, rezerva a bezpečný investiční prostor.
+- **Blíží se** — osobní termíny v režimu připravit → naplánovat → řešit → teď.
+- **Co se změnilo** — Decision Delta porovnává aktuální rozhodnutí s posledním potvrzeným lokálním snapshotem.
+- **Proč teď? / Kdy změnit názor?** — explainability + skutečné `when / buyRule / sellRule` z původního decision enginu.
 
-### Dnes — jedna obrazovka
-Dnes je zjednodušené na čtyři otázky:
-- **Udělej dnes** — maximálně tři hlavní osobní kroky.
-- **Pozor na peníze** — rezerva, známé cashflow a bezpečný investiční prostor.
-- **Blíží se** — připravit → naplánovat → řešit → teď / po termínu.
-- **Co se změnilo** — skutečný osobní change feed z auditu, Inboxu a historie cen.
-
-Pracovní projekty a pracovní úkoly se do osobního Today nevracejí.
-
-### Onboarding & Data Quality
-Onboarding nabídne maximálně tři konkrétní datové mezery u již existujících osobních záznamů. Kategorie, které uživatel ještě vůbec neeviduje, jsou pouze volitelné a formulované jako „pokud…“ — Kamil OS nevymýšlí, že daný závazek musí existovat.
-
-### Personal Inbox — Gmail + kalendář
-Personal Inbox přijímá ruční kandidáty, explicitně osobní kalendářové události a bezpečný externí Gmail intake. Gmail automatizace vybírá pouze jednoznačně osobní/rodinné/domácí administrativní zprávy a explicitně vynechává práci, projekty, nákup/procurement, marketing a nejasné zprávy. Do Kamil OS ukládá jen krátký kandidát, ne celý e-mail ani přílohy.
-
-Kandidáty nikdy nesmí obsahovat hesla, bezpečnostní kódy, PIN/CVV, celé identifikátory dokladů, čísla pojistných smluv, recovery/seed fráze nebo jiné přístupové tajemství. Inbox nic sám neprovádí; kandidát se potvrzuje nebo zahazuje.
-
-Calendar Sync zachovává explicitní `personal` flag. Importovaný Outlook/ICS kalendář „Kalendář“ a pracovní kalendáře jsou `personal=false`, takže se do osobního autopilotu nepřimíchají jen podle názvu události.
-
-### Reminder Escalation
-Termíny už nejsou jen jeden alarm. Pravidlově se posouvají přes stavy **PŘIPRAVIT / NAPLÁNOVAT / ŘEŠIT / TEĎ / PO TERMÍNU**. Prahy se liší podle typu položky. Jde pouze o interní připomínkovou logiku nad uloženým termínem — není vydávána za právní, servisní nebo jinou odbornou lhůtu.
-
-Browserová upozornění fungují jen po povolení a při běžícím klientu. Skutečný push při úplně zavřené PWA dál vyžaduje serverovou push službu; aplikace nepředstírá, že ji má.
-
-### Cíle & fondy
-V Penězích lze evidovat cílovou částku, už odloženou částku, měnu, cílové datum a skutečný měsíční příspěvek. Kamil OS počítá zbývající částku a potřebné tempo. Měny se nikdy nesčítají a systém žádné peníze automaticky nepřevádí.
-
-### Historie nákladů
-U osobních plateb a smluv se při **skutečné změně uložené částky** skládá historie ceny. Cloud sync, obnova zálohy a jiný bulk replace se za změnu ceny nepovažují. Bez skutečné historie Kamil OS netvrdí, že něco zdražilo nebo zlevnilo.
-
-### Servisní šablony
-Auto, technologie domu, spotřebiče a nemovitost mohou dostat servisní checklist. Šablona nabízí témata jako servis podle výrobce, pneumatiky, STK, záruka nebo revize, ale **nevymýšlí intervaly**. Konkrétní datum se uloží jen pokud ho uživatel zná a potvrdí.
-
-### Import Assistant
-Do Import Assistantu lze vložit text smlouvy, pojistky nebo faktury, případně textový soubor. Pravidlově navrhne typ, částku/měnu a nalezená data. Návrh se nikdy nezapíše přímo do evidence — pouze jako kandidát do Personal Inboxu po potvrzení. Citlivé identifikátory se detekují, ale záměrně se nevytěžují.
-
-Skenovanou fotografii nebo PDF bez textové vrstvy statická PWA nepředstírá, že umí bezpečně OCR zpracovat bez dalšího lokálního/backend OCR řešení.
-
-### Sensitive Vault
-Sensitive Vault je oddělený od běžného Kamil OS state:
-- pouze na zařízení,
-- AES-GCM,
-- klíč z fráze přes PBKDF2-SHA256,
-- fráze se drží jen v paměti otevřené stránky,
-- není synchronizován do Supabase,
-- není součástí běžné JSON zálohy ani Ctrl+K search.
-
-Vault je určený jen pro citlivé identifikátory. Hesla, PINy, CVV, seed/recovery fráze a privátní klíče záměrně odmítá. Má vlastní **šifrovaný export/import**, takže lze bezpečně přenést ciphertext na jiné zařízení a odemknout původní frází.
-
-### Household Money + Scenario Lab
-Zůstává 90denní cashflow, bezpečný investiční prostor a 12měsíční Scenario Lab pro jednorázový výdaj/příjem, nový měsíční náklad/příjem/investici nebo výpadek příjmu. Scénáře nic neukládají ani neprovádějí. Cizí měny bez skutečného FX kurzu se nesčítají ani nepřepočítávají.
-
-Starší `netWorth()` nemá pevný fallback EUR/CZK. Pokud skutečný FX chybí, EUR část se do CZK součtu nezapočte a výstup se označí jako neúplný.
-
-### Ctrl+K — Search Everything + osobní copilot
-Ctrl+K umí hledat osobní administrativu, rodinu, majetek, cíle, Personal Inbox, XTB, vstupenky a pohledávky a pravidlově odpovídat například na:
-- `co řešit dnes`
-- `co končí do 60 dní`
-- `co je po termínu`
+## Command Bar / Copilot
+Ctrl+K umí hledat osobní administrativu, rodinu, majetek, cíle, XTB, vstupenky a pohledávky a odpovídat například na:
+- `jak jsem na tom`
+- `co se změnilo od minule`
+- `co koupit za 25 000 Kč`
+- `jak jsou na tom vstupenky`
+- `co příští měsíc`
+- `12 měsíců dopředu`
 - `co chybí doplnit`
-- `ukaž cíle a fondy`
-- `co zdražilo`
-- `co se změnilo`
-- `kolik stojí život`
-- `kolik můžu bezpečně investovat`
 
-Vault, čísla dokladů, pojistné identifikátory, Emergency File telefon/e-mail/umístění a další citlivé detaily se do globálního search indexu nepřidávají.
+Pokud Command Bar textu nerozumí, **nic automaticky nezapisuje**. Nabídne vytvoření osobního úkolu pouze po explicitním potvrzení.
 
-### Emergency File, Family Share a Backup Guard
-Emergency File zůstává nouzový orientační přehled bez hesel/PINů a bez čísel dokladů/pojistek. Family Share je sanitizovaný read-only výřez bez XTB, vstupenek a citlivých identifikátorů.
+## Peníze / XTB
+Kamil OS obsahuje 90denní cashflow, cíle a fondy, Spending Intelligence, True Net Worth, Portfolio Rebalancer, Portfolio Risk Map a XTB decision engine. Měny se bez skutečného FX kurzu nesčítají ani nepřepočítávají. Investiční rozhodnutí jsou oddělená na pravidlový AUTO výstup a volitelnou čerstvou live intelligence.
 
-Backup & Recovery Guard exportuje verzovaný state s fingerprintem a bez interních Undo snapshotů, podporuje starší JSON a blokuje neznámé novější schema. **Sensitive Vault je z běžného backupu záměrně vyloučen** a má vlastní šifrovanou zálohu.
+## Vstupenky
+Ticket workflow pokrývá nákup, holding, listing, repricing, prodej a payout. Ticket Profit & ROI drží měny odděleně. Decision engine používá skutečně uložené datum akce, workflow, nákupní/list/floor/market cenu a případnou živou intelligence; chybějící tržní data nevymýšlí.
 
-## Data a kompatibilita
-Schema **40** proti v39 aditivně přidává pouze:
-- `personalGoals.items`
+## Domov / dokumenty / rodina
+Osobní administrativa zahrnuje pojištění, doklady, platby, smlouvy, rodinu, majetek, servis, Emergency File a Renewal Radar. Document Scanner umí lokální browser OCR obrázků přes připnutý Tesseract.js; raw obrázek ani raw OCR text se neukládají do běžného state. Sensitive Vault je oddělený, lokální a šifrovaný AES-GCM.
 
-Stávající `personalAdmin`, `familyHome`, `emergencyFile`, `personalInbox`, `assetBook`, XTB, vstupenky i historická pracovní data zůstávají zachována. Supabase URL, publishable key, tabulky a legacy localStorage klíče se v 29.0 nemění.
+## System Health 31
+Sekce **Více → Systém** zobrazuje diagnostiku:
+- release + schema konzistenci,
+- velikost local state a pending sync,
+- stáří zálohy,
+- stav lokální/cloud synchronizace,
+- PWA/Service Worker,
+- stáří XTB a ticket intelligence dat.
+
+System Health je read-only diagnostika; nic sama neopravuje ani neposílá.
+
+## Cloud a local-first režim
+- schema: **42**
+- hlavní state: `kamil_os_state`
+- kalendář cache: `kamil_calendar_cache`
+- XTB cache: `kamil_xtb_data`
+- legacy localStorage klíče zůstávají kompatibilní
+- cloud je volitelný a používá RLS podle přihlášeného uživatele
+- pending sync snapshot se zapisuje lokálně už při změně state
+- konflikt mezi cloudem a zařízením se nikdy nepřepíše potichu
+
+## PWA a security
+Kamil OS je statická PWA. Produkce používá main-only Vercel deployment policy, Content Security Policy, `nosniff`, frame deny, omezený referrer policy a browser permissions. Offline shell je cachovaný Service Workerem.
+
+## QA
+GitHub Actions spouští rozsáhlou sadu unit/integration testů pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta a System Health. Od 31.0 je součástí release gate také **Playwright/Chromium E2E**, který ověřuje kritický local-first flow v reálném browseru.
+
+## Architektonický směr
+31.0 je **Core v2 Foundation**. Nové doménové enginy mají zůstávat pure a nezávislé na DOM/storage/network API. Browserové UI a transportní vrstvy se mají držet odděleně, aby bylo možné postupně přesunout velká historická data do robustnějšího úložiště a později použít stejné enginy v nativním shellu.

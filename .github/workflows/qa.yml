@@ -65,6 +65,10 @@ jobs:
         run: node decision_delta_30_test.mjs
       - name: Decision Delta integration 30.5
         run: node decision_delta_30_integration_test.mjs
+      - name: Core Hardening 31.0
+        run: node core_hardening_31_test.mjs
+      - name: System Health 31.0
+        run: node system_health_31_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
@@ -115,5 +119,15 @@ jobs:
         run: node family_home_test.mjs
       - name: Personal Risk Center engine
         run: node personal_risk_test.mjs
+      - name: Install browser QA
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser E2E 31.0
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          npm run test:e2e
       - name: Release gate
         run: node release_gate.mjs
