@@ -10,9 +10,10 @@ const active=x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED';
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('cs-CZ').replace(/\s+/g,' ').trim();
 const finite=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));
 const safeCategory=v=>CATEGORY_META[String(v||'').toUpperCase()]?String(v).toUpperCase():'OTHER';
-const dateKey=v=>{if(v===null||v===undefined||v==='')return null;const s=String(v),d=/^\d{4}-\d{2}-\d{2}$/.test(s)?new Date(`${s}T12:00:00`):new Date(v);return Number.isFinite(d.getTime())?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:null};
+const ymd=(y,m,d)=>{const x=new Date(y,m-1,d,12,0,0,0);return x.getFullYear()===y&&x.getMonth()===m-1&&x.getDate()===d?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:null};
+const dateKey=v=>{if(v===null||v===undefined||v==='')return null;const s=String(v),m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return ymd(Number(m[1]),Number(m[2]),Number(m[3]));const x=v instanceof Date?new Date(v):new Date(v);return Number.isFinite(x.getTime())?ymd(x.getFullYear(),x.getMonth()+1,x.getDate()):null};
 const dayDiff=(v,now=new Date())=>{const a=dateKey(v),b=dateKey(now);if(!a||!b)return null;return Math.round((new Date(`${a}T12:00:00`)-new Date(`${b}T12:00:00`))/DAY)};
-const relevantDate=x=>dateKey(x?.nextDue)||dateKey(x?.document?.expiryDate)||dateKey(x?.noticeDate)||dateKey(x?.renewalDate)||dateKey(x?.endDate)||null;
+const relevantDate=x=>{const c=safeCategory(x?.category);if(c==='PAYMENT')return dateKey(x?.nextDue);if(c==='DOCUMENT')return dateKey(x?.document?.expiryDate||x?.renewalDate||x?.endDate);if(c==='INSURANCE')return dateKey(x?.renewalDate||x?.insurance?.renewalDate||x?.endDate||x?.insurance?.endDate)||dateKey(x?.noticeDate)||dateKey(x?.nextDue);if(c==='SUBSCRIPTION')return dateKey(x?.renewalDate||x?.endDate)||dateKey(x?.noticeDate)||dateKey(x?.nextDue);return dateKey(x?.nextDue)||dateKey(x?.renewalDate)||dateKey(x?.endDate)||null};
 
 function trackingRows(record,now){
  const rows=[],add=(kind,label,value)=>{const date=dateKey(value);if(!date)return;rows.push({kind,label,date,days:dayDiff(date,now)})};
