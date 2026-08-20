@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+const assert=(x,m)=>{if(!x)throw new Error(m)};const text=f=>fs.readFileSync(f,'utf8');
+const files=['index.html','manifest.webmanifest','sw.js','package.json','js/config.js','js/releaseMeta.js','js/cloud.js','js/app.js','js/profileBootstrap31.js','js/profileBootstrapUi31.js','profile_bootstrap_31_test.mjs','cloud_recovery_31_static_test.mjs','e2e_31.spec.mjs','release_gate_31_2.mjs'];for(const f of files)assert(fs.existsSync(f),'Missing 31.2 file '+f);
+const config=text('js/config.js'),meta=text('js/releaseMeta.js'),html=text('index.html'),sw=text('sw.js'),cloud=text('js/cloud.js'),app=text('js/app.js'),profile=text('js/profileBootstrap31.js'),ui=text('js/profileBootstrapUi31.js'),e2e=text('e2e_31.spec.mjs');
+assert(meta.includes("APP_VERSION='31.2.0'")&&meta.includes("APP_RELEASE='31.2'"),'31.2 release metadata missing');assert(config.includes('SCHEMA_VERSION = 42'),'31.2 must remain schema 42');
+for(const immutable of ['kamil_os_state','kamil_calendar_cache','kamil_xtb_data','kamil-os-state','kamil-os-22-meta','kamil-os-22-sync-queue'])assert(config.includes(immutable),'immutable storage key missing '+immutable);
+assert(html.includes('Kamil OS 31.2')&&html.includes('31.2.0')&&html.includes('magicLinkBtn')&&html.includes('profileBootstrapUi31.js'),'31.2 recovery shell missing');assert(!html.includes('@supabase/supabase-js@2'),'Supabase must stay lazy on clean local start');
+assert(sw.includes('kamil-os-31.2.0-shell-r1')&&sw.includes('./js/profileBootstrap31.js')&&sw.includes('./js/profileBootstrapUi31.js'),'31.2 PWA cache missing');
+for(const x of ['profileBootstrap31','needsRecovery','CONNECT_OR_IMPORT'])assert(profile.includes(x),'Profile bootstrap engine missing '+x);for(const browser of ['document.','window.','localStorage','navigator.','fetch(','XMLHttpRequest','supabase','store.'])assert(!profile.includes(browser),'Profile bootstrap engine must stay pure: '+browser);
+assert(cloud.includes('signInWithOtp')&&cloud.includes('shouldCreateUser:false')&&cloud.includes('https://kamil-os-smoke.vercel.app/'),'passwordless canonical cloud recovery missing');assert(!cloud.match(/service[_-]?role|sb_secret_/i),'client must not contain privileged Supabase secrets');
+assert(app.includes('magicLinkBtn')&&app.includes('openCloudConnect')&&app.includes('lastCloudEmail'),'recovery app wiring missing');assert(ui.includes('Tvoje data nejsou na tomto zařízení')&&ui.includes('Připojit moje data'),'empty profile recovery card missing');
+assert(e2e.includes('Připojit moje data')&&e2e.includes('Poslat přihlašovací odkaz bez hesla')&&e2e.includes("u.includes('@supabase/supabase-js')"),'31.2 E2E recovery coverage missing');
+const workflow=text('.github/workflows/qa.yml');assert(workflow.includes('profile_bootstrap_31_test.mjs')&&workflow.includes('cloud_recovery_31_static_test.mjs')&&workflow.includes('test:e2e'),'31.2 CI coverage missing');
+console.log('KAMIL OS 31.2 STATIC QA PASS');
