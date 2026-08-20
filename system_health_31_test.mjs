@@ -1,0 +1,10 @@
+import {systemHealth31} from './js/systemHealth31.js';
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const now=new Date('2026-08-20T20:00:00Z');
+const base={meta:{schemaVersion:42,cloudMode:'local'},xtbHub:{asOf:'2026-08-20T12:00:00Z'},ticketBook:{items:[]}};
+let r=systemHealth31(base,{lastBackupAt:'2026-08-19T20:00:00Z'},{schemaVersion:42,stateBytes:200000,queueBytes:0,pendingSync:false,online:true,serviceWorkerSupported:true,serviceWorkerControlled:true,releaseConsistent:true},now);
+assert(r.score>=90,'healthy state should score high');assert(r.checks.find(x=>x.id==='storage')?.level==='OK','small storage must be OK');assert(r.checks.find(x=>x.id==='xtb')?.level==='OK','fresh XTB must be OK');
+r=systemHealth31({...base,xtbHub:{asOf:'2026-08-15T12:00:00Z'}},{lastBackupAt:'2026-06-01T00:00:00Z'},{schemaVersion:42,stateBytes:4_700_000,queueBytes:100000,pendingSync:true,online:false,serviceWorkerSupported:true,serviceWorkerControlled:false,releaseConsistent:true},now);
+assert(r.status==='BAD','old backup / oversized state should be BAD');assert(r.checks.find(x=>x.id==='backup')?.level==='BAD','stale backup must be BAD');assert(r.checks.find(x=>x.id==='storage')?.level==='BAD','oversized storage must be BAD');assert(r.checks.find(x=>x.id==='sync')?.level==='WARN','pending sync must warn');
+r=systemHealth31({...base,meta:{schemaVersion:41}},{},{schemaVersion:42,stateBytes:1,queueBytes:0,releaseConsistent:false},now);assert(r.checks.find(x=>x.id==='schema')?.level==='BAD','schema mismatch must be BAD');assert(r.checks.find(x=>x.id==='release')?.level==='BAD','release mismatch must be BAD');
+console.log('SYSTEM HEALTH 31 TEST PASS');
