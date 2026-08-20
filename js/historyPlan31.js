@@ -14,7 +14,7 @@ const sourceRows=(state,bucket)=>{
  return [];
 };
 const atOf=(bucket,x)=>validDate(x?.at||x?.createdAt||x?.updatedAt||x?.importedAt||x?.soldAt||x?.date||x?.asOf);
-const idOf=(bucket,x,i)=>clean(x?.id||x?.key||x?.ticketId||x?.ticker||x?.symbol||'',220)||`${atOf(bucket,x)||'undated'}|${hash(stable(x))}|${i}`;
+const idOf=(bucket,x,i)=>{const explicit=clean(x?.id||x?.key||x?.ticketId||'',220);if(explicit)return explicit;const symbol=clean(x?.ticker||x?.symbol||x?.name||'',80),at=atOf(bucket,x)||'undated';return `${symbol?symbol+'|':''}${at}|${hash(stable(x))}|${i}`};
 
 export function historyPlan31(state={}){
  const records=[],counts={};
