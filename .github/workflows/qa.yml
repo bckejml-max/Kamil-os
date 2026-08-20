@@ -21,6 +21,8 @@ jobs:
         run: node renewal_radar_test.mjs
       - name: Scenario Simulator
         run: node scenario_simulator_test.mjs
+      - name: Emergency File
+        run: node emergency_file_test.mjs
       - name: Ticket event aggregation
         run: node ticket_events_test.mjs
       - name: Ticket lessons
