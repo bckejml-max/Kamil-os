@@ -1,0 +1,14 @@
+await import('./release_gate_29_6.mjs');
+import fs from 'fs';
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const {portfolioRebalancePlan}=await import('./js/portfolioRebalancer29.js');
+const {portfolioRiskMap}=await import('./js/portfolioRiskMap29.js');
+const config=fs.readFileSync('js/config.js','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
+assert(config.includes("APP_VERSION = '29.8.0'")&&config.includes('SCHEMA_VERSION = 42'),'29.8 release version/schema mismatch');
+assert(html.includes('./js/portfolioRebalancerUi29.js')&&html.includes('./js/portfolioRiskMapUi29.js'),'29.8 release shell missing portfolio tools');
+assert(sw.includes('29.8.0')&&sw.includes('portfolioRebalancer29.js')&&sw.includes('portfolioRiskMap29.js'),'29.8 PWA cache missing portfolio tools');
+const s={financePlan:{currency:'CZK'},xtbStrategy:{closedTickers:{},rebalanceTargets:{broad:55,bond:15,satellite:30}},xtbHub:{asOf:'2026-08-20T10:00:00Z',accounts:{czk:{currency:'CZK',positions:[{ticker:'CORE',name:'World ETF',category:'ETF',value:55000},{ticker:'BOND',name:'Aggregate Bond ETF',category:'ETF',value:15000},{ticker:'NVDA.US',name:'Nvidia',category:'STOCK',value:30000}]}}}};
+let plan=portfolioRebalancePlan(s,{contribution:25000,currency:'CZK'}),risk=portfolioRiskMap(s);assert(plan.ok&&plan.trades.every(x=>x.baseAmount>=0),'rebalancer no-sale invariant');assert(risk.ok&&risk.code==='OK'&&Number.isFinite(risk.riskScore),'risk map complete with single currency');
+s.xtbStrategy.closedTickers['NVDA.US']={at:'2026-08-20T11:00:00Z'};plan=portfolioRebalancePlan(s,{contribution:25000,currency:'CZK'});risk=portfolioRiskMap(s);assert(plan.positionCount===2&&risk.positionCount===2,'sold-position semantics shared');
+const mixed=structuredClone(s);delete mixed.xtbStrategy.closedTickers['NVDA.US'];mixed.xtbHub.accounts.eur={currency:'EUR',positions:[{ticker:'EUNL.DE',name:'MSCI World ETF',category:'ETF',value:1000}]};risk=portfolioRiskMap(mixed);assert(risk.code==='PARTIAL_FX'&&risk.riskScore===null&&risk.global===null&&risk.byCurrency.CZK&&risk.byCurrency.EUR,'missing FX hides global risk instead of mixing currencies');
+console.log('KAMIL OS 29.8 RELEASE GATE PASS');
