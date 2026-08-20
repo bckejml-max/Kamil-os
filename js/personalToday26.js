@@ -44,15 +44,15 @@ export function buildPersonalToday(s={},now=new Date()){
  }
  for(const {p,d} of xtbBoard(s)){
   if((d.priority||0)<60)continue;
-  out.push(item('money',`${p.ticker} · ${actionLabel(d.action)}`,d.priority,d.reason,'money',{kind:'XTB',action:d.action,confidence:d.confidence,source:d.source||'PRAVIDLA',id:p.ticker,explain:explain('XTB_DECISION','Priorita je převzatá z XTB decision enginu; 30.3 ji nepřepočítává.',[d.reason])}));
+  out.push(item('money',`${p.ticker} · ${actionLabel(d.action)}`,d.priority,d.reason,'money',{kind:'XTB',action:d.action,when:d.when,buyRule:d.buyRule,sellRule:d.sellRule,confidence:d.confidence,source:d.source||'PRAVIDLA',id:p.ticker,explain:explain('XTB_DECISION','Priorita je převzatá z XTB decision enginu; 30.3 ji nepřepočítává.',[d.reason])}));
  }
  for(const x of s.ticketBook?.items||[]){
   if(!activeTicket(x))continue;const d=ticketDecision(x,s);if((d.priority||0)<60)continue;
-  out.push(item('tickets',`${x.name} · ${actionLabel(d.action)}`,d.priority,d.reason,'tickets',{kind:'Vstupenky',action:d.action,confidence:d.confidence,source:d.source||'PRAVIDLA',id:x.id,explain:explain('TICKET_DECISION','Priorita je převzatá z ticket decision enginu; 30.3 ji nepřepočítává.',[d.reason])}));
+  out.push(item('tickets',`${x.name} · ${actionLabel(d.action)}`,d.priority,d.reason,'tickets',{kind:'Vstupenky',action:d.action,when:d.when,buyRule:d.buyRule,sellRule:d.sellRule,confidence:d.confidence,source:d.source||'PRAVIDLA',id:x.id,explain:explain('TICKET_DECISION','Priorita je převzatá z ticket decision enginu; 30.3 ji nepřepočítává.',[d.reason])}));
  }
  for(const x of s.ticketBook?.watchlist||[]){
   const d=ticketOpportunityDecision(x,s);if((d.priority||0)<72)continue;
-  out.push(item('tickets',`${x.name||'Ticket opportunity'} · ${actionLabel(d.action)}`,d.priority,d.reason,'tickets',{kind:'Ticket BUY',action:d.action,confidence:d.confidence,source:d.source||'PRAVIDLA',id:x.id,explain:explain('TICKET_OPPORTUNITY','Priorita je převzatá z ticket opportunity enginu; 30.3 ji nepřepočítává.',[d.reason])}));
+  out.push(item('tickets',`${x.name||'Ticket opportunity'} · ${actionLabel(d.action)}`,d.priority,d.reason,'tickets',{kind:'Ticket BUY',action:d.action,when:d.when,buyRule:d.buyRule,sellRule:d.sellRule,confidence:d.confidence,source:d.source||'PRAVIDLA',id:x.id,explain:explain('TICKET_OPPORTUNITY','Priorita je převzatá z ticket opportunity enginu; 30.3 ji nepřepočítává.',[d.reason])}));
  }
  const seen=new Set();
  return out.sort((a,b)=>b.priority-a.priority||String(a.title).localeCompare(String(b.title),'cs')).filter(x=>{const k=`${x.domain}|${x.id||x.title}`;if(seen.has(k))return false;seen.add(k);return true}).slice(0,5).map((x,i)=>({...x,rank:i+1}));
