@@ -11,6 +11,7 @@ const blank=()=>({
  debtBook:{items:[],review:[]},
  personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true,notificationMode:'IMPORTANT'},emergencyFile:{contacts:[],assets:[]},
  personalInbox:{items:[]},assetBook:{items:[]},personalGoals:{items:[]},
+ personalSpending:{transactions:[]},importCenter:{history:[]},
  inbox:[],delegations:[],learning:{typeBias:{},feedback:[]},
  ui:{},audit:[],undo:[]
 });
@@ -40,6 +41,8 @@ export function migrate(input){
  s.personalInbox={items:[],...(s.personalInbox||{})};s.personalInbox.items=Array.isArray(s.personalInbox.items)?s.personalInbox.items:[];
  s.assetBook={items:[],...(s.assetBook||{})};s.assetBook.items=Array.isArray(s.assetBook.items)?s.assetBook.items:[];
  s.personalGoals={items:[],...(s.personalGoals||{})};s.personalGoals.items=Array.isArray(s.personalGoals.items)?s.personalGoals.items:[];
+ s.personalSpending={transactions:[],...(s.personalSpending||{})};s.personalSpending.transactions=Array.isArray(s.personalSpending.transactions)?s.personalSpending.transactions:[];
+ s.importCenter={history:[],...(s.importCenter||{})};s.importCenter.history=Array.isArray(s.importCenter.history)?s.importCenter.history:[];
  s.inbox=Array.isArray(s.inbox)?s.inbox:[];
  s.delegations=Array.isArray(s.delegations)?s.delegations:[];
  s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};s.learning.feedback=Array.isArray(s.learning.feedback)?s.learning.feedback:[];
@@ -58,6 +61,8 @@ export function migrate(input){
  for(const x of s.personalInbox.items)if(!x.id)x.id=uid('personal-inbox');
  for(const x of s.assetBook.items)if(!x.id)x.id=uid('asset');
  for(const x of s.personalGoals.items)if(!x.id)x.id=uid('goal');
+ for(const x of s.personalSpending.transactions)if(!x.id)x.id=uid('txn');
+ for(const x of s.importCenter.history)if(!x.id)x.id=uid('import');
  s.meta.migratedFrom=from;s.meta.schemaVersion=SCHEMA_VERSION;
  return s;
 }
@@ -83,9 +88,13 @@ export function validateState(input){
  if(input.assetBook?.items!==undefined&&!Array.isArray(input.assetBook.items))issues.push('assetBook.items nebylo pole');
  if(input.personalGoals!==undefined&&typeof input.personalGoals!=='object')issues.push('personalGoals má neplatný formát');
  if(input.personalGoals?.items!==undefined&&!Array.isArray(input.personalGoals.items))issues.push('personalGoals.items nebylo pole');
+ if(input.personalSpending!==undefined&&typeof input.personalSpending!=='object')issues.push('personalSpending má neplatný formát');
+ if(input.personalSpending?.transactions!==undefined&&!Array.isArray(input.personalSpending.transactions))issues.push('personalSpending.transactions nebylo pole');
+ if(input.importCenter!==undefined&&typeof input.importCenter!=='object')issues.push('importCenter má neplatný formát');
+ if(input.importCenter?.history!==undefined&&!Array.isArray(input.importCenter.history))issues.push('importCenter.history nebylo pole');
  const ids=new Set(),dupIds=[];
  const scan=(a,label)=>Array.isArray(a)&&a.forEach(x=>{if(x?.id){if(ids.has(x.id))dupIds.push(`${label}:${x.id}`);ids.add(x.id)}});
- scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');scan(input.personalInbox?.items,'personal-inbox');scan(input.assetBook?.items,'asset');scan(input.personalGoals?.items,'goal');
+ scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');scan(input.personalInbox?.items,'personal-inbox');scan(input.assetBook?.items,'asset');scan(input.personalGoals?.items,'goal');scan(input.personalSpending?.transactions,'txn');scan(input.importCenter?.history,'import');
  if(dupIds.length)issues.push(`Duplicitní ID: ${dupIds.slice(0,5).join(', ')}`);
  return {ok:!fatal.length,issues,fatal};
 }
@@ -94,7 +103,7 @@ export function repairState(input){
  const dedupe=a=>{const seen=new Set();return (Array.isArray(a)?a:[]).filter(x=>{if(!x?.id)return true;if(seen.has(x.id))return false;seen.add(x.id);return true})};
  fixed.tasks=dedupe(fixed.tasks);fixed.projects=dedupe(fixed.projects);
  fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.ticketBook.watchlist=dedupe(fixed.ticketBook.watchlist);fixed.debtBook.items=dedupe(fixed.debtBook.items);
- fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);fixed.personalGoals.items=dedupe(fixed.personalGoals.items);
+ fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);fixed.personalGoals.items=dedupe(fixed.personalGoals.items);fixed.personalSpending.transactions=dedupe(fixed.personalSpending.transactions);fixed.importCenter.history=dedupe(fixed.importCenter.history);
  return {state:fixed,report};
 }
 class Store{
