@@ -9,9 +9,9 @@ import {renderMoney} from './money24.js';
 import {renderTickets} from './tickets24.js';
 import {openQuickCapture} from './capture26.js';
 import {execute,renderResults} from './command.js';
-import {personalBriefing} from './personalToday26.js';
 import {personalRiskCenter} from './personalRisk25.js';
 import {runPreflight} from './preflight.js';
+import {renderAutopilot,runAutopilotNotifications} from './autopilotUi28.js';
 
 let actionLock=false;
 export async function withActionLock(fn){if(actionLock)return false;actionLock=true;try{return await fn()}finally{setTimeout(()=>{actionLock=false},250)}}
@@ -23,12 +23,6 @@ const pageTitles={today:'DNES',money:'PENÍZE',tickets:'VSTUPENKY',home:'DOMOV',
 const captureTypeForView=()=>({today:'task',home:'personal',money:'debt',tickets:'ticket'})[current]||'task';
 const openCapture=(type=null)=>withActionLock(()=>openQuickCapture(type||captureTypeForView()));
 
-function maybeNotify(){
- if(!('Notification'in window)||Notification.permission!=='granted'||document.visibilityState==='visible')return;
- const top=personalBriefing(store.get()).top;if(!top||top.priority<90)return;
- const key=`kamil-personal-notify-${new Date().toISOString().slice(0,10)}-${top.title}`;if(localStorage.getItem(key))return;
- new Notification('Kamil OS',{body:top.title,tag:'kamil-os-personal-attention'});localStorage.setItem(key,'1');
-}
 function updateChrome(){
  const s=store.get();
  qs('#todayLabel').textContent=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
@@ -39,16 +33,17 @@ function updateChrome(){
  qs('#undoBtn').disabled=!(s.undo||[]).length;
  const add=qs('#quickAddBtn');if(add){const label={today:'Osobní úkol',home:'Osobní položka',money:'Pohledávka',tickets:'Vstupenka'}[current]||'Přidat';const text=qs('b',add);if(text)text.textContent=label;add.title=`Rychle přidat ${label.toLowerCase()} · Ctrl N`}
 }
-function render(){updateChrome();renderers[current]?.()}
-function navigate(v){current=renderers[v]?v:'today';qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');updateChrome();renderers[current]?.();window.scrollTo({top:0,behavior:'smooth'})}
+function render(){updateChrome();renderers[current]?.();renderAutopilot(current)}
+function navigate(v){current=renderers[v]?v:'today';qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');render();window.scrollTo({top:0,behavior:'smooth'})}
 qsa('[data-view]').forEach(x=>x.onclick=()=>navigate(x.dataset.view));
 window.addEventListener('kamil:navigate',e=>navigate(e.detail));
-window.addEventListener('kamil:more',e=>setMoreMode(e.detail));
+window.addEventListener('kamil:more',e=>{setMoreMode(e.detail);queueMicrotask(()=>renderAutopilot('more'))});
 window.addEventListener('kamil:logout',()=>logout());
 window.addEventListener('kamil:capture',e=>openCapture(e.detail||null));
 window.addEventListener('kamil:cloud-login',()=>showLoginView('Cloud je volitelný. Kamil OS funguje i bez přihlášení.'));
 
-store.subscribe(()=>{render();maybeNotify()});
+store.subscribe(()=>{render();runAutopilotNotifications()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')runAutopilotNotifications()});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
 qs('#logoutBtn').onclick=()=>logout();
 qs('#quickAddBtn')?.addEventListener('click',()=>openCapture());
