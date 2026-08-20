@@ -1,0 +1,27 @@
+import {store} from './state.js';
+import {spendingIntelligence} from './spendingIntelligence29.js';
+import {setMoreMode} from './more26.js';
+import {h,qs} from './utils.js';
+
+const id='spendingIntelligence29Host';
+const money=(v,c)=>`${Number(v||0).toLocaleString('cs-CZ',{maximumFractionDigits:0})} ${h(c)}`;
+const pct=v=>v===null?'—':`${v>0?'+':''}${Number(v).toFixed(0)} %`;
+const tone=v=>v===null?'':v>=30?'bad':v>=10?'warn':'good';
+function openImport(){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));queueMicrotask(()=>setMoreMode('import'))}
+function pace(v,period){const [y,m]=String(period.current||'').split('-').map(Number),daysInMonth=y&&m?new Date(y,m,0).getDate():period.day,daily=period.day>0?v.spentMtd/period.day:0;return {daily,projected:daily*Math.max(period.day,daysInMonth||period.day)}}
+function currencyBlock(v,period){
+ const cats=v.categories.slice(0,6).map(x=>`<div class="row"><span>${h(x.category)}</span><b>${money(x.current,v.currency)} <small class="muted">vs ${money(x.previous,v.currency)} · ${h(pct(x.pct))}</small></b></div>`).join('')||'<div class="empty">Bez výdajové kategorie v tomto měsíci.</div>';
+ const merchants=v.merchants.slice(0,5).map(x=>`<div class="row"><span>${h(x.merchant)} <small class="muted">${x.count}×</small></span><b>${money(x.amount,v.currency)}</b></div>`).join('')||'<div class="empty">Bez výdajů.</div>';
+ const recurring=v.recurring.slice(0,5).map(x=>`<div class="row"><span>${h(x.merchant)} <small class="muted">${x.months} měsíce · ${h(x.confidence)}</small></span><b>≈ ${money(x.typicalAmount,v.currency)}</b></div>`).join('')||'<div class="empty">Zatím není dost historie pro opakující se platby.</div>';
+ const p=pace(v,period);
+ return `<div class="card"><div class="card-head"><div><div class="eyebrow">${h(v.currency)}</div><h3>Skutečné transakce</h3></div><span class="status ${tone(v.pct)}">${h(pct(v.pct))}</span></div><div class="metric-strip"><div class="metric"><span>Výdaje MTD</span><b>${money(v.spentMtd,v.currency)}</b><small>minulý měsíc stejné dny ${money(v.previousComparable,v.currency)}</small></div><div class="metric"><span>Denní tempo</span><b>${money(p.daily,v.currency)}</b><small>průměr z dosavadních dní měsíce</small></div><div class="metric"><span>Tempo měsíce</span><b>${money(p.projected,v.currency)}</b><small>projekce jen pokud zůstane stejné tempo</small></div><div class="metric"><span>Příjmy MTD</span><b>${money(v.incomeMtd,v.currency)}</b></div><div class="metric"><span>Převody mimo spotřebu</span><b>${money(v.transferVolume,v.currency)}</b></div><div class="metric"><span>Průměr dokončených měsíců</span><b>${v.monthlyAverage===null?'—':money(v.monthlyAverage,v.currency)}</b><small>${v.completedMonths.length} měsíců s daty</small></div><div class="metric"><span>Nezařazeno</span><b>${v.unknownShare.toFixed(0)} %</b><small>${money(v.unknownAmount,v.currency)}</small></div></div><h3>Kategorie · stejné dny</h3>${cats}<h3>Největší obchodníci MTD</h3>${merchants}<h3>Opakující se platby</h3>${recurring}</div>`;
+}
+function render(){
+ const view=qs('#moneyView');if(!view)return;qs(`#${id}`,view)?.remove();const r=spendingIntelligence(store.get()),host=document.createElement('div');host.id=id;
+ const insights=r.insights.map(x=>`<div class="autopilot29-row"><div><b>${h(x.title)}</b><small>${h(x.detail)}</small></div><span class="status ${x.priority>=85?'bad':x.priority>=70?'warn':'good'}">${x.priority>=85?'PROVĚŘIT':'INFO'}</span></div>`).join('')||'<div class="empty success-empty">Z importovaných transakcí nevychází nový výrazný signál.</div>';
+ if(!r.coverage.transactions)host.innerHTML=`<div class="card"><div class="card-head"><div><div class="eyebrow">SPENDING INTELLIGENCE / 29.5</div><h2>Kam skutečně mizí peníze</h2></div><button class="btn primary" id="spendingImportBtn">Smart Import</button></div><div class="empty">Zatím nejsou importované žádné bankovní/Revolut transakce. Spending Intelligence si proto nic nevymýšlí.</div><p class="muted">Nahraj transakce přes Smart Import; až potom se objeví skutečné kategorie, změny proti minulému měsíci a opakující se platby.</p></div>`;
+ else host.innerHTML=`<div class="card"><div class="card-head"><div><div class="eyebrow">SPENDING INTELLIGENCE / 29.5</div><h2>Kam skutečně mizí peníze</h2><p class="muted">${h(r.period.current)} · porovnání do ${r.period.day}. dne proti stejnému období ${h(r.period.previous)}.</p></div><button class="btn" id="spendingImportBtn">Importovat další</button></div><div class="decision-note"><b>Co stojí za pozornost</b>${insights}</div><div class="grid two">${Object.values(r.byCurrency).map(v=>currencyBlock(v,r.period)).join('')}</div><div class="decision-note">Pokrytí: ${r.coverage.transactions} transakcí · ${r.coverage.months} měsíců${r.coverage.from?` · ${h(r.coverage.from)} → ${h(r.coverage.to)}`:''}. ${h(r.note)}</div></div>`;
+ const anchor=qs('#personalMoney26Host',view)||view.querySelector('.view-head');if(anchor)anchor.insertAdjacentElement('afterend',host);else view.prepend(host);qs('#spendingImportBtn',host)?.addEventListener('click',openImport);
+}
+const start=()=>{const view=qs('#moneyView');if(!view)return;new MutationObserver(()=>{if(!qs(`#${id}`,view))queueMicrotask(render)}).observe(view,{childList:true,subtree:false});store.subscribe((s,reason)=>{if(reason?.includes?.('Smart Import')||reason==='backup-import'||reason==='cloud')queueMicrotask(render)});render()};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
