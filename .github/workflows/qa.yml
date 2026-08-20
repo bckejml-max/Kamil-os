@@ -35,5 +35,7 @@ jobs:
         run: node project_health_test.mjs
       - name: Project Money
         run: node project_money_test.mjs
+      - name: Project Money static
+        run: node project_money_static_test.mjs
       - name: Release gate
         run: node release_gate.mjs
