@@ -29,5 +29,7 @@ jobs:
         run: node capital_allocation_test.mjs
       - name: Action Plan
         run: node action_plan_test.mjs
+      - name: Director OS
+        run: node director_os_test.mjs
       - name: Release gate
         run: node release_gate.mjs
