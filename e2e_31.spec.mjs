@@ -5,7 +5,7 @@ const BASE='http://127.0.0.1:4173';
 test('Kamil OS 31 local-first critical flow',async({page})=>{
   const requests=[];page.on('request',r=>requests.push(r.url()));
   await page.goto(BASE,{waitUntil:'networkidle'});
-  await expect(page).toHaveTitle(/Kamil OS 31\.2/);
+  await expect(page).toHaveTitle(/Kamil OS 31\.3/);
   await expect(page.locator('#appView')).toBeVisible();
   await expect(page.locator('#syncStatus')).toContainText('Jen toto zařízení');
   expect(requests.some(u=>u.includes('@supabase/supabase-js'))).toBeFalsy();
@@ -39,4 +39,16 @@ test('Kamil OS 31 local-first critical flow',async({page})=>{
   await page.locator('#mainNav').getByRole('button',{name:'Více'}).click();
   await page.getByRole('button',{name:/Systém/}).click();
   await expect(page.getByRole('heading',{name:/Health score/})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'IndexedDB history mirror'})).toBeVisible();
+});
+
+test('Kamil OS 31.3 mirrors selected history into IndexedDB',async({page})=>{
+  await page.addInitScript(()=>{
+    localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:42},financePlan:{cashNow:1,expectedIncome:0,reserveFloor:0,plannedInvestment:0},tasks:[],decisionJournal:{items:[{id:'e2e-decision',at:'2026-08-20T10:00:00Z',domain:'money',title:'E2E decision',action:'HOLD',priority:50}]}}));
+  });
+  await page.goto(BASE,{waitUntil:'networkidle'});
+  await expect(page).toHaveTitle(/Kamil OS 31\.3/);
+  await page.waitForFunction(()=>new Promise(resolve=>{const r=indexedDB.open('kamil-os-data-v2');r.onerror=()=>resolve(false);r.onsuccess=()=>{const db=r.result;if(!db.objectStoreNames.contains('history')){db.close();resolve(false);return}const tx=db.transaction('history','readonly'),q=tx.objectStore('history').get('decision|e2e-decision');q.onsuccess=()=>{const ok=q.result?.payload?.action==='HOLD';db.close();resolve(ok)};q.onerror=()=>{db.close();resolve(false)}}}),null,{timeout:10000});
+  const record=await page.evaluate(()=>new Promise((resolve,reject)=>{const r=indexedDB.open('kamil-os-data-v2');r.onerror=()=>reject(r.error);r.onsuccess=()=>{const db=r.result,tx=db.transaction('history','readonly'),q=tx.objectStore('history').get('decision|e2e-decision');q.onsuccess=()=>{resolve(q.result);db.close()};q.onerror=()=>{reject(q.error);db.close()}}}));
+  expect(record.bucket).toBe('decision');expect(record.payload.action).toBe('HOLD');
 });
