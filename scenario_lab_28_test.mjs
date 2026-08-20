@@ -1,0 +1,11 @@
+const {scenarioLab}=await import('./js/scenarioLab28.js');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const ref=new Date('2026-08-20T10:00:00+02:00');
+const s={financePlan:{currency:'CZK',cashNow:220000,reserveFloor:100000,cashflow:[]},personalAdmin:{items:[{id:'rent',title:'Bydlení',category:'HOME',amount:20000,currency:'CZK',cadence:'MONTHLY',nextDue:'2026-08-25',status:'ACTIVE'}]},debtBook:{items:[]}};
+const before=JSON.stringify(s);
+let r=scenarioLab(s,{type:'ONE_OFF_EXPENSE',amount:120000,currency:'CZK',date:'2026-08-21'},ref);assert(r.ok,'expense scenario');assert(r.verdict==='BLOCK','large expense breaks reserve');assert(r.sim.belowReserveDate,'reserve break date');
+r=scenarioLab(s,{type:'MONTHLY_INCOME',amount:30000,currency:'CZK',date:'2026-08-21'},ref);assert(r.ok&&r.delta.endBalance>0,'monthly income improves end balance');assert(r.sim.scenarioEvents>=11,'monthly scenario recurs through horizon');
+r=scenarioLab(s,{type:'INCOME_LOSS',amount:25000,currency:'CZK',date:'2026-09-01',durationMonths:3},ref);assert(r.ok&&r.sim.scenarioEvents===3,'income loss duration honored');
+r=scenarioLab(s,{type:'ONE_OFF_EXPENSE',amount:1000,currency:'EUR',date:'2026-08-21'},ref);assert(!r.ok&&r.code==='FX_UNSUPPORTED','foreign currency blocked without FX');
+assert(JSON.stringify(s)===before,'scenario never mutates source state');
+console.log('SCENARIO LAB 28 QA PASS');
