@@ -1,6 +1,11 @@
-# Kamil OS 32.2
+# Kamil OS 32.3
 
 Kamil OS je osobní **local-first Personal Autopilot**. Viditelné rozhraní je soustředěné do pěti hlavních oblastí: **Dnes / Peníze / Vstupenky / Domov / Více**. Aplikace funguje bez hesla a bez povinného cloudu; Supabase se načte až při existující cloud session nebo explicitním připojení.
+
+## Live Brain Foundation 32.3
+32.3 zavádí **source-backed trust gate** pro live XTB a ticket intelligence. Live kandidát smí přepsat pravidlové AUTO rozhodnutí pouze pokud obsahuje akci, validní čas `asOf`, alespoň jeden validní HTTP(S) zdroj a číselnou confidence. XTB freshness zůstává 48 hodin a ticket intelligence 30 hodin.
+
+Signály `UNSOURCED`, `STALE`, `NO_CONFIDENCE`, `INVALID_ASOF` nebo `FUTURE_ASOF` se neaplikují jako live doporučení. Pravidlový engine zůstane zdrojem rozhodnutí a blokovaný live kandidát ponechá jen diagnostické trust metadata. Více → Systém obsahuje kartu **Source Trust**, která ukazuje ověřené a blokované kandidáty i důvod blokace. 32.3 sama žádné tržní zprávy nevymýšlí, nic neobchoduje a nemění state.
 
 ## Copilot 2.0 Foundation 32.2
 32.2 zavádí jednotné bezpečnostní pravidlo pro zapisovací příkazy v Command Baru: **UNDERSTAND → PROPOSE → PREVIEW → CONFIRM → EXECUTE**. Známé příkazy jako splátka pohledávky, označení vstupenky jako prodané nebo přesun/vytvoření osobního úkolu na zítra nejdřív vytvoří čistý návrh a zobrazí konkrétní náhled změny. State se během preview nemění.
@@ -46,10 +51,10 @@ Ctrl+K umí hledat osobní administrativu, rodinu, majetek, cíle, XTB, vstupenk
 Read-only příkaz může odpovědět nebo navigovat hned. Write příkaz musí nejprve ukázat náhled a čekat na explicitní potvrzení. Pokud Command Bar textu nerozumí, **nic automaticky nezapisuje** a nabídne vytvoření osobního úkolu pouze po potvrzení.
 
 ## Peníze / XTB
-Kamil OS obsahuje 90denní cashflow, cíle a fondy, Spending Intelligence, True Net Worth, Portfolio Rebalancer, Portfolio Risk Map a XTB decision engine. Měny se bez skutečného FX kurzu nesčítají ani nepřepočítávají. Investiční rozhodnutí jsou oddělená na pravidlový AUTO výstup a volitelnou čerstvou live intelligence.
+Kamil OS obsahuje 90denní cashflow, cíle a fondy, Spending Intelligence, True Net Worth, Portfolio Rebalancer, Portfolio Risk Map a XTB decision engine. Měny se bez skutečného FX kurzu nesčítají ani nepřepočítávají. Investiční rozhodnutí jsou oddělená na pravidlový AUTO výstup a volitelnou live intelligence; od 32.3 smí live výstup přepsat AUTO jen po úspěšném Source Trust ověření.
 
 ## Vstupenky
-Ticket workflow pokrývá nákup, holding, listing, repricing, prodej a payout. Ticket Profit & ROI drží měny odděleně. Decision engine používá skutečně uložené datum akce, workflow, nákupní/list/floor/market cenu a případnou živou intelligence; chybějící tržní data nevymýšlí.
+Ticket workflow pokrývá nákup, holding, listing, repricing, prodej a payout. Ticket Profit & ROI drží měny odděleně. Decision engine používá skutečně uložené datum akce, workflow, nákupní/list/floor/market cenu a případnou živou intelligence; chybějící tržní data nevymýšlí. Live ticket doporučení bez zdroje/confidence nebo po freshness okně se od 32.3 neaplikuje.
 
 ## Domov / dokumenty / rodina
 Osobní administrativa zahrnuje pojištění, doklady, platby, smlouvy, rodinu, majetek, servis, Emergency File a Renewal Radar. Document Scanner umí lokální browser OCR obrázků přes připnutý Tesseract.js; raw obrázek ani raw OCR text se neukládají do běžného state. Sensitive Vault je oddělený, lokální a šifrovaný AES-GCM.
@@ -74,7 +79,7 @@ Osobní administrativa zahrnuje pojištění, doklady, platby, smlouvy, rodinu, 
 Kamil OS je statická PWA. Produkce používá main-only Vercel deployment policy, Content Security Policy, `nosniff`, frame deny, omezený referrer policy a browser permissions. Offline shell je cachovaný Service Workerem. Klient obsahuje pouze publishable Supabase key; `service_role`/secret key se do browseru nesmí dostat.
 
 ## QA
-GitHub Actions spouští unit/integration regresi pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta, Decision Journal, Data Recovery, Data Engine, Smart Sync a Remote Inbox. 32.0 přidává testy auth/cloud/confirmed merge, 32.1 cloud history/Data Engine a 32.2 pure write proposal + static zákaz legacy silent-write větví + Chromium potvrzení zápisu.
+GitHub Actions spouští unit/integration regresi pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta, Decision Journal, Data Recovery, Data Engine, Smart Sync a Remote Inbox. 32.0 přidává testy auth/cloud/confirmed merge, 32.1 cloud history/Data Engine, 32.2 pure write proposal + Chromium potvrzení zápisu a 32.3 pure Source Trust + skutečnou decision-path a Chromium regresi pro source-backed live override.
 
 ## Architektonický směr
-32.x pokračuje v **Core v2**: compact cloud state, per-device undo, potvrzené multi-device merge, postupný přesun velkých historií mimo hlavní JSON a Copilot s povinným preview/confirm pro zápisy. Další velká vrstva je source-backed Live Brain a real-market Ticket Intelligence; žádná z nich nesmí obejít potvrzovací pravidla u mutací.
+32.x pokračuje v **Core v2**: compact cloud state, per-device undo, potvrzené multi-device merge, postupný přesun velkých historií mimo hlavní JSON, Copilot s povinným preview/confirm pro zápisy a Live Brain s důvěryhodnými zdroji. Další krok je skutečný backendový ingestion čerstvých market/news signálů s `asOf`, source, confidence a expiry; žádná vrstva nesmí obcházet trust gate ani potvrzovací pravidla u mutací.
