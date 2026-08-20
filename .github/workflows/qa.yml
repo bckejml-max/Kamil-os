@@ -83,6 +83,10 @@ jobs:
         run: node history_plan_31_test.mjs
       - name: Data Engine 31.3
         run: node data_engine_31_static_test.mjs
+      - name: Smart Sync 31.4
+        run: node smart_sync_31_test.mjs
+      - name: Smart Sync safety 31.4
+        run: node smart_sync_31_static_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
@@ -137,7 +141,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser E2E 31.3.1
+      - name: Browser E2E 31.4
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
