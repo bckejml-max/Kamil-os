@@ -6,6 +6,7 @@ const startOfDay=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
 const dateKey=d=>new Date(d).toISOString().slice(0,10);
 const active=x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED';
 const cadenceMonths={MONTHLY:1,QUARTERLY:3,SEMIANNUAL:6,YEARLY:12};
+const FINANCIAL_CATEGORIES=new Set(['PAYMENT','SUBSCRIPTION','UTILITY','LOAN','HOME','FEE','INSURANCE','VEHICLE','OTHER']);
 
 function normalizedEntries(s){
  const manual=Array.isArray(s.financePlan?.cashflow)?s.financePlan.cashflow:[];
@@ -52,7 +53,7 @@ function personalObligations(s,start,end){
  const currency=String(s.financePlan?.currency||'CZK').toUpperCase(),entries=[],events=[];
  let ignoredCurrency=0,missingAmount=0,missingDate=0;
  for(const x of s.personalAdmin?.items||[]){
-  if(!active(x))continue;
+  if(!active(x)||!FINANCIAL_CATEGORIES.has(String(x.category||'OTHER').toUpperCase()))continue;
   if(!hasNumber(x.amount)||Number(x.amount)<=0){missingAmount++;continue}
   if(validDate(x.nextDue)===null){missingDate++;continue}
   const itemCurrency=String(x.currency||'CZK').toUpperCase();
