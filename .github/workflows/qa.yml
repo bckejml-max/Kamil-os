@@ -17,8 +17,12 @@ jobs:
         run: node integration.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
-      - name: Personal Autopilot 28
+      - name: Personal Autopilot 28 base
         run: node autopilot28_test.mjs
+      - name: Personal Autopilot 29 complete
+        run: node personal_plus_29_test.mjs
+      - name: Sensitive Vault 29
+        run: node vault_29_test.mjs
       - name: Scenario Lab 12 months
         run: node scenario_lab_28_test.mjs
       - name: Smlouvy k prověření
