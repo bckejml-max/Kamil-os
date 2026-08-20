@@ -1,0 +1,30 @@
+import fs from 'fs';
+import {documentScanCandidate,documentRecordDraft} from './js/documentScanner30.js';
+import {documentFilingRecommendation,documentReminderPatch} from './js/documentFiling30.js';
+import {documentsCenter} from './js/documents25.js';
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const now=new Date('2026-08-20T12:00:00Z');
+
+const scan=documentScanCandidate('Záruční list\nACME s.r.o.\nPlatnost do 15.10.2026\nČíslo dokladu 99887766',{name:'secret_99887766.png',type:'image/png',size:12345,method:'OCR'});
+assert(scan.ok&&scan.candidate.type==='WARRANTY','scanner produces warranty candidate');
+const draft=documentRecordDraft(scan,{title:'Tepelné čerpadlo · záruka',category:'DOCUMENT',provider:'ACME s.r.o.',expiryDate:'2026-10-15'},now);assert(draft.ok,'scanner reviewed record draft');
+const record={id:'scan-new',...draft.record,createdAt:now.toISOString(),updatedAt:now.toISOString()};
+const existing={id:'existing',title:'Tepelné čerpadlo · servis',category:'DOCUMENT',provider:'ACME s.r.o.',document:{kind:'SERVICE',expiryDate:'2027-01-10'},status:'ACTIVE'};
+const state={personalAdmin:{items:[record,existing]}};const before=JSON.stringify(state);
+const filing=documentFilingRecommendation(record,state,now);
+assert(filing.filing.homeMode==='documents'&&filing.canSetReminder,'scanner record flows into document filing');
+assert(filing.related.length===1&&filing.related[0].id==='existing'&&filing.related[0].reasons.includes('stejný poskytovatel'),'safe relation uses reviewed fields');
+assert(JSON.stringify(state)===before,'filing recommendation cannot auto-merge or rewrite records');
+assert(!JSON.stringify(filing.related).includes('99887766')&&!JSON.stringify(filing.related).includes('secret_99887766.png'),'filing output does not resurrect scanner secrets');
+const patch=documentReminderPatch(record,'2026-09-20',now);assert(patch.ok,'explicit reminder accepted');
+const next=structuredClone(state);next.personalAdmin.items[0].document=patch.patch.document;
+const docs=documentsCenter(next,now);const row=docs.items.find(x=>x.id==='scan-new');assert(row?.reminder==='2026-09-20'&&row.reminderDays===31,'existing Documents Center consumes explicit reminder');
+assert(next.personalAdmin.items[1].title===existing.title&&next.personalAdmin.items[1].document.expiryDate===existing.document.expiryDate,'related existing record stays untouched');
+
+const engine=fs.readFileSync('js/documentFiling30.js','utf8'),ui=fs.readFileSync('js/documentFilingUi30.js','utf8');
+for(const browser of ['document.','window.','localStorage','navigator.','store.','fetch(','XMLHttpRequest','supabase'])assert(!engine.includes(browser),'Smart Filing engine must stay browser/network independent: '+browser);
+for(const x of ['documentFilingRecommendation','documentReminderPatch','stejný poskytovatel','nikdy je automaticky neslučuje','žádnou lhůtu'])assert(engine.includes(x),'Smart Filing engine invariant missing '+x);
+assert(ui.includes("startsWith('Document Scanner:')")&&ui.includes('showDocumentFiling'),'follow-up must trigger only after confirmed scanner mutation');
+assert(ui.includes('Nastavit vlastní předstih')&&ui.includes('nepředvyplňuje 7/30/60 dní'),'explicit reminder UX missing');
+assert(ui.includes('store.mutate(`Vlastní předstih:')&&!ui.includes('merge')&&!ui.includes('SOUVISEJÍCÍ POLOŽKY</div>${related}</div><button'),'UI must not expose automatic merge path');
+console.log('DOCUMENT FILING 30.2 INTEGRATION PASS');
