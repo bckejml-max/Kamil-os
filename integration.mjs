@@ -9,6 +9,7 @@ const {emergencySnapshotText}=await import('./js/emergencyFile26.js');
 const {autopilotSnapshot}=await import('./js/autopilot28.js');
 const {personalQuery}=await import('./js/personalQuery29.js');
 const {goalPlan,oneScreenAutopilot}=await import('./js/personalPlus29.js');
+const {personalMonthlyReview}=await import('./js/monthlyReview29.js');
 const {xtbBoard,ticketDecision}=await import('./js/live24.js');
 const {debtRemaining}=await import('./js/intelligence.js');
 const assert=(x,m)=>{if(!x)throw new Error(m)};
@@ -17,14 +18,14 @@ store.replace(migrate({
  tasks:[{id:'p-task',title:'Objednat servis klimatizace',status:'UDĚLAT',area:'Osobní',due:'2026-08-21T09:00:00+02:00'},{id:'w-task',title:'Firemní report',status:'UDĚLAT',area:'Práce',due:'2026-08-21T09:00:00+02:00'}],
  projects:[{id:'legacy-project',name:'Nová Zbrojovka',status:'Aktivní'}],
  personalAdmin:{items:[
-  {id:'bill1',title:'Elektřina',category:'PAYMENT',provider:'Dodavatel energie',amount:3000,currency:'CZK',cadence:'MONTHLY',nextDue:'2026-08-20',autoPay:false,status:'ACTIVE'},
+  {id:'bill1',title:'Elektřina',category:'PAYMENT',provider:'Dodavatel energie',amount:3000,currency:'CZK',cadence:'MONTHLY',nextDue:'2026-08-20',autoPay:false,status:'ACTIVE',priceHistory:[{at:'2026-07-01',amount:2800,currency:'CZK',cadence:'MONTHLY'},{at:'2026-08-05',amount:3000,currency:'CZK',cadence:'MONTHLY'}]},
   {id:'eur1',title:'Cloud úložiště',category:'SUBSCRIPTION',provider:'EU provider',amount:10,currency:'EUR',cadence:'MONTHLY',nextDue:'2026-08-28',status:'ACTIVE'},
   {id:'ins1',title:'Pojištění domu Allianz',category:'INSURANCE',provider:'Allianz',amount:12000,currency:'CZK',cadence:'YEARLY',noticeDate:'2026-08-25',renewalDate:'2026-09-20',status:'ACTIVE',insurance:{kind:'PROPERTY',insured:'Dům',policyNumber:'SECRET-7788'}},
   {id:'doc1',title:'Cestovní pas',category:'DOCUMENT',status:'ACTIVE',document:{kind:'PASSPORT',holder:'Kamil',number:'DOC-123',expiryDate:'2026-09-01'}}
  ]},
  familyHome:{members:[{id:'fam1',name:'Mia',relation:'CHILD',birthday:'2026-08-25',status:'ACTIVE'}]},
  emergencyFile:{contacts:[{id:'ec1',name:'Rodinný kontakt',role:'FAMILY',phone:'+420999888777',email:'kontakt@example.cz',status:'ACTIVE'}],assets:[{id:'ea1',title:'Modré nouzové desky',kind:'DOCUMENTS',location:'Skříň v pracovně',contact:'Rodina',status:'ACTIVE'}]},
- personalInbox:{items:[{id:'pi1',title:'Potvrdit domácí pojistku',source:'EMAIL',kind:'ACTION',status:'NEW'}]},assetBook:{items:[{id:'asset1',title:'Klimatizace',kind:'HOME_SYSTEM',nextServiceAt:'2026-08-24',status:'ACTIVE'}]},personalGoals:{items:[{id:'goal1',title:'Dovolená',type:'TRAVEL',targetAmount:60000,savedAmount:20000,currency:'CZK',targetDate:'2026-12-20',status:'ACTIVE'}]},
+ personalInbox:{items:[{id:'pi1',title:'Potvrdit domácí pojistku',source:'EMAIL',kind:'ACTION',status:'NEW'}]},assetBook:{items:[{id:'asset1',title:'Klimatizace',kind:'HOME_SYSTEM',nextServiceAt:'2026-08-24',status:'ACTIVE'}]},personalGoals:{items:[{id:'goal1',title:'Dovolená',type:'TRAVEL',targetAmount:60000,savedAmount:20000,currency:'CZK',targetDate:'2026-12-20',status:'ACTIVE',contributions:[{id:'gc1',amount:2500,at:'2026-08-10T08:00:00Z'}]}]},
  calendar:{events:[{id:'workcal',title:'Firemní porada',start:'2026-08-21T08:00:00+02:00',source:'Outlook',personal:false},{id:'perscal',title:'Rodinná návštěva',start:'2026-08-22T15:00:00+02:00',personal:true}]},
  financePlan:{currency:'CZK',cashNow:100000,reserveFloor:50000,plannedInvestment:0,cashflow:[{id:'cf1',label:'Nájem / hypotéka',amount:-20000,date:'2026-08-25',cadence:'monthly',active:true}]},
  xtbHub:{asOf:liveNow,accounts:{a1:{currency:'CZK',value:100000,positions:[{name:'FTSE All-World',ticker:'VWCE.DE',category:'ETF',value:60000,volume:20,net_profit_pct:1},{name:'Growth',ticker:'GROW.US',category:'STOCK',value:40000,volume:4,net_profit_pct:30}]}}},
@@ -43,5 +44,6 @@ assert(xtbBoard(store.get()).some(x=>x.p.ticker==='GROW.US'&&x.d.action==='SELL'
 const today=buildPersonalToday(store.get(),ref);assert(today.length<=5&&today.length>=2,'personal top five bounded');assert(today.every(x=>!['work','project'].includes(x.domain)),'no work domain in Personal Today');
 const ap=autopilotSnapshot(store.get(),{},ref);assert(ap.briefing.today.length<=3&&ap.briefing.week.length<=2,'Autopilot 3/2 briefing');assert(ap.inbox.items.some(x=>x.source==='EMAIL'),'email intake candidate surfaced');assert(ap.notifications.items.some(x=>x.title==='Klimatizace'),'asset alert surfaced');
 const g=goalPlan(store.get(),ref);assert(g.total===1&&g.items[0].remaining===40000,'goal engine integrated');const one=oneScreenAutopilot(store.get(),{},ref);assert(Array.isArray(one.moneyAlerts)&&Array.isArray(one.changes),'one-screen Autopilot integrated');
+const review=personalMonthlyReview(store.get(),{lastBackupAt:'2026-08-03T08:00:00Z'},ref);assert(review.period.key==='2026-08'&&Array.isArray(review.attention)&&Array.isArray(review.upcoming),'monthly review integrated');assert(review.goalProgressByCurrency.CZK===2500&&!('total' in review.goalProgressByCurrency),'monthly goal progress stays currency-safe');assert(review.costChanges.some(x=>x.title==='Elektřina'&&x.delta===200),'monthly review uses actual cost history');
 execute('Petr splátka 500');assert(debtRemaining(store.get().debtBook.items[0])===4500,'personal receivable payment command');execute('Sparta prodáno');assert(store.get().ticketBook.items[0].workflow==='SOLD','ticket sold command');execute('Koupit plenky');assert(store.get().tasks.some(x=>x.title==='Koupit plenky'&&x.area==='Osobní'),'free command creates personal task');
-console.log('PERSONAL AUTOPILOT 29 INTEGRATION QA PASS');
+console.log('PERSONAL AUTOPILOT 29.1 INTEGRATION QA PASS');

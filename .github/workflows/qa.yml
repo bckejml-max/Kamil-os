@@ -23,6 +23,8 @@ jobs:
         run: node autopilot28_test.mjs
       - name: Personal Autopilot 29 complete
         run: node personal_plus_29_test.mjs
+      - name: Personal Monthly Review 29.1
+        run: node monthly_review_29_test.mjs
       - name: Sensitive Vault 29
         run: node vault_29_test.mjs
       - name: Scenario Lab 12 months

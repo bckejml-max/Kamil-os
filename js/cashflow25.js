@@ -35,11 +35,10 @@ function occurrences(entry,start,end){
  }
  const d=new Date(t),day=d.getDate();
  let cursor=new Date(d.getFullYear(),d.getMonth(),1);
- while(cursor.getTime()<start)cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);
  while(cursor.getTime()<=end){
   const last=new Date(cursor.getFullYear(),cursor.getMonth()+1,0).getDate();
   const at=new Date(cursor.getFullYear(),cursor.getMonth(),Math.min(day,last)).getTime();
-  if(at>=start&&at<=end)out.push({...entry,at});
+  if(at>=t&&at>=start&&at<=end)out.push({...entry,at});
   cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);
  }
  return out;
