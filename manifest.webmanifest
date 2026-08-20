@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 32.3",
+  "name": "Kamil OS 32.4",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 32.3 Live Brain — source-backed trust gate for live XTB and ticket intelligence",
+  "description": "Kamil OS 32.4 Market Edge — SEC source ingestion, XTB execution tuning, ticket pricing radar and Recovery Shield",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
