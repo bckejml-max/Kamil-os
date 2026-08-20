@@ -6,12 +6,12 @@ const n=v=>Number(v||0);
 const pad=v=>String(v).padStart(2,'0');
 const dateKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const monthKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}`;
-const ts=v=>{const t=v instanceof Date?v.getTime():new Date(v||0).getTime();return Number.isFinite(t)?t:null};
+const ts=v=>{if(v===null||v===undefined||v==='')return null;const t=v instanceof Date?v.getTime():new Date(v).getTime();return Number.isFinite(t)?t:null};
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('cs-CZ').trim();
 const FINANCIAL_CATEGORIES=new Set(['PAYMENT','SUBSCRIPTION','UTILITY','LOAN','HOME','FEE','INSURANCE','VEHICLE','OTHER']);
 const CADENCE_MONTHS={MONTHLY:1,QUARTERLY:3,SEMIANNUAL:6,YEARLY:12};
 
-function startDay(v){const d=new Date(v);if(!Number.isFinite(d.getTime()))return null;d.setHours(0,0,0,0);return d}
+function startDay(v){if(v===null||v===undefined||v==='')return null;const d=new Date(v);if(!Number.isFinite(d.getTime()))return null;d.setHours(0,0,0,0);return d}
 function addMonthsSafe(v,months){const d=startDay(v);if(!d)return null;const wanted=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+months);const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(wanted,last));return d}
 function bounds(now=new Date()){
  const r=new Date(now),from=new Date(r.getFullYear(),r.getMonth()+1,1),to=new Date(r.getFullYear(),r.getMonth()+13,1),months=[];
