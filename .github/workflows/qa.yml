@@ -17,6 +17,8 @@ jobs:
         run: node personal_plus_29_static_test.mjs
       - name: Personal Autopilot integration
         run: node integration.mjs
+      - name: Smart Import Center 29.4
+        run: node smart_import_29_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
