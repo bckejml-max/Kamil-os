@@ -2,6 +2,7 @@ import {xtbBoard as ruleXtbBoard,xtbDataAge,ticketDecision as ruleTicketDecision
 import {applyTicketLearning} from './ticketLearning25.js';
 import {liveSignalTrust32,LIVE_BRAIN_LIMITS_32} from './liveBrain32.js';
 import {sourceEvidenceForPosition32} from './sourceIngest32.js';
+import {marketQuoteForPosition32} from './marketQuoteIngest32.js';
 import {tuneXtbDecision32} from './xtbTuning32.js';
 import {tuneTicketDecision32} from './ticketTuning32.js';
 
@@ -32,13 +33,14 @@ const closedByNewerUserAction=(s,ticker)=>{
  const importAt=new Date(s.xtbHub?.asOf||s.xtbReport?.asOf||0).getTime();
  return !Number.isFinite(importAt)||importAt<=closedAt;
 };
+const tuneItem=(item,decision,s)=>tuneXtbDecision32(item.p,decision,s,sourceEvidenceForPosition32(item.p),marketQuoteForPosition32(item.p));
 
 export function xtbBoard(s){
  const meta=xtbIntelligenceAge(s),positions=s.xtbStrategy?.live?.positions||{};
  return ruleXtbBoard(s).filter(item=>!closedByNewerUserAction(s,item.p.ticker)).map(item=>{
-   if(item.d.source==='RUČNĚ')return {...item,d:tuneXtbDecision32(item.p,item.d,s,sourceEvidenceForPosition32(item.p))};
+   if(item.d.source==='RUČNĚ')return {...item,d:tuneItem(item,item.d,s)};
    const merged=mergeLive(item.d,positions[item.p.ticker],meta,LIVE_BRAIN_LIMITS_32.xtbHours);
-   return {...item,d:tuneXtbDecision32(item.p,merged,s,sourceEvidenceForPosition32(item.p))};
+   return {...item,d:tuneItem(item,merged,s)};
  }).sort((a,b)=>b.d.priority-a.d.priority);
 }
 
