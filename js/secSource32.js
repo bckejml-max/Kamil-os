@@ -1,5 +1,13 @@
 export const SEC_SOURCE_32={provider:'SEC_EDGAR',tickerMapUrl:'https://www.sec.gov/files/company_tickers.json',submissionsBase:'https://data.sec.gov/submissions',maxTickers:8,lookbackDays:30,maxPerTicker:3,freshHours:72};
 export const SEC_MATERIAL_FORMS_32=new Set(['8-K','10-Q','10-K','6-K','20-F','40-F']);
+export const SEC_XTB_ALIASES_32={
+ '1YD.DE':'AVGO',
+ 'BRYN.DE':'BRK-B'
+};
+const NAME_ALIASES_32=[
+ [/\bbroadcom\b/i,'AVGO'],
+ [/\bberkshire\b/i,'BRK-B']
+];
 const arr=v=>Array.isArray(v)?v:[];
 const upper=v=>String(v??'').trim().toUpperCase();
 const padCik=v=>String(Math.trunc(Number(v))).padStart(10,'0');
@@ -14,8 +22,21 @@ export function secTicker32(raw){
  return s;
 }
 
+export function secTickerForPosition32(position={}){
+ const raw=upper(position?.ticker),alias=SEC_XTB_ALIASES_32[raw];
+ if(alias)return alias;
+ if(raw.endsWith('.US'))return secTicker32(raw);
+ const name=String(position?.name||'');
+ for(const [pattern,ticker] of NAME_ALIASES_32)if(pattern.test(name))return ticker;
+ return null;
+}
+
 export function secRequestedTickers32(values,limit=SEC_SOURCE_32.maxTickers){
  const out=[];for(const raw of arr(values)){const t=secTicker32(raw);if(t&&!out.includes(t))out.push(t);if(out.length>=limit)break}return out;
+}
+
+export function secRequestedFromPositions32(positions,limit=SEC_SOURCE_32.maxTickers){
+ const out=[];for(const p of arr(positions)){const t=secTickerForPosition32(p);if(t&&!out.includes(t))out.push(t);if(out.length>=limit)break}return out;
 }
 
 export function secTickerIndex32(json={}){
