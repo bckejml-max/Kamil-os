@@ -25,13 +25,11 @@ export function backupFingerprint(payload){
 }
 
 export function backupPayload(state){
+ // Exclude runtime Undo history before serialization so old nested snapshots are never traversed by backup generation.
+ const base=obj(state)?{...state,undo:[]}:{undo:[]};
  // Normalize through the exact JSON representation that will be downloaded.
  // This removes runtime-only undefined values before the fingerprint is calculated.
- const payload=jsonClone(obj(state)?state:{});
- // Undo snapshots contain older full copies of state and can grow recursively.
- // They are runtime recovery data, not user records, so a portable backup starts with a clean undo stack.
- payload.undo=[];
- return payload;
+ return jsonClone(base);
 }
 
 export function createBackupEnvelope(state,now=new Date()){
