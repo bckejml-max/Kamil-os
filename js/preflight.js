@@ -9,6 +9,8 @@ export function runPreflight(){
  add('Schema',Number(s.meta?.schemaVersion)===SCHEMA_VERSION,`v${s.meta?.schemaVersion||0} / očekáváno v${SCHEMA_VERSION}`);
  add('Osobní administrativa',Array.isArray(s.personalAdmin?.items));
  add('Rodina',Array.isArray(s.familyHome?.members));
+ add('Emergency File kontakty',Array.isArray(s.emergencyFile?.contacts));
+ add('Emergency File položky',Array.isArray(s.emergencyFile?.assets));
  add('Osobní úkoly',Array.isArray(s.tasks));
  add('Vstupenky',Array.isArray(s.ticketBook?.items));
  add('Pohledávky',Array.isArray(s.debtBook?.items));
