@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(p,'utf8');
+const engine=read('js/personalRisk25.js'),ui=read('js/personalRiskUi25.js'),index=read('index.html'),sw=read('sw.js'),config=read('js/config.js');
+if(!engine.includes('personalRiskCenter')||!engine.includes("HOUSEHOLD_BILLS")||!engine.includes("INSURANCE")||!engine.includes("DOCUMENTS")||!engine.includes("FAMILY_HOME"))throw new Error('Personal Risk engine sources missing');
+if(!engine.includes('merge(raw)'))throw new Error('Personal Risk dedupe missing');
+if(!ui.includes('PERSONAL RISK / 25.18')||!ui.includes('Osobní rizika'))throw new Error('Personal Risk UI missing');
+if(!index.includes('./js/personalRiskUi25.js'))throw new Error('Personal Risk UI not loaded in shell');
+if(!sw.includes('./js/personalRisk25.js')||!sw.includes('./js/personalRiskUi25.js'))throw new Error('Personal Risk modules missing from PWA cache');
+if(!config.includes("APP_VERSION = '25.18.0'"))throw new Error('25.18 version missing');
+console.log('personal risk static OK');
