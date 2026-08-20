@@ -1,0 +1,11 @@
+await import('./release_gate_29_6.mjs');
+import fs from 'fs';
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const {portfolioRebalancePlan}=await import('./js/portfolioRebalancer29.js');
+const config=fs.readFileSync('js/config.js','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
+assert(config.includes("APP_VERSION = '29.7.0'")&&config.includes('SCHEMA_VERSION = 42'),'29.7 release version/schema mismatch');
+assert(html.includes('./js/portfolioRebalancerUi29.js'),'29.7 release shell missing Portfolio Rebalancer UI');
+assert(sw.includes('29.7.0')&&sw.includes('portfolioRebalancer29.js'),'29.7 PWA cache missing Portfolio Rebalancer');
+const s={financePlan:{currency:'CZK'},xtbStrategy:{closedTickers:{}},xtbHub:{asOf:'2026-08-20T10:00:00Z',accounts:{a:{currency:'CZK',positions:[{ticker:'CORE',name:'World ETF',category:'ETF',value:70000},{ticker:'BOND',name:'Bond ETF',category:'ETF',value:10000},{ticker:'SAT',name:'Stock',category:'STOCK',value:20000}]}}}};
+let r=portfolioRebalancePlan(s,{contribution:25000,currency:'CZK'});assert(r.ok&&r.trades.every(x=>x.baseAmount>=0),'rebalancer release gate produces no sale');s.xtbStrategy.closedTickers.SAT={at:'2026-08-20T11:00:00Z'};r=portfolioRebalancePlan(s,{contribution:25000,currency:'CZK'});assert(r.ok&&r.positionCount===2,'manual sold ticker excluded in release gate');
+console.log('KAMIL OS 29.7 RELEASE GATE PASS');
