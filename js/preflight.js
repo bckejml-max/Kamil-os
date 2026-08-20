@@ -1,4 +1,6 @@
 import './canonicalHost31.js';
+import './marketEdgeUi32.js';
+import './recoveryShieldUi32.js';
 import {APP_VERSION,SCHEMA_VERSION} from './config.js';
 import {store,validateState} from './state.js';
 
