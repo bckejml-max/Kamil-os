@@ -9,6 +9,7 @@ import {EMERGENCY_CONTACT_ROLES,EMERGENCY_ASSET_KINDS} from './emergencyFile26.j
 import {ASSET_KINDS,INBOX_KINDS,INBOX_SOURCES} from './autopilot28.js';
 import {GOAL_TYPES} from './personalPlus29.js';
 import {personalQuery} from './personalQuery29.js';
+import {buildCommandWriteProposal32,applyCommandWriteProposal32,copilotWrite32Contract} from './copilotWrite32.js';
 
 const navigateFromTarget=(target,homeMode=null)=>{if(target==='home'){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'home'}));queueMicrotask(()=>window.dispatchEvent(new CustomEvent('kamil:home-open',{detail:homeMode||'dashboard'})))}else window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}))};
 const openResult=x=>navigateFromTarget(x?.target,x?.homeMode);
@@ -18,6 +19,8 @@ const S=()=>store.get();
 const personalTask=t=>String(t?.area||'').toLocaleLowerCase('cs-CZ').includes('osob');
 const active=x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED';
 const homeModeFor=x=>x.category==='INSURANCE'?'insurance':x.category==='DOCUMENT'?'documents':x.category==='VEHICLE'?'car':x.category==='FAMILY'?'family':['HOME','UTILITY'].includes(x.category)?'house':['SUBSCRIPTION','LOAN','FEE'].includes(x.category)?'contracts':x.category==='PAYMENT'?'payments':'contracts';
+const WRITE_TYPES=new Set(copilotWrite32Contract.knownWriteTypes);
+let writePreviewOpen=false;
 
 export function search(q){
  q=norm(q);if(!q)return[];const out=[],add=(kind,title,detail,target,id,extra={})=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,...extra})};
@@ -45,14 +48,29 @@ export function parse(raw){
  return{type:'free',text:t};
 }
 
+function proposalBody(p){
+ const before=p.before?`<div class="row"><span>Před změnou</span><b>${h(Object.entries(p.before).map(([k,v])=>`${k}: ${v??'—'}`).join(' · '))}</b></div>`:'';
+ const after=p.after?`<div class="row"><span>Po změně</span><b>${h(Object.entries(p.after).map(([k,v])=>`${k}: ${v??'—'}`).join(' · '))}</b></div>`:'';
+ return `<div class="decision-note"><b>${h(p.summary)}</b></div><div class="list" style="margin-top:12px">${before}${after}</div><p class="muted">Copilot nic nezapíše, dokud nepotvrdíš tuto konkrétní změnu.</p>`;
+}
+function confirmKnownWrite(c){
+ if(writePreviewOpen){toast('Nejdřív dokonči otevřený náhled změny.');return}
+ const proposedAt=new Date(),proposal=buildCommandWriteProposal32(c,S(),proposedAt);if(!proposal.ok){toast(proposal.message);return}
+ writePreviewOpen=true;
+ modal('Náhled změny',proposalBody(proposal),[{label:'Zrušit',value:false},{label:'Potvrdit změnu',value:true,primary:true}]).then(ok=>{
+  writePreviewOpen=false;if(!ok)return;
+  const fresh=buildCommandWriteProposal32(c,S(),new Date());if(!fresh.ok||fresh.fingerprint!==proposal.fingerprint){toast('Data se mezitím změnila. Spusť příkaz znovu.');return}
+  const applied=once(`copilot-confirm|${fresh.fingerprint}`,()=>store.mutate(fresh.mutationLabel,s=>applyCommandWriteProposal32(s,fresh,{now:new Date(),idFactory:uid})));
+  if(applied)toast('Změna potvrzena a uložena.');
+ }).catch(()=>{writePreviewOpen=false;toast('Změnu se nepodařilo potvrdit.')});
+}
+
 export function execute(raw){
  const c=parse(raw);if(c.type==='empty')return;
  if(c.type==='nav'){navigateFromTarget(c.target,c.homeMode);return}
- if(c.type==='payment'){const x=S().debtBook.items.find(d=>d.status!=='PAID'&&norm(d.person).includes(norm(c.person)));if(!x||!Number.isFinite(c.amount)||c.amount<=0)return toast('Pohledávku nebo částku jsem nenašel.');once(`pay|${x.id}|${c.amount}`,()=>store.mutate(`Splátka ${x.person}`,s=>{const d=s.debtBook.items.find(y=>y.id===x.id);d.payments=d.payments||[];d.payments.push({id:uid('payment'),amount:c.amount,at:new Date().toISOString()});d.lastContactAt=new Date().toISOString()}));return}
- if(c.type==='sold'){const x=S().ticketBook.items.find(t=>norm(t.name).includes(norm(c.name)));if(!x)return toast('Vstupenku jsem nenašel.');once(`sold|${x.id}`,()=>store.mutate('Vstupenka prodána',s=>{const t=s.ticketBook.items.find(y=>y.id===x.id);if(t.workflow==='SOLD')return;t.workflow='SOLD';t.soldAt=new Date().toISOString()}));return}
- if(c.type==='tomorrow'){const x=S().tasks.find(t=>t.status!=='HOTOVO'&&personalTask(t)&&norm(t.title).includes(norm(c.name)));if(x){once(`tomorrow|${x.id}`,()=>store.mutate('Osobní úkol přesunut na zítra',s=>{const t=s.tasks.find(y=>y.id===x.id),d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);t.due=d.toISOString();t.updatedAt=new Date().toISOString()}));return}const title=c.name.replace(/^úkol\s+/i,'').trim();if(!title)return toast('Napiš název úkolu.');store.mutate('Přidán osobní úkol na zítra',s=>{const d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);s.tasks.unshift({id:uid('task'),title,status:'UDĚLAT',priority:'NORMAL',area:'Osobní',due:d.toISOString(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})});toast('Osobní úkol přidán na zítra');return}
+ if(WRITE_TYPES.has(c.type)){confirmKnownWrite(c);return}
  const answer=personalQuery(c.text,S(),store.meta(),new Date());if(answer){window.dispatchEvent(new CustomEvent('kamil:copilot-answer',{detail:answer}));return}
  const found=search(c.text);if(found.length===1){openResult(found[0]);return}if(found.length>1){renderResults(c.text);toast('Našel jsem více osobních výsledků – vyber správný.');return}
- modal('Tomuhle příkazu zatím nerozumím',`<p><b>${h(c.text)}</b></p><p class="muted">Nic jsem automaticky nezapsal. Pokud je to ve skutečnosti úkol, můžeš ho vytvořit explicitně.</p>`,[{label:'Zrušit',value:false},{label:'Vytvořit osobní úkol',value:true,primary:true}]).then(ok=>{if(!ok)return;once(`unknown-task|${norm(c.text)}`,()=>store.mutate('Přidán osobní úkol z Command Baru',s=>s.tasks.unshift({id:uid('task'),title:c.text,status:'UDĚLAT',priority:'NORMAL',area:'Osobní',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})));toast('Osobní úkol přidán')});
+ modal('Náhled změny',`<p><b>Vytvořit osobní úkol:</b> ${h(c.text)}</p><p class="muted">Příkazu nerozumím jako známé akci. Nic jsem nezapsal. Pokud potvrzuješ, vytvořím pouze tento osobní úkol.</p>`,[{label:'Zrušit',value:false},{label:'Potvrdit vytvoření úkolu',value:true,primary:true}]).then(ok=>{if(!ok)return;once(`unknown-task|${norm(c.text)}`,()=>store.mutate('Přidán osobní úkol z Command Baru',s=>s.tasks.unshift({id:uid('task'),title:c.text,status:'UDĚLAT',priority:'NORMAL',area:'Osobní',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})));toast('Osobní úkol přidán')});
 }
 export function renderResults(q){const box=qs('#commandResults');if(!q.trim()){box.classList.add('hidden');box.innerHTML='';return}const answer=personalQuery(q,S(),store.meta(),new Date());if(answer){box.classList.remove('hidden');box.innerHTML=`<div class="search-row"><div><b>${h(answer.title)}</b><div class="muted">Osobní copilot · odpověď z uložených dat</div></div><button class="btn" id="commandCopilot29">Zobrazit</button></div>`;qs('#commandCopilot29',box)?.addEventListener('click',()=>{window.dispatchEvent(new CustomEvent('kamil:copilot-answer',{detail:answer}));box.classList.add('hidden')});return}const a=search(q);if(!a.length){box.classList.add('hidden');box.innerHTML='';return}box.classList.remove('hidden');box.innerHTML=a.map((x,i)=>`<div class="search-row"><div><b>${h(x.title)}</b><div class="muted">${h(x.kind)} · ${h(x.detail||'')}</div></div><button class="btn" data-search="${i}">Otevřít</button></div>`).join('');qsa('[data-search]',box).forEach(b=>b.onclick=()=>{openResult(a[Number(b.dataset.search)]);box.classList.add('hidden')})}
