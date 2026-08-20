@@ -39,6 +39,10 @@ jobs:
         run: node ticket_profit_29_test.mjs
       - name: Ticket Profit and ROI integration 29.9
         run: node ticket_profit_integration_29_test.mjs
+      - name: Personal Copilot 30.0
+        run: node personal_copilot_30_test.mjs
+      - name: Personal Copilot integration 30.0
+        run: node personal_copilot_30_integration_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
