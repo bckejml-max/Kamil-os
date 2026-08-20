@@ -67,6 +67,8 @@ export function backupHealth(state,meta={},now=new Date()){
   personalInbox:(state?.personalInbox?.items||[]).filter(x=>String(x?.status||'NEW').toUpperCase()==='NEW').length,
   assets:active(state?.assetBook?.items),
   goals:active(state?.personalGoals?.items),
+  transactions:(state?.personalSpending?.transactions||[]).length,
+  imports:(state?.importCenter?.history||[]).length,
   tickets:active(state?.ticketBook?.items),
   debts:active(state?.debtBook?.items)
  };
