@@ -1,6 +1,7 @@
 import {personalRiskCenter} from './personalRisk25.js';
 import {personalTimeline} from './personalTimeline26.js';
 import {cashflow90} from './cashflow25.js';
+import {renewalRadar} from './renewalRadar26.js';
 import {xtbBoard,ticketDecision,ticketOpportunityDecision,actionLabel} from './live24.js';
 
 const clamp=v=>Math.max(0,Math.min(100,Number(v)||0));
@@ -9,7 +10,7 @@ const modeForRisk=x=>x.domains?.includes('Pojištění')?'insurance':x.domains?.
 const activeTicket=x=>['HOLD','LISTED'].includes(String(x?.workflow||'HOLD').toUpperCase());
 
 export function buildPersonalToday(s={},now=new Date()){
- const out=[],risk=personalRiskCenter(s,now),timeline=personalTimeline(s,now),cf=cashflow90(s,now);
+ const out=[],risk=personalRiskCenter(s,now),timeline=personalTimeline(s,now),cf=cashflow90(s,now),renewals=renewalRadar(s,now);
  for(const x of risk.top||[]){
   if((x.priority||0)<60)continue;
   out.push(item('home',x.title,x.priority,(x.reasons||[]).join(' · ')||x.reason,'home',{kind:'Osobní riziko',homeMode:modeForRisk(x),source:'ULOŽENÁ DATA',id:x.key}));
@@ -21,6 +22,8 @@ export function buildPersonalToday(s={},now=new Date()){
   const p=x.days<0?96:x.days===0?90:x.type==='Úkol'?82:x.domain==='Rodina'?68:64;
   out.push(item(x.target==='tickets'?'tickets':'home',x.title,p,x.days<0?`${Math.abs(x.days)} dní po termínu`:`${x.type} za ${x.days} dní`,x.target||'home',{kind:x.domain,homeMode:x.homeMode,source:x.source||'ULOŽENÁ DATA',id:x.key}));
  }
+ const renewal=renewals.rows.find(x=>x.priority>=75);
+ if(renewal)out.push(item('home',renewal.title,renewal.priority,`${renewal.action}. ${renewal.reason}`,'home',{kind:'Renewal Radar',homeMode:renewal.homeMode,source:renewal.source,id:`admin:${renewal.id}`}));
  for(const {p,d} of xtbBoard(s)){
   if((d.priority||0)<60)continue;
   out.push(item('money',`${p.ticker} · ${actionLabel(d.action)}`,d.priority,d.reason,'money',{kind:'XTB',action:d.action,confidence:d.confidence,source:d.source||'PRAVIDLA',id:p.ticker}));
