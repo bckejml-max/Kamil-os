@@ -1,11 +1,12 @@
 globalThis.localStorage={_d:new Map(),getItem(k){return this._d.has(k)?this._d.get(k):null},setItem(k,v){this._d.set(k,String(v))},removeItem(k){this._d.delete(k)}};
 Object.defineProperty(globalThis,'navigator',{value:{serviceWorker:{}},configurable:true});
+const {SCHEMA_VERSION}=await import('./js/config.js');
 const {migrate}=await import('./js/state.js');
 const {goalPlan,reminderEscalation,priceHistory,documentImportHints,onboardingWizard,oneScreenAutopilot,maintenanceTemplatesFor}=await import('./js/personalPlus29.js');
 const assert=(x,m)=>{if(!x)throw new Error(m)};
 const ref=new Date('2026-08-20T10:00:00+02:00');
 const s=migrate({meta:{schemaVersion:39},financePlan:{cashNow:100000,reserveFloor:50000,currency:'CZK'},personalGoals:{items:[{id:'g1',title:'Dovolená',type:'TRAVEL',targetAmount:60000,savedAmount:30000,currency:'CZK',targetDate:'2026-12-20',monthlyContribution:5000,status:'ACTIVE'},{id:'g2',title:'EUR cíl',type:'OTHER',targetAmount:1000,savedAmount:100,currency:'EUR',status:'ACTIVE'}]},personalAdmin:{items:[{id:'bill',title:'Internet',category:'SUBSCRIPTION',amount:650,currency:'CZK',cadence:'MONTHLY',nextDue:'2026-08-22',status:'ACTIVE',priceHistory:[{at:'2026-07-01',amount:499,currency:'CZK',cadence:'MONTHLY'},{at:'2026-08-01',amount:650,currency:'CZK',cadence:'MONTHLY'}]}]},assetBook:{items:[{id:'car',title:'Auto',kind:'VEHICLE',nextServiceAt:'2026-08-25',status:'ACTIVE'}]},personalInbox:{items:[]},familyHome:{members:[]},emergencyFile:{contacts:[],assets:[]},ticketBook:{items:[],watchlist:[]},debtBook:{items:[]},tasks:[],calendar:{events:[]}});
-assert(s.meta.schemaVersion===42,'schema migrated to 42');assert(Array.isArray(s.personalSpending.transactions)&&Array.isArray(s.importCenter.history),'schema 42 import collections');assert(Array.isArray(s.netWorthBook.items)&&Array.isArray(s.netWorthBook.history),'schema 42 net worth collections');
+assert(s.meta.schemaVersion===SCHEMA_VERSION,`schema migrated to ${SCHEMA_VERSION}`);assert(Array.isArray(s.personalSpending.transactions)&&Array.isArray(s.importCenter.history),'canonical import collections');assert(Array.isArray(s.netWorthBook.items)&&Array.isArray(s.netWorthBook.history),'canonical net worth collections');
 const g=goalPlan(s,ref);assert(g.total===2,'goals counted');assert(g.byCurrency.CZK&&g.byCurrency.EUR,'goal currencies separate');assert(!('total' in g.byCurrency),'no mixed total');assert(g.items.find(x=>x.id==='g1').remaining===30000,'remaining goal amount');
 const r=reminderEscalation(s,ref);assert(r.items.some(x=>x.title==='Internet'&&x.stage==='ACTION'),'bill due in two days is action, not invented emergency');assert(r.items.some(x=>x.title==='Auto'),'asset service escalated');
 const p=priceHistory(s);const internet=p.items.find(x=>x.id==='bill');assert(Math.round(internet.delta)===151,'price delta from actual history');assert(internet.deltaPct>30,'price percent change');
@@ -13,4 +14,4 @@ const imp=documentImportHints('Dodavatel Energie s.r.o.\nVyúčtování\nCelkem 
 const on=onboardingWizard(s,{},ref);assert(Array.isArray(on.steps)&&on.steps.length<=3,'onboarding bounded');
 const screen=oneScreenAutopilot(s,{},ref);assert(Array.isArray(screen.doToday)&&Array.isArray(screen.approaching),'one screen sections');
 const tmpl=maintenanceTemplatesFor(s.assetBook.items[0]);assert(tmpl.items.some(x=>x.key==='stk'),'vehicle checklist includes STK label');assert(tmpl.items.every(x=>!('months' in x)),'template invents no service interval');
-console.log('PERSONAL AUTOPILOT 29 QA PASS');
+console.log('PERSONAL AUTOPILOT QA PASS');
