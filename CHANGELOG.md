@@ -1,3 +1,15 @@
+# Kamil OS 25.3 — Ticket Event Command Center
+
+## 25.3.0 — One event across sectors and positions
+- Vstupenky nově seskupují více sektorů / pozic stejné akce do jednoho **EVENT PORTFOLIO** pohledu, aniž by se měnila nebo migrovala původní data
+- seskupení používá explicitní `eventKey` / `eventId`, pokud existuje; jinak konzervativně kombinuje datum a rozpoznaný název akce po odstranění seat/sector suffixu
+- event karta ukazuje neprodané a prodané kusy, kapitál v riziku, počet dílčích pozic a nejvyšší platný verdikt
+- kliknutí otevře **EVENT COMMAND CENTER** s celkovým nákladem, realizovanými tržbami, realizovaným P/L, payout stavem a cenovým plánem zbytku
+- projektovaný výstup se počítá pouze z pozic se skutečně uloženou listingovou cenou; nezaceněné kusy jsou explicitně vyčíslené a žádná cena se nevymýšlí
+- detail zachovává každou původní pozici / sektor samostatně, včetně vlastního workflow, strategie, prodeje a live/pravidlového rozhodnutí
+- přidaný modul `ticketEvents25.js`, samostatné `ticketEvents25.css` a nový automatický test agregace kapitálu, kusů, realizovaného P/L a bezpečné práce s chybějící cenou
+- PWA shell a viditelná verze sjednoceny na 25.3
+
 # Kamil OS 25.2 — XTB Position Detail
 
 ## 25.2.0 — One decision page per holding
