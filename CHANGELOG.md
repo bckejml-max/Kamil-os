@@ -1,3 +1,15 @@
+# Kamil OS 25.0 — Today Decision Command Center
+
+## 25.0.0 — One queue across work, money and tickets
+- stránka **Dnes** už není jen soubor modulových karet; nahoře vznikla jednotná **TOP 5 ROZHODNUTÍ** fronta
+- rozhodovací fronta kombinuje pracovní signály, projektová rizika, XTB BUY/HOLD/TRIM/SELL/REVIEW, ticketová rozhodnutí, čekání a Inbox
+- vše se řadí podle jedné priority 0–100 a zobrazuje zdroj a confidence, pokud je dostupná živá intelligence
+- čerstvá XTB/ticket intelligence se propisuje do Dnes přes stejnou bezpečnou live/pravidlovou vrstvu; stará nebo chybějící data zůstávají pravidlovým fallbackem
+- první rozhodnutí dostává přímé tlačítko **Řešit teď**, ostatní lze otevřít rovnou do správného modulu nebo projektu
+- fronta je omezená na pět položek, deduplikuje stejné projekty/signály a má konzervativní kalendářový signál při výrazně zaplněných následujících 48 hodinách
+- zachované jsou podpůrné bloky pro úkoly, kalendář, XTB, vstupenky, projekty, čekání a radar; nový vršek jen mění pořadí pozornosti, ne data
+- nový modul `today25.js`, samostatné `today25.css`, integrační test cross-domain řazení a rozšířený QA/PWA release gate
+
 # Kamil OS 24.9 — Ticket Sell Cockpit
 
 ## 24.9.0 — Inventory risk before margin
