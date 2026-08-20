@@ -1,4 +1,5 @@
 import {xtbBoard as ruleXtbBoard,xtbDataAge,ticketDecision as ruleTicketDecision,ticketOpportunityDecision as ruleTicketOpportunityDecision,actionLabel,actionTone} from './decision24.js';
+import {applyTicketLearning} from './ticketLearning25.js';
 
 const n=v=>Number(v||0);
 const upper=v=>String(v||'').toUpperCase();
@@ -41,5 +42,6 @@ export function ticketDecision(x,s={}){
 
 export function ticketOpportunityDecision(x,s={}){
  const auto=ruleTicketOpportunityDecision(x),intel=s.ticketBook?.intelligence||{},live=intel.opportunities?.[x.id];
- return mergeLive(auto,live,ticketIntelligenceAge(s));
+ const merged=mergeLive(auto,live,ticketIntelligenceAge(s));
+ return applyTicketLearning(x,s,merged);
 }
