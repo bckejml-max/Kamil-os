@@ -11,6 +11,8 @@ export function runPreflight(){
  add('Rodina',Array.isArray(s.familyHome?.members));
  add('Emergency File kontakty',Array.isArray(s.emergencyFile?.contacts));
  add('Emergency File položky',Array.isArray(s.emergencyFile?.assets));
+ add('Personal Inbox',Array.isArray(s.personalInbox?.items));
+ add('Asset Book',Array.isArray(s.assetBook?.items));
  add('Osobní úkoly',Array.isArray(s.tasks));
  add('Vstupenky',Array.isArray(s.ticketBook?.items));
  add('Pohledávky',Array.isArray(s.debtBook?.items));
