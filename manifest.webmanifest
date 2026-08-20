@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 30.0",
+  "name": "Kamil OS 30.1",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 30.0 Personal Copilot",
+  "description": "Kamil OS 30.1 Document Scanner",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
