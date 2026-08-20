@@ -77,6 +77,8 @@ jobs:
         run: node profile_bootstrap_31_test.mjs
       - name: Cloud Recovery 31.2
         run: node cloud_recovery_31_static_test.mjs
+      - name: Canonical Auth 31.3.1
+        run: node canonical_host_31_test.mjs
       - name: History Planner 31.3
         run: node history_plan_31_test.mjs
       - name: Data Engine 31.3
@@ -135,7 +137,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser E2E 31.3
+      - name: Browser E2E 31.3.1
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!

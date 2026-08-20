@@ -1,0 +1,11 @@
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+await import('./js/canonicalHost31.js');
+const {canonicalTarget31,CANONICAL}=globalThis.KamilCanonical31||{};
+assert(CANONICAL==='https://kamil-os-smoke.vercel.app','canonical host drift');
+const old={protocol:'https:',hostname:'kamil-os-smoke-o9clsg6r0-kamil-8359.vercel.app',origin:'https://kamil-os-smoke-o9clsg6r0-kamil-8359.vercel.app',pathname:'/',search:'?type=recovery&code=abc',hash:'#access_token=secret&refresh_token=refresh'};
+const target=canonicalTarget31(old);
+assert(target==='https://kamil-os-smoke.vercel.app/?type=recovery&code=abc#access_token=secret&refresh_token=refresh','auth query/hash must survive canonical redirect');
+assert(canonicalTarget31({protocol:'https:',hostname:'kamil-os-smoke.vercel.app',origin:'https://kamil-os-smoke.vercel.app',pathname:'/',search:'',hash:''})===null,'canonical host must not redirect');
+assert(canonicalTarget31({protocol:'http:',hostname:'127.0.0.1',origin:'http://127.0.0.1:4173',pathname:'/',search:'',hash:''})===null,'local QA must not redirect');
+assert(canonicalTarget31({protocol:'https:',hostname:'example.com',origin:'https://example.com',pathname:'/',search:'',hash:''})===null,'unrelated hosts must not redirect');
+console.log('KAMIL OS 31.3.1 CANONICAL HOST PASS');
