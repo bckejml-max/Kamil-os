@@ -1,3 +1,4 @@
+import './recoveryShieldUi32.js';
 import {store} from './state.js';
 import {APP_VERSION} from './releaseMeta.js';
 import {SCHEMA_VERSION,LOCAL_KEY,QUEUE_KEY} from './config.js';
