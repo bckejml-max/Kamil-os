@@ -1,11 +1,13 @@
 import {personalQuery as baseQuery} from './autopilot28.js';
 import {goalPlan,priceHistory,changeFeed,reminderEscalation,onboardingWizard} from './personalPlus29.js';
+import {personalCopilot30} from './personalCopilot30.js';
 
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('cs-CZ').trim();
 const money=(v,c)=>`${Math.round(Number(v)||0).toLocaleString('cs-CZ')} ${c}`;
 
 export function personalQuery(raw,s={},meta={},now=new Date()){
  const q=norm(raw);if(!q)return null;
+ const copilot=personalCopilot30(raw,s,meta,now);if(copilot)return copilot;
  if(q.includes('cil')||q.includes('fond')){
   const g=goalPlan(s,now);return {title:'Cíle a fondy',lines:g.items.slice(0,10).map(x=>`${x.title} — ${x.remaining===null?'chybí cílová částka':`zbývá ${money(x.remaining,x.currency)}`}${x.requiredMonthly!==null?` · potřebné tempo ${money(x.requiredMonthly,x.currency)}/měs`:''}`),note:g.note};
  }
