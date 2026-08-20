@@ -6,6 +6,6 @@ for(const forbidden of ['vault','emergencyFile','documentScanner','rawOcr','auth
 for(const browser of ['document.','window.','localStorage','navigator.','indexedDB','fetch(','store.'])assert(!plan.includes(browser),'history planner must stay pure: '+browser);
 assert(idb.includes("DB_NAME='kamil-os-data-v2'")&&idb.includes("HISTORY='history'")&&idb.includes('createIndex')&&idb.includes('db.onversionchange'),'IndexedDB store/lifecycle definition missing');
 assert(engine.includes('historyPlan31(store.get())')&&engine.includes('mirrorHistory31')&&engine.includes('store.subscribe'),'Data Engine mirror wiring missing');
-for(const destructive of ['store.mutate','store.replace','store.persist','localStorage.removeItem','deleteDatabase'])assert(!engine.includes(destructive),'31.3 Data Engine must be non-destructive: '+destructive);
-assert(ui.includes('IndexedDB history mirror')&&ui.includes('Zrcadlit teď')&&ui.includes('z hlavního state nic nemaže')&&ui.includes('Kontroluji lokální IndexedDB'),'Data Engine UI safety/loading copy missing');
-console.log('DATA ENGINE 31.3 STATIC TEST PASS');
+for(const destructive of ['store.mutate','store.replace','store.persist','localStorage.removeItem','deleteDatabase'])assert(!engine.includes(destructive),'Data Engine must remain non-destructive: '+destructive);
+assert(ui.includes('History Data Engine')&&ui.includes('Zrcadlit a synchronizovat teď')&&ui.includes('z hlavního state se nic nemaže')&&ui.includes('Primární state se zatím nezkracuje'),'Data Engine 32.1 UI safety/loading copy missing');
+console.log('DATA ENGINE 31.3→32.1 NON-DESTRUCTIVE REGRESSION PASS');

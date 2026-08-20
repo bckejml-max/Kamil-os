@@ -1,0 +1,5 @@
+const {cloudHistoryRows32,cloudHistoryPlan32Info}=await import('./js/cloudHistoryPlan32.js');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const rows=cloudHistoryRows32([{key:'ticket|1',bucket:'ticket',at:'2026-08-20T10:00:00Z',payload:{id:'1',profit:100}},{key:'trade|2',bucket:'trade',at:null,payload:{ticker:'WDAY'}},{key:'vault|x',bucket:'vault',payload:{secret:'NO'}}],'u1','32.1.0','2026-08-20T12:00:00Z');
+assert(rows.length===2,'only allowlisted history buckets map');assert(rows[0].user_id==='u1'&&rows[0].record_key==='ticket|1'&&rows[0].bucket==='ticket','identity mapping');assert(rows[0].payload.profit===100&&rows[0].source_version==='32.1.0','payload/version mapping');assert(rows[1].happened_at===null,'null date preserved');assert(cloudHistoryRows32([{key:'ticket|1',bucket:'ticket'}],'').length===0,'missing user id cannot create cloud row');assert(cloudHistoryPlan32Info.mode==='DUAL_WRITE'&&cloudHistoryPlan32Info.deleteEnabled===false,'dual-write safety contract');assert(!cloudHistoryPlan32Info.buckets.includes('vault'),'Vault excluded from cloud history');
+console.log('KAMIL OS 32.1 CLOUD HISTORY UNIT PASS');
