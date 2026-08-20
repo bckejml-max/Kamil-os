@@ -10,6 +10,7 @@ const ts=v=>{if(v===null||v===undefined||v==='')return null;const t=v instanceof
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('cs-CZ').trim();
 const FINANCIAL_CATEGORIES=new Set(['PAYMENT','SUBSCRIPTION','UTILITY','LOAN','HOME','FEE','INSURANCE','VEHICLE','OTHER']);
 const CADENCE_MONTHS={MONTHLY:1,QUARTERLY:3,SEMIANNUAL:6,YEARLY:12};
+export const yearAheadCurrencyRule='Měny se nikdy nesčítají do společného součtu a bez skutečného FX kurzu se nepřepočítávají.';
 
 function startDay(v){if(v===null||v===undefined||v==='')return null;const d=new Date(v);if(!Number.isFinite(d.getTime()))return null;d.setHours(0,0,0,0);return d}
 function addMonthsSafe(v,months){const d=startDay(v);if(!d)return null;const wanted=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+months);const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(wanted,last));return d}
@@ -117,5 +118,5 @@ export function yearAheadRadar(s={},now=new Date()){
  const b=bounds(now),months=buildMonths(b),ctx={b,months,monthMap:new Map(months.map(x=>[x.key,x])),events:[],milestones:[],seen:new Set(),gaps:{missingAmount:0,missingDate:0},goalPlanByCurrency:{},ticketCapitalByCurrency:{}};
  addStoredDeadlines(s,ctx);addManualCashflow(s,ctx);addGoals(s,ctx);addTickets(s,ctx);const summary=summarize(ctx);
  const monthsWithEvents=months.filter(x=>x.eventCount>0).length,status=ctx.milestones.length||ctx.events.length?'PLAN':'CLEAR';
- return {period:{from:b.fromKey,toExclusive:b.toExclusiveKey,months:12},status,months,events:ctx.events,milestones:ctx.milestones,coverage:{monthsWithEvents,eventCount:ctx.events.length,milestoneCount:ctx.milestones.length,missingAmountItems:ctx.gaps.missingAmount,missingDateItems:ctx.gaps.missingDate},goalPlanByCurrency:ctx.goalPlanByCurrency,ticketCapitalByCurrency:ctx.ticketCapitalByCurrency,...summary,note:'Year Ahead Radar ukazuje 12 celých budoucích měsíců jen z uložených termínů a z opakování, které mají explicitní periodicitu. Peníze i cíle zůstávají oddělené po měnách; žádný FX kurz, neznámý příjem, neznámý výdaj ani budoucí událost se nevymýšlí. Nic se automaticky neplatí, nepřevádí, neinvestuje ani neobchoduje.'};
+ return {period:{from:b.fromKey,toExclusive:b.toExclusiveKey,months:12},status,months,events:ctx.events,milestones:ctx.milestones,coverage:{monthsWithEvents,eventCount:ctx.events.length,milestoneCount:ctx.milestones.length,missingAmountItems:ctx.gaps.missingAmount,missingDateItems:ctx.gaps.missingDate},goalPlanByCurrency:ctx.goalPlanByCurrency,ticketCapitalByCurrency:ctx.ticketCapitalByCurrency,...summary,note:`${yearAheadCurrencyRule} Year Ahead Radar ukazuje 12 celých budoucích měsíců jen z uložených termínů a z opakování, které mají explicitní periodicitu. Žádný neznámý příjem, neznámý výdaj ani budoucí událost se nevymýšlí. Nic se automaticky neplatí, nepřevádí, neinvestuje ani neobchoduje.`};
 }
