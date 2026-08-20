@@ -17,6 +17,8 @@ jobs:
         run: node integration.mjs
       - name: Personal OS 26 invariants
         run: node personal_os_26_test.mjs
+      - name: Renewal Radar
+        run: node renewal_radar_test.mjs
       - name: Ticket event aggregation
         run: node ticket_events_test.mjs
       - name: Ticket lessons
