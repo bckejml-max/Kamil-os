@@ -47,6 +47,10 @@ jobs:
         run: node document_scanner_30_test.mjs
       - name: Document Scanner integration 30.1
         run: node document_scanner_30_integration_test.mjs
+      - name: Smart Filing 30.2
+        run: node document_filing_30_test.mjs
+      - name: Smart Filing integration 30.2
+        run: node document_filing_30_integration_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
