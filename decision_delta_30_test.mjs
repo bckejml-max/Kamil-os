@@ -19,7 +19,7 @@ assert(out.initialized&&out.baselineAt===baseline.at,'baseline preserved');
 const action=out.items.find(x=>x.key==='money|WDAY');assert(action?.type==='ACTION'&&action.detail.includes('REVIEW → TRIM')&&action.priority>=92,'action change must dominate');
 const trigger=out.items.find(x=>x.key==='tickets|T1');assert(trigger?.type==='TRIGGER'&&trigger.detail.includes('Změnilo se pravidlo'),'trigger change detected');
 const fresh=out.items.find(x=>x.key==='home|task:new');assert(fresh?.type==='NEW','new decision detected');
-const dropped=out.items.find(x=>x.key==='home|task:old');assert(dropped?.type==='OUT'&&!/vyřeš/i.test(dropped.detail),'dropped decision must not be called resolved');
+const dropped=out.items.find(x=>x.key==='home|task:old');assert(dropped?.type==='OUT'&&dropped.detail.includes('neznamená')&&dropped.detail.includes('vyřešená'),'dropped decision must explicitly say it is not automatically resolved');
 assert(out.attention>=2,'meaningful changes counted');
 
 const noBase=decisionDelta30(current,null,t1);assert(!noBase.initialized&&!noBase.items.length&&noBase.current.items.length===3,'missing baseline initializes safely');
