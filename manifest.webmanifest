@@ -1,7 +1,7 @@
 {
   "name": "Kamil OS 31.4",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 31.4 Smart Sync Foundation — item-level shadow sync",
+  "description": "Kamil OS 31.4.1 Smart Sync Foundation — shell consistency hotfix",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
