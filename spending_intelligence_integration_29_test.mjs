@@ -1,0 +1,15 @@
+globalThis.localStorage={_d:new Map(),getItem(k){return this._d.has(k)?this._d.get(k):null},setItem(k,v){this._d.set(k,String(v))},removeItem(k){this._d.delete(k)}};
+Object.defineProperty(globalThis,'navigator',{value:{serviceWorker:{}},configurable:true});
+globalThis.document={querySelector(){return null},querySelectorAll(){return []}};globalThis.window={dispatchEvent(){},addEventListener(){}};globalThis.CustomEvent=class{constructor(type,opts){this.type=type;this.detail=opts?.detail}};
+const {migrate}=await import('./js/state.js');
+const {previewImport,buildImportPlan}=await import('./js/smartImport29.js');
+const {applySmartImport}=await import('./js/smartImportApply29.js');
+const {spendingIntelligence}=await import('./js/spendingIntelligence29.js');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const ref=new Date('2026-08-20T10:00:00+02:00');
+const s=migrate({meta:{schemaVersion:40},projects:[{id:'legacy',name:'Legacy work'}],personalSpending:{transactions:[{id:'j1',date:'2026-07-05',description:'Lidl',amount:-700,currency:'CZK',category:'JÍDLO'},{id:'j2',date:'2026-07-10',description:'Netflix',amount:-300,currency:'CZK',category:'PŘEDPLATNÉ'}]},personalAdmin:{items:[]},familyHome:{members:[]},emergencyFile:{contacts:[],assets:[]},personalInbox:{items:[]},assetBook:{items:[]},personalGoals:{items:[]},ticketBook:{items:[],watchlist:[]},debtBook:{items:[]},tasks:[],calendar:{events:[]}});
+assert(s.meta.schemaVersion===41,'29.5 keeps schema 41');assert(s.projects[0].name==='Legacy work','legacy state preserved');
+const csv=`Datum;Popis;Částka;Měna\n05.08.2026;Lidl;-1100;CZK\n10.08.2026;Netflix;-305;CZK\n16.08.2026;Převod na spoření;-5000;CZK\n18.08.2026;Výplata;30000;CZK`;
+const preview=previewImport(csv,{fileName:'bank.csv'}),plan=buildImportPlan(s,preview);assert(plan.total===4,'Smart Import feeds Spending Intelligence');applySmartImport(s,plan,{at:'2026-08-20T12:00:00Z'});
+const r=spendingIntelligence(s,ref),czk=r.byCurrency.CZK;assert(czk.spentMtd===1405,'consumer spending excludes transfer');assert(czk.transferVolume===5000,'transfer remains visible separately');assert(czk.incomeMtd===30000,'income stays separate');assert(czk.previousComparable===1000,'same-day-window comparison');assert(!('totalMixed' in r)&&!('total' in r.byCurrency),'currencies are never mixed');assert(r.coverage.transactions===6,'historical and imported transactions coexist');
+console.log('SPENDING INTELLIGENCE 29.5 INTEGRATION PASS');
