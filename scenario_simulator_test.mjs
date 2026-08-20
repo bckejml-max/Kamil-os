@@ -22,7 +22,7 @@ assert(r.sim.cashflow.belowReserveDate==='2026-08-20','breach date visible');
 
 s=base();r=simulateScenario(s,{type:'INCOME',amount:20000,date:'2026-08-20'},now);
 assert(r.ok&&r.verdict==='OK','income remains safe');
-assert(r.delta.minBalance===20000&&r.sim.cashflow.endBalance===120000,'income improves liquidity');
+assert(r.delta.endBalance===20000&&r.sim.cashflow.endBalance===120000,'income improves liquidity');
 
 s=base();s.financePlan.plannedInvestment=50000;r=simulateScenario(s,{type:'EXPENSE',amount:30000,date:'2026-08-20'},now);
 assert(r.verdict==='BLOCK','expense that makes existing plan unfunded is blocked');
