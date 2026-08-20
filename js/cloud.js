@@ -2,6 +2,7 @@ import {SUPABASE_URL,SUPABASE_KEY,STATE_TABLE,CALENDAR_TABLE,XTB_TABLE} from './
 import {store} from './state.js';
 
 const SUPABASE_SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+const CANONICAL_APP_URL='https://kamil-os-smoke.vercel.app/';
 const projectRef=(()=>{try{return new URL(SUPABASE_URL).hostname.split('.')[0]}catch{return''}})();
 const authStorageKey=projectRef?`sb-${projectRef}-auth-token`:'';
 let client=null,sdkPromise=null,timer=null,statusFn=()=>{};
@@ -9,7 +10,9 @@ let client=null,sdkPromise=null,timer=null,statusFn=()=>{};
 export const onSyncStatus=fn=>statusFn=fn;
 const status=(s,detail='')=>statusFn(s,detail);
 export const hasStoredCloudSession=()=>{try{return !!(authStorageKey&&localStorage.getItem(authStorageKey))}catch{return false}};
-const recoveryHint=()=>typeof location!=='undefined'&&(location.hash.includes('access_token=')||location.hash.includes('refresh_token=')||location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery');
+const queryParams=()=>{try{return new URLSearchParams(location.search)}catch{return new URLSearchParams()}};
+const recoveryHint=()=>typeof location!=='undefined'&&(location.hash.includes('access_token=')||location.hash.includes('refresh_token=')||location.hash.includes('type=recovery')||queryParams().get('type')==='recovery'||queryParams().has('code')||queryParams().has('token_hash'));
+const authRedirect=()=>{try{if(['localhost','127.0.0.1'].includes(location.hostname))return `${location.origin}${location.pathname}`}catch{}return CANONICAL_APP_URL};
 
 async function loadSdk(){
  if(globalThis.supabase?.createClient)return globalThis.supabase;
@@ -25,8 +28,9 @@ async function getClient({force=false}={}){
 export async function cloudClient(force=false){return getClient({force})}
 export async function session(){const c=await getClient();if(!c)return null;const {data}=await c.auth.getSession();return data.session}
 export async function login(email,password){const c=await getClient({force:true});return c.auth.signInWithPassword({email,password})}
+export async function sendMagicLink(email){const c=await getClient({force:true});return c.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:authRedirect()}})}
 export async function logout(){const c=await getClient();return c?c.auth.signOut():{error:null}}
-export async function sendPasswordReset(email){const c=await getClient({force:true}),redirectTo=`${window.location.origin}${window.location.pathname}`;return c.auth.resetPasswordForEmail(email,{redirectTo})}
+export async function sendPasswordReset(email){const c=await getClient({force:true});return c.auth.resetPasswordForEmail(email,{redirectTo:authRedirect()})}
 export async function updatePassword(password){const c=await getClient({force:true});return c.auth.updateUser({password})}
 export async function watchAuth(handler){const c=await getClient();if(!c)return()=>{};const {data}=c.auth.onAuthStateChange(handler);return()=>data?.subscription?.unsubscribe?.()}
 
