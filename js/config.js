@@ -1,4 +1,4 @@
-export const APP_VERSION = '26.0.0';
+export const APP_VERSION = '26.1.0';
 export const SCHEMA_VERSION = 37;
 export const SUPABASE_URL = 'https://tswqfbkmxywxxczsoddr.supabase.co';
 export const SUPABASE_KEY = 'sb_publishable_kLy9FrQ7cpNEVhvqcCEsfw_MFVqBlFg';
