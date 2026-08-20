@@ -1,6 +1,13 @@
-# Kamil OS 31.1
+# Kamil OS 31.2
 
 Kamil OS je osobní **local-first Personal Autopilot**. Viditelné rozhraní je soustředěné do pěti hlavních oblastí: **Dnes / Peníze / Vstupenky / Domov / Více**. Aplikace funguje bez hesla a bez povinného cloudu; Supabase se načte až při existující cloud session nebo explicitním připojení.
+
+## Data Recovery 31.2
+Kamil OS nově rozpozná, když běží na zařízení/browseru s prázdným lokálním profilem. Takový stav se už netváří jako hotový osobní dashboard: na Dnes se zobrazí recovery karta **„Tvoje data nejsou na tomto zařízení“**.
+
+Nejjednodušší obnova je přes **Připojit moje data → Poslat přihlašovací odkaz bez hesla**. Magic link používá existující Supabase účet, má `shouldCreateUser: false` a po kliknutí se vrací na kanonickou produkční adresu `https://kamil-os-smoke.vercel.app/`. Tím se zabrání tomu, aby session zůstala uvězněná na náhodné Vercel deployment URL.
+
+Stav **„Jen toto zařízení“** je v lokálním režimu klikací a otevírá stejné recovery připojení. E-mail posledního cloudového účtu se ukládá jen do lokálního meta úložiště pro pohodlné předvyplnění; heslo se neukládá.
 
 ## Dnes — Morning Command Center
 - **Udělej dnes** — hlavní osobní kroky podle priority.
@@ -47,14 +54,16 @@ Sekce **Více → Systém** zobrazuje diagnostiku release/schema konzistence, ve
 - XTB cache: `kamil_xtb_data`
 - legacy localStorage klíče zůstávají kompatibilní
 - cloud je volitelný a používá RLS podle přihlášeného uživatele
-- pending sync snapshot se zapisuje lokálně už při změně state
+- Supabase SDK se na čistém local-first startu nestahuje
+- nový browser s prázdným state cloud automaticky nepřepisuje
+- pending sync snapshot se zapisuje lokálně už při skutečné změně state
 - konflikt mezi cloudem a zařízením se nikdy nepřepíše potichu
 
 ## PWA a security
-Kamil OS je statická PWA. Produkce používá main-only Vercel deployment policy, Content Security Policy, `nosniff`, frame deny, omezený referrer policy a browser permissions. Offline shell je cachovaný Service Workerem.
+Kamil OS je statická PWA. Produkce používá main-only Vercel deployment policy, Content Security Policy, `nosniff`, frame deny, omezený referrer policy a browser permissions. Offline shell je cachovaný Service Workerem. Klient obsahuje pouze publishable Supabase key; `service_role`/secret key se do browseru nesmí dostat.
 
 ## QA
-GitHub Actions spouští rozsáhlou sadu unit/integration testů pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta, System Health a Decision Journal. Součástí release gate je také **Playwright/Chromium E2E**, který ověřuje kritický local-first flow a skutečné otevření Decision Journalu v browseru.
+GitHub Actions spouští rozsáhlou sadu unit/integration testů pro finance, XTB, vstupenky, dokumenty, rodinu, backup, risk, Decision Explainability/Next Trigger/Delta, System Health, Decision Journal a Profile Bootstrap. Součástí release gate je také **Playwright/Chromium E2E**, který od 31.2 ověřuje i skutečný prázdný profil → recovery kartu → otevření passwordless připojení bez eager Supabase requestu.
 
 ## Architektonický směr
 31.x je **Core v2**. Nové doménové enginy zůstávají pure a nezávislé na DOM/storage/network API. Browserové UI a transportní vrstvy se drží odděleně, aby bylo možné postupně přesunout velká historická data do robustnějšího úložiště, zlepšit item-level sync a později použít stejné enginy v nativním shellu.
