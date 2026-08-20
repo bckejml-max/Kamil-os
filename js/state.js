@@ -11,7 +11,7 @@ const blank=()=>({
  debtBook:{items:[],review:[]},
  personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true,notificationMode:'IMPORTANT'},emergencyFile:{contacts:[],assets:[]},
  personalInbox:{items:[]},assetBook:{items:[]},personalGoals:{items:[]},
- personalSpending:{transactions:[]},importCenter:{history:[]},
+ personalSpending:{transactions:[]},importCenter:{history:[]},netWorthBook:{items:[],history:[]},
  inbox:[],delegations:[],learning:{typeBias:{},feedback:[]},
  ui:{},audit:[],undo:[]
 });
@@ -43,6 +43,7 @@ export function migrate(input){
  s.personalGoals={items:[],...(s.personalGoals||{})};s.personalGoals.items=Array.isArray(s.personalGoals.items)?s.personalGoals.items:[];
  s.personalSpending={transactions:[],...(s.personalSpending||{})};s.personalSpending.transactions=Array.isArray(s.personalSpending.transactions)?s.personalSpending.transactions:[];
  s.importCenter={history:[],...(s.importCenter||{})};s.importCenter.history=Array.isArray(s.importCenter.history)?s.importCenter.history:[];
+ s.netWorthBook={items:[],history:[],...(s.netWorthBook||{})};s.netWorthBook.items=Array.isArray(s.netWorthBook.items)?s.netWorthBook.items:[];s.netWorthBook.history=Array.isArray(s.netWorthBook.history)?s.netWorthBook.history:[];
  s.inbox=Array.isArray(s.inbox)?s.inbox:[];
  s.delegations=Array.isArray(s.delegations)?s.delegations:[];
  s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};s.learning.feedback=Array.isArray(s.learning.feedback)?s.learning.feedback:[];
@@ -63,6 +64,8 @@ export function migrate(input){
  for(const x of s.personalGoals.items)if(!x.id)x.id=uid('goal');
  for(const x of s.personalSpending.transactions)if(!x.id)x.id=uid('txn');
  for(const x of s.importCenter.history)if(!x.id)x.id=uid('import');
+ for(const x of s.netWorthBook.items)if(!x.id)x.id=uid('networth');
+ for(const x of s.netWorthBook.history)if(!x.id)x.id=uid('networth-snapshot');
  s.meta.migratedFrom=from;s.meta.schemaVersion=SCHEMA_VERSION;
  return s;
 }
@@ -92,9 +95,12 @@ export function validateState(input){
  if(input.personalSpending?.transactions!==undefined&&!Array.isArray(input.personalSpending.transactions))issues.push('personalSpending.transactions nebylo pole');
  if(input.importCenter!==undefined&&typeof input.importCenter!=='object')issues.push('importCenter má neplatný formát');
  if(input.importCenter?.history!==undefined&&!Array.isArray(input.importCenter.history))issues.push('importCenter.history nebylo pole');
+ if(input.netWorthBook!==undefined&&typeof input.netWorthBook!=='object')issues.push('netWorthBook má neplatný formát');
+ if(input.netWorthBook?.items!==undefined&&!Array.isArray(input.netWorthBook.items))issues.push('netWorthBook.items nebylo pole');
+ if(input.netWorthBook?.history!==undefined&&!Array.isArray(input.netWorthBook.history))issues.push('netWorthBook.history nebylo pole');
  const ids=new Set(),dupIds=[];
  const scan=(a,label)=>Array.isArray(a)&&a.forEach(x=>{if(x?.id){if(ids.has(x.id))dupIds.push(`${label}:${x.id}`);ids.add(x.id)}});
- scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');scan(input.personalInbox?.items,'personal-inbox');scan(input.assetBook?.items,'asset');scan(input.personalGoals?.items,'goal');scan(input.personalSpending?.transactions,'txn');scan(input.importCenter?.history,'import');
+ scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');scan(input.personalInbox?.items,'personal-inbox');scan(input.assetBook?.items,'asset');scan(input.personalGoals?.items,'goal');scan(input.personalSpending?.transactions,'txn');scan(input.importCenter?.history,'import');scan(input.netWorthBook?.items,'networth');scan(input.netWorthBook?.history,'networth-snapshot');
  if(dupIds.length)issues.push(`Duplicitní ID: ${dupIds.slice(0,5).join(', ')}`);
  return {ok:!fatal.length,issues,fatal};
 }
@@ -103,7 +109,7 @@ export function repairState(input){
  const dedupe=a=>{const seen=new Set();return (Array.isArray(a)?a:[]).filter(x=>{if(!x?.id)return true;if(seen.has(x.id))return false;seen.add(x.id);return true})};
  fixed.tasks=dedupe(fixed.tasks);fixed.projects=dedupe(fixed.projects);
  fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.ticketBook.watchlist=dedupe(fixed.ticketBook.watchlist);fixed.debtBook.items=dedupe(fixed.debtBook.items);
- fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);fixed.personalGoals.items=dedupe(fixed.personalGoals.items);fixed.personalSpending.transactions=dedupe(fixed.personalSpending.transactions);fixed.importCenter.history=dedupe(fixed.importCenter.history);
+ fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);fixed.personalGoals.items=dedupe(fixed.personalGoals.items);fixed.personalSpending.transactions=dedupe(fixed.personalSpending.transactions);fixed.importCenter.history=dedupe(fixed.importCenter.history);fixed.netWorthBook.items=dedupe(fixed.netWorthBook.items);fixed.netWorthBook.history=dedupe(fixed.netWorthBook.history);
  return {state:fixed,report};
 }
 class Store{
