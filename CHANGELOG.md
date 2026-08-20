@@ -1,3 +1,23 @@
+# Kamil OS 26.2 — Renewal & Savings Radar
+
+## 26.2.0 — Prevent silent renewals and missed cancellation windows
+- nový **Renewal & Savings Radar** řadí osobní smluvní závazky podle uloženého výpovědního termínu, výročí, periodicity a autopay stavu
+- rozlišuje **PO TERMÍNU / ROZHODNOUT / PROVĚŘIT / DOPLNIT DATA / HLÍDAT**; nic automaticky neruší ani nemění
+- opakované předplatné, energie nebo pojištění bez smluvního okna se označí jako datová mezera místo domyšleného termínu
+- více závazků u stejného poskytovatele se pouze označí k prověření, nikoliv automaticky jako duplicita
+- známý roční spend k prověření se drží po jednotlivých měnách a výslovně se netváří jako odhad úspory
+- nejurgentnější smluvní okno může vstoupit do osobního Top 5 bez duplikace existujícího risk signálu
+- samostatný test, static QA, CI krok a PWA cache; schema zůstává v37
+
+# Kamil OS 26.1 — Personal Obligations → Cashflow
+
+## 26.1.0 — Known personal bills now affect liquidity decisions
+- Cashflow 90 dní zahrnuje aktivní osobní závazky jen tehdy, když mají skutečně uloženou částku a konkrétní termín
+- podporuje jednorázové, měsíční, čtvrtletní, pololetní a roční závazky bez domýšlení dalších plateb
+- závazek po termínu se konzervativně započítá do dneška, aby výhled nepředstíral vyšší disponibilní hotovost
+- cizí měny se bez skutečného FX kurzu ignorují a nefinanční osobní záznamy neznečišťují cashflow completeness
+- schema zůstává v37 a cloud/localStorage konfigurace se nemění
+
 # Kamil OS 26.0 — Personal OS
 
 ## 26.0.0 — Personal-only operating system
