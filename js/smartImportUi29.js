@@ -1,5 +1,6 @@
 import {store} from './state.js';
-import {previewImport,smartImportSafetyNote} from './smartImport29.js';
+import {smartImportSafetyNote} from './smartImport29.js';
+import {previewSmartImport} from './smartImportPreview29.js';
 import {buildSmartImportPlan,importPlanSafety} from './smartImportPlan29.js';
 import {applySmartImport,xtbImportSafety} from './smartImportApply29.js';
 import {h,qs,modal,toast} from './utils.js';
@@ -17,7 +18,7 @@ export function smartImportView(back=''){
  <div class="grid two"><div class="card"><h2>1. Vstupní data</h2><label>Typ dat<select id="smartImportSource"><option value="AUTO"${forcedSource==='AUTO'?' selected':''}>Automaticky rozpoznat</option><option value="SPENDING"${forcedSource==='SPENDING'?' selected':''}>Banka / transakce</option><option value="REVOLUT"${forcedSource==='REVOLUT'?' selected':''}>Revolut</option><option value="XTB"${forcedSource==='XTB'?' selected':''}>XTB pozice</option><option value="TICKETS"${forcedSource==='TICKETS'?' selected':''}>Vstupenky</option><option value="ADMIN"${forcedSource==='ADMIN'?' selected':''}>Osobní administrativa</option></select></label><label class="btn">Vybrat CSV / TSV / JSON<input id="smartImportFile" type="file" accept=".csv,.tsv,.txt,.json,text/csv,text/tab-separated-values,application/json" hidden></label>${fileName?`<p class="muted">Soubor: <b>${h(fileName)}</b></p>`:''}<label>Nebo vlož tabulku / CSV<textarea id="smartImportText" rows="8" placeholder="Datum;Popis;Částka;Měna&#10;20.08.2026;Lidl;-1250,50;CZK">${h(rawText)}</textarea></label><button class="btn primary" id="smartImportPreview">Vytvořit bezpečný náhled</button><p class="muted">PDF a fotky sem záměrně neposíláme naslepo. Pro ně bude samostatný Document Scanner s potvrzením vytěžených polí.</p></div><div class="card"><h2>2. Co se skutečně zapíše</h2>${previewHtml()}${plan?.total?'<button class="btn primary wide" id="smartImportApply">Potvrdit a zapsat změny</button>':''}</div></div>
  <div class="decision-note"><b>Bezpečnost:</b> ${h(smartImportSafetyNote)} ${h(importPlanSafety)} ${h(xtbImportSafety)}</div><div class="decision-note ${cloud?'warn':''}"><b>Soukromí:</b> Importovaná data jsou součást běžného stavu Kamil OS. ${cloud?'Cloud je připojený, takže se po potvrzení synchronizují do tvého Supabase účtu.':'Teď běžíš lokálně; pokud později připojíš cloud, budou součástí synchronizovaného stavu.'}</div><div class="card"><h2>Historie importů</h2>${historyRows()}</div>`;
 }
-function rebuild(){preview=previewImport(rawText,{fileName,source:forcedSource});plan=buildSmartImportPlan(store.get(),preview)}
+function rebuild(){preview=previewSmartImport(rawText,{fileName,source:forcedSource});plan=buildSmartImportPlan(store.get(),preview)}
 export function bindSmartImport(rerender){
  qs('#smartImportSource')?.addEventListener('change',e=>{forcedSource=e.target.value;preview=null;plan=null});
  qs('#smartImportText')?.addEventListener('input',e=>{rawText=e.target.value;fileName='';preview=null;plan=null});
