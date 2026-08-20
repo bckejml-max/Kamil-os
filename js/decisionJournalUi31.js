@@ -1,0 +1,19 @@
+import {store} from './state.js';
+import {buildPersonalToday} from './personalToday26.js';
+import {decisionDelta30} from './decisionDelta30.js';
+import {appendDecisionJournal,decisionJournalReview} from './decisionJournal31.js';
+import {h,dateTime,modal,qs} from './utils.js';
+const buttonId='decisionJournal31Button';let queued=false;
+const tone=p=>Number(p)>=90?'bad':Number(p)>=75?'warn':'good';
+const save=(decisions,changeTypes={},label='Decision Journal snapshot')=>{if(!decisions.length)return 0;let added=0;store.mutate(label,s=>{s.decisionJournal=s.decisionJournal&&typeof s.decisionJournal==='object'?s.decisionJournal:{items:[]};const r=appendDecisionJournal(s.decisionJournal.items,decisions,new Date(),changeTypes);s.decisionJournal.items=r.items;added=r.added},{undo:false,audit:false});return added};
+
+export async function openDecisionJournal31(){
+ const s=store.get(),current=buildPersonalToday(s),r=decisionJournalReview(s,current),rows=r.items.slice(0,15).map(x=>{const shift=x.observedShift?.kind==='PNL_SHIFT'?` · P/L ${x.observedShift.before.toFixed(1)} → ${x.observedShift.after.toFixed(1)} %`:x.observedShift?.kind==='WORKFLOW'?` · ${h(x.observedShift.before)} → ${h(x.observedShift.after)}`:'';return `<div class="autopilot29-row"><div><b>${h(x.title)}</b><small>${dateTime(x.at)} · ${h(x.action||'—')} · priorita ${x.priority}/100${shift}</small><small>${h(x.reason||'')}</small></div><span class="status ${x.actionChanged?'warn':tone(x.priority)}">${x.actionChanged?`${h(x.action||'—')} → ${h(x.currentAction||'—')}`:h(x.changeType||'SNAPSHOT')}</span></div>`}).join('')||'<div class="empty">Journal je zatím prázdný. Zapiš první aktuální rozhodovací stav.</div>';
+ const body=`<div class="metric-strip"><div class="metric"><span>Záznamů</span><b>${r.total}</b></div><div class="metric"><span>Sledovaných věcí</span><b>${r.tracked}</b></div><div class="metric"><span>Změněná akce</span><b class="${r.changed?'warn':'good'}">${r.changed}</b></div></div>${rows}<p class="muted">${h(r.note)}</p>`;
+ const result=await modal('Decision Journal 31.1',body,[{label:'Zavřít',value:null},{label:'Zapsat aktuální Top',value:'snapshot',primary:true}]);if(result==='snapshot'){const added=save(current,{},'Decision Journal: ruční snapshot');if(added)openDecisionJournal31()}
+}
+function inject(){const root=qs('#todayView'),strip=root?.querySelector('.autopilot29-strip');if(!strip||root.querySelector(`#${buttonId}`))return;const s=store.get(),r=decisionJournalReview(s,buildPersonalToday(s)),b=document.createElement('button');b.id=buttonId;b.className='metric autopilot29-metric';b.dataset.journal31='open';b.innerHTML=`<span>Decision Journal</span><b class="${r.changed?'warn':'good'}">${r.total||'＋'}</b><small>${r.changed?`${r.changed} změn akce`:'audit rozhodnutí'}</small>`;strip.appendChild(b)}
+function schedule(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;inject()})}
+function ackDelta(){const s=store.get(),meta=store.meta(),decisions=buildPersonalToday(s),delta=decisionDelta30(decisions,meta.decisionBaseline30);if(!delta.initialized||!delta.items.length)return;const changed=delta.items.filter(x=>x.current).map(x=>({...x.current,journalChange:x.type})),types=Object.fromEntries(delta.items.filter(x=>x.current).map(x=>[x.key,x.type]));save(changed,types,'Decision Journal: potvrzené změny')}
+function start(){const root=qs('#todayView');if(!root)return;new MutationObserver(schedule).observe(root,{childList:true,subtree:false});root.addEventListener('click',e=>{const ack=e.target.closest('[data-t29-action="ack-delta"]');if(ack)ackDelta();const open=e.target.closest('[data-journal31="open"]');if(open){e.preventDefault();e.stopPropagation();openDecisionJournal31()}},true);window.addEventListener('kamil:navigate',e=>{if(e.detail==='today')schedule()});schedule()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
