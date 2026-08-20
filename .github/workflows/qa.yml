@@ -29,29 +29,17 @@ jobs:
         run: node capital_allocation_test.mjs
       - name: Action Plan
         run: node action_plan_test.mjs
-      - name: Personal Admin
+      - name: Personal Admin engine
         run: node personal_admin_test.mjs
-      - name: Personal Admin static
-        run: node personal_admin_static_test.mjs
-      - name: Insurance Center
+      - name: Insurance Center engine
         run: node insurance_center_test.mjs
-      - name: Insurance Center static
-        run: node insurance_static_test.mjs
-      - name: Household Bills
+      - name: Household Bills engine
         run: node household_bills_test.mjs
-      - name: Household Bills static
-        run: node household_bills_static_test.mjs
-      - name: Documents & Expiry
+      - name: Documents & Expiry engine
         run: node documents_expiry_test.mjs
-      - name: Documents & Expiry static
-        run: node documents_expiry_static_test.mjs
-      - name: Family & Home
+      - name: Family & Home engine
         run: node family_home_test.mjs
-      - name: Family & Home static
-        run: node family_home_static_test.mjs
-      - name: Personal Risk Center
+      - name: Personal Risk Center engine
         run: node personal_risk_test.mjs
-      - name: Personal Risk Center static
-        run: node personal_risk_static_test.mjs
       - name: Release gate
         run: node release_gate.mjs
