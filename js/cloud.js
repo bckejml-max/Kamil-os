@@ -1,25 +1,42 @@
 import {SUPABASE_URL,SUPABASE_KEY,STATE_TABLE,CALENDAR_TABLE,XTB_TABLE} from './config.js';
 import {store} from './state.js';
 
-export const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let timer=null,statusFn=()=>{};
+const SUPABASE_SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+const projectRef=(()=>{try{return new URL(SUPABASE_URL).hostname.split('.')[0]}catch{return''}})();
+const authStorageKey=projectRef?`sb-${projectRef}-auth-token`:'';
+let client=null,sdkPromise=null,timer=null,statusFn=()=>{};
 
 export const onSyncStatus=fn=>statusFn=fn;
 const status=(s,detail='')=>statusFn(s,detail);
+export const hasStoredCloudSession=()=>{try{return !!(authStorageKey&&localStorage.getItem(authStorageKey))}catch{return false}};
+const recoveryHint=()=>typeof location!=='undefined'&&(location.hash.includes('access_token=')||location.hash.includes('refresh_token=')||location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery');
 
-export async function session(){const {data}=await sb.auth.getSession();return data.session}
-export async function login(email,password){return sb.auth.signInWithPassword({email,password})}
-export async function logout(){return sb.auth.signOut()}
-export async function sendPasswordReset(email){const redirectTo=`${window.location.origin}${window.location.pathname}`;return sb.auth.resetPasswordForEmail(email,{redirectTo})}
-export async function updatePassword(password){return sb.auth.updateUser({password})}
+async function loadSdk(){
+ if(globalThis.supabase?.createClient)return globalThis.supabase;
+ if(sdkPromise)return sdkPromise;
+ sdkPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=SUPABASE_SDK;script.async=true;script.crossOrigin='anonymous';script.onload=()=>globalThis.supabase?.createClient?resolve(globalThis.supabase):reject(new Error('Supabase SDK se nenačetlo.'));script.onerror=()=>reject(new Error('Supabase SDK není dostupné. Lokální režim funguje dál.'));document.head.appendChild(script)}).catch(error=>{sdkPromise=null;throw error});
+ return sdkPromise;
+}
+async function getClient({force=false}={}){
+ if(client)return client;
+ if(!force&&!hasStoredCloudSession()&&!recoveryHint())return null;
+ const sdk=await loadSdk();client=sdk.createClient(SUPABASE_URL,SUPABASE_KEY);return client;
+}
+export async function cloudClient(force=false){return getClient({force})}
+export async function session(){const c=await getClient();if(!c)return null;const {data}=await c.auth.getSession();return data.session}
+export async function login(email,password){const c=await getClient({force:true});return c.auth.signInWithPassword({email,password})}
+export async function logout(){const c=await getClient();return c?c.auth.signOut():{error:null}}
+export async function sendPasswordReset(email){const c=await getClient({force:true}),redirectTo=`${window.location.origin}${window.location.pathname}`;return c.auth.resetPasswordForEmail(email,{redirectTo})}
+export async function updatePassword(password){const c=await getClient({force:true});return c.auth.updateUser({password})}
+export async function watchAuth(handler){const c=await getClient();if(!c)return()=>{};const {data}=c.auth.onAuthStateChange(handler);return()=>data?.subscription?.unsubscribe?.()}
 
 async function saveNow(){
- const sess=await session();if(!sess)return;
+ const c=await getClient(),sess=c?(await c.auth.getSession()).data.session:null;if(!sess)return;
  if(!navigator.onLine){store.queueSync(store.get());status('offline');return}
  status('saving');
  try{
    const payload=store.get(),clientUpdatedAt=new Date().toISOString();
-   const {data,error}=await sb.from(STATE_TABLE).upsert({user_id:sess.user.id,payload,updated_at:clientUpdatedAt}).select('updated_at').single();
+   const {data,error}=await c.from(STATE_TABLE).upsert({user_id:sess.user.id,payload,updated_at:clientUpdatedAt}).select('updated_at').single();
    if(error)throw error;
    const serverUpdatedAt=data?.updated_at||clientUpdatedAt;
    store.dirty=false;store.clearQueue();store.get().meta.lastCloudAt=serverUpdatedAt;store.persist();store.setMeta({lastCloudAt:serverUpdatedAt});status('ok');
@@ -30,9 +47,9 @@ store.setCloudWriter(scheduleSave);
 export async function flushQueue(){if(!navigator.onLine)return;const q=store.readQueue();if(q){store.replace(q.payload,'queued-local');store.dirty=true;await saveNow()}}
 
 export async function loadCloud(){
- const sess=await session();if(!sess)return {ok:false};
+ const c=await getClient(),sess=c?(await c.auth.getSession()).data.session:null;if(!sess)return {ok:false};
  status('saving','načítám');
- const {data,error}=await sb.from(STATE_TABLE).select('payload,updated_at').eq('user_id',sess.user.id).maybeSingle();
+ const {data,error}=await c.from(STATE_TABLE).select('payload,updated_at').eq('user_id',sess.user.id).maybeSingle();
  if(error){status('offline',error.message);return {ok:false,error}}
  if(!data?.payload){await saveNow();return {ok:true,new:true}}
  const local=store.get(),cloudAt=new Date(data.updated_at||0).getTime(),localAt=new Date(local.meta?.lastMutationAt||0).getTime(),lastCloudAt=new Date(store.meta().lastCloudAt||0).getTime();
@@ -41,9 +58,9 @@ export async function loadCloud(){
 }
 
 export async function refreshIntelligence(){
- const sess=await session();if(!sess)return {ok:false,error:new Error('Cloud není připojený')};
+ const c=await getClient(),sess=c?(await c.auth.getSession()).data.session:null;if(!sess)return {ok:false,error:new Error('Cloud není připojený')};
  try{
-   const {data,error}=await sb.from(STATE_TABLE).select('payload,updated_at').eq('user_id',sess.user.id).maybeSingle();if(error)throw error;
+   const {data,error}=await c.from(STATE_TABLE).select('payload,updated_at').eq('user_id',sess.user.id).maybeSingle();if(error)throw error;
    const p=data?.payload||{},hasXtb=!!(p.xtbStrategy?.live||p.xtbStrategy?.liveAsOf),hasTickets=!!(p.ticketBook?.intelligence||p.ticketBook?.intelligenceAsOf);
    if(hasXtb||hasTickets)store.mutate('Načtena živá intelligence',s=>{
      if(hasXtb){s.xtbStrategy=s.xtbStrategy||{overrides:{}};if(p.xtbStrategy?.live!==undefined)s.xtbStrategy.live=p.xtbStrategy.live;if(p.xtbStrategy?.liveAsOf!==undefined)s.xtbStrategy.liveAsOf=p.xtbStrategy.liveAsOf}
@@ -76,10 +93,10 @@ export function conflictSummary(local,cloud){
 export async function resolveConflict(choice,cloudPayload){if(choice==='cloud'){store.replace(cloudPayload,'cloud-conflict');store.dirty=false;store.clearQueue();status('ok')}else if(choice==='local'){await saveNow()}}
 
 export async function loadDataHubs(){
- const sess=await session();if(!sess)return;
- try{const {data}=await sb.from(CALENDAR_TABLE).select('source,as_of,events').eq('id',1).maybeSingle();if(data)store.mutate('Aktualizován kalendář',s=>{s.calendar={source:data.source,asOf:data.as_of,events:(data.events||[]).map(e=>({...e,title:e.title||e.summary||'Událost'}))}},{undo:false,cloud:false,audit:false})}catch{}
+ const c=await getClient(),sess=c?(await c.auth.getSession()).data.session:null;if(!sess)return;
+ try{const {data}=await c.from(CALENDAR_TABLE).select('source,as_of,events').eq('id',1).maybeSingle();if(data)store.mutate('Aktualizován kalendář',s=>{s.calendar={source:data.source,asOf:data.as_of,events:(data.events||[]).map(e=>({...e,title:e.title||e.summary||'Událost'}))}},{undo:false,cloud:false,audit:false})}catch{}
  try{
-   const {data}=await sb.from(XTB_TABLE).select('source,as_of,report,trade_journal,cfd_summary,updated_at').eq('id',1).maybeSingle();
+   const {data}=await c.from(XTB_TABLE).select('source,as_of,report,trade_journal,cfd_summary,updated_at').eq('id',1).maybeSingle();
    if(data)store.mutate('Aktualizováno XTB',s=>{const a=data.report?.accounts||{},czk=Object.values(a).find(x=>x.currency==='CZK')||a['51850491']||{},eur=Object.values(a).find(x=>x.currency==='EUR')||a['56069932']||{};s.xtbHub={source:data.source,asOf:data.as_of,updatedAt:data.updated_at,accounts:a,positionCount:data.report?.position_count||0,report:data.report};s.xtbReport={asOf:data.as_of,czkValue:czk.value||0,czkProfit:czk.profit||0,eurValue:eur.value||0,eurProfit:eur.profit||0,source:data.source};s.tradeJournal={...(s.tradeJournal||{}),asOf:data.as_of,trades:data.trade_journal||[]}},{undo:false,cloud:false,audit:false});
  }catch{}
 }
