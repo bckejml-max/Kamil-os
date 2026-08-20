@@ -1,0 +1,4 @@
+import {projectHealth} from './js/projectHealth25.js';
+const now=new Date('2026-08-20T10:00:00+02:00');
+const state={projects:[{id:'a',name:'A',status:'Aktivní',risk:'HIGH',deadline:'2026-08-19',next:'',owner:''},{id:'b',name:'B',status:'Aktivní',risk:'LOW',deadline:'2026-10-01',next:'Poslat podklady',owner:'Petr'}],tasks:[{id:'t',projectId:'a',status:'UDĚLAT',due:'2026-08-18'}]};
+const r=projectHealth(state,now);if(r[0].projectId!=='a'||r[0].status!=='CRITICAL'||r[0].score>=50)throw new Error('Critical project must rank first');if(r[1].score!==100||r[1].status!=='HEALTHY')throw new Error('Healthy project must stay healthy');if(!r[0].reasons.some(x=>x.includes('po termínu')))throw new Error('Overdue evidence missing');console.log('PROJECT HEALTH PASS');
