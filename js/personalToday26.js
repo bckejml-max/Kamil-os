@@ -27,32 +27,32 @@ export function buildPersonalToday(s={},now=new Date()){
  }
  if(cf.status==='RISK'){
   const reason=cf.belowReserveDate?`Pod rezervní minimum podle uloženého cashflow od ${cf.belowReserveDate}.`:'Dnešní hotovost je pod rezervním minimem.';
-  out.push(item('money','Likvidita pod rezervou',100,reason,'money',{kind:'Cashflow 90',source:'ULOŽENÝ PLÁN',explain:explain('CASHFLOW_90','Cashflow status RISK → priorita 100.',[reason])}));
+  out.push(item('money','Likvidita pod rezervou',100,reason,'money',{kind:'Cashflow 90',source:'ULOŽENÝ PLÁN',observed:{status:cf.status,minBalance:cf.minBalance,reserve:cf.reserve},explain:explain('CASHFLOW_90','Cashflow status RISK → priorita 100.',[reason])}));
  }else if(cf.status==='TIGHT'){
   const reason=`Minimum 90denního výhledu je ${Math.round(cf.minBalance).toLocaleString('cs-CZ')} Kč.`;
-  out.push(item('money','Likvidita je těsně nad rezervou',82,reason,'money',{kind:'Cashflow 90',source:'ULOŽENÝ PLÁN',explain:explain('CASHFLOW_90','Cashflow status TIGHT → priorita 82.',[reason])}));
+  out.push(item('money','Likvidita je těsně nad rezervou',82,reason,'money',{kind:'Cashflow 90',source:'ULOŽENÝ PLÁN',observed:{status:cf.status,minBalance:cf.minBalance,reserve:cf.reserve},explain:explain('CASHFLOW_90','Cashflow status TIGHT → priorita 82.',[reason])}));
  }
  for(const x of timeline.items.filter(x=>x.days<0||x.days<=7).slice(0,6)){
   if(x.domain==='Platby'||x.domain==='Smlouvy'||x.domain==='Doklady')continue;
   const p=x.days<0?96:x.days===0?90:x.type==='Úkol'?82:x.domain==='Rodina'?68:64;
-  out.push(item(x.target==='tickets'?'tickets':'home',x.title,p,x.days<0?`${Math.abs(x.days)} dní po termínu`:`${x.type} za ${x.days} dní`,x.target||'home',{kind:x.domain,homeMode:x.homeMode,source:x.source||'ULOŽENÁ DATA',id:x.key,explain:timelineExplain(x)}));
+  out.push(item(x.target==='tickets'?'tickets':'home',x.title,p,x.days<0?`${Math.abs(x.days)} dní po termínu`:`${x.type} za ${x.days} dní`,x.target||'home',{kind:x.domain,homeMode:x.homeMode,source:x.source||'ULOŽENÁ DATA',id:x.key,observed:{days:x.days,type:x.type},explain:timelineExplain(x)}));
  }
  const renewal=renewals.rows.find(x=>x.priority>=75);
  if(renewal){
   const reason=`${renewal.action}. ${renewal.reason}`;
-  out.push(item('home',renewal.title,renewal.priority,reason,'home',{kind:'Smlouvy k prověření',homeMode:renewal.homeMode,source:renewal.source,id:`admin:${renewal.id}`,explain:explain('RENEWAL_RADAR','Priorita je převzatá z Renewal Radaru; 30.3 ji nepřepočítává.',[renewal.action,renewal.reason])}));
+  out.push(item('home',renewal.title,renewal.priority,reason,'home',{kind:'Smlouvy k prověření',homeMode:renewal.homeMode,source:renewal.source,id:`admin:${renewal.id}`,observed:{action:renewal.action,days:renewal.days??null},explain:explain('RENEWAL_RADAR','Priorita je převzatá z Renewal Radaru; 30.3 ji nepřepočítává.',[renewal.action,renewal.reason])}));
  }
  for(const {p,d} of xtbBoard(s)){
   if((d.priority||0)<60)continue;
-  out.push(item('money',`${p.ticker} · ${actionLabel(d.action)}`,d.priority,d.reason,'money',{kind:'XTB',action:d.action,when:d.when,buyRule:d.buyRule,sellRule:d.sellRule,confidence:d.confidence,source:d.source||'PRAVIDLA',id:p.ticker,explain:explain('XTB_DECISION','Priorita je převzatá z XTB decision enginu; 30.3 ji nepřepočítává.',[d.reason])}));
+  out.push(item('money',`${p.ticker} · ${actionLabel(d.action)}`,d.priority,d.reason,'money',{kind:'XTB',action:d.action,when:d.when,buyRule:d.buyRule,sellRule:d.sellRule,confidence:d.confidence,source:d.source||'PRAVIDLA',id:p.ticker,observed:{pnlPct:Number.isFinite(Number(p.net_profit_pct))?Number(p.net_profit_pct):null,weightPct:Number.isFinite(Number(p.weightPct))?Number(p.weightPct):null,value:Number.isFinite(Number(p.value))?Number(p.value):null,currency:p.accountCurrency||p.currency||null},explain:explain('XTB_DECISION','Priorita je převzatá z XTB decision enginu; 30.3 ji nepřepočítává.',[d.reason])}));
  }
  for(const x of s.ticketBook?.items||[]){
   if(!activeTicket(x))continue;const d=ticketDecision(x,s);if((d.priority||0)<60)continue;
-  out.push(item('tickets',`${x.name} · ${actionLabel(d.action)}`,d.priority,d.reason,'tickets',{kind:'Vstupenky',action:d.action,when:d.when,buyRule:d.buyRule,sellRule:d.sellRule,confidence:d.confidence,source:d.source||'PRAVIDLA',id:x.id,explain:explain('TICKET_DECISION','Priorita je převzatá z ticket decision enginu; 30.3 ji nepřepočítává.',[d.reason])}));
+  out.push(item('tickets',`${x.name} · ${actionLabel(d.action)}`,d.priority,d.reason,'tickets',{kind:'Vstupenky',action:d.action,when:d.when,buyRule:d.buyRule,sellRule:d.sellRule,confidence:d.confidence,source:d.source||'PRAVIDLA',id:x.id,observed:{days:d.days,workflow:x.workflow||'HOLD',buyPer:d.buyPer,list:d.list,market:d.market,floor:d.floor},explain:explain('TICKET_DECISION','Priorita je převzatá z ticket decision enginu; 30.3 ji nepřepočítává.',[d.reason])}));
  }
  for(const x of s.ticketBook?.watchlist||[]){
   const d=ticketOpportunityDecision(x,s);if((d.priority||0)<72)continue;
-  out.push(item('tickets',`${x.name||'Ticket opportunity'} · ${actionLabel(d.action)}`,d.priority,d.reason,'tickets',{kind:'Ticket BUY',action:d.action,when:d.when,buyRule:d.buyRule,sellRule:d.sellRule,confidence:d.confidence,source:d.source||'PRAVIDLA',id:x.id,explain:explain('TICKET_OPPORTUNITY','Priorita je převzatá z ticket opportunity enginu; 30.3 ji nepřepočítává.',[d.reason])}));
+  out.push(item('tickets',`${x.name||'Ticket opportunity'} · ${actionLabel(d.action)}`,d.priority,d.reason,'tickets',{kind:'Ticket BUY',action:d.action,when:d.when,buyRule:d.buyRule,sellRule:d.sellRule,confidence:d.confidence,source:d.source||'PRAVIDLA',id:x.id,observed:{status:x.status||'WATCH',saleAt:x.saleAt||null,date:x.date||null,maxBuyPrice:x.maxBuyPrice??null,targetResale:x.targetResale??null},explain:explain('TICKET_OPPORTUNITY','Priorita je převzatá z ticket opportunity enginu; 30.3 ji nepřepočítává.',[d.reason])}));
  }
  const seen=new Set();
  return out.sort((a,b)=>b.priority-a.priority||String(a.title).localeCompare(String(b.title),'cs')).filter(x=>{const k=`${x.domain}|${x.id||x.title}`;if(seen.has(k))return false;seen.add(k);return true}).slice(0,5).map((x,i)=>({...x,rank:i+1}));
