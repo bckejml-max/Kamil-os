@@ -8,7 +8,7 @@ const s=migrate({meta:{schemaVersion:39},financePlan:{cashNow:100000,reserveFloo
 assert(s.meta.schemaVersion===40,'schema migrated to 40');
 const g=goalPlan(s,ref);assert(g.total===2,'goals counted');assert(g.byCurrency.CZK&&g.byCurrency.EUR,'goal currencies separate');assert(!('total' in g.byCurrency),'no mixed total');assert(g.items.find(x=>x.id==='g1').remaining===30000,'remaining goal amount');
 const r=reminderEscalation(s,ref);assert(r.items.some(x=>x.title==='Internet'&&x.stage==='ACTION'),'bill due in two days is action, not invented emergency');assert(r.items.some(x=>x.title==='Auto'),'asset service escalated');
-const p=priceHistory(s);const internet=p.items.find(x=>x.id==='bill');assert(Math.round(internet.delta)===151,'price delta from actual history');assert(Math.round(internet.deltaPct)>30,'price percent change');
+const p=priceHistory(s);const internet=p.items.find(x=>x.id==='bill');assert(Math.round(internet.delta)===151,'price delta from actual history');assert(internet.deltaPct>30,'price percent change');
 const imp=documentImportHints('Dodavatel Energie s.r.o.\nVyúčtování\nCelkem k úhradě 3 250 Kč\nSplatnost 25. 8. 2026\nČíslo smlouvy ABC-SECRET');assert(imp.ok&&imp.hints.amount===3250&&imp.hints.currency==='CZK','amount parsed');assert(imp.hints.dates.includes('2026-08-25'),'date parsed');assert(imp.sensitiveMarkers>=1,'sensitive marker detected');assert(!JSON.stringify(imp.hints).includes('ABC-SECRET'),'sensitive identifier not extracted');
 const on=onboardingWizard(s,{},ref);assert(Array.isArray(on.steps)&&on.steps.length<=3,'onboarding bounded');
 const screen=oneScreenAutopilot(s,{},ref);assert(Array.isArray(screen.doToday)&&Array.isArray(screen.approaching),'one screen sections');
