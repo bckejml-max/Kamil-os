@@ -1,5 +1,5 @@
-export const APP_VERSION = '28.0.0';
-export const SCHEMA_VERSION = 39;
+export const APP_VERSION = '29.0.0';
+export const SCHEMA_VERSION = 40;
 export const SUPABASE_URL = 'https://tswqfbkmxywxxczsoddr.supabase.co';
 export const SUPABASE_KEY = 'sb_publishable_kLy9FrQ7cpNEVhvqcCEsfw_MFVqBlFg';
 export const STATE_TABLE = 'kamil_os_state';
