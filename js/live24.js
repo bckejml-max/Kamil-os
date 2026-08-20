@@ -1,6 +1,9 @@
 import {xtbBoard as ruleXtbBoard,xtbDataAge,ticketDecision as ruleTicketDecision,ticketOpportunityDecision as ruleTicketOpportunityDecision,actionLabel,actionTone} from './decision24.js';
 import {applyTicketLearning} from './ticketLearning25.js';
 import {liveSignalTrust32,LIVE_BRAIN_LIMITS_32} from './liveBrain32.js';
+import {sourceEvidenceForPosition32} from './sourceIngest32.js';
+import {tuneXtbDecision32} from './xtbTuning32.js';
+import {tuneTicketDecision32} from './ticketTuning32.js';
 
 const n=v=>Number(v||0);
 const upper=v=>String(v||'').toUpperCase();
@@ -33,14 +36,15 @@ const closedByNewerUserAction=(s,ticker)=>{
 export function xtbBoard(s){
  const meta=xtbIntelligenceAge(s),positions=s.xtbStrategy?.live?.positions||{};
  return ruleXtbBoard(s).filter(item=>!closedByNewerUserAction(s,item.p.ticker)).map(item=>{
-   if(item.d.source==='RUČNĚ')return item;
-   return {...item,d:mergeLive(item.d,positions[item.p.ticker],meta,LIVE_BRAIN_LIMITS_32.xtbHours)};
+   if(item.d.source==='RUČNĚ')return {...item,d:tuneXtbDecision32(item.p,item.d,s,sourceEvidenceForPosition32(item.p))};
+   const merged=mergeLive(item.d,positions[item.p.ticker],meta,LIVE_BRAIN_LIMITS_32.xtbHours);
+   return {...item,d:tuneXtbDecision32(item.p,merged,s,sourceEvidenceForPosition32(item.p))};
  }).sort((a,b)=>b.d.priority-a.d.priority);
 }
 
 export function ticketDecision(x,s={}){
- const auto=ruleTicketDecision(x),intel=s.ticketBook?.intelligence||{},live=intel.positions?.[x.id]||(!intel.positions?intel[x.id]:null);
- return mergeLive(auto,live,ticketIntelligenceAge(s),LIVE_BRAIN_LIMITS_32.ticketHours);
+ const auto=ruleTicketDecision(x),intel=s.ticketBook?.intelligence||{},live=intel.positions?.[x.id]||(!intel.positions?intel[x.id]:null),merged=mergeLive(auto,live,ticketIntelligenceAge(s),LIVE_BRAIN_LIMITS_32.ticketHours);
+ return tuneTicketDecision32(x,merged,s);
 }
 
 export function ticketOpportunityDecision(x,s={}){
