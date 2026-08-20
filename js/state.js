@@ -10,7 +10,7 @@ const blank=()=>({
  ticketBook:{items:[],watchlist:[],history:[],review:[]},
  debtBook:{items:[],review:[]},
  personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true,notificationMode:'IMPORTANT'},emergencyFile:{contacts:[],assets:[]},
- personalInbox:{items:[]},assetBook:{items:[]},
+ personalInbox:{items:[]},assetBook:{items:[]},personalGoals:{items:[]},
  inbox:[],delegations:[],learning:{typeBias:{},feedback:[]},
  ui:{},audit:[],undo:[]
 });
@@ -39,6 +39,7 @@ export function migrate(input){
  s.emergencyFile={contacts:[],assets:[],...(s.emergencyFile||{})};s.emergencyFile.contacts=Array.isArray(s.emergencyFile.contacts)?s.emergencyFile.contacts:[];s.emergencyFile.assets=Array.isArray(s.emergencyFile.assets)?s.emergencyFile.assets:[];
  s.personalInbox={items:[],...(s.personalInbox||{})};s.personalInbox.items=Array.isArray(s.personalInbox.items)?s.personalInbox.items:[];
  s.assetBook={items:[],...(s.assetBook||{})};s.assetBook.items=Array.isArray(s.assetBook.items)?s.assetBook.items:[];
+ s.personalGoals={items:[],...(s.personalGoals||{})};s.personalGoals.items=Array.isArray(s.personalGoals.items)?s.personalGoals.items:[];
  s.inbox=Array.isArray(s.inbox)?s.inbox:[];
  s.delegations=Array.isArray(s.delegations)?s.delegations:[];
  s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};s.learning.feedback=Array.isArray(s.learning.feedback)?s.learning.feedback:[];
@@ -56,6 +57,7 @@ export function migrate(input){
  for(const x of s.emergencyFile.assets)if(!x.id)x.id=uid('emergency-asset');
  for(const x of s.personalInbox.items)if(!x.id)x.id=uid('personal-inbox');
  for(const x of s.assetBook.items)if(!x.id)x.id=uid('asset');
+ for(const x of s.personalGoals.items)if(!x.id)x.id=uid('goal');
  s.meta.migratedFrom=from;s.meta.schemaVersion=SCHEMA_VERSION;
  return s;
 }
@@ -79,9 +81,11 @@ export function validateState(input){
  if(input.personalInbox?.items!==undefined&&!Array.isArray(input.personalInbox.items))issues.push('personalInbox.items nebylo pole');
  if(input.assetBook!==undefined&&typeof input.assetBook!=='object')issues.push('assetBook má neplatný formát');
  if(input.assetBook?.items!==undefined&&!Array.isArray(input.assetBook.items))issues.push('assetBook.items nebylo pole');
+ if(input.personalGoals!==undefined&&typeof input.personalGoals!=='object')issues.push('personalGoals má neplatný formát');
+ if(input.personalGoals?.items!==undefined&&!Array.isArray(input.personalGoals.items))issues.push('personalGoals.items nebylo pole');
  const ids=new Set(),dupIds=[];
  const scan=(a,label)=>Array.isArray(a)&&a.forEach(x=>{if(x?.id){if(ids.has(x.id))dupIds.push(`${label}:${x.id}`);ids.add(x.id)}});
- scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');scan(input.personalInbox?.items,'personal-inbox');scan(input.assetBook?.items,'asset');
+ scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');scan(input.personalInbox?.items,'personal-inbox');scan(input.assetBook?.items,'asset');scan(input.personalGoals?.items,'goal');
  if(dupIds.length)issues.push(`Duplicitní ID: ${dupIds.slice(0,5).join(', ')}`);
  return {ok:!fatal.length,issues,fatal};
 }
@@ -90,7 +94,7 @@ export function repairState(input){
  const dedupe=a=>{const seen=new Set();return (Array.isArray(a)?a:[]).filter(x=>{if(!x?.id)return true;if(seen.has(x.id))return false;seen.add(x.id);return true})};
  fixed.tasks=dedupe(fixed.tasks);fixed.projects=dedupe(fixed.projects);
  fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.ticketBook.watchlist=dedupe(fixed.ticketBook.watchlist);fixed.debtBook.items=dedupe(fixed.debtBook.items);
- fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);
+ fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);fixed.personalGoals.items=dedupe(fixed.personalGoals.items);
  return {state:fixed,report};
 }
 class Store{
