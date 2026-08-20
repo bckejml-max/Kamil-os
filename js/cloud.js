@@ -61,6 +61,8 @@ export function conflictSummary(local,cloud){
   {label:'Osobní administrativa',local:count(local,'personalAdmin.items'),cloud:count(cloud,'personalAdmin.items')},
   {label:'Rodina',local:count(local,'familyHome.members'),cloud:count(cloud,'familyHome.members')},
   {label:'Emergency File',local:emergencyCount(local),cloud:emergencyCount(cloud)},
+  {label:'Personal Inbox',local:count(local,'personalInbox.items'),cloud:count(cloud,'personalInbox.items')},
+  {label:'Majetek & servis',local:count(local,'assetBook.items'),cloud:count(cloud,'assetBook.items')},
   {label:'Osobní úkoly',local:personalTasks(local),cloud:personalTasks(cloud)},
   {label:'Vstupenky',local:count(local,'ticketBook.items'),cloud:count(cloud,'ticketBook.items')},
   {label:'Pohledávky',local:count(local,'debtBook.items'),cloud:count(cloud,'debtBook.items')}
