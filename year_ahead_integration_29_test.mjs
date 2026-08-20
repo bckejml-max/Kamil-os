@@ -1,0 +1,17 @@
+globalThis.localStorage={_d:new Map(),getItem(k){return this._d.has(k)?this._d.get(k):null},setItem(k,v){this._d.set(k,String(v))},removeItem(k){this._d.delete(k)}};
+Object.defineProperty(globalThis,'navigator',{value:{serviceWorker:{}},configurable:true});
+const {migrate}=await import('./js/state.js');
+const {yearAheadRadar}=await import('./js/yearAheadRadar29.js');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const now=new Date('2026-08-20T10:00:00+02:00');
+const s=migrate({meta:{schemaVersion:39},projects:[{id:'work',name:'Firemní projekt'}],personalAdmin:{items:[{id:'bill',title:'Telefon',category:'SUBSCRIPTION',amount:700,currency:'CZK',cadence:'MONTHLY',nextDue:'2026-08-25',status:'ACTIVE'}]},familyHome:{members:[{id:'m',name:'Rodina',birthday:'1990-11-11',status:'ACTIVE'}]},assetBook:{items:[{id:'a',title:'Auto',kind:'VEHICLE',nextServiceAt:'2027-05-15',status:'ACTIVE'}]},personalGoals:{items:[{id:'g',title:'Rezerva',targetAmount:100000,savedAmount:40000,currency:'CZK',monthlyContribution:3000,status:'ACTIVE'}]},ticketBook:{items:[],watchlist:[]},tasks:[{id:'w',title:'Pracovní deadline',area:'Práce',status:'UDĚLAT',due:'2027-02-01'}],calendar:{events:[{id:'wc',title:'Pracovní kalendář',personal:false,start:'2027-02-02'}]},financePlan:{currency:'CZK',cashflow:[]}});
+assert(s.meta.schemaVersion===40,'schema remains v40');
+const r=yearAheadRadar(s,now);
+assert(r.period.months===12&&r.months.length===12,'year radar works on migrated state');
+assert(r.totalOutflowByCurrency.CZK===8400,'recurring personal admin projected through full year');
+assert(r.goalPlanByCurrency.CZK===36000,'explicit monthly goal plan remains separate');
+assert(r.milestones.some(x=>x.title==='Auto'&&x.date==='2027-05-15'),'long-horizon asset service survives migration');
+assert(r.milestones.some(x=>x.title.includes('Rodina')&&x.date==='2026-11-11'),'family annual occurrence survives migration');
+assert(!r.milestones.some(x=>x.title==='Pracovní deadline'||x.title==='Pracovní kalendář'),'work data stays hidden from Year Ahead Radar');
+assert(!('total' in r.totalOutflowByCurrency)&&!('totalMixed' in r),'currency totals remain separated');
+console.log('YEAR AHEAD RADAR 29.3 INTEGRATION PASS');
