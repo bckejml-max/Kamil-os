@@ -13,8 +13,10 @@ jobs:
           node-version: 22
       - name: Static QA
         run: node qa.mjs
-      - name: Integration QA
+      - name: Personal OS integration
         run: node integration.mjs
+      - name: Personal OS 26 invariants
+        run: node personal_os_26_test.mjs
       - name: Ticket event aggregation
         run: node ticket_events_test.mjs
       - name: Ticket lessons
@@ -27,16 +29,6 @@ jobs:
         run: node capital_allocation_test.mjs
       - name: Action Plan
         run: node action_plan_test.mjs
-      - name: Director OS
-        run: node director_os_test.mjs
-      - name: Delegation Center
-        run: node delegation_center_test.mjs
-      - name: Project Health
-        run: node project_health_test.mjs
-      - name: Project Money
-        run: node project_money_test.mjs
-      - name: Project Money static
-        run: node project_money_static_test.mjs
       - name: Personal Admin
         run: node personal_admin_test.mjs
       - name: Personal Admin static
