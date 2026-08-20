@@ -23,6 +23,10 @@ jobs:
         run: node spending_intelligence_29_test.mjs
       - name: Spending Intelligence integration 29.5
         run: node spending_intelligence_integration_29_test.mjs
+      - name: True Net Worth 29.6
+        run: node true_net_worth_29_test.mjs
+      - name: True Net Worth integration 29.6
+        run: node true_net_worth_integration_29_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base

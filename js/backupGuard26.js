@@ -69,6 +69,8 @@ export function backupHealth(state,meta={},now=new Date()){
   goals:active(state?.personalGoals?.items),
   transactions:(state?.personalSpending?.transactions||[]).length,
   imports:(state?.importCenter?.history||[]).length,
+  netWorthItems:active(state?.netWorthBook?.items),
+  netWorthSnapshots:(state?.netWorthBook?.history||[]).length,
   tickets:active(state?.ticketBook?.items),
   debts:active(state?.debtBook?.items)
  };
