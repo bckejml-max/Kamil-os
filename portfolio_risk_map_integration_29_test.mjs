@@ -1,0 +1,10 @@
+globalThis.localStorage={_d:new Map(),getItem(k){return this._d.has(k)?this._d.get(k):null},setItem(k,v){this._d.set(k,String(v))},removeItem(k){this._d.delete(k)}};
+const {migrate}=await import('./js/state.js');
+const {portfolioRiskMap}=await import('./js/portfolioRiskMap29.js');
+const {portfolioRebalancePlan}=await import('./js/portfolioRebalancer29.js');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const s=migrate({meta:{schemaVersion:42},financePlan:{currency:'CZK',cashNow:50000},xtbStrategy:{overrides:{},rebalanceTargets:{broad:55,bond:15,satellite:30},closedTickers:{}},xtbHub:{asOf:'2026-08-20T10:00:00Z',accounts:{czk:{currency:'CZK',positions:[{ticker:'CORE',name:'Global World ETF',category:'ETF',value:55000},{ticker:'BOND',name:'Aggregate Bond ETF',category:'ETF',value:15000},{ticker:'NVDA.US',name:'Nvidia',category:'STOCK',value:30000}]}}},ticketBook:{items:[],watchlist:[]},debtBook:{items:[]},netWorthBook:{items:[],history:[]}});
+assert(s.meta.schemaVersion===42,'29.8 keeps schema 42');let risk=portfolioRiskMap(s),plan=portfolioRebalancePlan(s,{contribution:25000,currency:'CZK'});assert(risk.ok&&risk.code==='OK','risk map works on migrated state');assert(plan.ok,'rebalancer still works beside risk map');assert(risk.targets.bond===15&&risk.global.buckets.bond.targetPct===15,'risk map uses saved rebalancer targets');
+s.xtbStrategy.closedTickers['NVDA.US']={at:'2026-08-20T11:00:00Z'};risk=portfolioRiskMap(s);plan=portfolioRebalancePlan(s,{contribution:25000,currency:'CZK'});assert(risk.positionCount===2&&plan.positionCount===2,'risk map and rebalancer share sold-position semantics');
+s.xtbHub.asOf='2026-08-20T12:00:00Z';risk=portfolioRiskMap(s);plan=portfolioRebalancePlan(s,{contribution:25000,currency:'CZK'});assert(risk.positionCount===3&&plan.positionCount===3,'newer import restores holding consistently');
+console.log('PORTFOLIO RISK MAP 29.8 INTEGRATION PASS');
