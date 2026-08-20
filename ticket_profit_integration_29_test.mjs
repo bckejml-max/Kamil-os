@@ -1,0 +1,10 @@
+globalThis.localStorage={_d:new Map(),getItem(k){return this._d.has(k)?this._d.get(k):null},setItem(k,v){this._d.set(k,String(v))},removeItem(k){this._d.delete(k)}};
+const {migrate}=await import('./js/state.js');
+const {ticketProfitLedger}=await import('./js/ticketProfit29.js');
+const {ticketLessons}=await import('./js/ticketLessons25.js');
+const {ticketEventGroups}=await import('./js/ticketEvents25.js');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const s=migrate({meta:{schemaVersion:42},ticketBook:{history:[],watchlist:[],items:[{id:'open',name:'Sparta - C11',eventName:'Sparta',date:'2026-09-01',qty:4,buy:4000,listPrice:1500,currency:'CZK',workflow:'LISTED'},{id:'sold',name:'Koncert - stání',eventName:'Koncert',date:'2026-08-01',qty:2,buy:2000,sell:3000,fees:200,currency:'CZK',workflow:'PAYOUT WAIT',soldAt:'2026-08-10'},{id:'paid',name:'Fotbal',date:'2026-07-01',qty:2,buy:1000,sell:1600,fees:100,currency:'CZK',workflow:'PAYOUT RECEIVED',payoutAt:'2026-07-10'}]},financePlan:{currency:'CZK'},debtBook:{items:[]},netWorthBook:{items:[],history:[]}});
+assert(s.meta.schemaVersion===42,'29.9 keeps schema 42');const ledger=ticketProfitLedger(s),lessons=ticketLessons(s),groups=ticketEventGroups(s),czk=ledger.byCurrency.CZK;
+assert(czk.realizedProfit===1300&&czk.realizedCost===3000,'ledger reads current ticket state');assert(lessons.totalProfit===1300,'Ticket Lessons and ledger agree on clean realized sample');assert(czk.openCapital===4000&&czk.listedGross===6000,'open listing stays outside realized result');assert(groups.some(g=>g.activeQty===4&&g.capitalAtRisk===4000),'Event Portfolio still sees active inventory');assert(czk.payoutPending===3000&&czk.cashReceived===1600,'payout lifecycle distinguished');
+console.log('TICKET PROFIT & ROI 29.9 INTEGRATION PASS');

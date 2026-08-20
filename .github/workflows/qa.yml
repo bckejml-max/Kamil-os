@@ -35,6 +35,10 @@ jobs:
         run: node portfolio_risk_map_29_test.mjs
       - name: Portfolio Risk Map integration 29.8
         run: node portfolio_risk_map_integration_29_test.mjs
+      - name: Ticket Profit and ROI 29.9
+        run: node ticket_profit_29_test.mjs
+      - name: Ticket Profit and ROI integration 29.9
+        run: node ticket_profit_integration_29_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base

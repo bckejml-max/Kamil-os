@@ -1,0 +1,17 @@
+import fs from 'fs';
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const {ticketProfitLedger}=await import('./js/ticketProfit29.js');
+const release=fs.readFileSync('js/releaseStamp29.js','utf8'),config=fs.readFileSync('js/config.js','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
+assert(release.includes("APP_VERSION='29.9.0'")&&release.includes("APP_RELEASE='29.9'"),'29.9 release metadata mismatch');
+assert(config.includes('SCHEMA_VERSION = 42'),'29.9 must retain schema 42');
+assert(html.includes('./js/ticketProfitUi29.js')&&html.includes('./js/releaseStamp29.js'),'29.9 shell missing Ticket Profit runtime');
+assert(sw.includes('29.9.0')&&sw.includes('ticketProfit29.js')&&sw.includes('ticketProfitUi29.js'),'29.9 PWA cache missing Ticket Profit runtime');
+const s={ticketBook:{items:[{id:'open',name:'Otevřená akce',buy:2000,listPrice:1500,qty:2,currency:'CZK',workflow:'LISTED'},{id:'sold',name:'Prodáno',buy:1000,sell:1500,fees:100,currency:'CZK',workflow:'SOLD'},{id:'paid',name:'Vyplaceno',buy:1000,sell:1400,fees:50,currency:'CZK',workflow:'PAYOUT RECEIVED'},{id:'missing',name:'Bez prodejní částky',buy:700,sell:0,currency:'CZK',workflow:'PAYOUT WAIT'},{id:'eur',name:'EUR akce',buy:100,sell:160,fees:10,currency:'EUR',workflow:'PAYOUT RECEIVED'}],history:[]}};
+const r=ticketProfitLedger(s),czk=r.byCurrency.CZK,eur=r.byCurrency.EUR;
+assert(r.currencies.length===2&&!('total' in r)&&!('totalMixed' in r),'ticket currencies must stay separate');
+assert(czk.realizedTrades===2&&czk.realizedProfit===750&&czk.realizedRoi===37.5,'realized P/L must use actual sales and fees only');
+assert(czk.payoutPending===1500&&czk.cashReceived===1400,'pending and received payout must stay distinct');
+assert(czk.openCapital===2000&&czk.listedGross===3000,'open capital and listing gross must stay distinct');
+assert(czk.missingSaleCount===1&&r.gaps.some(x=>x.includes('prodejní částku')),'missing actual sale must remain a data gap');
+assert(eur.realizedProfit===50&&eur.cashReceived===160,'EUR ledger must remain separate');
+console.log('KAMIL OS 29.9 RELEASE GATE PASS');
