@@ -1,6 +1,6 @@
 import {APP_VERSION} from './releaseMeta.js';
 export {APP_VERSION};
-export const SCHEMA_VERSION = 43;
+export const SCHEMA_VERSION = 42;
 export const SUPABASE_URL = 'https://tswqfbkmxywxxczsoddr.supabase.co';
 export const SUPABASE_KEY = 'sb_publishable_kLy9FrQ7cpNEVhvqcCEsfw_MFVqBlFg';
 export const STATE_TABLE = 'kamil_os_state';
