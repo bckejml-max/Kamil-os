@@ -1,4 +1,4 @@
-export const SEC_SOURCE_32={provider:'SEC_EDGAR',tickerMapUrl:'https://www.sec.gov/files/company_tickers.json',submissionsBase:'https://data.sec.gov/submissions',maxTickers:8,lookbackDays:30,maxPerTicker:3,freshHours:72};
+export const SEC_SOURCE_32={provider:'SEC_EDGAR',tickerMapUrl:'https://www.sec.gov/files/company_tickers.json',submissionsBase:'https://data.sec.gov/submissions',maxTickers:16,lookbackDays:30,maxPerTicker:3,freshHours:72};
 export const SEC_MATERIAL_FORMS_32=new Set(['8-K','10-Q','10-K','6-K','20-F','40-F']);
 export const SEC_XTB_ALIASES_32={
  '1YD.DE':'AVGO',
