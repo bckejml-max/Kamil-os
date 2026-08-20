@@ -1,4 +1,5 @@
 import {validSourceUrl32,normalizeSourceUrls32,liveSignalTrust32,liveBrainSummary32,liveBrain32Contract,LIVE_BRAIN_LIMITS_32} from './js/liveBrain32.js';
+import {ticketDecision} from './js/live24.js';
 const assert=(x,m)=>{if(!x)throw new Error(m)};
 const now=new Date('2026-08-21T00:00:00Z');
 assert(validSourceUrl32('https://example.com/news?id=1'),'https source accepted');
@@ -12,5 +13,8 @@ r=liveSignalTrust32({action:'BUY',confidence:90,sourceUrls:['https://example.com
 r=liveSignalTrust32({action:'BUY',confidence:90,sourceUrls:['https://example.com/x']},{asOf:'2026-08-21T00:10:00Z',maxHours:48,now});assert(!r.trusted&&r.issues.includes('FUTURE_ASOF'),'future timestamp blocked');
 const s={xtbStrategy:{live:{asOf:'2026-08-20T23:00:00Z',positions:{A:{action:'HOLD',confidence:70,sourceUrls:['https://a.example']},B:{action:'BUY',confidence:70}}}},ticketBook:{intelligence:{asOf:'2026-08-19T00:00:00Z',positions:{T:{action:'SELL',confidence:65,sourceUrls:['https://tickets.example']}}}}};
 const sum=liveBrainSummary32(s,now);assert(sum.total===3&&sum.trusted===1&&sum.blocked===2,'summary counts trusted/blocked');assert(sum.xtb.unsourced===1&&sum.tickets.stale===1,'summary reasons');
+const ticket={id:'gate-ticket',name:'Gate ticket',workflow:'HOLD',date:'2026-09-30',buy:1000,listPrice:0};const fresh=new Date().toISOString();
+let decision=ticketDecision(ticket,{ticketBook:{intelligence:{asOf:fresh,positions:{'gate-ticket':{action:'SELL',priority:99,confidence:90}}}}});assert(decision.action!=='SELL'||decision.source!=='ŽIVĚ · OVĚŘENÉ','unsourced live decision must not override AUTO');assert(decision.liveTrust==='UNSOURCED'&&decision.live===false,'blocked live diagnostics preserved');
+decision=ticketDecision(ticket,{ticketBook:{intelligence:{asOf:fresh,positions:{'gate-ticket':{action:'SELL',priority:99,confidence:90,sourceUrls:['https://tickets.example/gate']}}}}});assert(decision.action==='SELL'&&decision.live===true&&decision.source==='ŽIVĚ · OVĚŘENÉ'&&decision.liveTrust==='TRUSTED_FRESH','source-backed live decision may override AUTO');
 assert(LIVE_BRAIN_LIMITS_32.xtbHours===48&&LIVE_BRAIN_LIMITS_32.ticketHours===30,'existing freshness windows retained');assert(liveBrain32Contract.fallback==='RULE_ENGINE'&&!liveBrain32Contract.autoTrading&&!liveBrain32Contract.unsourcedOverride,'safety contract');
 console.log('KAMIL OS 32.3 LIVE BRAIN UNIT PASS');
