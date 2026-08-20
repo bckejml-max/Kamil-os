@@ -62,7 +62,6 @@ test('Kamil OS 31.4 creates a safe local item-level outbox operation',async({pag
   await page.goto(BASE,{waitUntil:'networkidle'});
   await page.waitForFunction(async()=>{const {smartSyncContext31}=await import('./js/indexedDb31.js');return (await smartSyncContext31()).baseline},null,{timeout:10000});
   await page.evaluate(async()=>{const {store}=await import('./js/state.js');store.mutate('E2E Smart Sync',s=>{s.tasks[0].title='Po změně'})});
-  await page.waitForFunction(async()=>{const {pendingSmartSyncOps31}=await import('./js/indexedDb31.js');const rows=await pendingSmartSyncOps31(100);return rows.some(x=>x.domain==='tasks'&&x.entityId==='smart-task'&&x.op==='UPSERT'&&x.status==='PENDING'&&x.payload?.title==='Po změně'&&!('token'in(x.payload||{})))},null,{timeout:10000});
-  const op=await page.evaluate(async()=>{const {pendingSmartSyncOps31}=await import('./js/indexedDb31.js');return (await pendingSmartSyncOps31(100)).find(x=>x.entityId==='smart-task')});
-  expect(op.op).toBe('UPSERT');expect(op.status).toBe('PENDING');expect(op.payload.title).toBe('Po změně');expect(op.payload.token).toBeUndefined();expect(requests.some(u=>u.includes('@supabase/supabase-js'))).toBeFalsy();
+  const op=await page.evaluate(async()=>{const {pendingSmartSyncOps31}=await import('./js/indexedDb31.js'),deadline=Date.now()+10000;while(Date.now()<deadline){const row=(await pendingSmartSyncOps31(100)).find(x=>x.domain==='tasks'&&x.entityId==='smart-task'&&x.op==='UPSERT'&&x.status==='PENDING'&&x.payload?.title==='Po změně'&&!('token'in(x.payload||{})));if(row)return row;await new Promise(r=>setTimeout(r,50))}return null});
+  expect(op).toBeTruthy();expect(op.op).toBe('UPSERT');expect(op.status).toBe('PENDING');expect(op.payload.title).toBe('Po změně');expect(op.payload.token).toBeUndefined();expect(requests.some(u=>u.includes('@supabase/supabase-js'))).toBeFalsy();
 });
