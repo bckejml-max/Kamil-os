@@ -51,6 +51,10 @@ jobs:
         run: node document_filing_30_test.mjs
       - name: Smart Filing integration 30.2
         run: node document_filing_30_integration_test.mjs
+      - name: Decision Explainability 30.3
+        run: node decision_explain_30_test.mjs
+      - name: Decision Explainability integration 30.3
+        run: node decision_explain_30_integration_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base

@@ -1,0 +1,10 @@
+import fs from 'fs';
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const engine=fs.readFileSync('js/decisionExplain30.js','utf8'),ui=fs.readFileSync('js/decisionExplainUi30.js','utf8'),today=fs.readFileSync('js/personalToday26.js','utf8');
+for(const x of ['decisionExplain30','priority','facts','source','confidence','30.3'])assert(engine.includes(x),'decision explain engine missing '+x);
+for(const browser of ['document.','window.','localStorage','navigator.','fetch(','XMLHttpRequest','supabase','store.'])assert(!engine.includes(browser),'decision explain engine must stay pure: '+browser);
+for(const x of ['Proč teď?','type=\'button\'','aria-label','oneScreenAutopilot','decisionExplain30','Původní scoring neposkytuje další strukturovaný fakt','Otevřít rozhodnutí','keyOf','current().find(x=>keyOf(x)===key)'])assert(ui.includes(x),'decision explain UI missing '+x);
+for(const forbidden of ['store.mutate','localStorage','fetch(','XMLHttpRequest','supabase.'])assert(!ui.includes(forbidden),'decision explain UI must stay read-only: '+forbidden);
+for(const x of ['PERSONAL_TIMELINE','CASHFLOW_90','PERSONAL_RISK','RENEWAL_RADAR','XTB_DECISION','TICKET_DECISION','TICKET_OPPORTUNITY'])assert(today.includes(x),'structured explain coverage missing '+x);
+assert(today.includes('Osobní termín po termínu → priorita 96.')&&today.includes('Osobní termín dnes → priorita 90.')&&today.includes('Osobní úkol v horizontu 1–7 dní → priorita 82.'),'timeline score rules must match existing scoring');
+console.log('DECISION EXPLAINABILITY 30.3 INTEGRATION PASS');
