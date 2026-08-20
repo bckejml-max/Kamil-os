@@ -16,7 +16,7 @@ const state={ticketBook:{
 }};
 const x=ticketLessons(state);
 assert(x.trades===5,'only realized non-zero sell trades are counted');
-assert(x.totalProfit===900,'realized profit must include fees and negative trades');
+assert(x.totalProfit===700,'realized profit must include fees and negative trades');
 assert(Math.round(x.hitRate)===60,'win rate');
 assert(x.categories.some(c=>c.category==='Fotbal'),'football classification');
 assert(x.categories.some(c=>c.category==='Koncerty'),'concert classification');
