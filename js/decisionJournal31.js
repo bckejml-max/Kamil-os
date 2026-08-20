@@ -3,7 +3,8 @@ const num=v=>v===null||v===undefined||v===''||!Number.isFinite(Number(v))?null:N
 const keyOf=d=>`${clean(d?.domain,80)}|${clean(d?.id||d?.title,180)}`;
 const isoOf=now=>{const d=new Date(now);return Number.isFinite(d.getTime())?d.toISOString():new Date().toISOString()};
 const signature=x=>[x.key,x.action,x.priority,x.when,x.buyRule,x.sellRule,JSON.stringify(x.observed||{})].join('|');
-const safeObserved=o=>{if(!o||typeof o!=='object'||Array.isArray(o))return{};const out={};for(const [k,v] of Object.entries(o).slice(0,12)){const key=clean(k,50);if(!key)continue;if(typeof v==='number'&&Number.isFinite(v))out[key]=v;else if(typeof v==='string'||typeof v==='boolean')out[key]=clean(v,160);else if(v===null)out[key]=null}return out};
+const OBSERVED_KEYS=new Set(['pnlPct','weightPct','value','currency','status','minBalance','reserve','days','type','action','workflow','buyPer','list','market','floor','saleAt','date','maxBuyPrice','targetResale']);
+const safeObserved=o=>{if(!o||typeof o!=='object'||Array.isArray(o))return{};const out={};for(const [k,v] of Object.entries(o)){if(!OBSERVED_KEYS.has(k))continue;if(typeof v==='number'&&Number.isFinite(v))out[k]=v;else if(typeof v==='string'||typeof v==='boolean')out[k]=clean(v,160);else if(v===null)out[k]=null}return out};
 
 export function decisionJournalEntry(decision={},now=new Date(),changeType='SNAPSHOT'){
  const at=isoOf(now),key=keyOf(decision);if(key==='|')return null;
