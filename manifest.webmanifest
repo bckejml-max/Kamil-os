@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 32.2",
+  "name": "Kamil OS 32.3",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 32.2 Copilot 2.0 — preview, confirm and execute for write actions",
+  "description": "Kamil OS 32.3 Live Brain — source-backed trust gate for live XTB and ticket intelligence",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
