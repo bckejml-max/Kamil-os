@@ -13,13 +13,17 @@ jobs:
           node-version: 22
       - name: Static QA
         run: node qa.mjs
-      - name: Personal OS integration
+      - name: Personal Autopilot integration
         run: node integration.mjs
-      - name: Personal OS 26 invariants
+      - name: Personal OS invariants
         run: node personal_os_26_test.mjs
-      - name: Renewal Radar
+      - name: Personal Autopilot 28
+        run: node autopilot28_test.mjs
+      - name: Scenario Lab 12 months
+        run: node scenario_lab_28_test.mjs
+      - name: Smlouvy k prověření
         run: node renewal_radar_test.mjs
-      - name: Scenario Simulator
+      - name: Legacy Scenario Simulator engine
         run: node scenario_simulator_test.mjs
       - name: Emergency File
         run: node emergency_file_test.mjs
