@@ -1,3 +1,4 @@
+import './smartSyncUi31.js';
 import {dataEngineStatus31,runDataMirror31} from './dataEngine31.js';
 import {qs,h,date} from './utils.js';
 const id='dataEngine31Host';let seq=0;
