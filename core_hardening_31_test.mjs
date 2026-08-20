@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const read=p=>fs.readFileSync(p,'utf8');
+const release=read('js/releaseMeta.js'),config=read('js/config.js'),index=read('index.html'),cloud=read('js/cloud.js'),command=read('js/command.js'),sw=read('sw.js'),vercel=read('vercel.json'),query=read('js/personalQuery29.js');
+assert(release.includes("APP_VERSION='31.0.0'"),'releaseMeta must be 31.0.0');
+assert(config.includes("from './releaseMeta.js'")&&!config.includes("29.8.0"),'config must use canonical release metadata');
+assert(index.includes('<title>Kamil OS 31.0</title>')&&index.includes('systemHealthUi31.js'),'31.0 shell/system health missing');
+assert(!index.includes('@supabase/supabase-js@2'),'Supabase must not be eagerly loaded by index');
+assert(cloud.includes('async function loadSdk()')&&cloud.includes('hasStoredCloudSession')&&!cloud.includes('export const sb='),'cloud must lazy-load SDK');
+assert(command.includes('Tomuhle příkazu zatím nerozumím')&&command.includes('Vytvořit osobní úkol'),'unknown command must require confirmation');
+assert(query.includes('decisionDelta30')&&query.includes('Co se změnilo od minule'),'Copilot must expose Decision Delta');
+assert(sw.includes("kamil-os-31.0.0-shell-r1")&&sw.includes('./js/systemHealth31.js'),'31.0 service-worker shell missing');
+assert(vercel.includes('Content-Security-Policy')&&vercel.includes('X-Content-Type-Options'),'security headers missing');
+console.log('CORE HARDENING 31 STATIC TEST PASS');
