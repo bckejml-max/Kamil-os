@@ -2,7 +2,7 @@ import {store} from './state.js';
 import {simulateScenario,SCENARIO_TYPES,scenarioSimulatorNote} from './scenarioSimulator26.js';
 import {h,qs,qsa} from './utils.js';
 
-const hostId='scenarioSimulator26Host';
+const hostId='scenarioSimulator26Host',resultId='scenario26Result';
 let draft={type:'EXPENSE',amount:'',date:''},result=null;
 const localDateKey=()=>{const d=new Date(),p=x=>String(x).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
 const fmt=(v,c)=>`${Number(v||0).toLocaleString('cs-CZ',{maximumFractionDigits:0})} ${h(c||'CZK')}`;
@@ -33,15 +33,16 @@ function render(){
  if(result?.ok)result=simulateScenario(store.get(),{...draft,currency},new Date());
  host.innerHTML=`<div class="card-head"><div><div class="eyebrow">SCENARIO SIMULATOR / 26.3</div><h2>Co když…</h2></div><span class="status good">NEUKLÁDÁ SE</span></div>
  <div class="form-grid capture-form"><label>Scénář<select id="scenario26Type">${Object.entries(SCENARIO_TYPES).map(([k,v])=>`<option value="${k}" ${draft.type===k?'selected':''}>${h(v)}</option>`).join('')}</select></label><label>Částka (${h(currency)})<input id="scenario26Amount" type="number" min="1" step="1" value="${h(draft.amount)}" placeholder="25000"></label><label>Datum<input id="scenario26Date" type="date" value="${h(draft.date)}"></label><div class="wide-field row-actions"><button class="btn" data-scenario-preset="25000">25 000</button><button class="btn" data-scenario-preset="50000">50 000</button><button class="btn" data-scenario-preset="100000">100 000</button><button class="btn primary" id="scenario26Run">Simulovat</button></div></div>
- ${resultHtml(result,currency)}`;
+ <div id="${resultId}">${resultHtml(result,currency)}</div>`;
  bind(host,currency);
 }
 
 function bind(host,currency){
  const syncDraft=()=>{draft={type:qs('#scenario26Type',host)?.value||'EXPENSE',amount:qs('#scenario26Amount',host)?.value||'',date:qs('#scenario26Date',host)?.value||localDateKey()}};
+ const invalidate=()=>{syncDraft();if(result!==null){result=null;const box=qs(`#${resultId}`,host);if(box)box.innerHTML=resultHtml(null,currency)}};
  qs('#scenario26Run',host)?.addEventListener('click',()=>{syncDraft();result=simulateScenario(store.get(),{...draft,currency},new Date());render()});
  qsa('[data-scenario-preset]',host).forEach(b=>b.addEventListener('click',()=>{const input=qs('#scenario26Amount',host);if(input)input.value=b.dataset.scenarioPreset;syncDraft();result=simulateScenario(store.get(),{...draft,currency},new Date());render()}));
- qs('#scenario26Type',host)?.addEventListener('change',syncDraft);qs('#scenario26Amount',host)?.addEventListener('input',syncDraft);qs('#scenario26Date',host)?.addEventListener('change',syncDraft);
+ qs('#scenario26Type',host)?.addEventListener('change',invalidate);qs('#scenario26Amount',host)?.addEventListener('input',invalidate);qs('#scenario26Date',host)?.addEventListener('change',invalidate);
 }
 
 function start(){const view=qs('#moneyView');if(!view)return;new MutationObserver(()=>{if(!qs(`#${hostId}`,view)&&view.childElementCount)queueMicrotask(render)}).observe(view,{childList:true});if(view.childElementCount)render()}
