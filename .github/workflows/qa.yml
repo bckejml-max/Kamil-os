@@ -37,5 +37,9 @@ jobs:
         run: node project_money_test.mjs
       - name: Project Money static
         run: node project_money_static_test.mjs
+      - name: Personal Admin
+        run: node personal_admin_test.mjs
+      - name: Personal Admin static
+        run: node personal_admin_static_test.mjs
       - name: Release gate
         run: node release_gate.mjs
