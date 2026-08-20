@@ -1,13 +1,12 @@
-import {debtRemaining} from './intelligence.js';
-
 const n=v=>Number(v||0);
 const finite=v=>Number.isFinite(Number(v));
 const ccy=v=>String(v||'CZK').toUpperCase();
 const active=x=>!['ARCHIVED','PAID','CLOSED'].includes(String(x?.status||'ACTIVE').toUpperCase());
 const flow=x=>String(x?.workflow||'HOLD').toUpperCase();
 const todayKey=d=>new Date(d).toISOString().slice(0,10);
-const monthKey=d=>todayKey(d).slice(0,7);
 const yearKey=d=>todayKey(d).slice(0,4);
+const debtPaid=x=>(x?.payments||[]).reduce((sum,p)=>sum+(Number(p?.amount)||0),0);
+const debtRemaining=x=>Math.max(0,(Number(x?.amount)||0)-debtPaid(x));
 
 function bucket(map,currency){
  const k=ccy(currency);return map[k]||(map[k]={currency:k,assets:0,liabilities:0,net:0,liquidAssets:0,illiquidAssets:0,automaticAssets:0,manualAssets:0,manualLiabilities:0,sources:[]});
