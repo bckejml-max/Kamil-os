@@ -1,3 +1,15 @@
+# Kamil OS 25.10 — Delegation Center
+
+## 25.10.0 — Follow-up control without taking work back
+- **Práce** dostala nový **DELEGATION CENTER**, který používá existující data `Čekám na` bez migrace schématu nebo změny Supabase/localStorage klíčů
+- aktivní delegace se řadí podle kontrolního termínu a stáří do stavů **Po termínu / Dnes / Bez kontroly / Brzy / Čeká**
+- položka po follow-up termínu dostává prioritu **FOLLOW-UP**, zatímco staré čekání bez kontrolního termínu se označí **NAPLÁNOVAT**; budoucí termín se zbytečně neeskaluje
+- kliknutí **Follow-up zapsán** pouze zaznamená skutečně provedený kontakt a nastaví další kontrolu za 3 dny; aplikace nic neposílá ani neeskaluje automaticky
+- přidány bezpečné one-click akce **Zítra**, **+3 dny** a **Vyřešeno**; hotové položky zmizí z aktivní fronty, ale původní data zůstávají v historii stavu
+- dnešní zaznamenaný kontakt snižuje opakovanou prioritu, aby Director OS ani Delegation Center zbytečně nehonily stejný follow-up znovu ve stejný den
+- přidány moduly `delegation25.js` a `delegationUi25.js`, samostatný `delegation_center_test.mjs`, rozšířený static QA gate, GitHub Actions a PWA cache
+- viditelná verze, manifest a service-worker shell sjednoceny na **25.10.0**; schema zůstává v36
+
 # Kamil OS 25.3 — Ticket Event Command Center
 
 ## 25.3.0 — One event across sectors and positions
