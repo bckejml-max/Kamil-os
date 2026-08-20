@@ -57,5 +57,9 @@ jobs:
         run: node family_home_test.mjs
       - name: Family & Home static
         run: node family_home_static_test.mjs
+      - name: Personal Risk Center
+        run: node personal_risk_test.mjs
+      - name: Personal Risk Center static
+        run: node personal_risk_static_test.mjs
       - name: Release gate
         run: node release_gate.mjs
