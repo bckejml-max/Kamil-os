@@ -55,7 +55,14 @@ export async function refreshIntelligence(){
 
 export function conflictSummary(local,cloud){
  const count=(x,path)=>{try{const v=path.split('.').reduce((o,k)=>o?.[k],x);return Array.isArray(v)?v.length:0}catch{return 0}};
- return [['Úkoly','tasks'],['Projekty','projects'],['Vstupenky','ticketBook.items'],['Dluhy','debtBook.items'],['Inbox','inbox']].map(([label,path])=>({label,local:count(local,path),cloud:count(cloud,path)}));
+ const personalTasks=x=>(x?.tasks||[]).filter(t=>String(t.area||'').toLocaleLowerCase('cs-CZ').includes('osob')&&t.status!=='HOTOVO').length;
+ return [
+  {label:'Osobní administrativa',local:count(local,'personalAdmin.items'),cloud:count(cloud,'personalAdmin.items')},
+  {label:'Rodina',local:count(local,'familyHome.members'),cloud:count(cloud,'familyHome.members')},
+  {label:'Osobní úkoly',local:personalTasks(local),cloud:personalTasks(cloud)},
+  {label:'Vstupenky',local:count(local,'ticketBook.items'),cloud:count(cloud,'ticketBook.items')},
+  {label:'Pohledávky',local:count(local,'debtBook.items'),cloud:count(cloud,'debtBook.items')}
+ ];
 }
 export async function resolveConflict(choice,cloudPayload){if(choice==='cloud'){store.replace(cloudPayload,'cloud-conflict');store.dirty=false;store.clearQueue();status('ok')}else if(choice==='local'){await saveNow()}}
 
