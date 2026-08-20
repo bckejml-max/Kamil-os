@@ -61,6 +61,10 @@ jobs:
         run: node decision_next_30_test.mjs
       - name: Next Trigger integration 30.4
         run: node decision_next_30_integration_test.mjs
+      - name: Decision Delta 30.5
+        run: node decision_delta_30_test.mjs
+      - name: Decision Delta integration 30.5
+        run: node decision_delta_30_integration_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
