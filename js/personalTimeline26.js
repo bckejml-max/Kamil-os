@@ -20,8 +20,8 @@ export function personalTimeline(s={},now=new Date()){
   const title=x.title||'Osobní závazek',base=`admin:${x.id||title}`;
   add({key:`${base}:due`,title,at:x.nextDue,domain:'Platby',type:'Platba / kontrola',homeMode:'payments',detail:x.provider||''});
   add({key:`${base}:notice`,title,at:x.noticeDate||x.insurance?.noticeDate,domain:'Smlouvy',type:'Výpovědní termín',homeMode:'contracts',detail:x.provider||''});
-  add({key:`${base}:renewal`,title,at:x.renewalDate||x.endDate||x.insurance?.renewalDate||x.insurance?.endDate,domain:x.category==='INSURANCE'?'Pojištění':'Smlouvy',type:'Výročí / expirace',homeMode:x.category==='INSURANCE'?'insurance':'contracts',detail:x.provider||''});
-  add({key:`${base}:doc-expiry`,title,at:x.document?.expiryDate,domain:'Doklady',type:'Expirace',homeMode:'documents',detail:x.document?.holder||''});
+  if(x.category!=='DOCUMENT')add({key:`${base}:renewal`,title,at:x.renewalDate||x.endDate||x.insurance?.renewalDate||x.insurance?.endDate,domain:x.category==='INSURANCE'?'Pojištění':'Smlouvy',type:'Výročí / expirace',homeMode:x.category==='INSURANCE'?'insurance':'contracts',detail:x.provider||''});
+  add({key:`${base}:doc-expiry`,title,at:x.document?.expiryDate||((x.category==='DOCUMENT')?(x.renewalDate||x.endDate):null),domain:'Doklady',type:'Expirace',homeMode:'documents',detail:x.document?.holder||''});
   add({key:`${base}:doc-reminder`,title,at:x.document?.reminderDate,domain:'Doklady',type:'Začít řešit',homeMode:'documents',detail:x.document?.holder||''});
  }
  for(const m of (s.familyHome?.members||[]).filter(active)){
