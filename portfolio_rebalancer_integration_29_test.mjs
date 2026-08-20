@@ -1,0 +1,12 @@
+globalThis.localStorage={_d:new Map(),getItem(k){return this._d.has(k)?this._d.get(k):null},setItem(k,v){this._d.set(k,String(v))},removeItem(k){this._d.delete(k)}};
+const {migrate}=await import('./js/state.js');
+const {portfolioRebalancePlan,rebalanceTargets}=await import('./js/portfolioRebalancer29.js');
+const {trueNetWorth}=await import('./js/netWorth29.js');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const s=migrate({meta:{schemaVersion:42},financePlan:{currency:'CZK',cashNow:100000,plannedInvestment:25000},xtbStrategy:{overrides:{},rebalanceTargets:{broad:60,bond:15,satellite:25},rebalancePreferred:{broad:'VWCE.DE'},closedTickers:{}},xtbHub:{asOf:'2026-08-20T12:00:00Z',accounts:{czk:{currency:'CZK',value:100000,positions:[{ticker:'VWCE.DE',name:'World ETF',category:'ETF',value:50000,quantity:10},{ticker:'AGGH.DE',name:'Aggregate Bond ETF',category:'ETF',value:10000,quantity:10},{ticker:'NVDA.US',name:'Nvidia',category:'STOCK',value:40000,quantity:20}]},eur:{currency:'EUR',value:1000,positions:[{ticker:'EUNL.DE',name:'MSCI World ETF',category:'ETF',value:1000,quantity:10}]}},report:{fx:{EURCZK:{price:25}}}},ticketBook:{items:[],watchlist:[]},debtBook:{items:[]},netWorthBook:{items:[],history:[]}});
+assert(s.meta.schemaVersion===42,'29.7 keeps schema 42');assert(rebalanceTargets(s).broad===60&&rebalanceTargets(s).bond===15,'stored rebalance targets survive migration');
+let r=portfolioRebalancePlan(s,{contribution:s.financePlan.plannedInvestment,currency:'CZK'});assert(r.ok&&r.positionCount===4,'rebalancer consumes migrated multi-account XTB state');assert(r.trades.every(x=>x.baseAmount>=0),'integration never generates sale');assert(r.trades.find(x=>x.bucket==='broad')?.ticker==='VWCE.DE','stored preferred broad ticker respected');assert(!('totalMixed' in r),'no mixed-currency total exposed');
+const before=trueNetWorth(s,new Date('2026-08-20T12:00:00Z'));assert(before.base.complete,'same real FX also keeps True Net Worth complete');
+s.xtbStrategy.closedTickers['NVDA.US']={at:'2026-08-20T13:00:00Z'};r=portfolioRebalancePlan(s,{contribution:25000,currency:'CZK'});assert(r.ok&&r.positionCount===3&&r.byBucket.satellite.currentValue===0,'manual XTB sale is excluded before newer import');
+s.xtbHub.asOf='2026-08-20T14:00:00Z';r=portfolioRebalancePlan(s,{contribution:25000,currency:'CZK'});assert(r.ok&&r.positionCount===4&&r.byBucket.satellite.currentValue===40000,'newer XTB import restores holding');
+console.log('PORTFOLIO REBALANCER 29.7 INTEGRATION PASS');
