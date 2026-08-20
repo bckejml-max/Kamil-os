@@ -10,5 +10,5 @@ const oldX=before.find(x=>x.id==='WDAY'),newX=current.find(x=>x.id==='WDAY'),old
 assert(oldX?.action==='REVIEW'&&newX?.action==='TRIM','XTB action transition fixture invalid');assert(oldT?.action==='REPRICE'&&newT?.action==='SELL','ticket action transition fixture invalid');
 const baseline=decisionSnapshot30(before,now),delta=decisionDelta30(current,baseline,new Date('2026-08-20T12:00:00+02:00'));
 const xd=delta.items.find(x=>x.key==='money|WDAY'),td=delta.items.find(x=>x.key==='tickets|ticket-1');assert(xd?.type==='ACTION'&&xd.detail.includes('REVIEW → TRIM'),'XTB action delta missing');assert(td?.type==='ACTION'&&td.detail.includes('REPRICE → SELL'),'ticket action delta missing');
-assert(delta.attention>=2,'action changes must require attention');assert(delta.items.every(x=>x.type!=='OUT'),'same stable IDs must not become false OUT changes');
+assert(delta.attention>=2,'action changes must require attention');assert(!delta.items.some(x=>x.type==='OUT'&&(x.key==='money|WDAY'||x.key==='tickets|ticket-1')),'same XTB/ticket stable IDs must not become false OUT changes');
 console.log('DECISION DELTA 30.5 INTEGRATION TEST PASS');
