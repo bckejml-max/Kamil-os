@@ -27,15 +27,15 @@ assert(a.rows.find(x=>x.key==='xtb').amount===0,'stale XTB import blocks XTB all
 assert(a.cashHold===30000,'stale XTB allocation stays in cash');
 
 s=base();s.ticketBook.watchlist=[{id:'live-buy',name:'Concert opportunity',saleAt:'2026-08-21',date:'2026-12-01',maxBuyPrice:5000,targetResale:7500}];
-s.ticketBook.intelligenceAsOf=fresh;s.ticketBook.intelligence={opportunities:{'live-buy':{action:'BUY',priority:96,confidence:91,reason:'Verified live opportunity'}}};
+s.ticketBook.intelligenceAsOf=fresh;s.ticketBook.intelligence={opportunities:{'live-buy':{action:'BUY',priority:96,confidence:91,reason:'Verified live opportunity',sourceUrls:['https://example.com/ticket-market/live-buy']}}};
 a=capitalAllocation(s,new Date('2026-08-20T10:00:00'));
-assert(a.rows.find(x=>x.key==='tickets').amount===4500,'live ticket BUY is capped at 15 percent of new capital');
-assert(a.ticket?.source==='ŽIVĚ','ticket allocation keeps live provenance');
+assert(a.rows.find(x=>x.key==='tickets').amount===4500,'source-backed live ticket BUY is capped at 15 percent of new capital');
+assert(a.ticket?.source==='ŽIVĚ · OVĚŘENÉ','ticket allocation keeps verified live provenance');
 assert(a.rows.find(x=>x.key==='xtb').amount===25500,'remaining capital can still rebalance XTB');
 
 s=base();s.ticketBook.watchlist=[{id:'live-buy',name:'Concert opportunity',saleAt:'2026-08-21',date:'2026-12-01',maxBuyPrice:5000,targetResale:7500}];
 s.ticketBook.items=[{id:'urgent',name:'Urgent existing ticket',workflow:'LISTED',qty:2,buy:6000,date:new Date(Date.now()+2*86400000).toISOString().slice(0,10),listPrice:3500}];
-s.ticketBook.intelligenceAsOf=fresh;s.ticketBook.intelligence={opportunities:{'live-buy':{action:'BUY',priority:96,confidence:91,reason:'Verified live opportunity'}}};
+s.ticketBook.intelligenceAsOf=fresh;s.ticketBook.intelligence={opportunities:{'live-buy':{action:'BUY',priority:96,confidence:91,reason:'Verified live opportunity',sourceUrls:['https://example.com/ticket-market/live-buy']}}};
 a=capitalAllocation(s,new Date('2026-08-20T10:00:00'));
 assert(a.cockpit.urgent>0,'urgent ticket inventory detected');
 assert(a.rows.find(x=>x.key==='tickets').amount===0,'urgent inventory blocks new ticket budget');

@@ -19,7 +19,7 @@ function ticketOpportunity(s,ticketLive,deployable){
  const policyCap=deployable*TICKET_CAP_PCT;
  const budget=Math.min(deployable,requested,policyCap);
  if(budget<=0)return null;
- return {id:best.x.id,name:best.x.name||'Ticket opportunity',budget:round(budget),requested:round(requested),qty,maxBuyPrice:clamp0(best.x.maxBuyPrice),priority:n(best.d.priority),confidence:best.d.confidence??null,source:'ŽIVĚ',reason:best.d.reason||'Čerstvá ticket intelligence označuje příležitost jako BUY.'};
+ return {id:best.x.id,name:best.x.name||'Ticket opportunity',budget:round(budget),requested:round(requested),qty,maxBuyPrice:clamp0(best.x.maxBuyPrice),priority:n(best.d.priority),confidence:best.d.confidence??null,source:best.d.source||'ŽIVĚ · OVĚŘENÉ',sourceUrls:Array.isArray(best.d.sourceUrls)?best.d.sourceUrls:[],liveTrust:best.d.liveTrust||null,reason:best.d.reason||'Čerstvá ticket intelligence označuje příležitost jako BUY.'};
 }
 
 export function capitalAllocation(s,now=new Date()){
@@ -51,7 +51,7 @@ export function capitalAllocation(s,now=new Date()){
   {key:'reserve',label:'Nedotknutelná rezerva',amount:round(cf.reserve),action:'CHRÁNIT',source:'ULOŽENÝ PLÁN',reason:'Rezervní minimum se do investovatelného kapitálu nikdy nepočítá.'},
   {key:'planned',label:'Už plánovaná investice',amount:round(fundedPlan),action:fundedPlan>0?'PLÁN':'—',source:'ULOŽENÝ PLÁN',reason:planned>0?'Částka už existuje ve finančním plánu a proto se nepočítá jako nový volný kapitál.':'Ve finančním plánu není další investice předem rezervovaná.'},
   {key:'xtb',label:'XTB / rebalancing',amount:round(xtbBudget),action:xtbBudget>0?'SMĚROVAT':'0',source:xtbAge.stale?'ZASTARALÝ IMPORT':'XTB IMPORT',reason:xtbBudget>0?audit.nextContribution:(xtbAge.stale?'Počkat na nový import.':'Bez nutnosti dalšího rebalancingu z nového kapitálu.')},
-  {key:'tickets',label:'Vstupenky',amount:round(ticketBudget),action:ticketBudget>0?'LIMIT':'0',source:ticketBudget>0?'ŽIVĚ':ticketLive.fresh?'ŽIVĚ / bez BUY':'BEZ ČERSTVÉHO BUY',reason:ticketBudget>0?`${ticket.name}: max rozpočet podle live BUY a 15% bezpečnostního limitu nového kapitálu.`:(cockpit.urgent>0?'Nový nákup blokuje urgentní neprodaná zásoba.':'Bez čerstvého live BUY se ticket rozpočet nevytváří.')},
+  {key:'tickets',label:'Vstupenky',amount:round(ticketBudget),action:ticketBudget>0?'LIMIT':'0',source:ticketBudget>0?(ticket?.source||'ŽIVĚ · OVĚŘENÉ'):ticketLive.fresh?'ŽIVĚ / bez BUY':'BEZ ČERSTVÉHO BUY',reason:ticketBudget>0?`${ticket.name}: max rozpočet podle source-backed live BUY a 15% bezpečnostního limitu nového kapitálu.`:(cockpit.urgent>0?'Nový nákup blokuje urgentní neprodaná zásoba.':'Bez čerstvého live BUY se ticket rozpočet nevytváří.')},
   {key:'cash',label:'Nechat volné',amount:round(cashHold),action:cashHold>0?'DRŽET':'0',source:'PRAVIDLO',reason:cashHold>0?'Kapitál nemá dostatečně silný a čerstvý důvod k nasazení.':'Bez zbytkového kapitálu.'}
  ];
  const allocated=round(xtbBudget+ticketBudget),newCapital=round(deployable);
@@ -60,5 +60,5 @@ export function capitalAllocation(s,now=new Date()){
   audit:{healthScore:audit.healthScore,nextContribution:audit.nextContribution,positions:audit.positions},
   cockpit:{urgent:cockpit.urgent,capitalAtRisk:cockpit.capitalAtRisk,openQty:cockpit.openQty},
   freshness:{xtbImport:xtbAge,xtbLive,ticketLive},
-  note:'Capital Allocation je plánovací vrstva. Neposílá peníze, neprovádí XTB obchody ani nenakupuje vstupenky. Výpočet používá jen uložené cashflow, existující XTB import a čerstvou ticket intelligence tam, kde je skutečně dostupná.'};
+  note:'Capital Allocation je plánovací vrstva. Neposílá peníze, neprovádí XTB obchody ani nenakupuje vstupenky. Výpočet používá jen uložené cashflow, existující XTB import a source-backed čerstvou ticket intelligence tam, kde je skutečně dostupná.'};
 }
