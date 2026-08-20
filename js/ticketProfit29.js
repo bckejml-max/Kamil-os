@@ -13,15 +13,15 @@ const eventName=x=>String(x?.eventName||x?.name||'Vstupenková akce').trim();
 const eventKey=x=>String(x?.eventKey||x?.eventId||`${String(x?.date||'bez-data').slice(0,10)}|${eventName(x).toLocaleLowerCase('cs-CZ')}`);
 
 function dedupedTrades(s={}){
- const map=new Map(),anon=[];
- const put=(x,source)=>{if(!x||typeof x!=='object')return;const key=x.id?`id:${x.id}`:`anon:${x.name||''}|${x.date||''}|${x.buy||''}|${x.sell||''}|${x.qty||''}`;const row={...x,_source:source};if(x.id||!map.has(key))map.set(key,row);else anon.push(row)};
+ const map=new Map();
+ const put=(x,source)=>{if(!x||typeof x!=='object')return;const key=x.id?`id:${x.id}`:`anon:${x.name||''}|${x.date||''}|${x.buy||''}|${x.sell||''}|${x.qty||''}`;map.set(key,{...x,_source:source})};
  for(const x of s.ticketBook?.history||[])put(x,'history');
  for(const x of s.ticketBook?.items||[])put(x,'current');
- return [...map.values(),...anon];
+ return [...map.values()];
 }
 function realizedTrade(x){return hasSale(x)&&(x._source==='history'||soldFlow(x))}
 function rowOf(x){return {id:x.id||null,name:eventName(x),eventKey:eventKey(x),date:x.date||null,currency:ccy(x.currency),qty:qty(x),buy:round2(n(x.buy)),sell:round2(n(x.sell)),fees:round2(n(x.fees)),profit:round2(profit(x)),roi:roi(x)===null?null:round2(roi(x)),workflow:flow(x),source:x._source,settlement:x._source==='current'&&flow(x)==='PAYOUT RECEIVED'?'RECEIVED':x._source==='current'&&['SOLD','PAYOUT WAIT'].includes(flow(x))?'PENDING':'UNKNOWN',at:safeDate(x)}
-function bucket(map,currency){const k=ccy(currency);return map[k]||(map[k]={currency:k,realizedTrades:0,realizedCost:0,realizedRevenue:0,realizedFees:0,realizedProfit:0,realizedRoi:null,wins:0,losses:0,breakeven:0,winRate:null,cashReceived:0,payoutPending:0,unknownSettlementRevenue:0,openCapital:0,openPositions:0,openQty:0,listedGross:0,listedPositions:0,unpricedCapital:0,missingSaleCount:0,realizedRows:[],openRows:[],events:[]})}
+function bucket(map,currency){const k=ccy(currency);return map[k]||(map[k]={currency:k,realizedTrades:0,realizedCost:0,realizedRevenue:0,realizedFees:0,realizedProfit:0,realizedRoi:null,wins:0,losses:0,breakeven:0,winRate:null,cashReceived:0,payoutPending:0,unknownSettlementRevenue:0,openCapital:0,openPositions:0,openQty:0,listedGross:0,listedPositions:0,unpricedCapital:0,missingSaleCount:0,realizedRows:[],events:[]})}
 function summarizeEvents(rows){
  const map=new Map();for(const x of rows){const k=x.eventKey;if(!map.has(k))map.set(k,{key:k,name:x.name,currency:x.currency,trades:0,buy:0,revenue:0,fees:0,profit:0,wins:0});const g=map.get(k);g.trades++;g.buy+=x.buy;g.revenue+=x.sell;g.fees+=x.fees;g.profit+=x.profit;if(x.profit>0)g.wins++}
  return [...map.values()].map(g=>({...g,buy:round2(g.buy),revenue:round2(g.revenue),fees:round2(g.fees),profit:round2(g.profit),roi:g.buy>0?round2(g.profit/g.buy*100):null,winRate:g.trades?round2(g.wins/g.trades*100):null})).sort((a,b)=>b.profit-a.profit||a.name.localeCompare(b.name,'cs'));
