@@ -2,7 +2,7 @@ import {APP_VERSION,SCHEMA_VERSION} from './config.js';
 
 export const BACKUP_FORMAT='KAMIL_OS_BACKUP';
 export const BACKUP_FORMAT_VERSION=1;
-export const backupGuardNote='JSON záloha není šifrovaná. Ulož ji na bezpečné místo. Kontrolní otisk chrání proti náhodnému poškození souboru, není to kryptografický podpis.';
+export const backupGuardNote='JSON záloha není šifrovaná. Ulož ji na bezpečné místo. Kontrolní otisk chrání proti náhodnému poškození souboru, není to kryptografický podpis. Sensitive Vault je záměrně mimo tento export.';
 
 const obj=v=>v&&typeof v==='object'&&!Array.isArray(v);
 const jsonClone=v=>JSON.parse(JSON.stringify(v));
@@ -66,6 +66,7 @@ export function backupHealth(state,meta={},now=new Date()){
   emergencyAssets:active(state?.emergencyFile?.assets),
   personalInbox:(state?.personalInbox?.items||[]).filter(x=>String(x?.status||'NEW').toUpperCase()==='NEW').length,
   assets:active(state?.assetBook?.items),
+  goals:active(state?.personalGoals?.items),
   tickets:active(state?.ticketBook?.items),
   debts:active(state?.debtBook?.items)
  };
