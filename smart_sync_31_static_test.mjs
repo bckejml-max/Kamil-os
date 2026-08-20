@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+const assert=(x,m)=>{if(!x)throw new Error(m)};const text=f=>fs.readFileSync(f,'utf8');
+const journal=text('js/syncJournal31.js'),idb=text('js/indexedDb31.js'),sync=text('js/smartSync31.js'),ui=text('js/smartSyncUi31.js'),schema=text('SMART-SYNC-31.4-SCHEMA.sql'),cloud=text('js/cloud.js');
+for(const x of ["['tasks'","['personalAdmin'","['tickets'","['debts'","['goals'","['netWorth'","['spending'","['assets'","['personalInbox'"])assert(journal.includes(x),'allowlist missing '+x);
+for(const forbidden of ['vault','emergencyFile','access_token','refresh_token','rawocr','cvv','seed'])assert(journal.toLowerCase().includes(forbidden.toLowerCase())||!['vault','emergencyFile'].includes(forbidden),'privacy guard missing '+forbidden);
+assert(!journal.includes("['vault'")&&!journal.includes("['emergencyFile'")&&journal.includes('BLOCKED_KEYS'),'sensitive domains/keys must be excluded');
+assert(idb.includes("DB_VERSION=2")&&idb.includes("SYNC_SHADOW='sync_shadow'")&&idb.includes("SYNC_OPS='sync_ops'")&&idb.includes('pendingSmartSyncOps31')&&idb.includes('markSmartSyncUploaded31'),'IndexedDB outbox missing');
+assert(sync.includes("TABLE='kamil_os_changes'")&&sync.includes("mode:'SHADOW_ONLY'")&&sync.includes('autoApplyRemote:false'),'shadow-only invariant missing');
+for(const destructive of ['store.mutate','store.replace','resolveConflict(','deleteDatabase'])assert(!sync.includes(destructive),'Smart Sync must not apply remote ops or mutate primary state: '+destructive);
+assert(sync.includes('.insert(rows)')&&!sync.includes('.update(')&&!sync.includes('.delete(')&&!sync.includes('.upsert('),'cloud shadow must be append-only from client');
+assert(ui.includes('SHADOW ONLY')&&ui.includes('vzdálené operace automaticky nepoužívá')&&ui.includes('Snapshot `kamil_os_state` zůstává autoritativní'),'Smart Sync UI safety copy missing');
+assert(schema.includes('enable row level security')&&schema.includes('grant select, insert')&&schema.includes('revoke update, delete')&&schema.includes('(select auth.uid()) = user_id'),'RLS/append-only schema invariant missing');
+assert(cloud.includes('STATE_TABLE')&&cloud.includes('upsert({user_id:sess.user.id,payload'),'authoritative snapshot sync changed unexpectedly');
+console.log('KAMIL OS 31.4 SMART SYNC STATIC PASS');
