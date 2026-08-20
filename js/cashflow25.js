@@ -44,7 +44,7 @@ function occurrences(entry,start,end){
 export function cashflow90(s,now=new Date()){
  const start=startOfDay(now).getTime(),end=start+90*DAY,cash=n(s.financePlan?.cashNow),reserve=n(s.financePlan?.reserveFloor);
  const entries=[...normalizedEntries(s),...receivables(s)],events=entries.flatMap(x=>occurrences(x,start,end)).sort((a,b)=>a.at-b.at);
- let balance=cash,minBalance=cash,minAt=start,belowReserveAt=null;
+ let balance=cash,minBalance=cash,minAt=start,belowReserveAt=cash<reserve?start:null;
  const timeline=[];
  for(const e of events){
   balance+=e.amount;
