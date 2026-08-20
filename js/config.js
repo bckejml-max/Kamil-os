@@ -1,4 +1,5 @@
-export const APP_VERSION = '29.8.0';
+import {APP_VERSION} from './releaseMeta.js';
+export {APP_VERSION};
 export const SCHEMA_VERSION = 42;
 export const SUPABASE_URL = 'https://tswqfbkmxywxxczsoddr.supabase.co';
 export const SUPABASE_KEY = 'sb_publishable_kLy9FrQ7cpNEVhvqcCEsfw_MFVqBlFg';
