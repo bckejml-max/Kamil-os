@@ -12,8 +12,8 @@ export function personalMoney(s={},now=new Date()){
   if(x.monthly===null||x.monthly<=0)continue;
   recurringKnown++;
   const c=x.currency||'CZK',cat=x.category||'OTHER';
-  byCurrency[c]=byCurrency[c]||{monthly:0,annual:0,essentialMonthly:0,count:0};
-  byCurrency[c].monthly+=x.monthly;byCurrency[c].annual+=x.annual||0;byCurrency[c].count++;
+  byCurrency[c]=byCurrency[c]||{monthly:0,annual:0,yearly:0,essentialMonthly:0,count:0};
+  byCurrency[c].monthly+=x.monthly;byCurrency[c].annual+=x.annual||0;byCurrency[c].yearly=byCurrency[c].annual;byCurrency[c].count++;
   if(ESSENTIAL.has(cat))byCurrency[c].essentialMonthly+=x.monthly;
   byCategory[cat]=byCategory[cat]||{label:PERSONAL_CATEGORIES[cat]||PERSONAL_CATEGORIES.OTHER,byCurrency:{}};
   byCategory[cat].byCurrency[c]=(byCategory[cat].byCurrency[c]||0)+x.monthly;
