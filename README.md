@@ -13,6 +13,8 @@ Kamil OS 26.5 je osobní command center. Viditelné rozhraní je záměrně pouz
 ## Backup & Recovery Guard 26.5
 Nové exporty používají verzovaný obal s datem, verzí aplikace, schematem a kontrolním otiskem. Přenosná záloha zachová uživatelská data, ale záměrně odstraní interní `undo` snapshoty, které obsahují starší plné kopie stavu a mohou soubor výrazně nafukovat. Import podporuje i staré prosté JSON exporty. Nový formát před obnovou ověří kontrolní otisk a backup z novějšího neznámého schematu se odmítne místo nebezpečného downgradu. Před každou potvrzenou obnovou aplikace automaticky stáhne safety backup aktuálního stavu.
 
+Runtime Undo je od 26.5 také kompaktní: každý krok uchová stav bez další vnořené Undo historie. Počet dostupných Undo kroků se tím nemění, ale snapshoty se už nerekurzivně nenabalují do sebe. Při migraci se starší vnořená Undo historie zploští.
+
 JSON záloha není šifrovaná; musí být uložena bezpečně. Kontrolní otisk slouží pro detekci náhodné změny nebo poškození souboru, není kryptografickým podpisem.
 
 ## Emergency File 26.4
