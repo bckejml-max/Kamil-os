@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 31.3",
+  "name": "Kamil OS 31.4",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 31.3.1 Data Engine — canonical auth hotfix",
+  "description": "Kamil OS 31.4 Smart Sync Foundation — item-level shadow sync",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",

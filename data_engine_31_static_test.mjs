@@ -4,8 +4,8 @@ const plan=text('js/historyPlan31.js'),idb=text('js/indexedDb31.js'),engine=text
 for(const x of ['decision','networth','ticket','trade','import'])assert(plan.includes(x),'history bucket missing '+x);
 for(const forbidden of ['vault','emergencyFile','documentScanner','rawOcr','auth-token'])assert(!plan.includes(`bucket==='${forbidden}'`),'sensitive bucket must not be mirrored '+forbidden);
 for(const browser of ['document.','window.','localStorage','navigator.','indexedDB','fetch(','store.'])assert(!plan.includes(browser),'history planner must stay pure: '+browser);
-assert(idb.includes("DB_NAME='kamil-os-data-v2'")&&idb.includes("HISTORY='history'")&&idb.includes('createIndex'),'IndexedDB store definition missing');
+assert(idb.includes("DB_NAME='kamil-os-data-v2'")&&idb.includes("HISTORY='history'")&&idb.includes('createIndex')&&idb.includes('db.onversionchange'),'IndexedDB store/lifecycle definition missing');
 assert(engine.includes('historyPlan31(store.get())')&&engine.includes('mirrorHistory31')&&engine.includes('store.subscribe'),'Data Engine mirror wiring missing');
 for(const destructive of ['store.mutate','store.replace','store.persist','localStorage.removeItem','deleteDatabase'])assert(!engine.includes(destructive),'31.3 Data Engine must be non-destructive: '+destructive);
-assert(ui.includes('IndexedDB history mirror')&&ui.includes('Zrcadlit teď')&&ui.includes('z hlavního state nic nemaže'),'Data Engine UI safety copy missing');
+assert(ui.includes('IndexedDB history mirror')&&ui.includes('Zrcadlit teď')&&ui.includes('z hlavního state nic nemaže')&&ui.includes('Kontroluji lokální IndexedDB'),'Data Engine UI safety/loading copy missing');
 console.log('DATA ENGINE 31.3 STATIC TEST PASS');
