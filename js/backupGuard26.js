@@ -25,10 +25,7 @@ export function backupFingerprint(payload){
 }
 
 export function backupPayload(state){
- // Exclude runtime Undo history before serialization so old nested snapshots are never traversed by backup generation.
  const base=obj(state)?{...state,undo:[]}:{undo:[]};
- // Normalize through the exact JSON representation that will be downloaded.
- // This removes runtime-only undefined values before the fingerprint is calculated.
  const payload=jsonClone(base);payload.undo=[];
  return payload;
 }
@@ -67,6 +64,8 @@ export function backupHealth(state,meta={},now=new Date()){
   family:active(state?.familyHome?.members),
   emergencyContacts:active(state?.emergencyFile?.contacts),
   emergencyAssets:active(state?.emergencyFile?.assets),
+  personalInbox:(state?.personalInbox?.items||[]).filter(x=>String(x?.status||'NEW').toUpperCase()==='NEW').length,
+  assets:active(state?.assetBook?.items),
   tickets:active(state?.ticketBook?.items),
   debts:active(state?.debtBook?.items)
  };
