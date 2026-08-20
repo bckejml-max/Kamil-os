@@ -9,6 +9,7 @@ const blank=()=>({
  xtbHub:{},xtbStrategy:{overrides:{}},tradeJournal:{trades:[]},
  ticketBook:{items:[],watchlist:[],history:[],review:[]},
  debtBook:{items:[],review:[]},
+ personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true},
  inbox:[],delegations:[],learning:{typeBias:{},feedback:[]},
  ui:{},audit:[],undo:[]
 });
@@ -25,6 +26,9 @@ export function migrate(input){
  s.xtbStrategy={overrides:{},...(s.xtbStrategy||{})};s.xtbStrategy.overrides=s.xtbStrategy.overrides&&typeof s.xtbStrategy.overrides==='object'?s.xtbStrategy.overrides:{};
  s.ticketBook=s.ticketBook||{items:[],watchlist:[],history:[],review:[]};s.ticketBook.items=Array.isArray(s.ticketBook.items)?s.ticketBook.items:[];s.ticketBook.watchlist=Array.isArray(s.ticketBook.watchlist)?s.ticketBook.watchlist:[];
  s.debtBook=s.debtBook||{items:[],review:[]};s.debtBook.items=Array.isArray(s.debtBook.items)?s.debtBook.items:[];
+ s.personalAdmin={items:[],...(s.personalAdmin||{})};s.personalAdmin.items=Array.isArray(s.personalAdmin.items)?s.personalAdmin.items:[];
+ s.familyHome={members:[],...(s.familyHome||{})};s.familyHome.members=Array.isArray(s.familyHome.members)?s.familyHome.members:[];
+ s.personalSettings={maskSensitive:true,...(s.personalSettings||{})};
  s.inbox=Array.isArray(s.inbox)?s.inbox:[];
  s.delegations=Array.isArray(s.delegations)?s.delegations:[];
  s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};s.learning.feedback=Array.isArray(s.learning.feedback)?s.learning.feedback:[];
@@ -36,6 +40,8 @@ export function migrate(input){
  for(const x of s.ticketBook.items)if(!x.id)x.id=uid('ticket');
  for(const x of s.ticketBook.watchlist)if(!x.id)x.id=uid('ticket-watch');
  for(const x of s.debtBook.items)if(!x.id)x.id=uid('debt');
+ for(const x of s.personalAdmin.items)if(!x.id)x.id=uid('personal');
+ for(const x of s.familyHome.members)if(!x.id)x.id=uid('family');
  s.meta.migratedFrom=from;s.meta.schemaVersion=SCHEMA_VERSION;
  return s;
 }
@@ -48,9 +54,13 @@ export function validateState(input){
  if(input.ticketBook!==undefined&&typeof input.ticketBook!=='object')fatal.push('ticketBook má neplatný formát');
  if(input.debtBook!==undefined&&typeof input.debtBook!=='object')fatal.push('debtBook má neplatný formát');
  if(input.financePlan!==undefined&&typeof input.financePlan!=='object')issues.push('financePlan má neplatný formát');
+ if(input.personalAdmin!==undefined&&typeof input.personalAdmin!=='object')issues.push('personalAdmin má neplatný formát');
+ if(input.personalAdmin?.items!==undefined&&!Array.isArray(input.personalAdmin.items))issues.push('personalAdmin.items nebylo pole');
+ if(input.familyHome!==undefined&&typeof input.familyHome!=='object')issues.push('familyHome má neplatný formát');
+ if(input.familyHome?.members!==undefined&&!Array.isArray(input.familyHome.members))issues.push('familyHome.members nebylo pole');
  const ids=new Set(),dupIds=[];
  const scan=(a,label)=>Array.isArray(a)&&a.forEach(x=>{if(x?.id){if(ids.has(x.id))dupIds.push(`${label}:${x.id}`);ids.add(x.id)}});
- scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');
+ scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');
  if(dupIds.length)issues.push(`Duplicitní ID: ${dupIds.slice(0,5).join(', ')}`);
  return {ok:!fatal.length,issues,fatal};
 }
@@ -59,6 +69,7 @@ export function repairState(input){
  const dedupe=a=>{const seen=new Set();return (Array.isArray(a)?a:[]).filter(x=>{if(!x?.id)return true;if(seen.has(x.id))return false;seen.add(x.id);return true})};
  fixed.tasks=dedupe(fixed.tasks);fixed.projects=dedupe(fixed.projects);
  fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.ticketBook.watchlist=dedupe(fixed.ticketBook.watchlist);fixed.debtBook.items=dedupe(fixed.debtBook.items);
+ fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);
  return {state:fixed,report};
 }
 class Store{
