@@ -1,0 +1,10 @@
+globalThis.localStorage={_d:new Map(),getItem(k){return this._d.has(k)?this._d.get(k):null},setItem(k,v){this._d.set(k,String(v))},removeItem(k){this._d.delete(k)}};
+Object.defineProperty(globalThis,'navigator',{value:{serviceWorker:{}},configurable:true});
+const {migrate,validateState,repairState}=await import('./js/state.js');
+const {trueNetWorth}=await import('./js/netWorth29.js');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const s=migrate({meta:{schemaVersion:41},financePlan:{cashNow:50000},xtbReport:{czkValue:25000},debtBook:{items:[]},ticketBook:{items:[],watchlist:[]}});
+assert(s.meta.schemaVersion===42,'schema 41 migrated to 42');assert(Array.isArray(s.netWorthBook.items)&&Array.isArray(s.netWorthBook.history),'netWorthBook collections created');
+s.netWorthBook.items.push({id:'mortgage',title:'Hypotéka',side:'LIABILITY',value:30000,currency:'CZK',status:'ACTIVE'});const r=trueNetWorth(s,new Date('2026-08-20T12:00:00Z'));assert(r.byCurrency.CZK.assets===75000&&r.byCurrency.CZK.liabilities===30000&&r.byCurrency.CZK.net===45000,'migrated state works in engine');
+const bad={...s,netWorthBook:{items:{oops:true},history:{oops:true}}};const v=validateState(bad);assert(v.ok===true&&v.issues.some(x=>x.includes('netWorthBook.items'))&&v.issues.some(x=>x.includes('netWorthBook.history')),'invalid ledger shapes detected as recoverable');const fixed=repairState(bad).state;assert(Array.isArray(fixed.netWorthBook.items)&&Array.isArray(fixed.netWorthBook.history),'repair restores ledger arrays');
+console.log('TRUE NET WORTH 29.6 INTEGRATION PASS');
