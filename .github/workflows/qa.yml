@@ -19,5 +19,7 @@ jobs:
         run: node integration.mjs
       - name: Ticket event aggregation
         run: node ticket_events_test.mjs
+      - name: Ticket lessons
+        run: node ticket_lessons_test.mjs
       - name: Release gate
         run: node release_gate.mjs
