@@ -41,5 +41,9 @@ jobs:
         run: node personal_admin_test.mjs
       - name: Personal Admin static
         run: node personal_admin_static_test.mjs
+      - name: Insurance Center
+        run: node insurance_center_test.mjs
+      - name: Insurance Center static
+        run: node insurance_static_test.mjs
       - name: Release gate
         run: node release_gate.mjs
