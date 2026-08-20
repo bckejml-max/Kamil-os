@@ -1,5 +1,6 @@
-import {SUPABASE_URL,SUPABASE_KEY,STATE_TABLE,CALENDAR_TABLE,XTB_TABLE} from './config.js';
+import {SUPABASE_URL,SUPABASE_KEY,STATE_TABLE,CALENDAR_TABLE,XTB_TABLE,SCHEMA_VERSION} from './config.js';
 import {store} from './state.js';
+import {cloudPayload32,cloudPayloadNeedsNormalize32,cloudSchema32,mergeCloudIntoDevice32} from './cloudPayload32.js';
 
 const SUPABASE_SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const CANONICAL_APP_URL='https://kamil-os-smoke.vercel.app/';
@@ -35,30 +36,35 @@ export async function updatePassword(password){const c=await getClient({force:tr
 export async function watchAuth(handler){const c=await getClient();if(!c)return()=>{};const {data}=c.auth.onAuthStateChange(handler);return()=>data?.subscription?.unsubscribe?.()}
 
 async function saveNow(){
- const c=await getClient(),sess=c?(await c.auth.getSession()).data.session:null;if(!sess)return;
- if(!navigator.onLine){store.queueSync(store.get());status('offline');return}
+ const c=await getClient(),sess=c?(await c.auth.getSession()).data.session:null;if(!sess)return {ok:false,reason:'NO_SESSION'};
+ if(!navigator.onLine){store.queueSync(store.get());status('offline');return {ok:false,reason:'OFFLINE'}}
  status('saving');
  try{
-   const payload=store.get(),clientUpdatedAt=new Date().toISOString();
+   const payload=cloudPayload32(store.get(),SCHEMA_VERSION),clientUpdatedAt=new Date().toISOString();
    const {data,error}=await c.from(STATE_TABLE).upsert({user_id:sess.user.id,payload,updated_at:clientUpdatedAt}).select('updated_at').single();
    if(error)throw error;
    const serverUpdatedAt=data?.updated_at||clientUpdatedAt;
-   store.dirty=false;store.clearQueue();store.get().meta.lastCloudAt=serverUpdatedAt;store.persist();store.setMeta({lastCloudAt:serverUpdatedAt});status('ok');
- }catch(e){store.queueSync(store.get());status('offline',e.message)}
+   store.dirty=false;store.clearQueue();store.get().meta.lastCloudAt=serverUpdatedAt;store.persist();store.setMeta({lastCloudAt:serverUpdatedAt,lastCloudSchema:SCHEMA_VERSION,lastCloudPayloadAt:serverUpdatedAt});status('ok');return {ok:true,updatedAt:serverUpdatedAt};
+ }catch(e){store.queueSync(store.get());status('offline',e.message);return {ok:false,error:e}}
 }
 export function scheduleSave(){clearTimeout(timer);timer=setTimeout(saveNow,700)}
 store.setCloudWriter(scheduleSave);
-export async function flushQueue(){if(!navigator.onLine)return;const q=store.readQueue();if(q){store.replace(q.payload,'queued-local');store.dirty=true;await saveNow()}}
+export async function flushQueue(){if(!navigator.onLine)return {ok:false,reason:'OFFLINE'};const q=store.readQueue();if(!q)return {ok:true,empty:true};store.dirty=true;return saveNow()}
 
 export async function loadCloud(){
- const c=await getClient(),sess=c?(await c.auth.getSession()).data.session:null;if(!sess)return {ok:false};
+ const c=await getClient(),sess=c?(await c.auth.getSession()).data.session:null;if(!sess)return {ok:false,reason:'NO_SESSION'};
  status('saving','načítám');
  const {data,error}=await c.from(STATE_TABLE).select('payload,updated_at').eq('user_id',sess.user.id).maybeSingle();
  if(error){status('offline',error.message);return {ok:false,error}}
- if(!data?.payload){await saveNow();return {ok:true,new:true}}
+ if(!data?.payload){const saved=await saveNow();return {ok:!!saved?.ok,new:true}}
+ const schema=cloudSchema32(data.payload,SCHEMA_VERSION);
+ if(schema.future){status('conflict',`Cloud schema ${schema.remote} je novější než aplikace ${schema.current}`);return {ok:false,futureSchema:true,remoteSchema:schema.remote,currentSchema:schema.current,updatedAt:data.updated_at}}
  const local=store.get(),cloudAt=new Date(data.updated_at||0).getTime(),localAt=new Date(local.meta?.lastMutationAt||0).getTime(),lastCloudAt=new Date(store.meta().lastCloudAt||0).getTime();
  if(store.dirty&&localAt>lastCloudAt&&cloudAt>lastCloudAt){status('conflict');return {ok:false,conflict:true,cloud:data.payload,updatedAt:data.updated_at,localAt:local.meta?.lastMutationAt,lastCloudAt:store.meta().lastCloudAt}}
- store.replace(data.payload,'cloud');store.dirty=false;store.setMeta({lastCloudAt:data.updated_at});status('ok');return {ok:true}
+ const normalize=cloudPayloadNeedsNormalize32(data.payload,SCHEMA_VERSION),merged=mergeCloudIntoDevice32(local,data.payload,SCHEMA_VERSION);
+ store.replace(merged,'cloud');store.dirty=false;store.setMeta({lastCloudAt:data.updated_at,lastCloudSchema:schema.remote||null});status('ok');
+ if(normalize){const normalized=await saveNow();return {ok:true,normalized:!!normalized?.ok,updatedAt:normalized?.updatedAt||data.updated_at,fromSchema:schema.remote,toSchema:SCHEMA_VERSION}}
+ return {ok:true,updatedAt:data.updated_at,fromSchema:schema.remote,toSchema:SCHEMA_VERSION};
 }
 
 export async function refreshIntelligence(){
@@ -94,7 +100,7 @@ export function conflictSummary(local,cloud){
   {label:'Pohledávky',local:count(local,'debtBook.items'),cloud:count(cloud,'debtBook.items')}
  ];
 }
-export async function resolveConflict(choice,cloudPayload){if(choice==='cloud'){store.replace(cloudPayload,'cloud-conflict');store.dirty=false;store.clearQueue();status('ok')}else if(choice==='local'){await saveNow()}}
+export async function resolveConflict(choice,cloudPayload){if(choice==='cloud'){const schema=cloudSchema32(cloudPayload,SCHEMA_VERSION);if(schema.future)return {ok:false,futureSchema:true};store.replace(mergeCloudIntoDevice32(store.get(),cloudPayload,SCHEMA_VERSION),'cloud-conflict');store.dirty=false;store.clearQueue();store.setMeta({lastCloudSchema:schema.remote||null});status('ok');if(cloudPayloadNeedsNormalize32(cloudPayload,SCHEMA_VERSION))await saveNow();return {ok:true}}if(choice==='local')return saveNow();return {ok:false,reason:'NO_CHOICE'}}
 
 export async function loadDataHubs(){
  const c=await getClient(),sess=c?(await c.auth.getSession()).data.session:null;if(!sess)return;
@@ -105,3 +111,4 @@ export async function loadDataHubs(){
  }catch{}
 }
 window.addEventListener('online',()=>flushQueue());window.addEventListener('offline',()=>status('offline'));
+export const cloud32Info={schema:SCHEMA_VERSION,canonical:CANONICAL_APP_URL,undoCloud:false,futureSchemaGuard:true,queueReplaceDisabled:true};
