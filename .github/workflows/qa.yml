@@ -21,5 +21,7 @@ jobs:
         run: node ticket_events_test.mjs
       - name: Ticket lessons
         run: node ticket_lessons_test.mjs
+      - name: Ticket learning engine
+        run: node ticket_learning_test.mjs
       - name: Release gate
         run: node release_gate.mjs
