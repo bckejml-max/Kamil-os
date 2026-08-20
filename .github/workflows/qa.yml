@@ -53,5 +53,9 @@ jobs:
         run: node documents_expiry_test.mjs
       - name: Documents & Expiry static
         run: node documents_expiry_static_test.mjs
+      - name: Family & Home
+        run: node family_home_test.mjs
+      - name: Family & Home static
+        run: node family_home_static_test.mjs
       - name: Release gate
         run: node release_gate.mjs
