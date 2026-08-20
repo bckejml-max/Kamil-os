@@ -10,6 +10,7 @@ const {autopilotSnapshot}=await import('./js/autopilot28.js');
 const {personalQuery}=await import('./js/personalQuery29.js');
 const {goalPlan,oneScreenAutopilot}=await import('./js/personalPlus29.js');
 const {personalMonthlyReview}=await import('./js/monthlyReview29.js');
+const {nextMonthPlan}=await import('./js/nextMonthPlanner29.js');
 const {xtbBoard,ticketDecision}=await import('./js/live24.js');
 const {debtRemaining}=await import('./js/intelligence.js');
 const assert=(x,m)=>{if(!x)throw new Error(m)};
@@ -25,7 +26,7 @@ store.replace(migrate({
  ]},
  familyHome:{members:[{id:'fam1',name:'Mia',relation:'CHILD',birthday:'2026-08-25',status:'ACTIVE'}]},
  emergencyFile:{contacts:[{id:'ec1',name:'Rodinný kontakt',role:'FAMILY',phone:'+420999888777',email:'kontakt@example.cz',status:'ACTIVE'}],assets:[{id:'ea1',title:'Modré nouzové desky',kind:'DOCUMENTS',location:'Skříň v pracovně',contact:'Rodina',status:'ACTIVE'}]},
- personalInbox:{items:[{id:'pi1',title:'Potvrdit domácí pojistku',source:'EMAIL',kind:'ACTION',status:'NEW'}]},assetBook:{items:[{id:'asset1',title:'Klimatizace',kind:'HOME_SYSTEM',nextServiceAt:'2026-08-24',status:'ACTIVE'}]},personalGoals:{items:[{id:'goal1',title:'Dovolená',type:'TRAVEL',targetAmount:60000,savedAmount:20000,currency:'CZK',targetDate:'2026-12-20',status:'ACTIVE',contributions:[{id:'gc1',amount:2500,at:'2026-08-10T08:00:00Z'}]}]},
+ personalInbox:{items:[{id:'pi1',title:'Potvrdit domácí pojistku',source:'EMAIL',kind:'ACTION',status:'NEW'}]},assetBook:{items:[{id:'asset1',title:'Klimatizace',kind:'HOME_SYSTEM',nextServiceAt:'2026-08-24',status:'ACTIVE'}]},personalGoals:{items:[{id:'goal1',title:'Dovolená',type:'TRAVEL',targetAmount:60000,savedAmount:20000,currency:'CZK',targetDate:'2026-12-20',monthlyContribution:5000,status:'ACTIVE',contributions:[{id:'gc1',amount:2500,at:'2026-08-10T08:00:00Z'}]}]},
  calendar:{events:[{id:'workcal',title:'Firemní porada',start:'2026-08-21T08:00:00+02:00',source:'Outlook',personal:false},{id:'perscal',title:'Rodinná návštěva',start:'2026-08-22T15:00:00+02:00',personal:true}]},
  financePlan:{currency:'CZK',cashNow:100000,reserveFloor:50000,plannedInvestment:0,cashflow:[{id:'cf1',label:'Nájem / hypotéka',amount:-20000,date:'2026-08-25',cadence:'monthly',active:true}]},
  xtbHub:{asOf:liveNow,accounts:{a1:{currency:'CZK',value:100000,positions:[{name:'FTSE All-World',ticker:'VWCE.DE',category:'ETF',value:60000,volume:20,net_profit_pct:1},{name:'Growth',ticker:'GROW.US',category:'STOCK',value:40000,volume:4,net_profit_pct:30}]}}},
@@ -45,5 +46,6 @@ const today=buildPersonalToday(store.get(),ref);assert(today.length<=5&&today.le
 const ap=autopilotSnapshot(store.get(),{},ref);assert(ap.briefing.today.length<=3&&ap.briefing.week.length<=2,'Autopilot 3/2 briefing');assert(ap.inbox.items.some(x=>x.source==='EMAIL'),'email intake candidate surfaced');assert(ap.notifications.items.some(x=>x.title==='Klimatizace'),'asset alert surfaced');
 const g=goalPlan(store.get(),ref);assert(g.total===1&&g.items[0].remaining===40000,'goal engine integrated');const one=oneScreenAutopilot(store.get(),{},ref);assert(Array.isArray(one.moneyAlerts)&&Array.isArray(one.changes),'one-screen Autopilot integrated');
 const review=personalMonthlyReview(store.get(),{lastBackupAt:'2026-08-03T08:00:00Z'},ref);assert(review.period.key==='2026-08'&&Array.isArray(review.attention)&&Array.isArray(review.upcoming),'monthly review integrated');assert(review.goalProgressByCurrency.CZK===2500&&!('total' in review.goalProgressByCurrency),'monthly goal progress stays currency-safe');assert(review.costChanges.some(x=>x.title==='Elektřina'&&x.delta===200),'monthly review uses actual cost history');
+const next=nextMonthPlan(store.get(),ref);assert(next.period.key==='2026-09'&&next.deadlines.items.some(x=>x.title==='Cestovní pas'),'next month planner integrated');assert(next.cashflow.events.some(x=>x.label==='Nájem / hypotéka'),'next month uses recurring cashflow');assert(next.goals.byCurrency.CZK.planned===5000&&!('total' in next.goals.byCurrency),'next month goal plan stays currency-safe');assert(next.cashflow.ignoredCurrencyCount===1,'next month exposes foreign-currency omission');
 execute('Petr splátka 500');assert(debtRemaining(store.get().debtBook.items[0])===4500,'personal receivable payment command');execute('Sparta prodáno');assert(store.get().ticketBook.items[0].workflow==='SOLD','ticket sold command');execute('Koupit plenky');assert(store.get().tasks.some(x=>x.title==='Koupit plenky'&&x.area==='Osobní'),'free command creates personal task');
-console.log('PERSONAL AUTOPILOT 29.1 INTEGRATION QA PASS');
+console.log('PERSONAL AUTOPILOT 29.2 INTEGRATION QA PASS');
