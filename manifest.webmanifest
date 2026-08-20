@@ -1,7 +1,7 @@
 {
   "name": "Kamil OS 31.3",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 31.3 Data Engine — IndexedDB history mirror",
+  "description": "Kamil OS 31.3.1 Data Engine — canonical auth hotfix",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
