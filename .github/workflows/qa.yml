@@ -27,5 +27,7 @@ jobs:
         run: node cashflow90_test.mjs
       - name: Capital Allocation
         run: node capital_allocation_test.mjs
+      - name: Action Plan
+        run: node action_plan_test.mjs
       - name: Release gate
         run: node release_gate.mjs
