@@ -42,6 +42,6 @@ async function editEntry(id=null){
 
 function bind(){qs('#cashflowAdd25')?.addEventListener('click',()=>editEntry());qsa('[data-cashflow-edit25]').forEach(b=>b.addEventListener('click',()=>editEntry(b.dataset.cashflowEdit25)))}
 
-const observer=new MutationObserver(mutations=>{if(mutations.some(m=>m.target?.id==='moneyView'||m.target?.closest?.('#moneyView')))queueMicrotask(mount)});
-const start=()=>{const view=qs('#moneyView');if(!view)return;observer.observe(view,{childList:true});if(view.childElementCount)mount();store.subscribe(()=>{if(qs('#view-money')?.classList.contains('on'))queueMicrotask(mount)})};
+const observer=new MutationObserver(mutations=>{const view=qs('#moneyView');if(!view||qs(`#${hostId}`,view))return;if(mutations.some(m=>m.target?.id==='moneyView'||m.target?.closest?.('#moneyView')))queueMicrotask(mount)});
+const start=()=>{const view=qs('#moneyView');if(!view)return;observer.observe(view,{childList:true});if(view.childElementCount&&!qs(`#${hostId}`,view))mount();store.subscribe(()=>{if(qs('#view-money')?.classList.contains('on'))queueMicrotask(mount)})};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
