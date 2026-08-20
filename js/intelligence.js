@@ -62,4 +62,9 @@ export function signals(s){
 export function recommendation(s){return signals(s)[0]||{type:'Klid',title:'Nic kritického. Drž fokus.',score:10,reason:'Bez významných výjimek.',impact:'Není potřeba nic hasit.',target:'work'}}
 export function feedback(s,type,value){s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};s.learning.typeBias[type]=Math.max(-20,Math.min(20,(s.learning.typeBias[type]||0)+(value>0?4:-4)));s.learning.feedback.unshift({at:new Date().toISOString(),type,value});s.learning.feedback=s.learning.feedback.slice(0,100)}
 export function attentionCount(s){return signals(s).filter(x=>x.score>=70).length+(s.inbox||[]).filter(x=>x.status!=='DONE').length}
-export function netWorth(s){const cash=Number(s.financePlan?.cashNow||0),fx=Number(s.xtbHub?.report?.fx?.EURCZK?.price||s.xtb?.marketEstimate?.fx?.EURCZK?.price||24.5),xtb=Number(s.xtbReport?.czkValue||0)+(Number(s.xtbReport?.eurValue||0)*fx),tickets=(s.ticketBook?.items||[]).filter(x=>!['SOLD','PAYOUT RECEIVED'].includes(x.workflow)).reduce((n,x)=>n+(Number(x.buy)||0),0),debts=(s.debtBook?.items||[]).filter(x=>x.status!=='PAID').reduce((n,x)=>n+debtRemaining(x),0);return {cash,xtb,tickets,debts,adjusted:cash+xtb+tickets*.65+debts*.8}}
+export function netWorth(s){
+ const cash=Number(s.financePlan?.cashNow||0),fxRaw=s.xtbHub?.report?.fx?.EURCZK?.price??s.xtb?.marketEstimate?.fx?.EURCZK?.price,fx=Number(fxRaw),hasFx=Number.isFinite(fx)&&fx>0;
+ const czkValue=Number(s.xtbReport?.czkValue||0),eurValue=Number(s.xtbReport?.eurValue||0),xtb=czkValue+(hasFx?eurValue*fx:0);
+ const tickets=(s.ticketBook?.items||[]).filter(x=>!['SOLD','PAYOUT RECEIVED'].includes(x.workflow)).reduce((z,x)=>z+(Number(x.buy)||0),0),debts=(s.debtBook?.items||[]).filter(x=>x.status!=='PAID').reduce((z,x)=>z+debtRemaining(x),0);
+ return {cash,xtb,tickets,debts,adjusted:cash+xtb+tickets*.65+debts*.8,fx:hasFx?fx:null,eurValue,fxIncomplete:eurValue>0&&!hasFx,note:eurValue>0&&!hasFx?'EUR část XTB není bez skutečného EUR/CZK kurzu zahrnuta do CZK součtu.':'CZK součet používá pouze skutečně dostupný FX kurz.'};
+}
