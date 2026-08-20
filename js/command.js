@@ -20,7 +20,6 @@ const personalTask=t=>String(t?.area||'').toLocaleLowerCase('cs-CZ').includes('o
 const active=x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED';
 const homeModeFor=x=>x.category==='INSURANCE'?'insurance':x.category==='DOCUMENT'?'documents':x.category==='VEHICLE'?'car':x.category==='FAMILY'?'family':['HOME','UTILITY'].includes(x.category)?'house':['SUBSCRIPTION','LOAN','FEE'].includes(x.category)?'contracts':x.category==='PAYMENT'?'payments':'contracts';
 const WRITE_TYPES=new Set(copilotWrite32Contract.knownWriteTypes);
-let writePreviewOpen=false;
 
 export function search(q){
  q=norm(q);if(!q)return[];const out=[],add=(kind,title,detail,target,id,extra={})=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,...extra})};
@@ -54,15 +53,14 @@ function proposalBody(p){
  return `<div class="decision-note"><b>${h(p.summary)}</b></div><div class="list" style="margin-top:12px">${before}${after}</div><p class="muted">Copilot nic nezapíše, dokud nepotvrdíš tuto konkrétní změnu.</p>`;
 }
 function confirmKnownWrite(c){
- if(writePreviewOpen){toast('Nejdřív dokonči otevřený náhled změny.');return}
+ if(qs('#modalHost .modal')){toast('Nejdřív dokonči otevřený náhled změny.');return}
  const proposedAt=new Date(),proposal=buildCommandWriteProposal32(c,S(),proposedAt);if(!proposal.ok){toast(proposal.message);return}
- writePreviewOpen=true;
  modal('Náhled změny',proposalBody(proposal),[{label:'Zrušit',value:false},{label:'Potvrdit změnu',value:true,primary:true}]).then(ok=>{
-  writePreviewOpen=false;if(!ok)return;
+  if(!ok)return;
   const fresh=buildCommandWriteProposal32(c,S(),new Date());if(!fresh.ok||fresh.fingerprint!==proposal.fingerprint){toast('Data se mezitím změnila. Spusť příkaz znovu.');return}
   const applied=once(`copilot-confirm|${fresh.fingerprint}`,()=>store.mutate(fresh.mutationLabel,s=>applyCommandWriteProposal32(s,fresh,{now:new Date(),idFactory:uid})));
   if(applied)toast('Změna potvrzena a uložena.');
- }).catch(()=>{writePreviewOpen=false;toast('Změnu se nepodařilo potvrdit.')});
+ }).catch(()=>toast('Změnu se nepodařilo potvrdit.'));
 }
 
 export function execute(raw){
