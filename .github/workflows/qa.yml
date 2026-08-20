@@ -87,6 +87,10 @@ jobs:
         run: node smart_sync_31_test.mjs
       - name: Smart Sync safety 31.4
         run: node smart_sync_31_static_test.mjs
+      - name: Remote Inbox 31.5
+        run: node remote_inbox_31_test.mjs
+      - name: Remote Inbox safety 31.5
+        run: node remote_inbox_31_static_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
@@ -141,7 +145,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser E2E 31.4
+      - name: Browser E2E 31.5
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
