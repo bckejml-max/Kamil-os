@@ -5,5 +5,5 @@ const config=fs.readFileSync('js/config.js','utf8'),html=fs.readFileSync('index.
 assert(config.includes("APP_VERSION = '29.5.0'")&&config.includes('SCHEMA_VERSION = 41'),'release version/schema mismatch');
 assert(html.includes('./js/spendingIntelligenceUi29.js'),'release shell missing Spending Intelligence UI');
 assert(sw.includes('29.5.0')&&sw.includes('spendingIntelligence29.js'),'release PWA cache missing Spending Intelligence');
-assert(engine.includes('Převody se nepočítají jako spotřeba')&&engine.includes('měny se nikdy nesčítají'),'spending safety note missing');
+assert(engine.toLocaleLowerCase('cs-CZ').includes('převody se nepočítají jako spotřeba')&&engine.includes('měny se nikdy nesčítají'),'spending safety note missing');
 console.log('PERSONAL AUTOPILOT 29.5 RELEASE GATE PASS');
