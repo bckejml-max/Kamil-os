@@ -24,4 +24,8 @@ export async function showDocumentFiling(id){
  const choice=await modal('Smart Filing · co dál s dokumentem',body,buttons);if(choice==='open')navigate(r.filing.target,r.filing.homeMode);else if(choice==='reminder')await setReminder(id);return r;
 }
 
-window.addEventListener('kamil:document-saved',e=>{const id=e.detail?.id;if(id)queueMicrotask(()=>showDocumentFiling(id))});
+let lastShownId=null;
+store.subscribe((s,reason)=>{
+ if(!String(reason||'').startsWith('Document Scanner:'))return;
+ const item=(s.personalAdmin?.items||[]).find(x=>x?.scanner30&&String(x.status||'ACTIVE').toUpperCase()!=='ARCHIVED');if(!item||item.id===lastShownId)return;lastShownId=item.id;queueMicrotask(()=>showDocumentFiling(item.id));
+});
