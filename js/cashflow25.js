@@ -1,8 +1,11 @@
 const n=v=>Number(v||0);
+const hasNumber=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));
 const validDate=v=>{const t=new Date(v).getTime();return Number.isFinite(t)?t:null};
 const DAY=86400000;
 const startOfDay=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
 const dateKey=d=>new Date(d).toISOString().slice(0,10);
+const active=x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED';
+const cadenceMonths={MONTHLY:1,QUARTERLY:3,SEMIANNUAL:6,YEARLY:12};
 
 function normalizedEntries(s){
  const manual=Array.isArray(s.financePlan?.cashflow)?s.financePlan.cashflow:[];
@@ -41,9 +44,34 @@ function occurrences(entry,start,end){
  return out;
 }
 
+function addMonthsSafe(timestamp,months){
+ const d=new Date(timestamp),wanted=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+months);const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(wanted,last));d.setHours(0,0,0,0);return d.getTime();
+}
+
+function personalObligations(s,start,end){
+ const currency=String(s.financePlan?.currency||'CZK').toUpperCase(),entries=[],events=[];
+ let ignoredCurrency=0,missingAmount=0,missingDate=0;
+ for(const x of s.personalAdmin?.items||[]){
+  if(!active(x))continue;
+  if(!hasNumber(x.amount)||Number(x.amount)<=0){missingAmount++;continue}
+  if(validDate(x.nextDue)===null){missingDate++;continue}
+  const itemCurrency=String(x.currency||'CZK').toUpperCase();
+  if(itemCurrency!==currency){ignoredCurrency++;continue}
+  const cadence=String(x.cadence||'ONCE').toUpperCase(),months=cadenceMonths[cadence]||0;
+  const entry={id:`personal-${x.id||x.title||entries.length}`,label:x.title||'Osobní závazek',amount:-Math.abs(Number(x.amount)),date:x.nextDue,cadence,source:'PERSONAL_ADMIN',category:x.category||'OTHER',currency:itemCurrency,autoPay:!!x.autoPay};
+  entries.push(entry);
+  let due=startOfDay(validDate(x.nextDue)).getTime();
+  if(due<start){events.push({...entry,at:start,overdue:true});if(!months)continue;while(due<=start)due=addMonthsSafe(due,months)}
+  if(due>=start&&due<=end)events.push({...entry,at:due});
+  if(months){let cursor=addMonthsSafe(due,months);while(cursor<=end){events.push({...entry,at:cursor});cursor=addMonthsSafe(cursor,months)}}
+ }
+ return {currency,entries,events,ignoredCurrency,missingAmount,missingDate};
+}
+
 export function cashflow90(s,now=new Date()){
  const start=startOfDay(now).getTime(),end=start+90*DAY,cash=n(s.financePlan?.cashNow),reserve=n(s.financePlan?.reserveFloor);
- const entries=[...normalizedEntries(s),...receivables(s)],events=entries.flatMap(x=>occurrences(x,start,end)).sort((a,b)=>a.at-b.at);
+ const manual=normalizedEntries(s),receivable=receivables(s),personal=personalObligations(s,start,end);
+ const events=[...manual,...receivable].flatMap(x=>occurrences(x,start,end)).concat(personal.events).sort((a,b)=>a.at-b.at||String(a.label).localeCompare(String(b.label),'cs'));
  let balance=cash,minBalance=cash,minAt=start,belowReserveAt=cash<reserve?start:null;
  const timeline=[];
  for(const e of events){
@@ -55,8 +83,11 @@ export function cashflow90(s,now=new Date()){
  const inflow=events.filter(x=>x.amount>0).reduce((z,x)=>z+x.amount,0),outflow=Math.abs(events.filter(x=>x.amount<0).reduce((z,x)=>z+x.amount,0));
  const endBalance=cash+inflow-outflow,headroom=endBalance-reserve;
  const status=belowReserveAt!==null?'RISK':minBalance<reserve*1.15?'TIGHT':'OK';
- const next=timeline.slice(0,8).map(x=>({...x,date:dateKey(x.at)}));
+ const next=timeline.slice(0,10).map(x=>({...x,date:dateKey(x.at)}));
+ const coverage=manual.length+receivable.length+personal.entries.length;
+ const note=coverage
+  ?`Výhled používá ručně zadané cashflow, datované pohledávky a osobní závazky se skutečnou částkou a termínem v ${personal.currency}. Cizí měny se bez FX kurzu ignorují. Neznámé příjmy ani výdaje se nedopočítávají.`
+  :'Výhled zatím nemá naplánované peněžní toky; zobrazuje pouze dnešní hotovost proti rezervnímu minimu.';
  return {days:90,cash,reserve,inflow,outflow,endBalance,minBalance,minDate:dateKey(minAt),headroom,status,belowReserveDate:belowReserveAt===null?null:dateKey(belowReserveAt),events:timeline.length,next,
-  coverage:entries.length,manualEntries:normalizedEntries(s).length,receivables:receivables(s).length,
-  note:entries.length?'Výhled používá pouze ručně zadané cashflow položky a pohledávky s konkrétním datem splatnosti. Neznámé příjmy ani výdaje se nedopočítávají.':'Výhled zatím nemá naplánované peněžní toky; zobrazuje pouze dnešní hotovost proti rezervnímu minimu.'};
+  coverage,manualEntries:manual.length,receivables:receivable.length,personalObligations:personal.entries.length,personalIgnoredCurrency:personal.ignoredCurrency,personalMissingAmount:personal.missingAmount,personalMissingDate:personal.missingDate,primaryCurrency:personal.currency,note};
 }
