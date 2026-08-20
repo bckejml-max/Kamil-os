@@ -1,8 +1,9 @@
+const {SCHEMA_VERSION}=await import('./js/config.js');
 const {createBackupEnvelope,readBackup,backupPayload,backupHealth,BACKUP_FORMAT}=await import('./js/backupGuard26.js');
 const assert=(x,m)=>{if(!x)throw new Error(m)};
 const ref=new Date('2026-08-20T10:00:00+02:00');
 const state={
- meta:{schemaVersion:42},
+ meta:{schemaVersion:SCHEMA_VERSION},
  personalAdmin:{items:[{id:'p1',title:'Pojištění',status:'ACTIVE',runtimeOnly:undefined}]},
  familyHome:{members:[{id:'f1',name:'Rodina',status:'ACTIVE'}]},
  emergencyFile:{contacts:[{id:'c1',name:'Kontakt',status:'ACTIVE'}],assets:[{id:'a1',title:'Dokumenty',status:'ACTIVE'}]},
@@ -17,14 +18,14 @@ assert(Array.isArray(cleaned.undo)&&cleaned.undo.length===0,'portable backup str
 assert(state.undo.length===1,'backup cleanup does not mutate live state');
 assert(!('runtimeOnly' in cleaned.personalAdmin.items[0]),'runtime-only undefined value normalized before fingerprint');
 const env=createBackupEnvelope(state,ref);
-assert(env.format===BACKUP_FORMAT&&env.schemaVersion===42,'envelope metadata');
+assert(env.format===BACKUP_FORMAT&&env.schemaVersion===SCHEMA_VERSION,'envelope metadata uses canonical schema');
 assert(!JSON.stringify(env).includes('UNDO-SECRET-SHOULD-NOT-EXPORT'),'undo historical secret not exported');
 assert(env.payload.personalAdmin.items[0].title==='Pojištění','user records preserved');assert(env.payload.personalInbox.items.length===1&&env.payload.assetBook.items.length===1&&env.payload.personalGoals.items.length===1,'Autopilot records preserved');assert(env.payload.personalSpending.transactions.length===1&&env.payload.importCenter.history.length===1,'Smart Import records preserved');assert(env.payload.netWorthBook.items.length===1&&env.payload.netWorthBook.history.length===1,'True Net Worth records preserved');
 let read=readBackup(env);assert(read.ok&&!read.legacy,'new backup verifies');assert(read.fingerprint===env.fingerprint,'fingerprint roundtrip');
 const downloaded=JSON.parse(JSON.stringify(env));read=readBackup(downloaded);assert(read.ok,'fingerprint survives actual JSON serialization roundtrip');
 const tampered=structuredClone(downloaded);tampered.payload.personalAdmin.items[0].title='Změněno';read=readBackup(tampered);assert(!read.ok&&read.code==='FINGERPRINT_MISMATCH','tampering detected');
 read=readBackup({meta:{schemaVersion:38},personalAdmin:{items:[]}});assert(read.ok&&read.legacy,'legacy raw JSON remains supported');
-read=readBackup({format:BACKUP_FORMAT,formatVersion:1,schemaVersion:999,fingerprint:'x',payload:{meta:{schemaVersion:999}}});assert(!read.ok&&read.code==='FUTURE_SCHEMA','future schema blocked');
+read=readBackup({format:BACKUP_FORMAT,formatVersion:1,schemaVersion:SCHEMA_VERSION+1,fingerprint:'x',payload:{meta:{schemaVersion:SCHEMA_VERSION+1}}});assert(!read.ok&&read.code==='FUTURE_SCHEMA','future schema blocked');
 let health=backupHealth(state,{},ref);assert(health.status==='NO_BACKUP','missing backup detected');
 health=backupHealth(state,{lastBackupAt:'2026-08-01T10:00:00+02:00'},ref);assert(health.status==='AGING','aging backup detected');
 health=backupHealth(state,{lastBackupAt:'2026-07-01T10:00:00+02:00'},ref);assert(health.status==='STALE','stale backup detected');
