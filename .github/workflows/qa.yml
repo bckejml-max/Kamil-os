@@ -69,6 +69,10 @@ jobs:
         run: node core_hardening_31_test.mjs
       - name: System Health 31.0
         run: node system_health_31_test.mjs
+      - name: Decision Journal 31.1
+        run: node decision_journal_31_test.mjs
+      - name: Decision Journal integration 31.1
+        run: node decision_journal_31_integration_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
@@ -123,7 +127,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser E2E 31.0
+      - name: Browser E2E 31.1
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!

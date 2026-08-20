@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+const assert=(x,m)=>{if(!x)throw new Error(m)};const text=f=>fs.readFileSync(f,'utf8');
+const files=['index.html','manifest.webmanifest','sw.js','package.json','js/config.js','js/releaseMeta.js','js/decisionJournal31.js','js/decisionJournalUi31.js','js/personalToday26.js','js/personalQuery29.js','decision_journal_31_test.mjs','decision_journal_31_integration_test.mjs','e2e_31.spec.mjs','release_gate_31_1.mjs'];for(const f of files)assert(fs.existsSync(f),'Missing 31.1 file '+f);
+const config=text('js/config.js'),meta=text('js/releaseMeta.js'),html=text('index.html'),sw=text('sw.js'),journal=text('js/decisionJournal31.js'),ui=text('js/decisionJournalUi31.js'),today=text('js/personalToday26.js'),query=text('js/personalQuery29.js');
+assert(meta.includes("APP_VERSION='31.1.0'")&&meta.includes("APP_RELEASE='31.1'"),'31.1 release metadata missing');assert(config.includes('SCHEMA_VERSION = 42'),'31.1 must remain schema 42');
+for(const immutable of ['kamil_os_state','kamil_calendar_cache','kamil_xtb_data','kamil-os-state','kamil-os-22-meta','kamil-os-22-sync-queue'])assert(config.includes(immutable),'immutable storage key missing '+immutable);
+assert(html.includes('Kamil OS 31.1')&&html.includes('31.1.0')&&html.includes('./js/decisionJournalUi31.js'),'31.1 shell missing');assert(sw.includes('kamil-os-31.1.0-shell-r1')&&sw.includes('./js/decisionJournal31.js'),'31.1 PWA cache missing');
+for(const x of ['decisionJournalEntry','appendDecisionJournal','decisionJournalReview','OBSERVED_KEYS'])assert(journal.includes(x),'Decision Journal engine missing '+x);for(const browser of ['document.','window.','localStorage','navigator.','fetch(','XMLHttpRequest','supabase','store.'])assert(!journal.includes(browser),'Decision Journal engine must stay pure: '+browser);
+assert(journal.includes("'pnlPct'")&&journal.includes("'workflow'")&&!journal.includes("'password'"),'observed allowlist/privacy drift');assert(journal.includes('250'),'journal cap missing');
+assert(ui.includes('Decision Journal 31.1')&&ui.includes('ack-delta')&&ui.includes('undo:false,audit:false'),'journal UI acknowledgement/persistence invariant missing');
+assert(today.includes('observed:{pnlPct:')&&today.includes('workflow:x.workflow'),'safe observed decision facts missing');assert(query.includes('decisionJournalReview')&&query.includes('Co jsme doporučili')||query.includes('Decision Journal'),'Copilot journal route missing');
+const workflow=text('.github/workflows/qa.yml');assert(workflow.includes('decision_journal_31_test.mjs')&&workflow.includes('decision_journal_31_integration_test.mjs')&&workflow.includes('test:e2e'),'31.1 CI coverage missing');
+console.log('KAMIL OS 31.1 STATIC QA PASS');

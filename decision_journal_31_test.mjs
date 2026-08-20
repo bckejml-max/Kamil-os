@@ -1,0 +1,10 @@
+import {decisionJournalEntry,appendDecisionJournal,decisionJournalReview} from './js/decisionJournal31.js';
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const now=new Date('2026-08-20T10:00:00Z'),d={domain:'money',id:'WDAY',title:'WDAY · REDUKOVAT',kind:'XTB',action:'TRIM',priority:90,reason:'Test',when:'Teď',buyRule:'Ne',sellRule:'Část',source:'AUTO',observed:{pnlPct:40,weightPct:10,value:12000,currency:'CZK'}};
+const e=decisionJournalEntry(d,now,'ACTION');assert(e.key==='money|WDAY'&&e.action==='TRIM'&&e.observed.pnlPct===40,'journal entry invalid');
+let r=appendDecisionJournal([], [d], now,{['money|WDAY']:'ACTION'});assert(r.added===1&&r.items.length===1,'first append failed');
+r=appendDecisionJournal(r.items,[d],new Date('2026-08-20T11:00:00Z'));assert(r.added===0&&r.items.length===1,'identical snapshot must dedupe');
+const d2={...d,action:'HOLD',priority:45,observed:{...d.observed,pnlPct:28}};r=appendDecisionJournal(r.items,[d2],new Date('2026-08-21T10:00:00Z'));assert(r.added===1&&r.items.length===2,'changed decision must append');
+const state={decisionJournal:{items:r.items}},review=decisionJournalReview(state,[{...d2,action:'SELL',priority:95,observed:{...d.observed,pnlPct:20}}],new Date('2026-08-22T10:00:00Z'));assert(review.total===2&&review.tracked===1&&review.changed===1,'review summary invalid');assert(review.items[0].observedShift?.kind==='PNL_SHIFT'&&review.items[0].observedShift.delta===-8,'P/L shift must be observational only');assert(review.note.includes('není sama o sobě důkaz'),'causality disclaimer missing');
+const secret=decisionJournalEntry({...d,observed:{password:'x',pnlPct:1}},now);assert(!('password'in secret.observed)&&secret.observed.pnlPct===1,'unknown/sensitive observed keys must be discarded');
+console.log('DECISION JOURNAL 31.1 TEST PASS');

@@ -5,7 +5,7 @@ const BASE='http://127.0.0.1:4173';
 test('Kamil OS 31 local-first critical flow',async({page})=>{
   const requests=[];page.on('request',r=>requests.push(r.url()));
   await page.goto(BASE,{waitUntil:'networkidle'});
-  await expect(page).toHaveTitle(/Kamil OS 31\.0/);
+  await expect(page).toHaveTitle(/Kamil OS 31\.1/);
   await expect(page.locator('#appView')).toBeVisible();
   await expect(page.locator('#syncStatus')).toContainText('Jen toto zařízení');
   expect(requests.some(u=>u.includes('@supabase/supabase-js'))).toBeFalsy();
@@ -14,6 +14,11 @@ test('Kamil OS 31 local-first critical flow',async({page})=>{
     await page.locator('#mainNav').getByRole('button',{name}).click();
     await expect(page.locator('.view.on')).toBeVisible();
   }
+
+  await expect(page.locator('#decisionJournal31Button')).toBeVisible();
+  await page.locator('#decisionJournal31Button').click();
+  await expect(page.getByRole('heading',{name:'Decision Journal 31.1'})).toBeVisible();
+  await page.getByRole('button',{name:'Zavřít'}).click();
 
   const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('kamil-os-state')||'{}').tasks?.length||0);
   await page.locator('#commandInput').fill('naprosto neznámá instrukce xyz 31');

@@ -3,12 +3,17 @@ import {goalPlan,priceHistory,changeFeed,reminderEscalation,onboardingWizard} fr
 import {personalCopilot30} from './personalCopilot30.js';
 import {buildPersonalToday} from './personalToday26.js';
 import {decisionDelta30} from './decisionDelta30.js';
+import {decisionJournalReview} from './decisionJournal31.js';
 
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('cs-CZ').trim();
 const money=(v,c)=>`${Math.round(Number(v)||0).toLocaleString('cs-CZ')} ${c}`;
 
 export function personalQuery(raw,s={},meta={},now=new Date()){
  const q=norm(raw);if(!q)return null;
+ if(q.includes('co jsme doporucili')||q.includes('co jsi doporucil')||q.includes('historie rozhodnuti')||q.includes('decision journal')||q.includes('minula doporuceni')){
+  const r=decisionJournalReview(s,buildPersonalToday(s,now),now);if(!r.total)return {title:'Decision Journal',lines:['Zatím není uložený žádný potvrzený rozhodovací snapshot.'],note:r.note};
+  return {title:'Decision Journal',lines:r.items.slice(0,12).map(x=>`${new Date(x.at).toLocaleDateString('cs-CZ')} · ${x.title} — ${x.action||'—'} · priorita ${x.priority}/100${x.actionChanged?` · teď ${x.currentAction||'—'}`:''}`),note:r.note};
+ }
  if(q.includes('co se zmenilo od minule')||q.includes('od posledni kontroly')||q.includes('decision delta')||q.includes('zmenilo rozhodnuti')){
   const d=decisionDelta30(buildPersonalToday(s,now),meta.decisionBaseline30,now);
   if(!d.initialized)return {title:'Co se změnilo od minule',lines:['Ještě nemám potvrzený předchozí rozhodovací snapshot. Otevři Dnes; výchozí stav se uloží lokálně a další změny už půjdou porovnat.'],note:d.note};
