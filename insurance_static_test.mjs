@@ -1,0 +1,14 @@
+import fs from 'fs';
+const html=fs.readFileSync('index.html','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+const cfg=fs.readFileSync('js/config.js','utf8');
+const core=fs.readFileSync('js/insurance25.js','utf8');
+const ui=fs.readFileSync('js/insuranceUi25.js','utf8');
+for(const f of ['js/insurance25.js','js/insuranceUi25.js'])if(!fs.existsSync(f))throw new Error('Missing '+f);
+if(!html.includes('insuranceUi25.js'))throw new Error('Insurance UI not loaded in shell');
+for(const a of ['insurance25.js','insuranceUi25.js'])if(!sw.includes(a))throw new Error('Insurance asset missing from PWA cache: '+a);
+for(const x of ['insuranceCenter','INSURANCE_KINDS','insuranceNote'])if(!core.includes(x))throw new Error('Insurance core missing '+x);
+for(const x of ['INSURANCE CENTER / 25.14','Pojistné bez falešných FX součtů','data-ins-edit'])if(!ui.includes(x))throw new Error('Insurance UI missing '+x);
+if(!cfg.includes("APP_VERSION = '25.14.0'"))throw new Error('Version mismatch');
+if(!cfg.includes('SCHEMA_VERSION = 36'))throw new Error('Schema changed unexpectedly');
+console.log('insurance static OK');
