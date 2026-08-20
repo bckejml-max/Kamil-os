@@ -22,10 +22,12 @@ export async function uploadPendingSmartSync31(){
 }
 
 export async function fetchRemoteChanges31({limit=100}={}){
- if(typeof navigator!=='undefined'&&!navigator.onLine)return {ok:false,reason:'OFFLINE',rows:[]};
- const c=await cloudClient(false);if(!c)return {ok:false,reason:'LOCAL_ONLY',rows:[]};
- const sess=(await c.auth.getSession()).data.session;if(!sess)return {ok:false,reason:'NO_SESSION',rows:[]};
- try{const deviceId=deviceId31(),safeLimit=Math.max(1,Math.min(250,Number(limit)||100)),{data,error}=await c.from(TABLE).select('id,device_id,seq,domain,entity_id,op,payload,client_at,created_at').neq('device_id',deviceId).order('created_at',{ascending:false}).limit(safeLimit);if(error)throw error;return {ok:true,deviceId,rows:data||[],fetchedAt:new Date().toISOString()}}catch(error){return {ok:false,error:String(error?.message||error),rows:[]}}
+ try{
+  if(typeof navigator!=='undefined'&&!navigator.onLine)return {ok:false,reason:'OFFLINE',rows:[]};
+  const c=await cloudClient(false);if(!c)return {ok:false,reason:'LOCAL_ONLY',rows:[]};
+  const sess=(await c.auth.getSession()).data.session;if(!sess)return {ok:false,reason:'NO_SESSION',rows:[]};
+  const deviceId=deviceId31(),safeLimit=Math.max(1,Math.min(250,Number(limit)||100)),{data,error}=await c.from(TABLE).select('id,device_id,seq,domain,entity_id,op,payload,client_at,created_at').neq('device_id',deviceId).order('created_at',{ascending:false}).limit(safeLimit);if(error)throw error;return {ok:true,deviceId,rows:data||[],fetchedAt:new Date().toISOString()};
+ }catch(error){return {ok:false,error:String(error?.message||error),rows:[]}}
 }
 
 export async function runSmartSync31({rebase=false,discardOps=false,upload=true}={}){
