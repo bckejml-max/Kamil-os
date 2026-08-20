@@ -4,8 +4,8 @@ export const BACKUP_FORMAT='KAMIL_OS_BACKUP';
 export const BACKUP_FORMAT_VERSION=1;
 export const backupGuardNote='JSON záloha není šifrovaná. Ulož ji na bezpečné místo. Kontrolní otisk chrání proti náhodnému poškození souboru, není to kryptografický podpis.';
 
-const clone=v=>typeof structuredClone==='function'?structuredClone(v):JSON.parse(JSON.stringify(v));
 const obj=v=>v&&typeof v==='object'&&!Array.isArray(v);
+const jsonClone=v=>JSON.parse(JSON.stringify(v));
 const utf8Bytes=s=>typeof TextEncoder!=='undefined'?new TextEncoder().encode(s).length:unescape(encodeURIComponent(s)).length;
 
 function stableStringify(v){
@@ -25,7 +25,9 @@ export function backupFingerprint(payload){
 }
 
 export function backupPayload(state){
- const payload=clone(obj(state)?state:{});
+ // Normalize through the exact JSON representation that will be downloaded.
+ // This removes runtime-only undefined values before the fingerprint is calculated.
+ const payload=jsonClone(obj(state)?state:{});
  // Undo snapshots contain older full copies of state and can grow recursively.
  // They are runtime recovery data, not user records, so a portable backup starts with a clean undo stack.
  payload.undo=[];
