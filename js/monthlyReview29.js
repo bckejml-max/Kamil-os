@@ -56,7 +56,7 @@ export function personalMonthlyReview(s={},meta={},now=new Date()){
  for(const x of costChanges.filter(x=>x.direction==='DOWN').slice(0,2))progress.push({key:`saving:${x.key}`,kind:'COST',title:`Zlevnění: ${x.title}`,amount:round(Math.abs(x.delta)),currency:x.currency,detail:`Skutečná uložená částka klesla z ${round(x.previous)} na ${round(x.current)} ${x.currency}.`});
 
  const attention=[];
- for(const x of reminders.items.filter(x=>x.days<0||x.priority>=90).slice(0,4))attention.push({key:`reminder:${x.key}`,priority:x.priority,title:x.title,detail:`${x.label} · ${x.detail}`,target:x.target||'home',mode:x.homeMode||'timeline',source:'TERMÍN'});
+ for(const x of reminders.items.filter(x=>x.days<0||x.priority>=86).slice(0,4))attention.push({key:`reminder:${x.key}`,priority:x.priority,title:x.title,detail:`${x.label} · ${x.detail}`,target:x.target||'home',mode:x.homeMode||'timeline',source:'TERMÍN'});
  for(const x of goals.items.filter(x=>x.priority>=70).slice(0,3))attention.push({key:`goal:${x.id}`,priority:x.priority,title:x.title,detail:x.reason,target:'money',mode:null,source:'CÍL'});
  if(allocation.unfundedPlan>0)attention.push({key:'unfunded-plan',priority:92,title:'Plánovaná investice přesahuje bezpečný prostor',detail:`Chybí ${round(allocation.unfundedPlan).toLocaleString('cs-CZ')} podle uloženého cashflow a rezervy.`,target:'money',mode:null,source:'PENÍZE'});
  if(allocation.cockpit?.urgent>0)attention.push({key:'ticket-risk',priority:91,title:`Urgentní ticket pozice: ${allocation.cockpit.urgent}`,detail:'Nejdřív zkontrolovat neprodanou zásobu před novým ticket kapitálem.',target:'tickets',mode:null,source:'VSTUPENKY'});
