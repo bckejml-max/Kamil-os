@@ -23,7 +23,4 @@ export function refreshRiskBadge41(state,delay=5000){clearTimeout(riskTimer);ris
 export async function runPreflight41(){const m=await load('./preflight.js');return m.runPreflight?.()}
 let notifyTimer=null;
 export function scheduleNotifications41(delay=4500){clearTimeout(notifyTimer);notifyTimer=setTimeout(()=>{Promise.allSettled([load('./autopilotUi28.js').then(m=>m.runAutopilotNotifications?.()),load('./personalPlusUi29.js').then(m=>m.runReminderNotifications?.())])},delay)}
-export function warmRuntime41(){
- idle(()=>Promise.allSettled([load('./personalRisk25.js'),load('./autopilotUi28.js'),load('./personalPlusUi29.js')]),9000);
- if(!navigator.connection?.saveData){setTimeout(()=>prefetchView41('tickets'),3200);setTimeout(()=>prefetchView41('money'),5200)}
-}
+export function warmRuntime41(){idle(()=>Promise.allSettled([load('./personalRisk25.js'),load('./autopilotUi28.js'),load('./personalPlusUi29.js')]),9000)}
