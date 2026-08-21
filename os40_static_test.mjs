@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(p,'utf8'),assert=(x,m)=>{if(!x)throw new Error(m)};
+const os=read('js/os40.js'),dc=read('js/decisionCenter36.js'),ui=read('js/todayBrainUi34.js'),meta=read('js/releaseMeta.js'),index=read('index.html'),sw=read('sw.js');
+const exports40=['confidenceEngine40','riskEngine40','opportunityCost40','explainDecision40','whatIfSimulator40','guardrails40','universalInbox40','entityGraph40','directorIntelligence40','waitingAnalytics40','earlyWarning40','moneyBrain40','ticketPortfolioManager40','performanceAttribution40','forecastEngine40','morningBrief40','eveningReview40','copilot40','commandCenter40','autopilot40'];
+for(const name of exports40)assert(os.includes(`export function ${name}`),`OS40 export missing: ${name}`);
+for(const invariant of ['autoTrade:false','autoReprice:false','autoSend:false','autoDelete:false','criticalActionsRequireConfirmation:true'])assert(os.includes(invariant),`OS40 safety invariant missing: ${invariant}`);
+for(const invariant of ['explicitFeedbackOnly:true','maxLearnedPriorityShift:8','safetyBlocksNeverReduced:true'])assert(dc.includes(invariant),`Decision Center safety invariant missing: ${invariant}`);
+assert(meta.includes("APP_NAME='Kamil OS'")&&meta.includes("APP_VERSION='40.0.0'")&&meta.includes("APP_RELEASE='40.0'"),'OS40 canonical release metadata missing');
+assert(index.includes('<title>Kamil OS 40.0</title>')&&index.includes('./js/focusActionUi35.js')&&index.includes('./js/changePulseUi35.js'),'OS40 shell / 35.1 integration missing');
+for(const asset of ['./js/os40.js','./js/decisionCenter36.js','./js/changePulse35.js','./js/changePulseUi35.js','./js/focusActionUi35.js'])assert(sw.includes(asset),`OS40 PWA asset missing: ${asset}`);
+assert(sw.includes("const CACHE='kamil-os-40.0.0-shell-r1'"),'OS40 PWA cache version missing');
+assert(ui.includes('KAMIL OS 40.0')||ui.includes('AUTOPILOT / 40.0')||ui.includes('40.0 AUTOPILOT'),'OS40 user-facing command center marker missing');
+console.log('KAMIL OS 40 STATIC RELEASE GATE PASS');
