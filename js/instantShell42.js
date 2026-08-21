@@ -6,6 +6,7 @@
   const root=document.documentElement;
   const now=Date.now();
   const fullStyles=['./styles.css','./today25.css','./personal29.css','./theme33.css'];
+  let lazyFeaturesStarted=false;
 
   function parse(raw,fallback=null){try{return JSON.parse(raw)}catch{return fallback}}
   function applyTheme(){
@@ -48,6 +49,10 @@
     try{localStorage.setItem(SNAPSHOT_KEY,JSON.stringify({version:VERSION,html,at:Date.now()}))}catch{}
   }
   function idle(fn,timeout=1800){if('requestIdleCallback'in window)return requestIdleCallback(fn,{timeout});return setTimeout(fn,450)}
+  function startLazyFeatures(){
+    if(lazyFeaturesStarted)return;lazyFeaturesStarted=true;
+    idle(()=>import('./lazyBoot41.js').catch(()=>{}),1800);
+  }
   async function loadFullApp(){
     try{
       const partition=await import('./coldPartition42.js');
@@ -58,7 +63,8 @@
       import('./state.js').then(({store})=>{const b=document.querySelector('#undoBtn');if(b)b.disabled=!store.undoCount()}).catch(()=>{});
       idle(()=>partition.startColdPartition42().catch?.(()=>{}),650);
       setTimeout(saveSnapshot,3800);
-      idle(()=>Promise.allSettled([import('./theme33.js'),import('./releaseStamp.js'),import('./lazyBoot41.js')]),2600);
+      idle(()=>Promise.allSettled([import('./theme33.js'),import('./releaseStamp.js')]),2200);
+      setTimeout(startLazyFeatures,8000);
     }catch(error){
       console.error('[instantShell43]',error);
       const host=document.querySelector('#todayView');if(host)host.insertAdjacentHTML('beforeend','<div class="decision-note bad">Detail aplikace se nepodařilo načíst. Lokální data zůstala beze změny.</div>');
@@ -67,8 +73,8 @@
 
   applyTheme();paintInstant();
   requestAnimationFrame(()=>requestAnimationFrame(loadStyles));
-  window.addEventListener('kamil:today-full-ready',()=>setTimeout(saveSnapshot,120));
-  window.addEventListener('kamil:view-change',e=>{if(e.detail==='today')setTimeout(saveSnapshot,1200)});
+  window.addEventListener('kamil:today-full-ready',()=>{setTimeout(saveSnapshot,120);setTimeout(startLazyFeatures,1800)},{once:true});
+  window.addEventListener('kamil:view-change',e=>{if(e.detail==='today')setTimeout(saveSnapshot,1200);else startLazyFeatures()});
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveSnapshot()});
   window.addEventListener('beforeunload',saveSnapshot);
   requestAnimationFrame(()=>requestAnimationFrame(loadFullApp));
