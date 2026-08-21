@@ -19,8 +19,12 @@ function boot(){
  // Explicit navigation is user intent: primary UI loads now, expensive extras stay staged.
  window.addEventListener('kamil:view-change',e=>{booted=true;loadGroup(e.detail||'today',{staged:true})});
  window.addEventListener('kamil:navigate',e=>{booted=true;loadGroup(e.detail||'today',{staged:true})});
- // Choosing a More/System submode is stronger intent; its complete diagnostic stack loads immediately.
- window.addEventListener('kamil:more',()=>{booted=true;loadGroup('more',{staged:false})});
+ // Choosing a More/System submode is stronger intent. Load every diagnostic,
+ // then replay navigation only after their legacy listeners are installed.
+ window.addEventListener('kamil:more',()=>{
+   booted=true;
+   loadGroup('more',{staged:false}).then(()=>import('./systemDiagnostics421.js')).then(m=>m.renderSystemDiagnostics421()).catch(err=>console.error('[lazyBoot41/system]',err));
+ });
  setTimeout(()=>idle(()=>Promise.allSettled([loadModule('./autopilotNavBridge28.js'),loadModule('./personalPlusNav29.js')]),3500),15000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
