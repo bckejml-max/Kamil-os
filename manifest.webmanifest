@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 32.4",
+  "name": "Kamil OS 32.5",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 32.4 Market Edge — SEC source ingestion, XTB execution tuning, ticket pricing radar and Recovery Shield",
+  "description": "Kamil OS 32.5 Profit Control — FX-safe XTB allocation, 25k contribution planning and event-level ticket action queues",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
