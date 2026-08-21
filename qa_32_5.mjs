@@ -11,7 +11,7 @@ assert(fx.includes('marketFxRate32')&&fx.includes('fxSymbolsFromState32')&&fx.in
 assert(audit.includes('valuationComplete')&&audit.includes('missingFx')&&audit.includes('currencyBreakdown'),'FX-safe audit missing');
 assert(contrib.includes("contract:'ALLOCATION_PROPOSAL_ONLY'")&&contrib.includes('requiresFreshXtb:true')&&contrib.includes('requiresCompleteFx:true')&&contrib.includes('autoTrade:false'),'contribution safety missing');
 assert(tickets.includes('ticketEventPortfolio32')&&tickets.includes('ticketActionQueue32')&&tickets.includes('autoPrice:false')&&tickets.includes('autoSell:false'),'ticket event portfolio safety missing');
-assert(ui.includes('Portfolio audit bez míchání měn')&&ui.includes("old.hidden=true")&&ui.includes('Event Portfolio & Action Queue'),'32.5 UI safety missing');
+assert(ui.includes('Portfolio audit bez míchání měn')&&ui.includes("querySelector('.audit-grid')?.remove()")&&ui.includes('Event Portfolio & Action Queue'),'32.5 UI safety missing');
 assert(live.includes('autoTrading:false')&&live.includes('unsourcedOverride:false'),'Live Brain safety regressed');
 assert(copilot.includes("flow:['UNDERSTAND','PROPOSE','PREVIEW','CONFIRM','EXECUTE']")&&!copilot.includes('window.'),'Copilot write safety regressed');
 assert(recovery.includes("reason:'PRE_RESTORE'")&&!recovery.includes('.delete('),'Recovery safety regressed');
