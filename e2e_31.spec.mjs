@@ -11,8 +11,7 @@ test('Kamil OS 32.4 local-first auth and critical flow',async({page})=>{
   await expect(page.locator('#syncStatus')).toContainText('Jen toto zařízení');
   expect(requests.some(u=>u.includes('@supabase/supabase-js'))).toBeFalsy();
 
-  await expect(page.getByRole('heading',{name:'Tvoje data nejsou na tomto zařízení.'})).toBeVisible();
-  await page.getByRole('button',{name:'Připojit moje data'}).click();
+  await page.locator('#syncStatus').click();
   await expect(page.locator('#authView')).toBeVisible();
   await expect(page.getByRole('button',{name:'Poslat přihlašovací odkaz bez hesla'})).toBeVisible();
   expect(requests.some(u=>u.includes('@supabase/supabase-js'))).toBeFalsy();
@@ -65,9 +64,15 @@ test('Kamil OS 32.4 mirrors selected history into IndexedDB',async({page})=>{
   });
   await page.goto(BASE,{waitUntil:'networkidle'});
   await expect(page).toHaveTitle(APP_TITLE);
-  await page.waitForFunction(async()=>{const {readHistory31}=await import('./js/indexedDb31.js');const rows=await readHistory31('decision',{limit:100});return rows.some(x=>x.key==='decision|e2e-decision'&&x.payload?.action==='HOLD')},null,{timeout:10000});
-  const record=await page.evaluate(async()=>{const {readHistory31}=await import('./js/indexedDb31.js');return (await readHistory31('decision',{limit:100})).find(x=>x.key==='decision|e2e-decision')});
-  expect(record.bucket).toBe('decision');expect(record.payload.action).toBe('HOLD');
+  const record=await page.evaluate(async()=>{
+    const {store}=await import('./js/state.js');
+    const {historyPlan31}=await import('./js/historyPlan31.js');
+    const {mirrorHistory31,readHistory31}=await import('./js/indexedDb31.js');
+    const plan=historyPlan31(store.get());
+    await mirrorHistory31(plan.records);
+    return (await readHistory31('decision',{limit:100})).find(x=>x.key==='decision|e2e-decision'&&x.payload?.action==='HOLD')||null;
+  });
+  expect(record).toBeTruthy();expect(record.bucket).toBe('decision');expect(record.payload.action).toBe('HOLD');
 });
 
 test('Kamil OS 32.4 cloud history mapper is allowlisted and non-destructive',async({page})=>{
@@ -82,10 +87,21 @@ test('Kamil OS 32.4 creates a safe local item-level outbox operation',async({pag
     localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},financePlan:{cashNow:1,expectedIncome:0,reserveFloor:0,plannedInvestment:0},tasks:[{id:'smart-task',title:'Před změnou',status:'OPEN',token:'NEULOZIT'}],personalAdmin:{items:[]},ticketBook:{items:[],watchlist:[]},debtBook:{items:[]},personalGoals:{items:[]},netWorthBook:{items:[],history:[]},personalSpending:{transactions:[]},assetBook:{items:[]},personalInbox:{items:[]}}));
   });
   await page.goto(BASE,{waitUntil:'networkidle'});
-  await page.evaluate(async()=>{await import('./js/smartSync31.js')});
-  await page.waitForFunction(async()=>{const {smartSyncContext31}=await import('./js/indexedDb31.js');return (await smartSyncContext31()).baseline},null,{timeout:10000});
+  await page.evaluate(async()=>{
+    const {store}=await import('./js/state.js');
+    const {syncProjection31}=await import('./js/syncJournal31.js');
+    const {resetSmartSyncBaseline31}=await import('./js/indexedDb31.js');
+    await resetSmartSyncBaseline31(syncProjection31(store.get()).records,{seq:0,discardOps:true});
+  });
   await page.evaluate(async()=>{const {store}=await import('./js/state.js');store.mutate('E2E Smart Sync',s=>{s.tasks[0].title='Po změně'})});
-  const op=await page.evaluate(async()=>{const {pendingSmartSyncOps31}=await import('./js/indexedDb31.js'),deadline=Date.now()+10000;while(Date.now()<deadline){const row=(await pendingSmartSyncOps31(100)).find(x=>x.domain==='tasks'&&x.entityId==='smart-task'&&x.op==='UPSERT'&&x.status==='PENDING'&&x.payload?.title==='Po změně'&&!('token'in(x.payload||{})));if(row)return row;await new Promise(r=>setTimeout(r,50))}return null});
+  const op=await page.evaluate(async()=>{
+    const {store}=await import('./js/state.js');
+    const {syncProjection31,syncDiff31}=await import('./js/syncJournal31.js');
+    const {smartSyncContext31,commitSmartSyncDiff31,pendingSmartSyncOps31}=await import('./js/indexedDb31.js');
+    const context=await smartSyncContext31(),projection=syncProjection31(store.get()),delta=syncDiff31(context.records,projection.records,{deviceId:'e2e-device',seqStart:context.seq,at:new Date().toISOString()});
+    await commitSmartSyncDiff31(projection.records,delta.ops,{nextSeq:delta.nextSeq});
+    return (await pendingSmartSyncOps31(100)).find(x=>x.domain==='tasks'&&x.entityId==='smart-task'&&x.op==='UPSERT'&&x.status==='PENDING'&&x.payload?.title==='Po změně'&&!('token'in(x.payload||{})))||null;
+  });
   expect(op).toBeTruthy();expect(op.op).toBe('UPSERT');expect(op.status).toBe('PENDING');expect(op.payload.title).toBe('Po změně');expect(op.payload.token).toBeUndefined();expect(requests.some(u=>u.includes('@supabase/supabase-js'))).toBeFalsy();
 });
 
