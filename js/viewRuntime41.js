@@ -10,11 +10,11 @@ export async function setMoreMode41(mode){await hydrateColdView42('more');const 
 export async function openCapture41(type){const m=await load('./capture26.js');return m.openQuickCapture(type)}
 export async function renderCommandResults41(value){const m=await load('./command.js');return m.renderResults(value)}
 export async function executeCommand41(value){const m=await load('./command.js');return m.execute(value)}
-export function renderExtras41(view){const run=()=>{const jobs=[];if(view!=='today')jobs.push(load('./autopilotUi28.js').then(m=>m.renderAutopilot?.(view)));jobs.push(load('./personalPlusUi29.js').then(m=>m.renderPersonalPlus?.(view)));if(view==='more')jobs.push(load('./perfUi43.js').then(m=>m.renderPerf43?.()));return Promise.allSettled(jobs)};if(view==='today'){idle(run,4200);return Promise.resolve([])}return run()}
+export function renderExtras41(view){const run=()=>{const jobs=[];if(view!=='today')jobs.push(load('./autopilotUi28.js').then(m=>m.renderAutopilot?.(view)));jobs.push(load('./personalPlusUi29.js').then(m=>m.renderPersonalPlus?.(view)));if(view==='more')jobs.push(load('./perfUi43.js').then(m=>m.renderPerf43?.()));return Promise.allSettled(jobs)};if(view==='today'){idle(run,7000);return Promise.resolve([])}return run()}
 let riskTimer=null;
 async function doRiskBadge(state){try{const m=await load('./personalRisk25.js'),risk=m.personalRiskCenter(state),count=Number(risk?.critical||0)+Number(risk?.high||0),b=document.querySelector('#moreBadge');if(b){b.textContent=count;b.classList.toggle('hidden',!count)}return count}catch{return 0}}
-export function refreshRiskBadge41(state,delay=1800){clearTimeout(riskTimer);riskTimer=setTimeout(()=>doRiskBadge(state),delay);return Promise.resolve(null)}
+export function refreshRiskBadge41(state,delay=5000){clearTimeout(riskTimer);riskTimer=setTimeout(()=>doRiskBadge(state),delay);return Promise.resolve(null)}
 export async function runPreflight41(){const m=await load('./preflight.js');return m.runPreflight?.()}
 let notifyTimer=null;
-export function scheduleNotifications41(delay=700){clearTimeout(notifyTimer);notifyTimer=setTimeout(()=>{Promise.allSettled([load('./autopilotUi28.js').then(m=>m.runAutopilotNotifications?.()),load('./personalPlusUi29.js').then(m=>m.runReminderNotifications?.())])},delay)}
-export function warmRuntime41(){idle(()=>Promise.allSettled([load('./personalRisk25.js'),load('./autopilotUi28.js'),load('./personalPlusUi29.js')]),6500)}
+export function scheduleNotifications41(delay=4500){clearTimeout(notifyTimer);notifyTimer=setTimeout(()=>{Promise.allSettled([load('./autopilotUi28.js').then(m=>m.runAutopilotNotifications?.()),load('./personalPlusUi29.js').then(m=>m.runReminderNotifications?.())])},delay)}
+export function warmRuntime41(){idle(()=>Promise.allSettled([load('./personalRisk25.js'),load('./autopilotUi28.js'),load('./personalPlusUi29.js')]),9000)}
