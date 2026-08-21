@@ -1,11 +1,12 @@
+import {hydrateColdView42} from './coldPartition42.js';
 const modules=new Map();
 const viewDefs={today:['./today29.js','renderToday'],money:['./money24.js','renderMoney'],tickets:['./tickets24.js','renderTickets'],home:['./home26.js','renderHome'],more:['./more26.js','renderMore']};
 export const validViews41=new Set(Object.keys(viewDefs));
 function load(path){if(modules.has(path))return modules.get(path);const p=import(path).catch(err=>{modules.delete(path);throw err});modules.set(path,p);return p}
 const idle=(fn,timeout=1800)=>'requestIdleCallback'in window?requestIdleCallback(fn,{timeout}):setTimeout(fn,650);
-export async function getViewRenderer41(name='today'){const key=validViews41.has(name)?name:'today',def=viewDefs[key],m=await load(def[0]);return m[def[1]]}
+export async function getViewRenderer41(name='today'){const key=validViews41.has(name)?name:'today',def=viewDefs[key];await hydrateColdView42(key);const m=await load(def[0]);return m[def[1]]}
 export function prefetchView41(name){const key=validViews41.has(name)?name:'today',def=viewDefs[key];return load(def[0]).catch(()=>null)}
-export async function setMoreMode41(mode){const m=await load('./more26.js');m.setMoreMode?.(mode)}
+export async function setMoreMode41(mode){await hydrateColdView42('more');const m=await load('./more26.js');m.setMoreMode?.(mode)}
 export async function openCapture41(type){const m=await load('./capture26.js');return m.openQuickCapture(type)}
 export async function renderCommandResults41(value){const m=await load('./command.js');return m.renderResults(value)}
 export async function executeCommand41(value){const m=await load('./command.js');return m.execute(value)}
