@@ -1,6 +1,6 @@
 (function(){
-  const VERSION='41.3.0';
-  const SNAPSHOT_KEY='kamil-os-fast-snapshot-41-3';
+  const VERSION='41.4.0';
+  const SNAPSHOT_KEY='kamil-os-fast-snapshot-41-4';
   const BOOT_KEY='kamil-os-41-boot-summary';
   const THEME_KEY='kamil-os-theme33';
   const PARTITION_LAYOUT=3;
@@ -24,7 +24,7 @@
   }
   function fallbackHtml(){
     const b=bootInfo(),tasks=Number(b.tasks||0),waiting=Number(b.waiting||0),tickets=Number(b.tickets||0),inbox=Number(b.inbox||0);
-    return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Plný Today Brain se připojí až po prvním vykreslení.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">41.3 odděluje lokální UI od cloudového přihlášení i těžkého analytického dashboardu. Data ani funkce se nemažou.</div>`;
+    return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Plný Today Brain se připojí až po prvním vykreslení.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">41.4 drží už otevřené sekce v paměti, slučuje zbytečné rendery a přednačítá další pohledy bez blokování první obrazovky.</div>`;
   }
   function paintInstant(){
     const host=document.querySelector('#todayView');if(!host)return;
@@ -64,12 +64,17 @@
     try{localStorage.setItem(SNAPSHOT_KEY,JSON.stringify({version:VERSION,html,at:Date.now()}))}catch{}
   }
   function idle(fn,timeout=1800){if('requestIdleCallback'in window)return requestIdleCallback(fn,{timeout});return setTimeout(fn,450)}
+  function registerSw(){
+    if(!('serviceWorker'in navigator))return Promise.resolve(null);
+    if(!window.__KAMIL_SW_PROMISE__)window.__KAMIL_SW_PROMISE__=navigator.serviceWorker.register('./sw.js').catch(error=>{console.warn('[instantShell44] service worker',error);return null});
+    return window.__KAMIL_SW_PROMISE__;
+  }
   function startLazyFeatures(){if(lazyFeaturesStarted)return;lazyFeaturesStarted=true;idle(()=>import('./lazyBoot41.js').catch(()=>{}),1800)}
   function waitForAppInteractive(appPromise){
     return new Promise((resolve,reject)=>{
       let done=false;
       const finish=v=>{if(done)return;done=true;resolve(v)};
-      appPromise.then(()=>finish('module'),error=>{if(done)console.warn('[instantShell43] cloud/session completion',error);else{done=true;reject(error)}});
+      appPromise.then(()=>finish('module'),error=>{if(done)console.warn('[instantShell44] cloud/session completion',error);else{done=true;reject(error)}});
       const tick=()=>{
         if(done)return;
         const host=document.querySelector('#todayView');
@@ -99,12 +104,12 @@
       loadStyleList(detailStyles);
       import('./state.js').then(({store})=>{const b=document.querySelector('#undoBtn');if(b)b.disabled=!store.undoCount()}).catch(()=>{});
       idle(async()=>{try{partition=partition||await import('./coldPartition42.js');await partition.startColdPartition42()}catch{}},650);
-      if('serviceWorker'in navigator)idle(()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}),3000);
+      idle(()=>registerSw(),3000);
       setTimeout(saveSnapshot,3800);
       idle(()=>Promise.allSettled([import('./theme33.js'),import('./releaseStamp.js')]),2200);
       setTimeout(startLazyFeatures,8000);
     }catch(error){
-      console.error('[instantShell43]',error);
+      console.error('[instantShell44]',error);
       const host=document.querySelector('#todayView');if(host)host.insertAdjacentHTML('beforeend','<div class="decision-note bad">Detail aplikace se nepodařilo načíst. Lokální data zůstala beze změny.</div>');
     }
   }
