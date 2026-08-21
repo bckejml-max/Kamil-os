@@ -39,6 +39,6 @@ test('OS40 regression remains healthy inside current Kamil OS shell',async({page
 
 test('Current PWA cache preserves OS40 and OS42 modules',async({request})=>{
  const sw=await (await request.get('http://127.0.0.1:4173/sw.js')).text();
- expect(sw).toContain("kamil-os-42.0.0-shell-r1");
+ expect(sw).toContain("kamil-os-42.0.0-shell-r2");
  for(const asset of ['./js/os40.js','./js/decisionCenter36.js','./js/changePulse35.js','./js/changePulseUi35.js','./js/focusActionUi35.js','./js/os42.js','./js/os42Ui.js'])expect(sw).toContain(asset);
 });
