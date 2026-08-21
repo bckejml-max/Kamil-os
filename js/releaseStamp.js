@@ -1,4 +1,8 @@
 import {APP_VERSION,APP_RELEASE} from './releaseMeta.js';
+import './os40ExecutiveUi.js';
+import './os40MoneyUi.js';
+import './os40TicketsUi.js';
+import './os40KnowledgeUi.js';
 
 function stamp(){
  document.title=`Kamil OS ${APP_RELEASE}`;
