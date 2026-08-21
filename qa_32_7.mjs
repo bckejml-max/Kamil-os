@@ -4,7 +4,7 @@ await import('./financial_decision_32_static_test.mjs');
 import fs from 'node:fs';
 const t=f=>fs.readFileSync(f,'utf8'),assert=(x,m)=>{if(!x)throw new Error(m)};
 const meta=t('js/releaseMeta.js'),config=t('js/config.js'),sw=t('sw.js'),pre=t('js/preflight.js'),engine=t('js/financialDecision32.js'),ui=t('js/financialDecisionUi32.js');
-const vm=meta.match(/APP_VERSION='(\d+)\.(\d+)\.(\d+)'/);assert(vm&&Number(vm[1])===32&&Number(vm[2])>=7,'release must retain 32.7+ Financial Command');
+const vm=meta.match(/APP_VERSION='(\d+)\.(\d+)\.(\d+)'/),versionOk=vm&&(Number(vm[1])>32||(Number(vm[1])===32&&Number(vm[2])>=7));assert(versionOk,'release must retain 32.7+ Financial Command');
 assert(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 assert(sw.includes('./js/financialDecision32.js')&&sw.includes('./js/financialDecisionUi32.js'),'Financial Command PWA shell missing');
 assert(pre.includes("import './financialDecisionUi32.js'"),'Financial Command not loaded');
