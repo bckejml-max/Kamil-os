@@ -1,4 +1,4 @@
-const {app,BrowserWindow,shell,ipcMain}=require('electron');
+const {app,BrowserWindow,shell,ipcMain,Tray,Menu,nativeImage}=require('electron');
 const {autoUpdater}=require('electron-updater');
 const http=require('http');
 const fs=require('fs');
@@ -7,173 +7,22 @@ const path=require('path');
 const HOST='127.0.0.1';
 const PORT=47823;
 const WEB_ROOT=path.join(__dirname,'app');
-let server=null;
-let mainWindow=null;
-let updateTimer=null;
+let server=null,mainWindow=null,updateTimer=null,tray=null,quitting=false,appUrl=`http://${HOST}:${PORT}/`;
 let updateState={status:'idle',version:null,availableVersion:null,percent:0,message:'Aktualizace ještě nebyly zkontrolovány.'};
 
-const MIME={
-  '.html':'text/html; charset=utf-8',
-  '.js':'application/javascript; charset=utf-8',
-  '.css':'text/css; charset=utf-8',
-  '.json':'application/json; charset=utf-8',
-  '.webmanifest':'application/manifest+json; charset=utf-8',
-  '.png':'image/png',
-  '.jpg':'image/jpeg',
-  '.jpeg':'image/jpeg',
-  '.svg':'image/svg+xml',
-  '.ico':'image/x-icon',
-  '.woff':'font/woff',
-  '.woff2':'font/woff2'
-};
-
-function safeFile(urlPath){
-  let rel='index.html';
-  try{
-    const pathname=decodeURIComponent(new URL(urlPath,`http://${HOST}:${PORT}`).pathname||'/');
-    rel=pathname==='/'?'index.html':pathname.replace(/^\/+/, '');
-  }catch{}
-  const normalized=path.normalize(rel).replace(/^(\.\.[/\\])+/, '');
-  const file=path.join(WEB_ROOT,normalized);
-  if(!file.startsWith(WEB_ROOT))return null;
-  return file;
-}
-
-function headersFor(file){
-  const ext=path.extname(file).toLowerCase();
-  const base={
-    'Content-Type':MIME[ext]||'application/octet-stream',
-    'X-Content-Type-Options':'nosniff',
-    'Referrer-Policy':'strict-origin-when-cross-origin',
-    'Cross-Origin-Opener-Policy':'same-origin',
-    'Content-Security-Policy':"default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; connect-src 'self' https://tswqfbkmxywxxczsoddr.supabase.co https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; font-src 'self' data:"
-  };
-  if(path.basename(file)==='index.html'||path.basename(file)==='sw.js'||ext==='.webmanifest')base['Cache-Control']='no-cache';
-  else base['Cache-Control']='public, max-age=3600';
-  if(path.basename(file)==='sw.js')base['Service-Worker-Allowed']='/';
-  return base;
-}
-
-function startServer(){
-  return new Promise((resolve,reject)=>{
-    server=http.createServer((req,res)=>{
-      if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405);res.end();return}
-      let file=safeFile(req.url||'/');
-      if(!file){res.writeHead(403);res.end('Forbidden');return}
-      try{if(fs.existsSync(file)&&fs.statSync(file).isDirectory())file=path.join(file,'index.html')}catch{}
-      fs.readFile(file,(err,data)=>{
-        if(err){res.writeHead(err.code==='ENOENT'?404:500,{'Content-Type':'text/plain; charset=utf-8'});res.end(err.code==='ENOENT'?'Not found':'Server error');return}
-        res.writeHead(200,headersFor(file));
-        if(req.method==='HEAD')res.end();else res.end(data);
-      });
-    });
-    server.once('error',reject);
-    server.listen(PORT,HOST,()=>resolve(`http://${HOST}:${PORT}/`));
-  });
-}
-
-function publishUpdateState(patch={}){
-  updateState={...updateState,...patch,version:app.getVersion()};
-  try{mainWindow?.webContents.send('kamil-update:state',updateState)}catch{}
-}
-
-async function checkForUpdates(manual=false){
-  if(!app.isPackaged){
-    publishUpdateState({status:'dev',message:'Kontrola aktualizací funguje v nainstalované desktopové verzi.'});
-    return updateState;
-  }
-  publishUpdateState({status:'checking',percent:0,message:manual?'Kontroluji novou verzi…':'Kontrola aktualizace…'});
-  try{await autoUpdater.checkForUpdates()}catch(error){
-    console.error('Kamil OS update check failed',error?.message||error);
-    publishUpdateState({status:'error',message:'Aktualizaci se nepodařilo zkontrolovat. Zkus to později.'});
-  }
-  return updateState;
-}
-
-async function downloadUpdate(){
-  if(updateState.status!=='available')return updateState;
-  publishUpdateState({status:'downloading',percent:0,message:'Stahuji aktualizaci…'});
-  try{await autoUpdater.downloadUpdate()}catch(error){
-    console.error('Kamil OS update download failed',error?.message||error);
-    publishUpdateState({status:'error',message:'Aktualizaci se nepodařilo stáhnout.'});
-  }
-  return updateState;
-}
-
-function configureUpdater(){
-  autoUpdater.autoDownload=false;
-  autoUpdater.autoInstallOnAppQuit=true;
-  autoUpdater.allowPrerelease=false;
-  autoUpdater.on('checking-for-update',()=>publishUpdateState({status:'checking',message:'Kontroluji novou verzi…'}));
-  autoUpdater.on('update-available',info=>publishUpdateState({status:'available',availableVersion:info?.version||null,percent:0,message:`Je dostupná verze ${info?.version||'novější'}.`}));
-  autoUpdater.on('update-not-available',()=>publishUpdateState({status:'up-to-date',availableVersion:null,percent:0,message:`Kamil OS ${app.getVersion()} je aktuální.`}));
-  autoUpdater.on('download-progress',progress=>publishUpdateState({status:'downloading',percent:Math.max(0,Math.min(100,Math.round(Number(progress?.percent)||0))),message:`Stahuji aktualizaci · ${Math.round(Number(progress?.percent)||0)} %`}));
-  autoUpdater.on('update-downloaded',info=>publishUpdateState({status:'downloaded',availableVersion:info?.version||updateState.availableVersion,percent:100,message:'Aktualizace je připravená. Restart ji nainstaluje.'}));
-  autoUpdater.on('error',error=>{
-    console.error('Kamil OS autoUpdater error',error?.message||error);
-    if(updateState.status!=='error')publishUpdateState({status:'error',message:'Aktualizační služba je dočasně nedostupná.'});
-  });
-
-  ipcMain.handle('kamil-update:get-state',()=>({...updateState,version:app.getVersion()}));
-  ipcMain.handle('kamil-update:check',()=>checkForUpdates(true));
-  ipcMain.handle('kamil-update:download',()=>downloadUpdate());
-  ipcMain.handle('kamil-update:install',()=>{
-    if(updateState.status==='downloaded'){
-      setImmediate(()=>autoUpdater.quitAndInstall(false,true));
-      return true;
-    }
-    return false;
-  });
-
-  updateTimer=setTimeout(()=>checkForUpdates(false),8000);
-  setInterval(()=>checkForUpdates(false),4*60*60*1000).unref?.();
-}
-
-function createWindow(url){
-  mainWindow=new BrowserWindow({
-    width:1440,
-    height:960,
-    minWidth:980,
-    minHeight:700,
-    show:false,
-    backgroundColor:'#f5f7fa',
-    title:'Kamil OS',
-    autoHideMenuBar:true,
-    webPreferences:{
-      preload:path.join(__dirname,'preload.cjs'),
-      contextIsolation:true,
-      nodeIntegration:false,
-      sandbox:true,
-      spellcheck:false
-    }
-  });
-  mainWindow.setMenuBarVisibility(false);
-  mainWindow.once('ready-to-show',()=>mainWindow.show());
-  mainWindow.webContents.setWindowOpenHandler(({url:target})=>{
-    if(target.startsWith(url))return {action:'allow'};
-    shell.openExternal(target).catch(()=>{});
-    return {action:'deny'};
-  });
-  mainWindow.webContents.on('will-navigate',(event,target)=>{
-    if(target.startsWith(url))return;
-    event.preventDefault();
-    shell.openExternal(target).catch(()=>{});
-  });
-  mainWindow.loadURL(url);
-}
-
-const gotLock=app.requestSingleInstanceLock();
-if(!gotLock){app.quit()}else{
-  app.on('second-instance',()=>{if(mainWindow){if(mainWindow.isMinimized())mainWindow.restore();mainWindow.focus()}});
-  app.whenReady().then(async()=>{
-    try{
-      const url=await startServer();
-      createWindow(url);
-      configureUpdater();
-      publishUpdateState({status:'idle',message:'Aktualizace se kontrolují automaticky.'});
-    }catch(error){console.error('Kamil OS local server failed',error);app.quit()}
-  });
-  app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit()});
-  app.on('activate',()=>{if(BrowserWindow.getAllWindows().length===0)createWindow(`http://${HOST}:${PORT}/`)});
-  app.on('before-quit',()=>{try{if(updateTimer)clearTimeout(updateTimer);server?.close()}catch{}});
-}
+const MIME={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.ico':'image/x-icon','.woff':'font/woff','.woff2':'font/woff2'};
+function safeFile(urlPath){let rel='index.html';try{const pathname=decodeURIComponent(new URL(urlPath,`http://${HOST}:${PORT}`).pathname||'/');rel=pathname==='/'?'index.html':pathname.replace(/^\/+/, '')}catch{}const normalized=path.normalize(rel).replace(/^(\.\.[/\\])+/, '');const file=path.join(WEB_ROOT,normalized);return file.startsWith(WEB_ROOT)?file:null}
+function headersFor(file){const ext=path.extname(file).toLowerCase(),base={'Content-Type':MIME[ext]||'application/octet-stream','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Cross-Origin-Opener-Policy':'same-origin','Content-Security-Policy':"default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; connect-src 'self' https://tswqfbkmxywxxczsoddr.supabase.co https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; font-src 'self' data:"};if(path.basename(file)==='index.html'||path.basename(file)==='sw.js'||ext==='.webmanifest')base['Cache-Control']='no-cache';else base['Cache-Control']='public, max-age=3600';if(path.basename(file)==='sw.js')base['Service-Worker-Allowed']='/';return base}
+function startServer(){return new Promise((resolve,reject)=>{server=http.createServer((req,res)=>{if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405);res.end();return}let file=safeFile(req.url||'/');if(!file){res.writeHead(403);res.end('Forbidden');return}try{if(fs.existsSync(file)&&fs.statSync(file).isDirectory())file=path.join(file,'index.html')}catch{}fs.readFile(file,(err,data)=>{if(err){res.writeHead(err.code==='ENOENT'?404:500,{'Content-Type':'text/plain; charset=utf-8'});res.end(err.code==='ENOENT'?'Not found':'Server error');return}res.writeHead(200,headersFor(file));if(req.method==='HEAD')res.end();else res.end(data)})});server.once('error',reject);server.listen(PORT,HOST,()=>resolve(`http://${HOST}:${PORT}/`))})}
+function publishUpdateState(patch={}){updateState={...updateState,...patch,version:app.getVersion()};try{mainWindow?.webContents.send('kamil-update:state',updateState)}catch{}}
+async function checkForUpdates(manual=false){if(!app.isPackaged){publishUpdateState({status:'dev',message:'Kontrola aktualizací funguje v nainstalované desktopové verzi.'});return updateState}publishUpdateState({status:'checking',percent:0,message:manual?'Kontroluji novou verzi…':'Kontrola aktualizace…'});try{await autoUpdater.checkForUpdates()}catch(error){console.error('Kamil OS update check failed',error?.message||error);publishUpdateState({status:'error',message:'Aktualizaci se nepodařilo zkontrolovat. Zkus to později.'})}return updateState}
+async function downloadUpdate(){if(updateState.status!=='available')return updateState;publishUpdateState({status:'downloading',percent:0,message:'Stahuji aktualizaci…'});try{await autoUpdater.downloadUpdate()}catch(error){console.error('Kamil OS update download failed',error?.message||error);publishUpdateState({status:'error',message:'Aktualizaci se nepodařilo stáhnout.'})}return updateState}
+function configureUpdater(){autoUpdater.autoDownload=false;autoUpdater.autoInstallOnAppQuit=true;autoUpdater.allowPrerelease=false;autoUpdater.on('checking-for-update',()=>publishUpdateState({status:'checking',message:'Kontroluji novou verzi…'}));autoUpdater.on('update-available',info=>{publishUpdateState({status:'available',availableVersion:info?.version||null,percent:0,message:`Je dostupná verze ${info?.version||'novější'}.`});rebuildTray()});autoUpdater.on('update-not-available',()=>publishUpdateState({status:'up-to-date',availableVersion:null,percent:0,message:`Kamil OS ${app.getVersion()} je aktuální.`}));autoUpdater.on('download-progress',progress=>publishUpdateState({status:'downloading',percent:Math.max(0,Math.min(100,Math.round(Number(progress?.percent)||0))),message:`Stahuji aktualizaci · ${Math.round(Number(progress?.percent)||0)} %`}));autoUpdater.on('update-downloaded',info=>{publishUpdateState({status:'downloaded',availableVersion:info?.version||updateState.availableVersion,percent:100,message:'Aktualizace je připravená. Restart ji nainstaluje.'});rebuildTray()});autoUpdater.on('error',error=>{console.error('Kamil OS autoUpdater error',error?.message||error);if(updateState.status!=='error')publishUpdateState({status:'error',message:'Aktualizační služba je dočasně nedostupná.'})});ipcMain.handle('kamil-update:get-state',()=>({...updateState,version:app.getVersion()}));ipcMain.handle('kamil-update:check',()=>checkForUpdates(true));ipcMain.handle('kamil-update:download',()=>downloadUpdate());ipcMain.handle('kamil-update:install',()=>{if(updateState.status==='downloaded'){setImmediate(()=>autoUpdater.quitAndInstall(false,true));return true}return false});updateTimer=setTimeout(()=>checkForUpdates(false),8000);setInterval(()=>checkForUpdates(false),4*60*60*1000).unref?.()}
+function showWindow(){if(!mainWindow)createWindow(appUrl);if(mainWindow){if(mainWindow.isMinimized())mainWindow.restore();mainWindow.show();mainWindow.focus()}}
+function startupEnabled(){try{return !!app.getLoginItemSettings().openAtLogin}catch{return false}}
+function setStartup(enabled){try{app.setLoginItemSettings({openAtLogin:!!enabled,path:process.execPath});return startupEnabled()}catch{return false}}
+function trayIcon(){const candidates=[path.join(WEB_ROOT,'icons','icon-192.png'),path.join(WEB_ROOT,'icon.png')];for(const p of candidates){try{if(fs.existsSync(p)){const img=nativeImage.createFromPath(p);if(!img.isEmpty())return img.resize({width:18,height:18})}}catch{}}return nativeImage.createEmpty()}
+function rebuildTray(){if(!tray)return;const start=startupEnabled();const updateLabel=updateState.status==='downloaded'?'Restartovat a aktualizovat':updateState.status==='available'?`Stáhnout ${updateState.availableVersion||'aktualizaci'}`:'Zkontrolovat aktualizace';tray.setContextMenu(Menu.buildFromTemplate([{label:'Otevřít Kamil OS',click:showWindow},{label:`Kamil OS ${app.getVersion()}`,enabled:false},{type:'separator'},{label:updateLabel,click:()=>{if(updateState.status==='downloaded')autoUpdater.quitAndInstall(false,true);else if(updateState.status==='available')downloadUpdate();else checkForUpdates(true)}},{label:'Spouštět s Windows',type:'checkbox',checked:start,click:item=>{setStartup(item.checked);rebuildTray()}},{type:'separator'},{label:'Ukončit Kamil OS',click:()=>{quitting=true;app.quit()}}]))}
+function createTray(){if(tray||process.platform!=='win32')return;tray=new Tray(trayIcon());tray.setToolTip(`Kamil OS ${app.getVersion()}`);tray.on('click',showWindow);rebuildTray()}
+function createWindow(url){appUrl=url;mainWindow=new BrowserWindow({width:1440,height:960,minWidth:980,minHeight:700,show:false,backgroundColor:'#f5f7fa',title:'Kamil OS',autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,spellcheck:false}});mainWindow.setMenuBarVisibility(false);mainWindow.once('ready-to-show',()=>mainWindow.show());mainWindow.on('close',event=>{if(process.platform==='win32'&&!quitting){event.preventDefault();mainWindow.hide()}});mainWindow.on('closed',()=>{mainWindow=null});mainWindow.webContents.setWindowOpenHandler(({url:target})=>{if(target.startsWith(url))return{action:'allow'};shell.openExternal(target).catch(()=>{});return{action:'deny'}});mainWindow.webContents.on('will-navigate',(event,target)=>{if(target.startsWith(url))return;event.preventDefault();shell.openExternal(target).catch(()=>{})});mainWindow.loadURL(url)}
+const gotLock=app.requestSingleInstanceLock();if(!gotLock){app.quit()}else{app.on('second-instance',showWindow);app.whenReady().then(async()=>{try{const url=await startServer();createWindow(url);createTray();configureUpdater();publishUpdateState({status:'idle',message:'Aktualizace se kontrolují automaticky.'})}catch(error){console.error('Kamil OS local server failed',error);app.quit()}});app.on('window-all-closed',()=>{if(process.platform!=='win32'&&process.platform!=='darwin')app.quit()});app.on('activate',showWindow);app.on('before-quit',()=>{quitting=true;try{if(updateTimer)clearTimeout(updateTimer);server?.close()}catch{}})}
