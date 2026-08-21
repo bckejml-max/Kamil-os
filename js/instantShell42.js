@@ -5,8 +5,10 @@
   const THEME_KEY='kamil-os-theme33';
   const root=document.documentElement;
   const now=Date.now();
-  const fullStyles=['./styles.css','./today25.css','./personal29.css','./theme33.css'];
-  let lazyFeaturesStarted=false;
+  const coreStyles=['./styles.css','./theme33.css'];
+  const detailStyles=['./today25.css','./personal29.css'];
+  const pageTitles={today:'DNES',money:'PENÍZE',tickets:'VSTUPENKY',home:'DOMOV',more:'VÍCE'};
+  let lazyFeaturesStarted=false,earlyView='today';
 
   function parse(raw,fallback=null){try{return JSON.parse(raw)}catch{return fallback}}
   function applyTheme(){
@@ -33,8 +35,23 @@
     window.__KAMIL_SNAPSHOT_HIT__=!!html;
     window.__KAMIL_INSTANT_SHELL_AT__=performance.now();try{performance.mark('kamil-instant-shell')}catch{}
   }
-  function loadStyles(){
-    for(const href of fullStyles){
+  function placeholder(view){
+    const host=document.querySelector(`#${view}View`);if(!host||host.innerHTML.trim())return;
+    host.innerHTML=`<div class="view-head"><div><div class="eyebrow">${pageTitles[view]||'KAMIL OS'} / RYCHLÝ START</div><h1>Sekce je otevřená.</h1><p>Plný modul se právě připojuje. Ostatní části Kamil OS tím neblokují první obrazovku.</p></div></div><div class="decision-note">Nic se nemaže ani nevypíná; jde jen o progresivní načtení.</div>`;
+  }
+  function earlyNavigate(view){
+    if(!pageTitles[view])return;earlyView=view;
+    document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id===`view-${view}`));
+    document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('on',x.dataset.view===view));
+    const p=document.querySelector('#pageTitle');if(p)p.textContent=pageTitles[view];
+    if(view!=='today')placeholder(view);
+    window.__KAMIL_EARLY_VIEW__=view;
+  }
+  function bindEarlyNavigation(){
+    document.querySelectorAll('[data-view]').forEach(button=>{button.onclick=()=>earlyNavigate(button.dataset.view)});
+  }
+  function loadStyleList(list){
+    for(const href of list){
       if(document.querySelector(`link[data-kamil-full-style="${href}"]`))continue;
       const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset.kamilFullStyle=href;document.head.appendChild(l);
     }
@@ -68,11 +85,12 @@
     try{
       const partition=await import('./coldPartition42.js');
       try{const r=partition.compactLocalState42();window.__KAMIL_PREBOOT_COMPACT__=r;window.__KAMIL_PREBOOT_COMPACT_AT__=performance.now()}catch{}
-      const appPromise=import('./app.js');
-      window.__KAMIL_APP_IMPORT_PROMISE__=appPromise;
+      const appPromise=import('./app.js');window.__KAMIL_APP_IMPORT_PROMISE__=appPromise;
       window.__KAMIL_APP_READY_MODE__=await waitForAppInteractive(appPromise);
       window.__KAMIL_APP_READY_AT__=performance.now();try{performance.mark('kamil-app-ready')}catch{}
       document.querySelector('#todayView')?.removeAttribute('data-instant-shell');
+      if(earlyView!=='today')window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:earlyView}));
+      loadStyleList(detailStyles);
       import('./state.js').then(({store})=>{const b=document.querySelector('#undoBtn');if(b)b.disabled=!store.undoCount()}).catch(()=>{});
       idle(()=>partition.startColdPartition42().catch?.(()=>{}),650);
       if('serviceWorker'in navigator)idle(()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}),3000);
@@ -85,8 +103,8 @@
     }
   }
 
-  applyTheme();paintInstant();
-  requestAnimationFrame(()=>requestAnimationFrame(loadStyles));
+  applyTheme();paintInstant();bindEarlyNavigation();
+  setTimeout(()=>loadStyleList(coreStyles),120);
   window.addEventListener('kamil:today-full-ready',()=>{setTimeout(saveSnapshot,120);setTimeout(startLazyFeatures,1800)},{once:true});
   window.addEventListener('kamil:view-change',e=>{if(e.detail==='today')setTimeout(saveSnapshot,1200);else startLazyFeatures()});
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveSnapshot()});
