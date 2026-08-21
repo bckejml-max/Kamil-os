@@ -1,6 +1,10 @@
 import {LOCAL_KEY,META_KEY,QUEUE_KEY,SCHEMA_VERSION,MAX_UNDO} from './config.js';
 import {clone,uid} from './utils.js';
 
+const UNDO_KEY='kamil-os-41-undo';
+const BOOT_KEY='kamil-os-41-boot-summary';
+const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED']);
+
 const blank=()=>({
  meta:{schemaVersion:SCHEMA_VERSION,createdAt:new Date().toISOString(),lastMutationAt:null,lastCloudAt:null},
  tasks:[],projects:[],routines:[],routineDone:{},calendar:{events:[],asOf:null,source:null},
@@ -16,10 +20,19 @@ const blank=()=>({
  ui:{},audit:[],undo:[]
 });
 
-const compactUndo=a=>(Array.isArray(a)?a:[]).map(entry=>{
- const x=entry&&typeof entry==='object'?clone(entry):entry;
- if(x?.state&&typeof x.state==='object')x.state.undo=[];
- return x;
+const compactUndo=a=>(Array.isArray(a)?a:[]).slice(0,MAX_UNDO).map(entry=>{
+ if(!entry||typeof entry!=='object')return entry;
+ const state=entry.state&&typeof entry.state==='object'?{...entry.state,undo:[]}:entry.state;
+ return {...entry,state};
+});
+const isOpen=x=>!CLOSED.has(String(x?.status||x?.workflow||'').toUpperCase());
+const bootSummary=(s={},undoCount=0)=>({
+ at:Date.now(),
+ tasks:(s.tasks||[]).filter(isOpen).length,
+ waiting:[...(s.directorBook?.waiting||[]),...(s.delegations||[])].filter(isOpen).length,
+ inbox:(s.inbox||[]).filter(isOpen).length,
+ tickets:(s.ticketBook?.items||[]).filter(x=>['HOLD','LISTED'].includes(String(x?.workflow||'HOLD').toUpperCase())).length,
+ undoCount:Number(undoCount||0)
 });
 
 export function migrate(input){
@@ -113,32 +126,66 @@ export function repairState(input){
  return {state:fixed,report};
 }
 class Store{
- constructor(){this.listeners=new Set();this.s=migrate(this.readLocal());this.dirty=!!localStorage.getItem(QUEUE_KEY);this.cloudWriter=null}
+ constructor(){
+  this.listeners=new Set();this.cloudWriter=null;this.dirty=!!localStorage.getItem(QUEUE_KEY);
+  const raw=this.readLocal(),legacyUndo=Array.isArray(raw?.undo)&&raw.undo.length?raw.undo:null;
+  if(raw&&typeof raw==='object')raw.undo=[];
+  this.s=migrate(raw);this.s.undo=[];this.undoLoaded=false;this.legacyUndo=legacyUndo;
+  const boot=this.readBootSummary();this.undoCountCache=legacyUndo?.length||Number(boot?.undoCount||0);
+  this.writeBootSummary();
+  setTimeout(()=>this.compactLegacyStorage(),2200);
+ }
  readLocal(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'null')}catch{return null}}
+ readBootSummary(){try{return JSON.parse(localStorage.getItem(BOOT_KEY)||'null')}catch{return null}}
+ readUndo(){try{return compactUndo(JSON.parse(localStorage.getItem(UNDO_KEY)||'[]'))}catch{return []}}
+ ensureUndoLoaded(){
+  if(this.undoLoaded)return this.s.undo;
+  this.s.undo=compactUndo(this.legacyUndo||this.readUndo());this.legacyUndo=null;this.undoLoaded=true;this.undoCountCache=this.s.undo.length;return this.s.undo;
+ }
+ undoCount(){return this.undoLoaded?(this.s.undo||[]).length:Number(this.undoCountCache||0)}
+ compactLegacyStorage(){
+  try{
+   if(this.legacyUndo?.length&&!localStorage.getItem(UNDO_KEY))localStorage.setItem(UNDO_KEY,JSON.stringify(compactUndo(this.legacyUndo)));
+   localStorage.setItem(LOCAL_KEY,JSON.stringify({...this.s,undo:[]}));
+   this.writeBootSummary();
+  }catch{}
+ }
+ writeBootSummary(){try{localStorage.setItem(BOOT_KEY,JSON.stringify(bootSummary(this.s,this.undoCount())))}catch{}}
+ writeUndo(){try{localStorage.setItem(UNDO_KEY,JSON.stringify(compactUndo(this.s.undo||[])));this.undoCountCache=(this.s.undo||[]).length}catch{}}
  get(){return this.s}
  setCloudWriter(fn){this.cloudWriter=fn}
  subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}
  emit(reason){this.listeners.forEach(fn=>fn(this.s,reason))}
- persist(){localStorage.setItem(LOCAL_KEY,JSON.stringify(this.s))}
- replace(next,reason='replace'){this.s=migrate(next);this.persist();this.emit(reason)}
+ persist(){
+  localStorage.setItem(LOCAL_KEY,JSON.stringify({...this.s,undo:[]}));
+  if(this.undoLoaded)this.writeUndo();
+  this.writeBootSummary();
+ }
+ replace(next,reason='replace'){
+  const currentUndo=this.undoLoaded?this.s.undo:null,incomingUndo=Array.isArray(next?.undo)&&next.undo.length?next.undo:null,base=next&&typeof next==='object'?{...next,undo:[]}:next;
+  this.s=migrate(base);this.s.undo=this.undoLoaded?(currentUndo||[]):[];
+  if(!this.undoLoaded&&incomingUndo?.length&&!this.undoCountCache){this.legacyUndo=incomingUndo;this.undoCountCache=incomingUndo.length}
+  this.persist();this.emit(reason)
+ }
  mutate(label,fn,{undo=true,cloud=true,audit=true}={}){
-   const before=undo?clone(this.s):null;if(before)before.undo=[];fn(this.s);
+   if(undo)this.ensureUndoLoaded();
+   const before=undo?clone({...this.s,undo:[]}):null;fn(this.s);
    this.s.meta=this.s.meta||{};this.s.meta.schemaVersion=SCHEMA_VERSION;
    if(cloud)this.s.meta.lastMutationAt=new Date().toISOString();
-   if(undo){this.s.undo=this.s.undo||[];this.s.undo.unshift({label,at:new Date().toISOString(),state:before});this.s.undo=this.s.undo.slice(0,MAX_UNDO)}
+   if(undo){this.s.undo=this.s.undo||[];this.s.undo.unshift({label,at:new Date().toISOString(),state:before});this.s.undo=this.s.undo.slice(0,MAX_UNDO);this.undoCountCache=this.s.undo.length}
    if(audit){this.s.audit=this.s.audit||[];this.s.audit.unshift({id:uid('audit'),label,at:new Date().toISOString()});this.s.audit=this.s.audit.slice(0,100)}
    this.persist();
    if(cloud){this.dirty=true;this.queueSync(this.s)}
    this.emit(label);if(cloud&&this.cloudWriter)this.cloudWriter();
  }
  undo(){
-   const x=this.s.undo?.shift();if(!x)return false;
-   const rest=compactUndo(this.s.undo||[]);this.s=migrate(x.state);this.s.undo=rest;
+   const stack=this.ensureUndoLoaded(),x=stack.shift();if(!x)return false;
+   const rest=compactUndo(stack),next=migrate({...x.state,undo:[]});this.s=next;this.s.undo=rest;this.undoCountCache=rest.length;
    this.s.meta.lastMutationAt=new Date().toISOString();
    this.s.audit.unshift({id:uid('audit'),label:`Vráceno: ${x.label}`,at:new Date().toISOString()});
    this.persist();this.dirty=true;this.queueSync(this.s);this.emit('undo');if(this.cloudWriter)this.cloudWriter();return true;
  }
- queueSync(payload){localStorage.setItem(QUEUE_KEY,JSON.stringify({at:new Date().toISOString(),payload}))}
+ queueSync(payload){const slim=payload&&typeof payload==='object'?{...payload,undo:[]}:payload;localStorage.setItem(QUEUE_KEY,JSON.stringify({at:new Date().toISOString(),payload:slim}))}
  readQueue(){try{return JSON.parse(localStorage.getItem(QUEUE_KEY)||'null')}catch{return null}}
  clearQueue(){localStorage.removeItem(QUEUE_KEY)}
  meta(){try{return JSON.parse(localStorage.getItem(META_KEY)||'{}')}catch{return {}}}

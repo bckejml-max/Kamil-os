@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 41",
+  "name": "Kamil OS 41.1",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 41 — instantní lokální start, osobní autopilot, práce, finance a vstupenky.",
+  "description": "Kamil OS — osobní finance, vstupenky, Director Mode, Waiting For a osobní autopilot s okamžitým lokálním startem.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f5f7fa",

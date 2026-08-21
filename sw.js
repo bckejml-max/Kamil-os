@@ -1,4 +1,4 @@
-const CACHE='kamil-os-41.0.0-runtime-r1';
+const CACHE='kamil-os-41.1.0-runtime-r1';
 const SHELL=[
   './','./index.html','./manifest.webmanifest','./styles.css','./today25.css','./personal29.css','./theme33.css',
   './js/instantShell42.js','./js/app.js','./js/viewRuntime41.js','./js/perf41.js','./js/theme33.js','./js/releaseMeta.js','./js/releaseStamp.js','./js/lazyBoot41.js',
