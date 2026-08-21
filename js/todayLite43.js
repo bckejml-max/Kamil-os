@@ -8,6 +8,7 @@ const open=x=>!CLOSED.has(String(x?.status||x?.workflow||'').toUpperCase());
 const activeTicket=x=>['HOLD','LISTED'].includes(String(x?.workflow||'HOLD').toUpperCase());
 const dateMs=v=>{const t=new Date(v||0).getTime();return Number.isFinite(t)?t:null};
 const fmt=v=>{const t=dateMs(v);return t===null?'—':new Date(t).toLocaleDateString('cs-CZ',{day:'numeric',month:'short'})};
+const todayVisible=()=>document.visibilityState!=='hidden'&&!!qs('#view-today')?.classList.contains('on');
 
 function nextTask(s={}){
  const rows=(s.tasks||[]).filter(open).map(x=>({title:x.title||x.name||'Úkol',due:x.due||x.dueAt||x.date||null,priority:Number(x.priority||0)}));
@@ -19,15 +20,15 @@ function metrics(s={}){
 }
 function scheduleFull(token,delay=700){
  clearTimeout(hydrateTimer);
- const run=()=>hydrateFull(token);
+ const run=()=>{if(todayVisible())hydrateFull(token)};
  if('requestIdleCallback'in window){requestIdleCallback(run,{timeout:Math.max(1000,delay+700)});return}
  hydrateTimer=setTimeout(run,delay);
 }
 async function hydrateFull(token){
- const host=qs('#todayView');if(!host||host.dataset.todayLite43!==token)return false;
+ const host=qs('#todayView');if(!host||host.dataset.todayLite43!==token||!todayVisible())return false;
  try{
   if(!fullModule){fullPromise=fullPromise||import('./today29.js');fullModule=await fullPromise}
-  const current=qs('#todayView');if(!current||current.dataset.todayLite43!==token)return false;
+  const current=qs('#todayView');if(!current||current.dataset.todayLite43!==token||!todayVisible())return false;
   fullModule.renderToday?.();current.removeAttribute('data-today-lite43');
   window.dispatchEvent(new CustomEvent('kamil:today-full-ready'));
   return true;
