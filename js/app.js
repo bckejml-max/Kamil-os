@@ -9,7 +9,8 @@ import {markPerf41,markFirstView41} from './perf41.js';
 let actionLock=false;
 export async function withActionLock(fn){if(actionLock)return false;actionLock=true;try{return await fn()}finally{setTimeout(()=>{actionLock=false},250)}}
 
-let current='today',stopAuthWatch=()=>{},authCooldownTimer=null,renderSeq=0,renderQueued=false;
+let current='today',stopAuthWatch=()=>{},authCooldownTimer=null,renderSeq=0,renderQueued=false,renderForce=false,stateRevision=0;
+const viewRevision=new Map();
 let recoveryMode=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
 const pageTitles={today:'DNES',money:'PENÍZE',tickets:'VSTUPENKY',home:'DOMOV',more:'VÍCE'};
 const captureTypeForView=()=>({today:'task',home:'personal',money:'debt',tickets:'ticket'})[current]||'task';
@@ -26,29 +27,45 @@ function updateChrome(){
  refreshRiskBadge41(s);
 }
 function quickShell(view){
- const host=qs(`#${view}View`);if(!host||host.dataset.fastShell==='1')return;host.dataset.fastShell='1';
+ const host=qs(`#${view}View`);if(!host||host.dataset.fastShell==='1'||host.dataset.viewReady==='1')return;host.dataset.fastShell='1';
  if(view==='today'){
   const s=store.get(),open=(s.tasks||[]).filter(x=>!['DONE','CLOSED','ARCHIVED'].includes(String(x.status||'').toUpperCase())).length,waiting=(s.directorBook?.waiting||[]).filter(x=>!['DONE','CLOSED','ARCHIVED'].includes(String(x.status||'OPEN').toUpperCase())).length,tickets=(s.ticketBook?.items||[]).filter(x=>['HOLD','LISTED'].includes(String(x.workflow||'HOLD').toUpperCase())).length;
   host.innerHTML=`<div class="view-head"><div><div class="eyebrow">KAMIL OS ${APP_VERSION}</div><h1>Načítám detail. Základ už je připravený.</h1><p>Nejdřív ukazuju uložená data z tohoto zařízení; cloud a těžší analýzy se dotáhnou potom.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${open}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div><div class="metric"><span>Režim</span><b>rychlý start</b></div></div>`;
  }else host.innerHTML=`<div class="view-head"><div><div class="eyebrow">${pageTitles[view]||'KAMIL OS'}</div><h1>Načítám modul…</h1><p>Obsah se dotahuje až při otevření této sekce, aby nezpomaloval start celé aplikace.</p></div></div>`;
 }
-async function render(){
- updateChrome();quickShell(current);const seq=++renderSeq,view=current;
+async function render(force=false){
+ updateChrome();const view=current,host=qs(`#${view}View`);
+ if(!force&&host?.dataset.viewReady==='1'&&viewRevision.get(view)===stateRevision)return;
+ quickShell(view);const seq=++renderSeq,revision=stateRevision;
  try{
-  const renderer=await getViewRenderer41(view);if(seq!==renderSeq||view!==current)return;renderer?.();qs(`#${view}View`)?.removeAttribute('data-fast-shell');markFirstView41(view);window.dispatchEvent(new CustomEvent('kamil:release-stamp'));renderExtras41(view);
- }catch(error){console.error('[app41] render',view,error);const host=qs(`#${view}View`);if(host)host.innerHTML=`<div class="card"><h2>Modul se nepodařilo načíst</h2><p class="muted">Obnov stránku. Uložená data nebyla smazána.</p></div>`}
+  const renderer=await getViewRenderer41(view);if(seq!==renderSeq||view!==current)return;renderer?.();
+  const currentHost=qs(`#${view}View`);if(currentHost){currentHost.dataset.viewReady='1';currentHost.removeAttribute('data-fast-shell')}
+  viewRevision.set(view,revision);markFirstView41(view);window.dispatchEvent(new CustomEvent('kamil:release-stamp'));renderExtras41(view);
+ }catch(error){console.error('[app41] render',view,error);const failed=qs(`#${view}View`);if(failed){failed.removeAttribute('data-fast-shell');failed.innerHTML=`<div class="card"><h2>Modul se nepodařilo načíst</h2><p class="muted">Obnov stránku. Uložená data nebyla smazána.</p></div>`}}
 }
-function scheduleRender(){if(renderQueued)return;renderQueued=true;queueMicrotask(()=>{renderQueued=false;render()})}
-function navigate(v){current=validViews41.has(v)?v:'today';qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');quickShell(current);scheduleRender();window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:current}));window.scrollTo({top:0,behavior:'smooth'})}
-qsa('[data-view]').forEach(x=>{x.onclick=()=>navigate(x.dataset.view);x.addEventListener('pointerenter',()=>prefetchView41(x.dataset.view),{passive:true})});
+function scheduleRender(force=false){
+ renderForce=renderForce||force;if(renderQueued)return;renderQueued=true;
+ requestAnimationFrame(()=>{const runForce=renderForce;renderForce=false;renderQueued=false;render(runForce)});
+}
+function navigate(v){
+ const next=validViews41.has(v)?v:'today';
+ if(next===current){updateChrome();if(viewRevision.get(current)!==stateRevision)scheduleRender();return}
+ current=next;qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');updateChrome();quickShell(current);
+ if(viewRevision.get(current)!==stateRevision)scheduleRender();
+ prefetchView41(current);window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:current}));window.scrollTo({top:0,behavior:'auto'});
+}
+qsa('[data-view]').forEach(x=>{
+ const warm=()=>prefetchView41(x.dataset.view);
+ x.onclick=()=>navigate(x.dataset.view);x.addEventListener('pointerenter',warm,{passive:true});x.addEventListener('pointerdown',warm,{passive:true});x.addEventListener('focus',warm,{passive:true});
+});
 window.addEventListener('kamil:navigate',e=>navigate(e.detail));
-window.addEventListener('kamil:more',async e=>{await setMoreMode41(e.detail);if(current==='more')scheduleRender()});
+window.addEventListener('kamil:more',async e=>{await setMoreMode41(e.detail);if(current==='more')scheduleRender(true)});
 window.addEventListener('kamil:logout',()=>withActionLock(async()=>{await logout();await handleSession(null)}));
 window.addEventListener('kamil:capture',e=>openCapture(e.detail||null));
 window.addEventListener('kamil:cloud-login',e=>showLoginView(e.detail?.reason==='recovery'?'Toto zařízení nemá tvoje uložená data. Připoj existující cloudový profil — nejjednodušší je e-mailový odkaz bez hesla.':'Cloud je volitelný. Kamil OS funguje i bez přihlášení.'));
 
-store.subscribe(()=>{scheduleRender();scheduleNotifications41()});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')scheduleNotifications41(0)});
+store.subscribe(()=>{stateRevision++;if(document.visibilityState==='visible')scheduleRender();scheduleNotifications41()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')scheduleNotifications41(0);else if(viewRevision.get(current)!==stateRevision)scheduleRender()});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
 qs('#logoutBtn').onclick=()=>withActionLock(async()=>{await logout();await handleSession(null)});
 qs('#quickAddBtn')?.addEventListener('click',()=>openCapture());
@@ -77,13 +94,13 @@ function schedulePreflight(){const idle=fn=>'requestIdleCallback'in window?reque
 
 async function handleSession(sess){
  if(recoveryMode){showResetView();return}showApp();const email=qs('#userEmail'),logoutBtn=qs('#logoutBtn');if(email)email.textContent=sess?.user?.email||'Toto zařízení';if(logoutBtn)logoutBtn.classList.toggle('hidden',!sess);
- store.get().meta.cloudMode=sess?'cloud':'local';scheduleRender();
+ store.get().meta.cloudMode=sess?'cloud':'local';scheduleRender(true);
  if(sess){
   setCloudLoadingStatus();store.setMeta({lastCloudEmail:sess.user?.email||store.meta().lastCloudEmail||null});const result=await loadCloud();
   if(result?.futureSchema){await modal('Cloudová data jsou z novější verze',`<p class="muted">Cloud používá schema <b>${result.remoteSchema}</b>, tato aplikace umí <b>${result.currentSchema}</b>. Nic jsem nepřepsal. Otevři nejnovější Kamil OS na stabilní adrese.</p>`,[{label:'Rozumím',value:'ok',primary:true}]);localSyncStatus();return}
   if(result?.conflict){const diff=conflictSummary(store.get(),result.cloud),rows=diff.map(x=>`<div class="row"><span>${x.label}</span><span>toto zařízení <b>${x.local}</b> · cloud <b>${x.cloud}</b></span></div>`).join('');const choice=await modal('Cloud a zařízení mají různé osobní změny',`<p class="muted">Nic nepřepisuju automaticky. Osobní data porovnám po hlavních skupinách:</p>${rows}<p class="muted">Pokud si nejsi jistý, zvol toto zařízení a potom udělej export zálohy.</p>`,[{label:'Použít cloud',value:'cloud'},{label:'Použít toto zařízení',value:'local',primary:true}]);if(choice)await resolveConflict(choice,result.cloud)}
-  await flushQueue();setCloudConnectedStatus(sess,result);scheduleRender();
-  loadDataHubs().then(()=>{setCloudConnectedStatus(sess,result);scheduleRender();markPerf41('cloud-hubs-ready')}).catch(()=>{});
+  await flushQueue();setCloudConnectedStatus(sess,result);scheduleRender(true);
+  loadDataHubs().then(()=>{setCloudConnectedStatus(sess,result);scheduleRender(true);markPerf41('cloud-hubs-ready')}).catch(()=>{});
  }else localSyncStatus();
  schedulePreflight();markPerf41(sess?'cloud-session-ready':'local-ready');
 }
@@ -98,10 +115,10 @@ qs('#setPasswordBtn').onclick=async()=>{const p1=qs('#resetPassword1').value,p2=
 qs('#resetPassword2').onkeydown=e=>{if(e.key==='Enter')qs('#setPasswordBtn').click()};
 
 // Rychlý start: lokální data vykreslíme dřív, než čekáme na SDK/cloud session.
-showApp();localSyncStatus();quickShell('today');scheduleRender();warmRuntime41();markPerf41('shell-visible');
+showApp();localSyncStatus();quickShell('today');scheduleRender(true);warmRuntime41();markPerf41('shell-visible');
 const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
 if(hashParams.get('error')){recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search);toast(hashParams.get('error_code')==='otp_expired'?'Přihlašovací/resetovací odkaz vypršel. Pošli si nový a otevři vždy nejnovější e-mail.':'Cloudové přihlášení se nepodařilo. Kamil OS běží lokálně.');await handleSession(await session())}else if(recoveryMode){await session();showResetView();await startAuthWatch()}else{const sess=await session();if(sess){await handleSession(sess);await startAuthWatch()}else{store.get().meta.cloudMode='local';schedulePreflight();markPerf41('session-check-complete')}}
 
-if('serviceWorker'in navigator){const reg=await navigator.serviceWorker.register('./sw.js');reg.addEventListener('updatefound',()=>{const w=reg.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)qs('#updateBanner').classList.remove('hidden')})});qs('#reloadAppBtn').onclick=()=>location.reload()}
+if('serviceWorker'in navigator){const reg=await (window.__KAMIL_SW_PROMISE__||(window.__KAMIL_SW_PROMISE__=navigator.serviceWorker.register('./sw.js')));if(reg){reg.addEventListener('updatefound',()=>{const w=reg.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)qs('#updateBanner').classList.remove('hidden')})});qs('#reloadAppBtn').onclick=()=>location.reload()}}
 window.addEventListener('beforeunload',()=>{if(store.dirty){store.queueSync(store.get());store.setMeta({pendingAt:new Date().toISOString()})}});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();window.__installPrompt=e});

@@ -9,7 +9,8 @@ const runtime=read('js/viewRuntime41.js');
 const sw=read('sw.js');
 const meta=read('js/releaseMeta.js');
 
-assert.ok(meta.includes("APP_VERSION='41.3.0'"),'41.3 release metadata missing');
+const version=meta.match(/APP_VERSION='(\d+)\.(\d+)\.(\d+)'/)?.slice(1).map(Number);
+assert.ok(version&&version[0]===41&&version[1]>=3,'41.3+ release metadata missing');
 assert.ok(shell.includes('partitionReady()'),'repeat-boot partition fast path missing');
 assert.ok(shell.includes("window.__KAMIL_PARTITION_READY_AT_BOOT__"),'partition diagnostic missing');
 assert.ok(shell.includes('bindEarlyNavigation()'),'early navigation missing');
@@ -23,4 +24,4 @@ assert.ok(state.includes('this.persist();'),'legacy compaction must use the acti
 assert.ok(sw.includes('instantNavigate'),'service worker cache-first navigation missing');
 assert.ok(sw.includes('staleWhileRevalidate'),'runtime stale-while-revalidate missing');
 
-console.log('KAMIL OS 41.3 PROGRESSIVE BOOT STATIC TEST PASS');
+console.log(`KAMIL OS ${version.join('.')} PROGRESSIVE BOOT STATIC TEST PASS`);
