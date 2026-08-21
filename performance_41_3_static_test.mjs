@@ -10,7 +10,8 @@ const sw=read('sw.js');
 const meta=read('js/releaseMeta.js');
 
 const version=meta.match(/APP_VERSION='(\d+)\.(\d+)\.(\d+)'/)?.slice(1).map(Number);
-assert.ok(version&&version[0]===41&&version[1]>=3,'41.3+ release metadata missing');
+const progressiveOk=version&&(version[0]>41||(version[0]===41&&version[1]>=3));
+assert.ok(progressiveOk,'41.3+ progressive release metadata missing');
 assert.ok(shell.includes('partitionReady()'),'repeat-boot partition fast path missing');
 assert.ok(shell.includes("window.__KAMIL_PARTITION_READY_AT_BOOT__"),'partition diagnostic missing');
 assert.ok(shell.includes('bindEarlyNavigation()'),'early navigation missing');
