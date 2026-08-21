@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 42",
+  "name": "Kamil OS 43.3",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 42 — Kamil Brain, Universal Inbox, Change Feed, Director Mode 2.0, Money Autopilot, Ticket Cockpit, Meeting Prep, Relationship Memory a Daily Shutdown.",
+  "description": "Kamil OS 43.3 — Lean Autopilot, Safe Mode, Responsive Scheduler a Adaptive Loader, který se učí z reálných časů modulů.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f5f7fa",
