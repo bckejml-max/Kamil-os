@@ -49,11 +49,13 @@
   function idle(fn,timeout=1800){if('requestIdleCallback'in window)return requestIdleCallback(fn,{timeout});return setTimeout(fn,450)}
   async function loadFullApp(){
     try{
+      const partition=await import('./coldPartition42.js');
+      try{const r=partition.compactLocalState42();window.__KAMIL_PREBOOT_COMPACT__=r;window.__KAMIL_PREBOOT_COMPACT_AT__=performance.now()}catch{}
       await import('./app.js');
       window.__KAMIL_APP_READY_AT__=performance.now();try{performance.mark('kamil-app-ready')}catch{}
       document.querySelector('#todayView')?.removeAttribute('data-instant-shell');
       import('./state.js').then(({store})=>{const b=document.querySelector('#undoBtn');if(b)b.disabled=!store.undoCount()}).catch(()=>{});
-      idle(()=>import('./coldPartition42.js').then(m=>m.startColdPartition42()).catch(()=>{}),900);
+      idle(()=>partition.startColdPartition42().catch?.(()=>{}),650);
       setTimeout(saveSnapshot,3800);
       idle(()=>Promise.allSettled([import('./theme33.js'),import('./releaseStamp.js'),import('./lazyBoot41.js')]),2600);
     }catch(error){
