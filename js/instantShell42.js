@@ -3,6 +3,7 @@
   const SNAPSHOT_KEY='kamil-os-fast-snapshot-41-3';
   const BOOT_KEY='kamil-os-41-boot-summary';
   const THEME_KEY='kamil-os-theme33';
+  const PARTITION_LAYOUT=3;
   const root=document.documentElement;
   const now=Date.now();
   const coreStyles=['./styles.css','./theme33.css'];
@@ -11,6 +12,8 @@
   let lazyFeaturesStarted=false,earlyView='today';
 
   function parse(raw,fallback=null){try{return JSON.parse(raw)}catch{return fallback}}
+  function bootInfo(){try{return parse(localStorage.getItem(BOOT_KEY)||'null',{})||{}}catch{return{}}}
+  function partitionReady(){const s=bootInfo().storage||{};return s.partitioned===true&&Number(s.layoutVersion||0)===PARTITION_LAYOUT}
   function applyTheme(){
     try{
       const theme=localStorage.getItem(THEME_KEY)||'light',light=theme!=='dark';
@@ -20,8 +23,7 @@
     document.querySelectorAll('.version').forEach(x=>x.textContent=VERSION);
   }
   function fallbackHtml(){
-    const b=parse(localStorage.getItem(BOOT_KEY)||'null',{})||{};
-    const tasks=Number(b.tasks||0),waiting=Number(b.waiting||0),tickets=Number(b.tickets||0),inbox=Number(b.inbox||0);
+    const b=bootInfo(),tasks=Number(b.tasks||0),waiting=Number(b.waiting||0),tickets=Number(b.tickets||0),inbox=Number(b.inbox||0);
     return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Plný Today Brain se připojí až po prvním vykreslení.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">41.3 odděluje lokální UI od cloudového přihlášení i těžkého analytického dashboardu. Data ani funkce se nemažou.</div>`;
   }
   function paintInstant(){
@@ -33,6 +35,7 @@
     }catch{}
     host.innerHTML=html||fallbackHtml();host.dataset.instantShell='1';host.dataset.fastShell='1';
     window.__KAMIL_SNAPSHOT_HIT__=!!html;
+    window.__KAMIL_PARTITION_READY_AT_BOOT__=partitionReady();
     window.__KAMIL_INSTANT_SHELL_AT__=performance.now();try{performance.mark('kamil-instant-shell')}catch{}
   }
   function placeholder(view){
@@ -47,19 +50,14 @@
     if(view!=='today')placeholder(view);
     window.__KAMIL_EARLY_VIEW__=view;
   }
-  function bindEarlyNavigation(){
-    document.querySelectorAll('[data-view]').forEach(button=>{button.onclick=()=>earlyNavigate(button.dataset.view)});
-  }
+  function bindEarlyNavigation(){document.querySelectorAll('[data-view]').forEach(button=>{button.onclick=()=>earlyNavigate(button.dataset.view)})}
   function loadStyleList(list){
     for(const href of list){
       if(document.querySelector(`link[data-kamil-full-style="${href}"]`))continue;
       const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset.kamilFullStyle=href;document.head.appendChild(l);
     }
   }
-  function compactSnapshot(host){
-    const nodes=[...host.children].slice(0,4),html=nodes.map(x=>x.outerHTML).join('');
-    return html.length>=200&&html.length<120000?html:'';
-  }
+  function compactSnapshot(host){const nodes=[...host.children].slice(0,4),html=nodes.map(x=>x.outerHTML).join('');return html.length>=200&&html.length<120000?html:''}
   function saveSnapshot(){
     const host=document.querySelector('#todayView');if(!host||host.dataset.instantShell==='1')return;
     const html=compactSnapshot(host);if(!html)return;
@@ -83,16 +81,24 @@
   }
   async function loadFullApp(){
     try{
-      const partition=await import('./coldPartition42.js');
-      try{const r=partition.compactLocalState42();window.__KAMIL_PREBOOT_COMPACT__=r;window.__KAMIL_PREBOOT_COMPACT_AT__=performance.now()}catch{}
-      const appPromise=import('./app.js');window.__KAMIL_APP_IMPORT_PROMISE__=appPromise;
+      let partition=null,appPromise=null;
+      if(partitionReady()){
+        window.__KAMIL_PREBOOT_COMPACT__={ok:true,skipped:true,reason:'ALREADY_PARTITIONED'};
+        window.__KAMIL_PREBOOT_COMPACT_AT__=performance.now();
+        appPromise=import('./app.js');
+      }else{
+        partition=await import('./coldPartition42.js');
+        try{const r=partition.compactLocalState42({force:true});window.__KAMIL_PREBOOT_COMPACT__=r;window.__KAMIL_PREBOOT_COMPACT_AT__=performance.now()}catch{}
+        appPromise=import('./app.js');
+      }
+      window.__KAMIL_APP_IMPORT_PROMISE__=appPromise;
       window.__KAMIL_APP_READY_MODE__=await waitForAppInteractive(appPromise);
       window.__KAMIL_APP_READY_AT__=performance.now();try{performance.mark('kamil-app-ready')}catch{}
       document.querySelector('#todayView')?.removeAttribute('data-instant-shell');
       if(earlyView!=='today')window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:earlyView}));
       loadStyleList(detailStyles);
       import('./state.js').then(({store})=>{const b=document.querySelector('#undoBtn');if(b)b.disabled=!store.undoCount()}).catch(()=>{});
-      idle(()=>partition.startColdPartition42().catch?.(()=>{}),650);
+      idle(async()=>{try{partition=partition||await import('./coldPartition42.js');await partition.startColdPartition42()}catch{}},650);
       if('serviceWorker'in navigator)idle(()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}),3000);
       setTimeout(saveSnapshot,3800);
       idle(()=>Promise.allSettled([import('./theme33.js'),import('./releaseStamp.js')]),2200);
