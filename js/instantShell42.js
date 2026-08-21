@@ -50,6 +50,7 @@
   async function loadFullApp(){
     try{
       await import('./app.js');
+      window.__KAMIL_APP_READY_AT__=performance.now();try{performance.mark('kamil-app-ready')}catch{}
       document.querySelector('#todayView')?.removeAttribute('data-instant-shell');
       import('./state.js').then(({store})=>{const b=document.querySelector('#undoBtn');if(b)b.disabled=!store.undoCount()}).catch(()=>{});
       idle(()=>import('./coldPartition42.js').then(m=>m.startColdPartition42()).catch(()=>{}),900);
