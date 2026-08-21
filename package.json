@@ -4,7 +4,7 @@
   "version": "32.6.0",
   "type": "module",
   "scripts": {
-    "test:e2e": "playwright test e2e_31.spec.mjs --reporter=line"
+    "test:e2e": "playwright test e2e_*.spec.mjs --reporter=line"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0"
