@@ -1,4 +1,5 @@
-const {app,BrowserWindow,shell}=require('electron');
+const {app,BrowserWindow,shell,ipcMain}=require('electron');
+const {autoUpdater}=require('electron-updater');
 const http=require('http');
 const fs=require('fs');
 const path=require('path');
@@ -8,6 +9,8 @@ const PORT=47823;
 const WEB_ROOT=path.join(__dirname,'app');
 let server=null;
 let mainWindow=null;
+let updateTimer=null;
+let updateState={status:'idle',version:null,availableVersion:null,percent:0,message:'Aktualizace ještě nebyly zkontrolovány.'};
 
 const MIME={
   '.html':'text/html; charset=utf-8',
@@ -69,6 +72,63 @@ function startServer(){
   });
 }
 
+function publishUpdateState(patch={}){
+  updateState={...updateState,...patch,version:app.getVersion()};
+  try{mainWindow?.webContents.send('kamil-update:state',updateState)}catch{}
+}
+
+async function checkForUpdates(manual=false){
+  if(!app.isPackaged){
+    publishUpdateState({status:'dev',message:'Kontrola aktualizací funguje v nainstalované desktopové verzi.'});
+    return updateState;
+  }
+  publishUpdateState({status:'checking',percent:0,message:manual?'Kontroluji novou verzi…':'Kontrola aktualizace…'});
+  try{await autoUpdater.checkForUpdates()}catch(error){
+    console.error('Kamil OS update check failed',error?.message||error);
+    publishUpdateState({status:'error',message:'Aktualizaci se nepodařilo zkontrolovat. Zkus to později.'});
+  }
+  return updateState;
+}
+
+async function downloadUpdate(){
+  if(updateState.status!=='available')return updateState;
+  publishUpdateState({status:'downloading',percent:0,message:'Stahuji aktualizaci…'});
+  try{await autoUpdater.downloadUpdate()}catch(error){
+    console.error('Kamil OS update download failed',error?.message||error);
+    publishUpdateState({status:'error',message:'Aktualizaci se nepodařilo stáhnout.'});
+  }
+  return updateState;
+}
+
+function configureUpdater(){
+  autoUpdater.autoDownload=false;
+  autoUpdater.autoInstallOnAppQuit=true;
+  autoUpdater.allowPrerelease=false;
+  autoUpdater.on('checking-for-update',()=>publishUpdateState({status:'checking',message:'Kontroluji novou verzi…'}));
+  autoUpdater.on('update-available',info=>publishUpdateState({status:'available',availableVersion:info?.version||null,percent:0,message:`Je dostupná verze ${info?.version||'novější'}.`}));
+  autoUpdater.on('update-not-available',()=>publishUpdateState({status:'up-to-date',availableVersion:null,percent:0,message:`Kamil OS ${app.getVersion()} je aktuální.`}));
+  autoUpdater.on('download-progress',progress=>publishUpdateState({status:'downloading',percent:Math.max(0,Math.min(100,Math.round(Number(progress?.percent)||0))),message:`Stahuji aktualizaci · ${Math.round(Number(progress?.percent)||0)} %`}));
+  autoUpdater.on('update-downloaded',info=>publishUpdateState({status:'downloaded',availableVersion:info?.version||updateState.availableVersion,percent:100,message:'Aktualizace je připravená. Restart ji nainstaluje.'}));
+  autoUpdater.on('error',error=>{
+    console.error('Kamil OS autoUpdater error',error?.message||error);
+    if(updateState.status!=='error')publishUpdateState({status:'error',message:'Aktualizační služba je dočasně nedostupná.'});
+  });
+
+  ipcMain.handle('kamil-update:get-state',()=>({...updateState,version:app.getVersion()}));
+  ipcMain.handle('kamil-update:check',()=>checkForUpdates(true));
+  ipcMain.handle('kamil-update:download',()=>downloadUpdate());
+  ipcMain.handle('kamil-update:install',()=>{
+    if(updateState.status==='downloaded'){
+      setImmediate(()=>autoUpdater.quitAndInstall(false,true));
+      return true;
+    }
+    return false;
+  });
+
+  updateTimer=setTimeout(()=>checkForUpdates(false),8000);
+  setInterval(()=>checkForUpdates(false),4*60*60*1000).unref?.();
+}
+
 function createWindow(url){
   mainWindow=new BrowserWindow({
     width:1440,
@@ -80,6 +140,7 @@ function createWindow(url){
     title:'Kamil OS',
     autoHideMenuBar:true,
     webPreferences:{
+      preload:path.join(__dirname,'preload.cjs'),
       contextIsolation:true,
       nodeIntegration:false,
       sandbox:true,
@@ -105,9 +166,14 @@ const gotLock=app.requestSingleInstanceLock();
 if(!gotLock){app.quit()}else{
   app.on('second-instance',()=>{if(mainWindow){if(mainWindow.isMinimized())mainWindow.restore();mainWindow.focus()}});
   app.whenReady().then(async()=>{
-    try{const url=await startServer();createWindow(url)}catch(error){console.error('Kamil OS local server failed',error);app.quit()}
+    try{
+      const url=await startServer();
+      createWindow(url);
+      configureUpdater();
+      publishUpdateState({status:'idle',message:'Aktualizace se kontrolují automaticky.'});
+    }catch(error){console.error('Kamil OS local server failed',error);app.quit()}
   });
   app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit()});
   app.on('activate',()=>{if(BrowserWindow.getAllWindows().length===0)createWindow(`http://${HOST}:${PORT}/`)});
-  app.on('before-quit',()=>{try{server?.close()}catch{}});
+  app.on('before-quit',()=>{try{if(updateTimer)clearTimeout(updateTimer);server?.close()}catch{}});
 }

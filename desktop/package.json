@@ -1,11 +1,15 @@
 {
   "name": "kamil-os-desktop",
-  "version": "41.4.0",
+  "version": "41.4.1",
   "private": true,
   "main": "main.cjs",
   "scripts": {
     "prepare:web": "node scripts/prepare-web.cjs",
-    "dist:win": "npm run prepare:web && electron-builder --win nsis --x64"
+    "dist:win": "npm run prepare:web && electron-builder --win nsis --x64",
+    "publish:win": "npm run prepare:web && electron-builder --win nsis --x64 --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
   },
   "devDependencies": {
     "electron": "^36.9.1",
@@ -19,7 +23,16 @@
     },
     "files": [
       "main.cjs",
+      "preload.cjs",
       "app/**/*"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "bckejml-max",
+        "repo": "Kamil-os",
+        "releaseType": "release"
+      }
     ],
     "win": {
       "target": [

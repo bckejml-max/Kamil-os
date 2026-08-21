@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: kamil-os-windows-${{ github.ref }}
@@ -38,16 +38,20 @@ jobs:
         working-directory: desktop
         run: npm install
 
-      - name: Build Windows installer
+      - name: Build and publish Windows update
         working-directory: desktop
-        run: npm run dist:win
+        run: npm run publish:win
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
-      - name: Upload installer
+      - name: Upload installer and update metadata
         uses: actions/upload-artifact@v4
         with:
           name: Kamil-OS-Windows
-          path: desktop/dist/*.exe
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/latest.yml
+            desktop/dist/*.blockmap
           if-no-files-found: error
           retention-days: 30
