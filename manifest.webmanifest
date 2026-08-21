@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 43.3",
+  "name": "Kamil OS 43.4",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 43.3 — Lean Autopilot, Safe Mode, Responsive Scheduler a Adaptive Loader, který se učí z reálných časů modulů.",
+  "description": "Kamil OS 43.4 — Lean Autopilot, Safe Mode, Responsive Scheduler, Adaptive Loader a Cold Load ochrana nejpomalejšího background modulu.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f5f7fa",
