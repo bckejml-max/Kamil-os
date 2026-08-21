@@ -29,18 +29,16 @@ function idle(fn,timeout=1200){
 }
 function currentView(){return document.querySelector('.view.on')?.id?.replace('view-','')||'today'}
 
-// První obrazovku necháme vykreslit bez desítek vedlejších modulů.
-// Rozšíření pro aktuální view se připojí hned po prvním paintu.
-const boot=()=>{
+// Nejdřív vykreslit základ appky. Rozšíření se připojí až po prvním paintu.
+function boot(){
   requestAnimationFrame(()=>requestAnimationFrame(()=>idle(()=>loadGroup(currentView()),900)));
   window.addEventListener('kamil:navigate',e=>loadGroup(e.detail||'today'));
-  // Navigační utility nepotřebují blokovat první paint, ale mají být brzy připravené.
+  // Tyhle dvě navigační utility jsou malé, ale stále nemusí blokovat první paint.
   idle(()=>Promise.allSettled([
     loadModule('./autopilotNavBridge28.js'),
-    loadModule('./personalPlusNav29.js'),
-    loadModule('./releaseStamp.js')
+    loadModule('./personalPlusNav29.js')
   ]),1800);
-};
+}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 
 export {loadGroup};
