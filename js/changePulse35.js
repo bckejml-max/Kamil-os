@@ -6,6 +6,7 @@ const ms=v=>{const d=new Date(v);return Number.isFinite(d.getTime())?d.getTime()
 const upper=v=>String(v||'').toUpperCase();
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('cs-CZ');
 const after=(v,since)=>ms(v)>ms(since);
+const handledMail=m=>['RESOLVED','WAITING','ARCHIVED','DONE','CLOSED'].includes(upper(m?.status||''));
 const labelTarget=label=>{const n=norm(label);if(/vstup|ticket|viagogo/.test(n))return'tickets';if(/xtb|invest|portfolio|penize|finance|efekta/.test(n))return'money';if(/e-mail|email|mail|inbox/.test(n))return'email';if(/faktur|zakaz|dodavat|reditel|pks|cpi|zbrojov|dochaz|cestak|pracov|waiting|follow-up/.test(n))return'director';if(/rodin|doklad|pojist|domov|auto|osob/.test(n))return'home';return'today'};
 const labelKind=target=>({tickets:'Vstupenky',money:'Peníze',email:'E-mail',director:'Práce',home:'Osobní',today:'OS'})[target]||'OS';
 
@@ -19,6 +20,7 @@ export function changePulse35(state={},sinceRaw=null,now=new Date()){
  }
 
  for(const m of state.inbox||[]){
+  if(handledMail(m))continue;
   const at=m.receivedAt||m.createdAt||m.date||m.at;if(!after(at,since))continue;
   const incoming=m.direction?upper(m.direction)!=='OUTBOUND':true;if(!incoming)continue;
   const important=m.important===true||upper(m.priority)==='HIGH'||upper(m.importance)==='HIGH';
@@ -38,5 +40,5 @@ export function changePulse35(state={},sinceRaw=null,now=new Date()){
 
  const seen=new Set(),dedup=items.sort((a,b)=>b.priority-a.priority||ms(b.at)-ms(a.at)).filter(x=>{const key=`${x.kind}|${norm(x.title)}`;if(seen.has(key))return false;seen.add(key);return true});
  const high=dedup.filter(x=>x.priority>=85),emails=dedup.filter(x=>x.kind==='E-mail'||x.kind==='Waiting For'),finance=dedup.filter(x=>x.target==='money'),tickets=dedup.filter(x=>x.target==='tickets');
- return {since:since.toISOString(),until:now.toISOString(),items:dedup.slice(0,20),top:dedup.slice(0,5),total:dedup.length,high:high.length,emails:emails.length,finance:finance.length,tickets:tickets.length,note:'Change Pulse porovnává tuto relaci s posledním otevřením na tomto zařízení. Nové interní e-maily a rozpoznané odpovědi teď otevírá přímo v E-mail Control.'};
+ return {since:since.toISOString(),until:now.toISOString(),items:dedup.slice(0,20),top:dedup.slice(0,5),total:dedup.length,high:high.length,emails:emails.length,finance:finance.length,tickets:tickets.length,note:'Change Pulse porovnává tuto relaci s posledním otevřením na tomto zařízení. Vyřešené e-maily a zprávy převedené do Waiting For už v pulzu nezůstávají.'};
 }
