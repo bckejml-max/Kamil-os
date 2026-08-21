@@ -21,6 +21,9 @@ assert.ok(lite.includes('requestIdleCallback'),'full Today must wait for browser
 assert.ok(lite.includes('Math.max(12000,delay)')&&lite.includes('15000'),'Today must enforce a real minimum grace period before heavy hydration');
 assert.ok(shell.includes("finish('safe-timeout')")&&shell.includes('6000'),'instant shell must have a bounded interactive wait');
 assert.ok(runtime.includes("today:['./todayLite43.js','renderTodayLite43']"),'runtime must boot through lightweight Today');
+assert.ok(runtime.includes('afterGraceIdle(run,18000,5000)'),'Today extras must have a real 18s grace period');
+assert.ok(runtime.includes('Math.max(15000,delay)'),'notifications must not pull heavy UI modules into startup');
+assert.ok(runtime.includes("warmRuntime41(){afterGraceIdle(()=>Promise.allSettled([load('./personalRisk25.js')]),30000,5000)}"),'background warmup must stay lightweight and delayed');
 assert.ok(state.includes('if(previous.storage)next.storage=previous.storage'),'boot summary must preserve partition metadata');
 assert.ok(state.includes('this.persist();'),'legacy compaction must use the active persistence strategy');
 assert.ok(sw.includes('instantNavigate'),'service worker cache-first navigation missing');
