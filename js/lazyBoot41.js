@@ -8,9 +8,17 @@ const groups={
 };
 function loadModule(path){if(loaded.has(path))return loaded.get(path);const p=import(path).catch(err=>{console.error('[lazyBoot41]',path,err);loaded.delete(path);throw err});loaded.set(path,p);return p}
 function loadStyle(path){if(styles.has(path))return styles.get(path);const p=new Promise(resolve=>{const l=document.createElement('link');l.rel='stylesheet';l.href=path;l.dataset.lazyStyle='1';l.onload=()=>resolve(true);l.onerror=()=>resolve(false);document.head.appendChild(l)});styles.set(path,p);return p}
-const idle=(fn,timeout=1400)=>'requestIdleCallback'in window?requestIdleCallback(fn,{timeout}):setTimeout(fn,500);
-function loadGroup(name,{staged=true}={}){const g=groups[name]||{css:[],primary:[],secondary:[]};const first=Promise.allSettled([...g.css.map(loadStyle),...g.primary.map(loadModule)]);if(staged&&g.secondary.length)first.finally(()=>idle(()=>Promise.allSettled(g.secondary.map(loadModule)),1800));else if(g.secondary.length)g.secondary.forEach(loadModule);return first}
+const idle=(fn,timeout=1800)=>'requestIdleCallback'in window?requestIdleCallback(fn,{timeout}):setTimeout(fn,700);
+function loadGroup(name,{staged=true}={}){const g=groups[name]||{css:[],primary:[],secondary:[]};const first=Promise.allSettled([...g.css.map(loadStyle),...g.primary.map(loadModule)]);if(staged&&g.secondary.length)first.finally(()=>setTimeout(()=>idle(()=>Promise.allSettled(g.secondary.map(loadModule)),3000),2500));else if(g.secondary.length)g.secondary.forEach(loadModule);return first}
 function currentView(){return document.querySelector('.view.on')?.id?.replace('view-','')||'today'}
-function boot(){requestAnimationFrame(()=>requestAnimationFrame(()=>idle(()=>loadGroup(currentView(),{staged:true}),1100)));window.addEventListener('kamil:view-change',e=>loadGroup(e.detail||'today',{staged:true}));window.addEventListener('kamil:navigate',e=>loadGroup(e.detail||'today',{staged:true}));idle(()=>Promise.allSettled([loadModule('./autopilotNavBridge28.js'),loadModule('./personalPlusNav29.js')]),2600)}
+function boot(){
+ let booted=false;
+ const lateBoot=()=>{if(booted)return;booted=true;loadGroup(currentView(),{staged:true})};
+ // requestIdleCallback can fire almost immediately; enforce a real grace period first.
+ setTimeout(()=>idle(lateBoot,4000),12000);
+ window.addEventListener('kamil:view-change',e=>{booted=true;loadGroup(e.detail||'today',{staged:true})});
+ window.addEventListener('kamil:navigate',e=>{booted=true;loadGroup(e.detail||'today',{staged:true})});
+ setTimeout(()=>idle(()=>Promise.allSettled([loadModule('./autopilotNavBridge28.js'),loadModule('./personalPlusNav29.js')]),3500),15000);
+}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 export {loadGroup};
