@@ -12,6 +12,7 @@ const hydrated=new Set();
 let started=false,compactTimer=null,storePromise=null;
 
 const parse=(raw,fallback)=>{try{return JSON.parse(raw)}catch{return fallback}};
+const emptyCold=()=>Object.fromEntries(Object.keys(DOMAINS).map(x=>[x,{}]));
 const keyOf=path=>path.join('.');
 const getPath=(obj,path)=>path.reduce((v,k)=>v?.[k],obj);
 function setPath(obj,path,value){
@@ -20,9 +21,11 @@ function setPath(obj,path,value){
   obj[path[0]][path[1]]=value;
 }
 function readCold(){
-  const data=parse(localStorage.getItem(COLD_KEY)||'null',{})||{};
-  for(const name of Object.keys(DOMAINS))data[name]=data[name]&&typeof data[name]==='object'?data[name]:{};
-  return data;
+  try{
+    const data=parse(localStorage.getItem(COLD_KEY)||'null',{})||{};
+    for(const name of Object.keys(DOMAINS))data[name]=data[name]&&typeof data[name]==='object'?data[name]:{};
+    return data;
+  }catch{return emptyCold()}
 }
 function writeBootStats(mainRaw,coldRaw){
   try{
