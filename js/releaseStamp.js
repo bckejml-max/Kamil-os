@@ -1,8 +1,4 @@
 import {APP_VERSION,APP_RELEASE} from './releaseMeta.js';
-import './os40ExecutiveUi.js';
-import './os40MoneyUi.js';
-import './os40TicketsUi.js';
-import './os40KnowledgeUi.js';
 
 function stamp(){
  document.title=`Kamil OS ${APP_RELEASE}`;
@@ -15,5 +11,9 @@ function stamp(){
   }
  });
 }
-const start=()=>{stamp();new MutationObserver(()=>queueMicrotask(stamp)).observe(document.body,{childList:true,subtree:true})};
+function start(){
+ stamp();
+ window.addEventListener('kamil:navigate',()=>queueMicrotask(stamp));
+ window.addEventListener('kamil:release-stamp',()=>queueMicrotask(stamp));
+}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
