@@ -29,7 +29,7 @@ function isLinkedToWaiting(state,m){
 
 function emailPriority(m,now=new Date()){
  const at=whenOf(m),age=at?ageDays(at,now):0;
- let p=workLike(m)?72:58;
+ let p=workLike(m)?72:60;
  if(unread(m))p+=8;
  if(important(m))p+=16;
  if(age>=2)p+=5;
@@ -43,34 +43,20 @@ function candidateReason(m,now=new Date()){
  if(unread(m))parts.push('nepřečtené');
  if(workLike(m))parts.push('pracovní kontext');
  if(age>0)parts.push(`před ${age} d`);
- return parts.join(' · ')||'nová zpráva k vyřízení';
+ return parts.join(' · ')||'zpráva k vyřízení';
 }
 
 export function emailWorkflow35(state={},now=new Date()){
  const inbox=(state.inbox||[]).filter(m=>incoming(m)&&!done(m)),waiting=waitingFor35(state,now);
- const triage=inbox.filter(m=>(important(m)||workLike(m)||unread(m))&&!isLinkedToWaiting(state,m)).map(m=>({
+ const triage=inbox.filter(m=>(important(m)||workLike(m))&&!isLinkedToWaiting(state,m)).map(m=>({
   id:m.id||`mail:${norm(titleOf(m))}:${whenOf(m)||''}`,
-  kind:'EMAIL',
-  title:titleOf(m),
-  person:senderOf(m),
-  at:whenOf(m),
-  threadId:threadOf(m),
-  priority:emailPriority(m,now),
-  reason:candidateReason(m,now),
-  source:m
+  kind:'EMAIL',title:titleOf(m),person:senderOf(m),at:whenOf(m),threadId:threadOf(m),priority:emailPriority(m,now),reason:candidateReason(m,now),source:m
  })).sort((a,b)=>b.priority-a.priority||ms(b.at)-ms(a.at));
  const replies=waiting.rows.filter(x=>x.action==='REPLY_DETECTED');
  const followUps=waiting.rows.filter(x=>x.action==='FOLLOW_UP_NOW');
  const soon=waiting.rows.filter(x=>x.action==='FOLLOW_UP_SOON');
  const top=[...replies.map(x=>({type:'REPLY',priority:x.priority,title:`Přišla odpověď · ${x.title}`,reason:x.reason,id:x.id,row:x})),...followUps.map(x=>({type:'FOLLOW_UP',priority:x.priority,title:`Urgovat · ${x.title}`,reason:x.reason,id:x.id,row:x})),...triage.slice(0,8).map(x=>({type:'EMAIL',priority:x.priority,title:x.title,reason:x.reason,id:x.id,row:x}))].sort((a,b)=>b.priority-a.priority).slice(0,8);
- return {
-  triage,replies,followUps,soon,waitingTotal:waiting.total,
-  needsAction:triage.filter(x=>x.priority>=80).length,
-  readyToClose:replies.length,
-  followUpNow:followUps.length,
-  top,
-  note:'E-mail Control propojuje interní inbox s Waiting For. E-mail se převede do čekání jen po tvém kliknutí „Vyřízeno → čekám“, takže OS nepředstírá, že jsi už odpověděl.'
- };
+ return {triage,replies,followUps,soon,waitingTotal:waiting.total,needsAction:triage.filter(x=>x.priority>=80).length,readyToClose:replies.length,followUpNow:followUps.length,top,note:'E-mail Control ukazuje jen důležité nebo pracovní položky interního inboxu a propojuje je s Waiting For. E-mail se převede do čekání pouze po tvém kliknutí „Vyřízeno → čekám“.'};
 }
 
 export function markInboxResolved35(state,emailId,now=new Date()){
@@ -86,9 +72,11 @@ export function convertInboxToWaiting35(state,emailId,idFactory=()=>`waiting-${D
 }
 
 export function closeWaitingFromReply35(state,waitingId,now=new Date()){
+ const before=waitingFor35(state,now).rows.find(y=>String(y.id)===String(waitingId));
  let x=(state.directorBook?.waiting||[]).find(y=>String(y.id)===String(waitingId));
- if(x){x.status='DONE';x.completedAt=now.toISOString();return true}
- x=(state.delegations||[]).find(y=>String(y.id)===String(waitingId));
- if(x){x.status='DONE';x.completedAt=now.toISOString();return true}
- return false;
+ if(!x)x=(state.delegations||[]).find(y=>String(y.id)===String(waitingId));
+ if(!x)return false;
+ x.status='DONE';x.completedAt=now.toISOString();
+ if(before?.replyId)markInboxResolved35(state,before.replyId,now);
+ return true;
 }
