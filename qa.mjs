@@ -52,19 +52,24 @@ assert.ok(lazy.includes('safeMode()'),'Safe Mode guard missing from lazy loader'
 assert.ok(desktop43.includes('kamilDesktop43')&&desktop43.includes('Ctrl+Alt+K'),'desktop palette bridge missing');
 assert.ok(desktopMain.includes("globalShortcut.register('CommandOrControl+Alt+K'")&&desktopMain.includes('Universal Inbox'),'global desktop shortcut/tray actions missing');
 
-assert.equal(version,'43.3.0','43.3 release metadata must be aligned');
-assert.equal(release,'43.3','43.3 release label must be aligned');
+assert.equal(version,'43.4.0','43.4 release metadata must be aligned');
+assert.equal(release,'43.4','43.4 release label must be aligned');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.equal(desktopPackage.version,version,'desktop package version must match APP_VERSION');
-assert.ok(instant.includes("const VERSION='43.3.0'")&&instant.includes("kamil-os-fast-snapshot-43-3"),'43.3 instant shell version/snapshot missing');
-assert.ok(sw.includes("const CACHE='kamil-os-43.3.0-runtime-r1'"),'43.3 service-worker cache version missing');
+assert.ok(instant.includes("const VERSION='43.4.0'")&&instant.includes("kamil-os-fast-snapshot-43-4"),'43.4 instant shell version/snapshot missing');
+assert.ok(sw.includes("const CACHE='kamil-os-43.4.0-runtime-r1'"),'43.4 service-worker cache version missing');
 assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'responsive scheduler/input guard missing');
 assert.ok(lazy.includes("document.visibilityState==='hidden'")&&lazy.includes('await sleep(250)'),'scheduler must yield while hidden or busy');
 assert.ok(lazy.includes('window.__KAMIL_MODULE_TIMINGS__'),'per-module timing diagnostics missing');
-assert.ok(lazy.includes("MODULE_STATS_KEY='kamil-os-module-stats-43-3'")&&lazy.includes('function recordTiming'),'43.3 persistent timing history missing');
-assert.ok(lazy.includes('function adaptiveGap')&&lazy.includes('learnedDelay'),'43.3 adaptive module pacing missing');
-assert.ok(lazy.includes('prev.avg*.7+ms*.3'),'43.3 timing history must use smoothed measurements');
-assert.ok(diagnostics.includes('Nejpomalejší moduly')&&diagnostics.includes('Reset měření loaderu'),'43.3 loader diagnostics UI missing');
-assert.ok(instant.includes('43.3 Adaptive Loader'),'43.3 boot message missing');
+assert.ok(lazy.includes("MODULE_STATS_KEY='kamil-os-module-stats-43-3'")&&lazy.includes('function recordTiming'),'persistent timing history missing');
+assert.ok(lazy.includes('function adaptiveGap')&&lazy.includes('learnedDelay'),'adaptive module pacing missing');
+assert.ok(lazy.includes('prev.avg*.7+ms*.3'),'timing history must use smoothed measurements');
+assert.ok(lazy.includes('COLD_THRESHOLD_MS=1100')&&lazy.includes('COLD_MIN_SAMPLES=3'),'43.4 cold-load qualification guard missing');
+assert.ok(lazy.includes('function coldCandidate')&&lazy.includes('backgroundPaths()'),'43.4 must identify the worst eligible background module');
+assert.ok(lazy.includes("status:'deferred'")&&lazy.includes('allowCold=false'),'43.4 must defer the cold module during background loading');
+assert.ok(lazy.includes('lastUserIntentAt')&&lazy.includes('explicitIntent()'),'43.4 cold module may only rejoin after recent user intent');
+assert.ok(lazy.includes("'kamil:load-cold-module'")&&lazy.includes("'kamil:cold-module-loaded'"),'43.4 explicit cold-module recovery path missing');
+assert.ok(diagnostics.includes('Cold-load ochrana')&&diagnostics.includes('Načíst odložený modul teď'),'43.4 cold-load diagnostics controls missing');
+assert.ok(instant.includes('43.4 Cold Load'),'43.4 boot message missing');
 
 console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version}`);
