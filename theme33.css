@@ -41,5 +41,33 @@ html.theme-light .good{color:#087a4b!important}html.theme-light .warn{color:#a15
 html.theme-light .ticket-tr,html.theme-light .intel-row,html.theme-light .opportunity-row,html.theme-light .event-position-row{border-color:#e4e7ec}
 html.theme-light .bottom-nav{background:rgba(255,255,255,.96);border-top-color:#dfe4ea}
 html.theme-light .bottom-nav button{color:#667085}html.theme-light .bottom-nav button.on{color:#111827}
+
+/* Full light-theme compatibility for older modules that still used hard-coded dark surfaces. */
+html.theme-light .metric,html.theme-light .decision-mini,html.theme-light .audit-mix>div,html.theme-light .intel-rule,html.theme-light .project-card,html.theme-light .project-fact,html.theme-light .project-meta24 span{background:#f7f9fc!important;border-color:#dbe2ea!important;color:#111827!important}
+html.theme-light .metric span,html.theme-light .decision-mini span,html.theme-light .audit-mix span,html.theme-light .intel-rule span,html.theme-light .project-fact span,html.theme-light .project-meta24 span{color:#667085!important}
+html.theme-light .metric b,html.theme-light .decision-mini b,html.theme-light .audit-mix b,html.theme-light .intel-rule b,html.theme-light .project-meta24 b{color:#101828!important}
+html.theme-light .hub-tile{background:#fff!important;color:#111827!important;border-color:#d8e0e8!important;box-shadow:0 7px 20px rgba(15,23,42,.045)}
+html.theme-light .hub-tile:hover{background:#f7f9fc!important;border-color:#aebbc9!important}
+html.theme-light .hub-icon{background:#eef2f6!important;border-color:#d4dce5!important;color:#344054}
+html.theme-light .trade-planner-card,html.theme-light .liquidity-card,html.theme-light .project-next-card{background:linear-gradient(180deg,#ffffff,#f7f9fc)!important;border-color:#d8e0e8!important}
+html.theme-light .money-track{background:#e9eef4!important;border-color:#d3dce6!important}
+html.theme-light .money-bar-head span,html.theme-light .opportunity-rule,html.theme-light .project-next strong{color:#344054!important}
+html.theme-light .timeline-row{border-left-color:#d4dce5!important}
+html.theme-light .timeline-dot{background:#cbd5e1!important;border-color:#fff!important}
+html.theme-light .timeline-dot.next{background:#2563eb!important;box-shadow:0 0 0 4px rgba(37,99,235,.10)!important}
+html.theme-light .work-section-title,html.theme-light .ticket-head,html.theme-light .decision-head{color:#667085!important;border-color:#e1e6ec!important}
+html.theme-light .work-task,html.theme-light .ticket-tr,html.theme-light .decision-row,html.theme-light .trade-plan-row,html.theme-light .intel-row,html.theme-light .opportunity-row,html.theme-light .inbox24-row,html.theme-light .debt24-row,html.theme-light .audit-risk{border-color:#e4e7ec!important}
+html.theme-light .work-task:hover{background:#f8fafc!important}
+html.theme-light .decision-action{background:#fff;border-color:#d0d8e2}
+html.theme-light .decision-action.good{background:#ecf8f2!important;border-color:#b7dfc9!important}
+html.theme-light .decision-action.warn{background:#fff7e8!important;border-color:#efd6a6!important}
+html.theme-light .decision-action.bad{background:#fff0f1!important;border-color:#efc0c5!important}
+html.theme-light .audit-next{background:#f0f6ff!important;border-color:#cfe0f7!important;color:#344054!important}
+html.theme-light .sync.local{color:#8a5a00!important;background:#fff7e6!important;border-color:#ead3a3!important}
+html.theme-light .sync.local i{background:#a56a00!important;box-shadow:none!important}
+html.theme-light .success-empty{background:#eef9f3!important;border-color:#c9e8d6!important;color:#26704a!important}
+html.theme-light .trade-plan-fact>span,html.theme-light .audit-mix small,html.theme-light .intel-rule span{color:#667085!important}
+html.theme-light .trade-plan-main p,html.theme-light .trade-plan-fact>small,html.theme-light .intel-main span,html.theme-light .opportunity-top span{color:#667085!important}
+
 .theme-toggle33{min-width:84px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 @media(max-width:760px){.theme-toggle33{min-width:auto;padding-inline:9px}.theme-toggle33 .theme-label33{display:none}}
