@@ -9,7 +9,7 @@ assert(quote.includes('changesDecisionAction:false')&&quote.includes('autoTrade:
 assert(xtb.includes("contract:'NO_AUTO_TRADE'")&&xtb.includes('executionBlocked')&&xtb.includes('reviewBeforeTrade')&&xtb.includes('marketQuote'),'XTB execution/quote safety missing');
 assert(tickets.includes("'SOURCED_MARKET'")&&tickets.includes("'STALE_MARKET'")&&tickets.includes('marketFresh')&&tickets.includes("action:'REVIEW'")&&tickets.includes('listPrice'),'ticket freshness/data-quality safety missing');
 assert(ui.includes('PUBLIC / THIRD-PARTY')&&ui.includes('čerstvý market + zdroj')&&ui.includes('interní target')&&ui.includes('data-ticket-tune'),'Market Edge UI missing provenance/tuning controls');
-assert(recovery.includes("reason='PRE_RESTORE'")&&recovery.includes('maybeCreateRecoverySnapshot32({force:true')&&recovery.includes('cloudSchema32'),'Recovery pre-restore/future-schema guard missing');
+assert(recovery.includes("reason:'PRE_RESTORE'")&&recovery.includes('maybeCreateRecoverySnapshot32({force:true')&&recovery.includes('cloudSchema32'),'Recovery pre-restore/future-schema guard missing');
 assert(!recovery.includes('.delete(')&&!recovery.includes('.remove('),'32.4 client must not delete recovery snapshots');
 assert(preflight.includes("import './marketEdgeUi32.js'")&&preflight.includes("import './recoveryShieldUi32.js'"),'32.4 side-effect modules not loaded');
 assert(sw.includes('kamil-os-32.4.0-shell-r1')&&sw.includes('./js/marketEdgeUi32.js')&&sw.includes('./js/recoveryShield32.js')&&sw.includes('./js/marketQuoteIngest32.js')&&sw.includes("u.pathname.startsWith('/api/')===false"),'32.4 PWA cache contract missing');
