@@ -7,5 +7,6 @@ for(const bad of ['store.mutate(','fetch(','localStorage'])assert(!engine.includ
 assert(ui.includes('Repricing & Sell-by Intelligence')&&ui.includes('Bez auto-price')&&ui.includes('Tuning'),'ticket market UI incomplete');
 assert(!ui.includes('store.mutate('),'ticket market UI must remain proposal-only');
 assert(pre.includes("import './ticketMarketIntelUi32.js'"),'ticket market UI not loaded');
-assert(/kamil-os-32\.(?:[6-9]|\d{2,})\.0-shell-r\d+/.test(sw)&&sw.includes('./js/ticketMarketIntel32.js')&&sw.includes('./js/ticketMarketIntelUi32.js'),'32.6+ PWA cache missing');
+const cache=sw.match(/kamil-os-(\d+)\.(\d+)\.(\d+)-shell-r\d+/),cacheOk=cache&&(Number(cache[1])>32||(Number(cache[1])===32&&Number(cache[2])>=6));
+assert(cacheOk&&sw.includes('./js/ticketMarketIntel32.js')&&sw.includes('./js/ticketMarketIntelUi32.js'),'32.6+ PWA cache missing');
 console.log('KAMIL OS 32.6+ TICKET MARKET INTEL STATIC PASS');

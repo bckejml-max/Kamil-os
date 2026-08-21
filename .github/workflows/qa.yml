@@ -13,6 +13,8 @@ jobs:
           node-version: 22
       - name: Static QA
         run: node qa.mjs
+      - name: Kamil OS 40 static release gate
+        run: node os40_static_test.mjs
       - name: Vercel main-only deployment policy
         run: node vercel_policy_test.mjs
       - name: Personal Plus 29 static hardening

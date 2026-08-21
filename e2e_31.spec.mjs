@@ -5,7 +5,7 @@ const BASE='http://127.0.0.1:4173';
 test('Kamil OS 32.4 local-first auth and critical flow',async({page})=>{
   const requests=[];page.on('request',r=>requests.push(r.url()));
   await page.goto(BASE,{waitUntil:'networkidle'});
-  await expect(page).toHaveTitle(/Kamil OS 32\./);
+  await expect(page).toHaveTitle(/Kamil OS \d+\.\d+/);
   await expect(page.locator('#appView')).toBeVisible();
   await expect(page.locator('#syncStatus')).toContainText('Jen toto zařízení');
   expect(requests.some(u=>u.includes('@supabase/supabase-js'))).toBeFalsy();
@@ -63,7 +63,7 @@ test('Kamil OS 32.4 mirrors selected history into IndexedDB',async({page})=>{
     localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},financePlan:{cashNow:1,expectedIncome:0,reserveFloor:0,plannedInvestment:0},tasks:[],decisionJournal:{items:[{id:'e2e-decision',at:'2026-08-20T10:00:00Z',domain:'money',title:'E2E decision',action:'HOLD',priority:50}]}}));
   });
   await page.goto(BASE,{waitUntil:'networkidle'});
-  await expect(page).toHaveTitle(/Kamil OS 32\./);
+  await expect(page).toHaveTitle(/Kamil OS \d+\.\d+/);
   await page.waitForFunction(async()=>{const {readHistory31}=await import('./js/indexedDb31.js');const rows=await readHistory31('decision',{limit:100});return rows.some(x=>x.key==='decision|e2e-decision'&&x.payload?.action==='HOLD')},null,{timeout:10000});
   const record=await page.evaluate(async()=>{const {readHistory31}=await import('./js/indexedDb31.js');return (await readHistory31('decision',{limit:100})).find(x=>x.key==='decision|e2e-decision')});
   expect(record.bucket).toBe('decision');expect(record.payload.action).toBe('HOLD');
@@ -142,7 +142,7 @@ test('Kamil OS 32.5 Profit Control keeps FX and ticket exposure honest',async({p
     localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},financePlan:{cashNow:100000,expectedIncome:0,reserveFloor:50000,plannedInvestment:25000},tasks:[],debtBook:{items:[]},personalAdmin:{items:[]},personalGoals:{items:[]},netWorthBook:{items:[],history:[]},personalSpending:{transactions:[]},assetBook:{items:[]},personalInbox:{items:[]},ticketBook:{items:[{id:'c1',name:'Clash 17 - A2-1',date:'2026-10-24',workflow:'LISTED',qty:2,buy:2482,listPrice:0,marketPrice:0,transferStatus:'UNKNOWN'},{id:'c2',name:'Clash 17 - A3-2',date:'2026-10-24',workflow:'HOLD',qty:2,buy:2482,listPrice:0,marketPrice:0,transferStatus:'READY'}],watchlist:[],history:[]},xtbHub:{asOf:fresh,accounts:{czk:{currency:'CZK',value:100000,positions:[{ticker:'EUNA.DE',name:'Core Global Aggregate Bond',category:'ETF',value:50000,volume:400,net_profit_pct:0},{ticker:'EXUS.DE',name:'MSCI World ex USA',category:'ETF',value:50000,volume:50,net_profit_pct:0}]},eur:{currency:'EUR',value:1000,positions:[{ticker:'VWCE.DE',name:'FTSE All-World',category:'ETF',value:1000,volume:5.8,net_profit_pct:0}]}}},xtbReport:{asOf:fresh},xtbStrategy:{overrides:{}}}));
   },{fresh});
   await page.goto(BASE,{waitUntil:'networkidle'});
-  await expect(page).toHaveTitle(/Kamil OS 32\./);
+  await expect(page).toHaveTitle(/Kamil OS \d+\.\d+/);
   await page.locator('#mainNav').getByRole('button',{name:'Peníze'}).click();
   await expect(page.getByRole('heading',{name:'Portfolio audit bez míchání měn'})).toBeVisible();
   await expect(page.locator('#profitControlMoney32Host')).toContainText('125 000 Kč');

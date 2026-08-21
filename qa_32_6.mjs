@@ -2,7 +2,7 @@ await import('./ticket_market_intel_32_test.mjs');
 await import('./ticket_market_intel_32_static_test.mjs');
 import fs from 'node:fs';
 const t=f=>fs.readFileSync(f,'utf8'),assert=(x,m)=>{if(!x)throw new Error(m)},meta=t('js/releaseMeta.js'),config=t('js/config.js'),sw=t('sw.js'),pre=t('js/preflight.js'),engine=t('js/ticketMarketIntel32.js'),ui=t('js/ticketMarketIntelUi32.js'),profit=t('js/xtbContribution32.js'),brain=t('js/liveBrain32.js'),copilot=t('js/copilotWrite32.js'),recovery=t('js/recoveryShield32.js');
-const vm=meta.match(/APP_VERSION='(\d+)\.(\d+)\.(\d+)'/);assert(vm&&Number(vm[1])===32&&Number(vm[2])>=6,'release must retain 32.6+ ticket intelligence');
+const vm=meta.match(/APP_VERSION='(\d+)\.(\d+)\.(\d+)'/),versionOk=vm&&(Number(vm[1])>32||(Number(vm[1])===32&&Number(vm[2])>=6));assert(versionOk,'release must retain 32.6+ ticket intelligence');
 assert(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 assert(sw.includes('./js/ticketMarketIntel32.js')&&sw.includes('./js/ticketMarketIntelUi32.js')&&sw.includes("u.pathname.startsWith('/api/')===false"),'ticket intelligence shell/cache safety missing');
 assert(pre.includes("import './ticketMarketIntelUi32.js'"),'ticket intelligence module not loaded');assert(engine.includes('PROPOSAL_ONLY')&&engine.includes('requiresFreshMarketForPrice:true')&&engine.includes('staleMarketCanDrivePrice:false'),'ticket price safety missing');assert(ui.includes('Repricing & Sell-by Intelligence'),'ticket intelligence UI missing');
