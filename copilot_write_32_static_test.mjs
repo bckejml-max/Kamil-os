@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 const assert=(x,m)=>{if(!x)throw new Error(m)},text=f=>fs.readFileSync(f,'utf8');
-const engine=text('js/copilotWrite32.js'),command=text('js/command.js'),app=text('js/app.js');
+const engine=text('js/copilotWrite32.js'),command=text('js/command.js'),app=text('js/app.js'),runtime=text('js/viewRuntime41.js');
 for(const browser of ['window.','document.','localStorage','fetch(','store.'])assert(!engine.includes(browser),'Copilot proposal engine must stay pure: '+browser);
 assert(engine.includes("flow:['UNDERSTAND','PROPOSE','PREVIEW','CONFIRM','EXECUTE']")&&engine.includes('silentWrite:false'),'Copilot write contract missing');
 assert(command.includes("if(WRITE_TYPES.has(c.type)){confirmKnownWrite(c);return}")&&command.includes("modal('Náhled změny'")&&command.includes("label:'Potvrdit změnu'"),'known write preview/confirm wiring missing');
@@ -9,5 +9,6 @@ assert(command.includes('applyCommandWriteProposal32(s,fresh')&&command.includes
 for(const old of ["if(c.type==='payment')","if(c.type==='sold')","if(c.type==='tomorrow')"])assert(!command.includes(old),'legacy silent write branch remains: '+old);
 assert(command.includes("modal('Náhled změny',`<p><b>Vytvořit osobní úkol:")&&command.includes("label:'Potvrdit vytvoření úkolu'"),'unknown command task write must remain confirmed');
 assert(!app.includes('withActionLock(()=>execute(v))'),'Command Bar must not silently drop commands behind global action lock');
-assert(app.includes("const v=input.value;execute(v);input.value=''"),'Command Bar direct execution wiring missing');
-console.log('KAMIL OS 32.2 COPILOT WRITE STATIC PASS');
+assert(runtime.includes("export async function executeCommand41(value)")&&runtime.includes("load('./command.js')"),'lazy Command Bar execution bridge missing');
+assert(app.includes("executeCommand41(v).then")&&app.includes("input.value=''"),'Command Bar async direct execution wiring missing');
+console.log('KAMIL OS COPILOT WRITE STATIC PASS');
