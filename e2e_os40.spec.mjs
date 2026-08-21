@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 
-test('Kamil OS 40 shell and decision engines load without page errors',async({page})=>{
+test('Kamil OS 40 shell, free-text Copilot and decision engines load without page errors',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e?.message||e)));
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  await expect(page.locator('.version').first()).toHaveText('40.0.0');
@@ -27,7 +27,13 @@ test('Kamil OS 40 shell and decision engines load without page errors',async({pa
  expect(engine.center.autoTrade).toBe(false);
  expect(engine.center.autoReprice).toBe(false);
 
- await page.waitForTimeout(900);
+ const input=page.locator('[data-copilot40-input]');
+ await expect(input).toBeVisible({timeout:5000});
+ await input.fill('Můžu investovat 25k?');
+ await input.press('Enter');
+ await expect(page.locator('[data-copilot40-answer]')).toContainText('Kamil Copilot:');
+ await expect(page.locator('[data-copilot40-answer]')).toContainText('Money Brain');
+
  expect(errors).toEqual([]);
 });
 
