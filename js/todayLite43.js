@@ -30,6 +30,7 @@ async function hydrateFull(token){
   if(!fullModule){fullPromise=fullPromise||import('./today29.js');fullModule=await fullPromise}
   const current=qs('#todayView');if(!current||current.dataset.todayLite43!==token||!todayVisible())return false;
   fullModule.renderToday?.();current.removeAttribute('data-today-lite43');
+  window.__KAMIL_TODAY_FULL_AT__=performance.now();try{performance.mark('kamil-today-full')}catch{}
   window.dispatchEvent(new CustomEvent('kamil:today-full-ready'));
   return true;
  }catch(error){console.error('[todayLite43]',error);return false}
