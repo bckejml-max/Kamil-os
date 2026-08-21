@@ -1,0 +1,28 @@
+name: Kamil OS 41.3 Performance QA
+on:
+  pull_request:
+    paths:
+      - 'js/coldPartition42.js'
+      - 'js/instantShell42.js'
+      - 'js/perfUi43.js'
+      - 'js/state.js'
+      - 'js/todayLite43.js'
+      - 'js/viewRuntime41.js'
+      - 'sw.js'
+      - 'performance_41_3_test.mjs'
+      - 'performance_41_3_static_test.mjs'
+      - '.github/workflows/performance-41-3.yml'
+  workflow_dispatch:
+
+jobs:
+  performance-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Cold-storage regression
+        run: node performance_41_3_test.mjs
+      - name: Progressive-boot static regression
+        run: node performance_41_3_static_test.mjs

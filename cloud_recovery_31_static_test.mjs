@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 const assert=(x,m)=>{if(!x)throw new Error(m)};const text=f=>fs.readFileSync(f,'utf8');
-const cloud=text('js/cloud.js'),app=text('js/app.js'),html=text('index.html'),ui=text('js/profileBootstrapUi31.js');
+const cloud=text('js/cloud.js'),app=text('js/app.js'),html=text('index.html'),ui=text('js/profileBootstrapUi31.js'),lazy=text('js/lazyBoot41.js');
 assert(cloud.includes('sendMagicLink')&&cloud.includes('signInWithOtp'),'magic-link auth missing');
 assert(cloud.includes('shouldCreateUser:false'),'magic-link must never create a new account');
 assert(cloud.includes('https://kamil-os-smoke.vercel.app/'),'canonical recovery origin missing');
 assert(cloud.includes("queryParams().has('code')")&&cloud.includes("queryParams().has('token_hash')"),'auth callback detection missing');
 assert(app.includes("store.setMeta({lastCloudEmail")&&app.includes('magicLinkBtn'),'recovery UX must remember only the account email in local meta');
 assert(app.includes("el.setAttribute('role','button')")&&app.includes('openCloudConnect'),'local sync status must be keyboard-accessible recovery entry point');
-assert(html.includes('Poslat přihlašovací odkaz bez hesla')&&html.includes('profileBootstrapUi31.js'),'31.2 recovery shell missing');
+assert(html.includes('Poslat přihlašovací odkaz bez hesla')&&lazy.includes('./profileBootstrapUi31.js'),'recovery shell must keep profile bootstrap available lazily');
 assert(ui.includes('Tvoje data nejsou na tomto zařízení')&&ui.includes('Připojit moje data'),'empty profile recovery card missing');
 assert(!cloud.match(/service[_-]?role|sb_secret_/i),'secret/service role must never be embedded in client');
-console.log('CLOUD RECOVERY 31.2 STATIC TEST PASS');
+console.log('CLOUD RECOVERY STATIC TEST PASS');

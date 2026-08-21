@@ -146,11 +146,16 @@ class Store{
  compactLegacyStorage(){
   try{
    if(this.legacyUndo?.length&&!localStorage.getItem(UNDO_KEY))localStorage.setItem(UNDO_KEY,JSON.stringify(compactUndo(this.legacyUndo)));
-   localStorage.setItem(LOCAL_KEY,JSON.stringify({...this.s,undo:[]}));
-   this.writeBootSummary();
+   this.persist();
   }catch{}
  }
- writeBootSummary(){try{localStorage.setItem(BOOT_KEY,JSON.stringify(bootSummary(this.s,this.undoCount())))}catch{}}
+ writeBootSummary(){
+  try{
+   const previous=this.readBootSummary()||{},next={...previous,...bootSummary(this.s,this.undoCount())};
+   if(previous.storage)next.storage=previous.storage;
+   localStorage.setItem(BOOT_KEY,JSON.stringify(next));
+  }catch{}
+ }
  writeUndo(){try{localStorage.setItem(UNDO_KEY,JSON.stringify(compactUndo(this.s.undo||[])));this.undoCountCache=(this.s.undo||[]).length}catch{}}
  get(){return this.s}
  setCloudWriter(fn){this.cloudWriter=fn}

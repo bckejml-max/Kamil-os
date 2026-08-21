@@ -1,5 +1,10 @@
-const CACHE='kamil-os-41.2.0-runtime-r1';
-const SHELL=['./','./index.html','./manifest.webmanifest','./js/instantShell42.js','./icons/icon-192.png','./icons/icon-512.png'];
+const CACHE='kamil-os-41.3.0-runtime-r1';
+const SHELL=[
+  './','./index.html','./manifest.webmanifest',
+  './js/instantShell42.js','./js/app.js','./js/releaseMeta.js','./js/config.js','./js/state.js','./js/utils.js',
+  './js/viewRuntime41.js','./js/todayLite43.js','./js/coldPartition42.js','./js/cloud.js','./js/cloudPayload32.js','./js/authUx32.js','./js/perf41.js',
+  './icons/icon-192.png','./icons/icon-512.png'
+];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('kamil-os-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 async function instantNavigate(request){const cache=await caches.open(CACHE),cached=(await cache.match('./index.html'))||(await cache.match(request));const refresh=fetch(request).then(response=>{if(response?.ok){cache.put('./index.html',response.clone());cache.put(request,response.clone())}return response}).catch(()=>null);if(cached){refresh.catch(()=>null);return cached}return (await refresh)||Response.error()}
