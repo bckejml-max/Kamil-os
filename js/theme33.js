@@ -18,5 +18,5 @@ function ensureButton(){
 }
 
 apply(stored()||'light');
-const start=()=>{ensureButton();new MutationObserver(()=>ensureButton()).observe(document.body,{childList:true,subtree:true})};
+function start(){ensureButton();window.addEventListener('kamil:navigate',ensureButton)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
