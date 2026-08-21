@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+const t=f=>fs.readFileSync(f,'utf8'),assert=(x,m)=>{if(!x)throw new Error(m)};
+const engine=t('js/financialDecision32.js'),ui=t('js/financialDecisionUi32.js'),pre=t('js/preflight.js'),sw=t('sw.js'),old=t('js/xtbContribution32.js'),ticket=t('js/ticketMarketIntel32.js');
+assert(engine.includes("contract:'ROUTING_PROPOSAL_ONLY'")&&engine.includes('autoTrade:false')&&engine.includes('neverMovesMoney:true')&&engine.includes('hardFloorBeforeXtb:true'),'money routing safety contract missing');
+assert(engine.includes("code='CASH_FLOOR'")&&engine.includes('xtbBudget=0'),'hard cash floor must block XTB contribution');
+assert(engine.includes('cashflow.history')&&engine.includes('tradeJournal?.trades'),'cashflow/trade outcome sources missing');
+assert(ui.includes('XTB & rozhodovací centrum')&&ui.includes('Jak dopadly moje bývalé prodeje')&&ui.includes('Kolik nás reálně stojí měsíc'),'Financial Command UI missing');
+assert(!ui.includes('store.mutate(')&&!engine.includes('store.'),'Financial Command must be read-only');
+for(const secret of ['64916.23','53703.634','19608.757','523814.59','1466.72','3424369.42'])assert(!engine.includes(secret)&&!ui.includes(secret),`private financial value leaked into production JS: ${secret}`);
+assert(pre.includes("import './financialDecisionUi32.js'"),'Financial Command UI not loaded');
+assert(sw.includes('./js/financialDecision32.js')&&sw.includes('./js/financialDecisionUi32.js')&&sw.includes("u.pathname.startsWith('/api/')===false"),'32.7 PWA/cache safety missing');
+assert(old.includes('autoTrade:false')&&old.includes('requiresCompleteFx:true'),'32.5 XTB safety regressed');
+assert(ticket.includes('staleMarketCanDrivePrice:false')&&ticket.includes('requiresFreshMarketForPrice:true'),'32.6 ticket pricing firewall regressed');
+console.log('KAMIL OS 32.7 FINANCIAL DECISION STATIC PASS');
