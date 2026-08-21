@@ -111,6 +111,10 @@ jobs:
         run: node live_brain_32_test.mjs
       - name: Live Brain safety 32.3
         run: node live_brain_32_static_test.mjs
+      - name: Market Edge 32.4
+        run: node market_edge_32_test.mjs
+      - name: Market Edge safety 32.4
+        run: node market_edge_32_static_test.mjs
       - name: Personal OS invariants
         run: node personal_os_26_test.mjs
       - name: Personal Autopilot 28 base
@@ -165,7 +169,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser E2E 32.3
+      - name: Browser E2E 32.4
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
