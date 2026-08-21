@@ -13,6 +13,10 @@ const runtime=read('js/viewRuntime41.js');
 const lazy=read('js/lazyBoot41.js');
 const ticketSeed=read('js/currentTickets33.js');
 const investmentSeed=read('js/externalInvestments33.js');
+const platform43=read('js/platform43.js');
+const platform43Ui=read('js/platform43Ui.js');
+const desktop43=read('desktop/preload.cjs');
+const desktopMain=read('desktop/main.cjs');
 
 const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
 const release=meta.match(/APP_RELEASE='([^']+)'/)?.[1];
@@ -33,5 +37,14 @@ assert.ok(!investmentSeed.includes('store.subscribe(')&&!investmentSeed.includes
 assert.ok(ticketSeed.includes('explicit ensureCurrentTicketSnapshot33()'),'41.5 ticket seed must document explicit restore policy');
 assert.ok(investmentSeed.includes('explicit ensureExternalInvestments33()'),'41.5 investment seed must document explicit restore policy');
 assert.ok(!lazy.includes("primary:['./currentTickets33.js'")&&!lazy.includes("primary:['./externalInvestments33.js'"),'41.5 lazy boot must not schedule data seed modules directly');
+assert.ok(platform43.includes('export const ROADMAP43=['),'43.0 must expose the 60-feature delivery registry');
+assert.equal((platform43.match(/'[^']+'/g)||[]).filter(x=>!x.includes('kamil-os-')).length>=60,true,'43.0 roadmap registry looks incomplete');
+assert.ok(platform43.includes('startPlatform43')&&platform43.includes('dailyAutopilot43'),'43.0 resilience/autopilot engines missing');
+assert.ok(platform43.includes('waitingAutopilot43')&&platform43.includes('portfolio43')&&platform43.includes('tickets43'),'43.0 domain engines missing');
+assert.ok(platform43Ui.includes('60-FEATURE DELIVERY MAP'),'43.0 delivery map UI missing');
+assert.ok(lazy.includes("'./platform43Ui.js'")&&lazy.includes("'../platform43.css'"),'43.0 platform must remain lazy-loaded');
+assert.ok(lazy.includes('safeMode()'),'43.0 Safe Mode guard missing from lazy loader');
+assert.ok(desktop43.includes('kamilDesktop43')&&desktop43.includes('Ctrl+Alt+K'),'43.0 desktop palette bridge missing');
+assert.ok(desktopMain.includes("globalShortcut.register('CommandOrControl+Alt+K'")&&desktopMain.includes('Universal Inbox'),'43.0 global desktop shortcut/tray actions missing');
 
 console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version}`);
