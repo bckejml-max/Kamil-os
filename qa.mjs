@@ -12,6 +12,7 @@ const app=read('js/app.js');
 const runtime=read('js/viewRuntime41.js');
 const lazy=read('js/lazyBoot41.js');
 const instant=read('js/instantShell42.js');
+const diagnostics=read('js/systemDiagnostics421.js');
 const rootPackage=JSON.parse(read('package.json'));
 const desktopPackage=JSON.parse(read('desktop/package.json'));
 const ticketSeed=read('js/currentTickets33.js');
@@ -51,17 +52,19 @@ assert.ok(lazy.includes('safeMode()'),'Safe Mode guard missing from lazy loader'
 assert.ok(desktop43.includes('kamilDesktop43')&&desktop43.includes('Ctrl+Alt+K'),'desktop palette bridge missing');
 assert.ok(desktopMain.includes("globalShortcut.register('CommandOrControl+Alt+K'")&&desktopMain.includes('Universal Inbox'),'global desktop shortcut/tray actions missing');
 
-// 43.2 responsiveness guards: keep background module work cooperative and versioned as one release.
-assert.equal(version,'43.2.0','43.2 release metadata must be aligned');
-assert.equal(release,'43.2','43.2 release label must be aligned');
+assert.equal(version,'43.3.0','43.3 release metadata must be aligned');
+assert.equal(release,'43.3','43.3 release label must be aligned');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.equal(desktopPackage.version,version,'desktop package version must match APP_VERSION');
-assert.ok(instant.includes("const VERSION='43.2.0'")&&instant.includes("kamil-os-fast-snapshot-43-2"),'43.2 instant shell version/snapshot missing');
-assert.ok(sw.includes("const CACHE='kamil-os-43.2.0-runtime-r1'"),'43.2 service-worker cache version missing');
-assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'43.2 responsive scheduler/input guard missing');
-assert.ok(lazy.includes("document.visibilityState==='hidden'")&&lazy.includes('await sleep(250)'),'43.2 scheduler must yield while hidden or busy');
-assert.ok(lazy.includes('window.__KAMIL_MODULE_TIMINGS__'),'43.2 per-module timing diagnostics missing');
-assert.ok(lazy.includes('restPrimary')&&lazy.includes('gap:220')&&lazy.includes('gap:320'),'43.2 primary/secondary module staggering missing');
-assert.ok(instant.includes("await import('./platform431Stability.js')")&&instant.includes("await import('./platform431LeanUi.js')"),'43.2 lean autopilot imports must be staged');
+assert.ok(instant.includes("const VERSION='43.3.0'")&&instant.includes("kamil-os-fast-snapshot-43-3"),'43.3 instant shell version/snapshot missing');
+assert.ok(sw.includes("const CACHE='kamil-os-43.3.0-runtime-r1'"),'43.3 service-worker cache version missing');
+assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'responsive scheduler/input guard missing');
+assert.ok(lazy.includes("document.visibilityState==='hidden'")&&lazy.includes('await sleep(250)'),'scheduler must yield while hidden or busy');
+assert.ok(lazy.includes('window.__KAMIL_MODULE_TIMINGS__'),'per-module timing diagnostics missing');
+assert.ok(lazy.includes("MODULE_STATS_KEY='kamil-os-module-stats-43-3'")&&lazy.includes('function recordTiming'),'43.3 persistent timing history missing');
+assert.ok(lazy.includes('function adaptiveGap')&&lazy.includes('learnedDelay'),'43.3 adaptive module pacing missing');
+assert.ok(lazy.includes('prev.avg*.7+ms*.3'),'43.3 timing history must use smoothed measurements');
+assert.ok(diagnostics.includes('Nejpomalejší moduly')&&diagnostics.includes('Reset měření loaderu'),'43.3 loader diagnostics UI missing');
+assert.ok(instant.includes('43.3 Adaptive Loader'),'43.3 boot message missing');
 
 console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version}`);
