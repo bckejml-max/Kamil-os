@@ -1,7 +1,7 @@
 const DAY=86400000;
 const n=v=>Number(v||0);
 const upper=v=>String(v||'').trim().toUpperCase();
-const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('cs-CZ').replace(/[^a-z0-9]+/g,' ').trim();
+const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('cs-CZ').replace(/[^a-z0-9@.]+/g,' ').trim();
 const done=x=>['DONE','HOTOVO','CLOSED','ARCHIVED','RESOLVED'].includes(upper(x?.status||''))||x?.done===true||x?.completed===true;
 const start=v=>{const d=new Date(v);return Number.isFinite(d.getTime())?d:null};
 const ymd=d=>{const x=new Date(d);return Number.isFinite(x.getTime())?`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`:null};
@@ -12,19 +12,22 @@ const personOf=x=>x?.person||x?.assignee||x?.owner||x?.contact||'';
 const createdOf=x=>x?.lastTouchAt||x?.lastFollowUpAt||x?.createdAt||x?.sentAt||x?.date||null;
 const cadence=x=>Math.max(1,n(x?.followUpEveryDays)||3);
 const dueOf=x=>x?.nextFollowUpAt||x?.followUpAt||x?.due||x?.dueAt||null;
+const subjectCanon=v=>norm(v).replace(/^(re|fw|fwd|odp|odpoved|aw)\s+/,'').replace(/\b(ext|external)\b/g,'').replace(/\s+/g,' ').trim();
+const tokens=v=>subjectCanon(v).split(' ').filter(t=>t.length>=4&&!['prosim','dobry','den','ahoj','info','informace'].includes(t));
+const overlap=(a,b)=>{const A=new Set(tokens(a)),B=new Set(tokens(b));let c=0;for(const t of A)if(B.has(t))c++;return {count:c,base:Math.max(1,Math.min(A.size,B.size)),pct:Math.round(c/Math.max(1,Math.min(A.size,B.size))*100)}};
+const personTokens=v=>norm(v).split(' ').filter(t=>t.length>=3||t.includes('@'));
 
 function inboxReply(state,x){
- const inbox=Array.isArray(state.inbox)?state.inbox:[],thread=x.sourceThreadId||x.threadId||null,subject=norm(x.subject||x.title),person=norm(personOf(x)),since=start(createdOf(x));
- const candidates=inbox.filter(m=>!done(m)).filter(m=>{
-  const when=start(m.receivedAt||m.createdAt||m.date||m.at);if(since&&when&&when<=since)return false;
-  const incoming=m.direction?upper(m.direction)!=='OUTBOUND':true;if(!incoming)return false;
-  if(thread&&String(m.threadId||m.sourceThreadId||'')===String(thread))return true;
-  const hay=norm(`${m.subject||m.title||''} ${m.from||m.sender||''}`);
-  if(subject&&subject.length>=5&&hay.includes(subject))return true;
-  if(person&&person.length>=3&&hay.includes(person)&&subject&&subject.split(' ').some(t=>t.length>=5&&hay.includes(t)))return true;
-  return false;
- });
- return candidates.sort((a,b)=>new Date(b.receivedAt||b.createdAt||b.date||0)-new Date(a.receivedAt||a.createdAt||a.date||0))[0]||null;
+ const inbox=Array.isArray(state.inbox)?state.inbox:[],thread=x.sourceThreadId||x.threadId||null,subject=x.subject||x.title,person=personOf(x),since=start(createdOf(x)),matches=[];
+ for(const m of inbox){
+  if(done(m))continue;const when=start(m.receivedAt||m.createdAt||m.date||m.at);if(since&&when&&when<=since)continue;const incoming=m.direction?upper(m.direction)!=='OUTBOUND':true;if(!incoming)continue;
+  let score=0;const msgThread=m.threadId||m.sourceThreadId||null,msgSubject=m.subject||m.title||'',sender=`${m.from||''} ${m.sender||''}`;
+  if(thread&&msgThread&&String(msgThread)===String(thread))score+=100;
+  const a=subjectCanon(subject),b=subjectCanon(msgSubject),ov=overlap(subject,msgSubject);if(a&&b&&a===b)score+=80;else if(a&&b&&(a.includes(b)||b.includes(a)))score+=65;else if(ov.count>=2)score+=Math.min(55,25+ov.pct/2);
+  const p=personTokens(person),hay=norm(sender);if(p.length&&p.some(t=>hay.includes(t)))score+=25;
+  if(when)score+=5;if(score>=55)matches.push({m,score});
+ }
+ matches.sort((a,b)=>b.score-a.score||new Date(b.m.receivedAt||b.m.createdAt||b.m.date||0)-new Date(a.m.receivedAt||a.m.createdAt||a.m.date||0));return matches[0]||null;
 }
 
 function draftFor(x){
@@ -41,22 +44,19 @@ export function waitingFor35(state={},now=new Date()){
  const manual=(state.directorBook?.waiting||[]).filter(x=>!done(x)).map(x=>normalizeSource(x,'MANUAL'));
  const delegated=(state.delegations||[]).filter(x=>!done(x)).map(x=>normalizeSource(x,'DELEGATION'));
  const rows=[...manual,...delegated].map(x=>{
-  const reply=inboxReply(state,x),base=start(createdOf(x))||start(x.createdAt)||now,ageDays=Math.max(0,Math.floor((now-base)/DAY)),explicit=dueOf(x),next=explicit?ymd(explicit):addDays(base,x.followUpEveryDays),days=diffDays(next,now),hardDue=x.due?diffDays(x.due,now):null;
+  const match=inboxReply(state,x),reply=match?.m||null,base=start(createdOf(x))||start(x.createdAt)||now,ageDays=Math.max(0,Math.floor((now-base)/DAY)),explicit=dueOf(x),next=explicit?ymd(explicit):addDays(base,x.followUpEveryDays),days=diffDays(next,now),hardDue=x.due?diffDays(x.due,now):null;
   let action='WAIT',priority=48,reason=`Další kontrola ${days===0?'dnes':days!==null&&days>0?`za ${days} d`:'bez termínu'}.`;
-  if(reply){action='REPLY_DETECTED';priority=88;reason='V inboxu je novější pravděpodobná odpověď. Zkontroluj ji a čekání uzavři nebo aktualizuj.'}
+  if(reply){action='REPLY_DETECTED';priority=92;reason=`V inboxu je novější pravděpodobná odpověď${match?.score?` (shoda ${Math.min(99,Math.round(match.score))} %).`:'.'} Zkontroluj ji a čekání uzavři nebo aktualizuj.`}
   else if(hardDue!==null&&hardDue<0){action='FOLLOW_UP_NOW';priority=98;reason=`Termín je ${Math.abs(hardDue)} d po termínu a odpověď není evidovaná.`}
   else if(days!==null&&days<0){action='FOLLOW_UP_NOW';priority=Math.min(96,88+Math.abs(days)*2);reason=`Follow-up je ${Math.abs(days)} d po plánovaném termínu.`}
   else if(days===0){action='FOLLOW_UP_NOW';priority=90;reason='Follow-up je naplánovaný na dnešek.'}
   else if(days!==null&&days<=2){action='FOLLOW_UP_SOON';priority=78;reason=`Follow-up je za ${days} d.`}
   else if(ageDays>=7&&!explicit){action='FOLLOW_UP_NOW';priority=86;reason=`Čekání běží ${ageDays} dní bez uloženého follow-up termínu.`}
-  return {...x,ageDays,nextFollowUpAt:next,days,hardDueDays:hardDue,replyDetected:!!reply,replyId:reply?.id||null,replyAt:reply?.receivedAt||reply?.createdAt||reply?.date||null,action,priority,reason,draft:draftFor(x)};
+  return {...x,ageDays,nextFollowUpAt:next,days,hardDueDays:hardDue,replyDetected:!!reply,replyId:reply?.id||null,replyAt:reply?.receivedAt||reply?.createdAt||reply?.date||null,replyFrom:reply?.from||reply?.sender||'',linkConfidence:match?.score?Math.min(99,Math.round(match.score)):null,action,priority,reason,draft:draftFor(x)};
  }).sort((a,b)=>b.priority-a.priority||(a.days??999)-(b.days??999)||a.title.localeCompare(b.title,'cs-CZ'));
  const dueNow=rows.filter(x=>x.action==='FOLLOW_UP_NOW').length,replies=rows.filter(x=>x.action==='REPLY_DETECTED').length,soon=rows.filter(x=>x.action==='FOLLOW_UP_SOON').length;
- return {rows,dueNow,replies,soon,total:rows.length,top:rows[0]||null,note:'Waiting For hlídá ruční čekání a delegace. Pokud má položka thread/subject metadata, umí v interním inboxu rozpoznat pravděpodobnou novou odpověď. Follow-up nikdy neposílá automaticky.'};
+ return {rows,dueNow,replies,soon,total:rows.length,top:rows[0]||null,note:'Waiting For hlídá ruční čekání a delegace. E-mail linker porovnává thread ID, očištěný předmět a kontakt; odpověď označí jen při dostatečně silné shodě. Follow-up nikdy neposílá automaticky.'};
 }
 
-export function ensureWaiting35(state={}){
- state.directorBook=state.directorBook||{completions:{},waiting:[]};state.directorBook.waiting=Array.isArray(state.directorBook.waiting)?state.directorBook.waiting:[];state.directorBook.completions=state.directorBook.completions||{};return state.directorBook.waiting;
-}
-
+export function ensureWaiting35(state={}){state.directorBook=state.directorBook||{completions:{},waiting:[]};state.directorBook.waiting=Array.isArray(state.directorBook.waiting)?state.directorBook.waiting:[];state.directorBook.completions=state.directorBook.completions||{};return state.directorBook.waiting}
 export function nextFollowUpDate35(days=3,from=new Date()){return addDays(from,Math.max(1,n(days)||3))}
