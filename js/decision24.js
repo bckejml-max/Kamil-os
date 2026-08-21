@@ -1,4 +1,5 @@
 import {dayDiff} from './utils.js';
+import {netWorthFxRate} from './netWorth29.js';
 
 const n=v=>Number(v||0);
 const upper=v=>String(v||'').toUpperCase();
@@ -17,32 +18,33 @@ export function xtbDataAge(s){
 }
 
 export function xtbPositions(s){
- const accounts=s.xtbHub?.accounts||s.xtbHub?.report?.accounts||{};
- const out=[];
+ const accounts=s.xtbHub?.accounts||s.xtbHub?.report?.accounts||{},baseCurrency=upper(s.financePlan?.currency||'CZK'),raw=[];
  for(const [accountId,a] of Object.entries(accounts)){
   for(const p of a?.positions||[]){
-   out.push({...p,accountId,accountCurrency:a.currency||p.currency||'',accountValue:n(a.value),weightPct:n(a.value)>0?n(p.value)/n(a.value)*100:0});
+   const accountCurrency=upper(a.currency||p.currency||'CZK'),rate=netWorthFxRate(s,accountCurrency,baseCurrency);
+   raw.push({...p,accountId,accountCurrency,accountValue:n(a.value),localWeightPct:n(a.value)>0?n(p.value)/n(a.value)*100:0,fxToPortfolioBase:rate,portfolioBaseCurrency:baseCurrency,portfolioValueBase:rate===null?null:n(p.value)*rate});
   }
  }
- return out;
+ const active=raw.filter(p=>n(p.value)>0),complete=active.every(p=>p.portfolioValueBase!==null),globalTotal=complete?active.reduce((sum,p)=>sum+n(p.portfolioValueBase),0):0;
+ return raw.map(p=>({...p,weightPct:complete&&globalTotal>0?n(p.portfolioValueBase)/globalTotal*100:0,globalPortfolioValue:complete?globalTotal:null,weightScope:complete?'GLOBAL_XTB':'UNAVAILABLE'}));
 }
 
 function xtbAutoDecision(p){
- const gain=pct(p.net_profit_pct),weight=pct(p.weightPct),category=upper(p.category),isEtf=category==='ETF';
+ const gain=pct(p.net_profit_pct),weight=pct(p.weightPct),weightKnown=p.weightScope==='GLOBAL_XTB',category=upper(p.category),isEtf=category==='ETF';
  const broadEtf=isEtf&&!/HEALTH|SECTOR|TECH|ENERGY|FINANC/i.test(String(p.name||''));
  let action='HOLD',priority=35,when='Teď nic neměnit',reason='',buyRule='',sellRule='';
  if(isEtf){
-   if(weight>=35){action='TRIM';priority=72;when='Při dalším rebalancování';reason='ETF tvoří příliš velkou část účtu.';buyRule='Nepřikupovat, dokud váha neklesne pod plán.';sellRule='Snížit při váze nad 35 % účtu.'}
+   if(weightKnown&&weight>=35){action='TRIM';priority=72;when='Při dalším rebalancování';reason=`ETF tvoří ${weight.toFixed(1)} % celého XTB portfolia napříč účty.`;buyRule='Nepřikupovat, dokud váha v celém XTB portfoliu neklesne pod plán.';sellRule='Snížit až při váze nad 35 % celého XTB portfolia, ne podle jednoho měnového účtu.'}
    else if(gain<=-8){action='BUY';priority=66;when='Po částech, ne jedním nákupem';reason=broadEtf?'Široký ETF je v drawdownu; vhodnější je pravidelné přikupování než panický prodej.':'ETF je v poklesu; přikupovat jen pokud stále sedí jeho role v portfoliu.';buyRule='1/3 plánované částky nyní, další část až při dalším poklesu přibližně o 5 %.';sellRule='Prodávat hlavně při změně alokace nebo investičního plánu.'}
-   else{action='HOLD';priority=38;when='Držet a přikupovat podle měsíčního plánu';reason=broadEtf?'Jádrový ETF není potřeba časovat podle malého krátkodobého P/L.':'Pozice je bez extrémního signálu.';buyRule='Pravidelný nákup; větší přikoupení až při výraznějším poklesu.';sellRule='Prodat jen při změně alokace, cíle nebo dlouhodobé teze.'}
+   else{action='HOLD';priority=38;when='Držet a přikupovat podle měsíčního plánu';reason=broadEtf?'Jádrový ETF není potřeba časovat podle malého krátkodobého P/L. Váha se hodnotí napříč všemi XTB účty.':'Pozice je bez extrémního signálu; koncentrace se hodnotí napříč všemi XTB účty.';buyRule='Pravidelný nákup; větší přikoupení až při výraznějším poklesu.';sellRule='Prodat jen při změně alokace, cíle nebo dlouhodobé teze.'}
   }else{
-   if(gain>=40){action='TRIM';priority=90;when='Zvážit částečný výběr zisku už teď';reason=`Pozice je přibližně +${gain.toFixed(1)} %. U jednotlivé akcie roste riziko vrácení části zisku.`;buyRule='Nepřikupovat po prudkém růstu; čekat na konsolidaci nebo lepší vstup.';sellRule='Odprodat část při +40 % a více, případně dřív pokud pozice překročí 10–12 % účtu.'}
-   else if(gain>=25){action='TRIM';priority=76;when='Držet jádro, připravit částečný prodej';reason=`Zisk +${gain.toFixed(1)} % už stojí za ochranu.`;buyRule='Nový nákup až po smysluplném pullbacku a potvrzení teze.';sellRule='Částečně redukovat při +30 až +40 % nebo při příliš vysoké váze.'}
+   if(gain>=40){action='TRIM';priority=90;when='Zvážit částečný výběr zisku už teď';reason=`Pozice je přibližně +${gain.toFixed(1)} %. U jednotlivé akcie roste riziko vrácení části zisku.`;buyRule='Nepřikupovat po prudkém růstu; čekat na konsolidaci nebo lepší vstup.';sellRule='Odprodat část při +40 % a více, případně dřív pokud pozice překročí 10–12 % celého XTB portfolia.'}
+   else if(gain>=25){action='TRIM';priority=76;when='Držet jádro, připravit částečný prodej';reason=`Zisk +${gain.toFixed(1)} % už stojí za ochranu.`;buyRule='Nový nákup až po smysluplném pullbacku a potvrzení teze.';sellRule='Částečně redukovat při +30 až +40 % nebo při příliš vysoké váze v celém portfoliu.'}
    else if(gain<=-15){action='REVIEW';priority=88;when='Nejdřív prověřit tezi, až potom cokoli dokupovat';reason=`Ztráta ${gain.toFixed(1)} % je už dost velká na nové vyhodnocení firmy.`;buyRule='Nepřikupovat jen proto, že je pozice levnější. Přikoupit až po potvrzení fundamentu/katalyzátoru.';sellRule='Prodat, pokud se zhoršil důvod nákupu nebo riziko překročilo původní plán.'}
    else if(gain<=-8){action='REVIEW';priority=69;when='Držet bez automatického průměrování';reason=`Pozice je ${gain.toFixed(1)} % pod nákupem.`;buyRule='Přikoupit jen po potvrzení, že investiční teze stále platí.';sellRule='Exit při porušení teze; ne podle samotného procenta ztráty.'}
-   else if(weight>=12){action='TRIM';priority=79;when='Při nejbližší vhodné likviditě snížit koncentraci';reason=`Pozice tvoří ${weight.toFixed(1)} % účtu.`;buyRule='Další nákup až po snížení váhy.';sellRule='Redukovat nad 10–12 % účtu, pokud nejde o záměrně koncentrovanou pozici.'}
+   else if(weightKnown&&weight>=12){action='TRIM';priority=79;when='Při nejbližší vhodné likviditě snížit koncentraci';reason=`Pozice tvoří ${weight.toFixed(1)} % celého XTB portfolia napříč účty.`;buyRule='Další nákup až po snížení globální váhy.';sellRule='Redukovat nad 10–12 % celého XTB portfolia, pokud nejde o záměrně koncentrovanou pozici.'}
    else if(gain<=-3){action='HOLD';priority=46;when='Držet, sledovat další výsledky';reason='Běžný pokles sám o sobě není důvod prodávat ani bezhlavě přikupovat.';buyRule='Přikupovat až při lepším poměru cena/riziko a potvrzení teze.';sellRule='Prodat při zhoršení teze, ne kvůli malému mínusu.'}
-   else{action='HOLD';priority=40;when='Držet';reason='Pozice nemá podle aktuálního importu extrémní P/L ani koncentraci.';buyRule='Přikoupit při lepším vstupu nebo po pozitivním potvrzení fundamentu.';sellRule='Redukovat při +30 až +40 %, vysoké koncentraci nebo změně teze.'}
+   else{action='HOLD';priority=40;when='Držet';reason=weightKnown?'Pozice nemá podle aktuálního importu extrémní P/L ani globální koncentraci napříč XTB účty.':'Pozice nemá podle aktuálního importu extrémní P/L; koncentrační verdikt čeká na společný FX přepočet všech XTB účtů.';buyRule='Přikoupit při lepším vstupu nebo po pozitivním potvrzení fundamentu.';sellRule='Redukovat při +30 až +40 %, vysoké globální koncentraci nebo změně teze.'}
   }
  return {action,priority:clamp(priority),when,reason,buyRule,sellRule,source:'AUTO'};
 }
