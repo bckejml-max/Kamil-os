@@ -14,11 +14,12 @@
       root.classList.toggle('theme-light',light);root.classList.toggle('theme-dark',!light);
       root.dataset.theme=light?'light':'dark';root.style.colorScheme=light?'light':'dark';
     }catch{}
+    document.querySelectorAll('.version').forEach(x=>x.textContent=VERSION);
   }
   function fallbackHtml(){
     const b=parse(localStorage.getItem(BOOT_KEY)||'null',{})||{};
     const tasks=Number(b.tasks||0),waiting=Number(b.waiting||0),tickets=Number(b.tickets||0),inbox=Number(b.inbox||0);
-    return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Detail, cloud a analýzy běží až potom.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">Historie XTB, ticketů, transakcí a auditů se při startu neotevírá. Načte se až v příslušné sekci.</div>`;
+    return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Detail, cloud a analýzy běží až potom.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">Investiční historie, importované transakce a Net Worth historie se při startu neotevírají. Načtou se až v Penězích; ticket learning a Change Pulse zůstávají dostupné hned.</div>`;
   }
   function paintInstant(){
     const host=document.querySelector('#todayView');if(!host)return;
