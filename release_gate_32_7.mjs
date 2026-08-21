@@ -1,0 +1,10 @@
+await import('./release_gate_32_6.mjs');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const {moneyRouter32,tradeOutcomeSummary32,cashflowBaseline32,financialDecision32Contract}=await import('./js/financialDecision32.js');
+const state={financePlan:{cashNow:40000,reserveFloor:100000,plannedInvestment:25000},wealthProfile:{reserve:{floor:100000,target:220000},cashflow:{baselineIncome:75000,baselineExpenses:55000,baselineSurplus:20000,history:[{month:'2026-06',income:72000,expenses:52000,surplus:20000,closed:true},{month:'2026-07',income:78000,expenses:58000,surplus:20000,closed:true}]}},tradeJournal:{trades:[{ticker:'A',purchaseValue:10000,realized:1000,kind:'INVESTMENT'},{ticker:'B',purchaseValue:10000,realized:-500,kind:'INVESTMENT'}]}};
+let r=moneyRouter32(state);assert(r.code==='CASH_FLOOR'&&r.xtbBudget===0&&r.reserveBudget===25000,'cash floor routing gate failed');
+r=moneyRouter32({...state,financePlan:{cashNow:230000,reserveFloor:100000,plannedInvestment:25000}});assert(r.code==='XTB_ALLOWED'&&r.xtbBudget===25000,'XTB allowed routing gate failed');
+const c=cashflowBaseline32(state);assert(c.months===2&&c.averageExpenses===55000&&c.averageSurplus===20000,'cashflow history gate failed');
+const t=tradeOutcomeSummary32(state);assert(t.trades===2&&t.wins===1&&t.losses===1&&t.realizedTotal===500,'trade outcome gate failed');
+assert(!financialDecision32Contract.autoTrade&&financialDecision32Contract.neverMovesMoney&&financialDecision32Contract.hardFloorBeforeXtb,'Financial Command safety contract failed');
+console.log('KAMIL OS 32.7 RELEASE GATE PASS');
