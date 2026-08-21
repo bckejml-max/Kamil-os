@@ -1,9 +1,6 @@
 import {APP_VERSION} from './releaseMeta.js';
 import {store} from './state.js';
 import {oneScreenAutopilot,onboardingWizard} from './personalPlus29.js';
-import {personalMonthlyReview} from './monthlyReview29.js';
-import {nextMonthPlan} from './nextMonthPlanner29.js';
-import {yearAheadRadar} from './yearAheadRadar29.js';
 import {personalInbox} from './autopilot28.js';
 import {buildPersonalToday} from './personalToday26.js';
 import {decisionDelta30} from './decisionDelta30.js';
@@ -15,8 +12,10 @@ const row=(x,button=true)=>`<div class="autopilot29-row"><div><b>${h(x.title||'O
 const money=(v,c='CZK')=>`${Number(v||0).toLocaleString('cs-CZ',{maximumFractionDigits:0})} ${h(c)}`;
 const monthLabel=key=>new Intl.DateTimeFormat('cs-CZ',{month:'short',year:'numeric'}).format(new Date(`${key}-01T12:00:00`));
 const deltaLabel=type=>({ACTION:'ZMĚNA AKCE',UP:'PRIORITA ↑',NEW:'NOVÉ',TRIGGER:'NOVÝ TRIGGER',DOWN:'PRIORITA ↓',OUT:'MIMO TOP'}[type]||'ZMĚNA');
+const idle=fn=>'requestIdleCallback'in window?requestIdleCallback(fn,{timeout:1800}):setTimeout(fn,500);
 
 async function showMonthlyReview(){
+ const {personalMonthlyReview}=await import('./monthlyReview29.js');
  const r=personalMonthlyReview(store.get(),store.meta()),month=new Intl.DateTimeFormat('cs-CZ',{month:'long',year:'numeric'}).format(new Date(`${r.period.from}T12:00:00`));
  const att=r.attention.slice(0,5).map(x=>`<div class="autopilot29-row"><div><b>${h(x.title)}</b><small>${h(x.source)} · ${h(x.detail)}</small></div><span class="status ${tone(x.priority)}">${x.priority>=90?'TEĎ':'PROVĚŘIT'}</span></div>`).join('')||'<div class="empty success-empty">Před koncem měsíce není nový zásadní blokátor.</div>';
  const progress=r.progress.slice(0,6).map(x=>`<div class="autopilot29-row"><div><b>${h(x.title)}</b><small>${h(x.detail||x.kind)}</small></div>${x.amount?`<b>${money(x.amount,x.currency)}</b>`:''}</div>`).join('')||'<div class="empty">Tento měsíc zatím není uložený nový měřitelný posun.</div>';
@@ -29,6 +28,7 @@ async function showMonthlyReview(){
 }
 
 async function showNextMonthPlan(){
+ const {nextMonthPlan}=await import('./nextMonthPlanner29.js');
  const p=nextMonthPlan(store.get()),month=new Intl.DateTimeFormat('cs-CZ',{month:'long',year:'numeric'}).format(new Date(`${p.period.from}T12:00:00`)),c=p.cashflow.currency;
  const att=p.attention.slice(0,6).map(x=>`<div class="autopilot29-row"><div><b>${h(x.title)}</b><small>${h(x.source)} · ${h(x.detail)}</small></div><span class="status ${tone(x.priority)}">${x.priority>=90?'ŘEŠIT':'PŘIPRAVIT'}</span></div>`).join('')||'<div class="empty success-empty">Z uložených dat nevychází pro příští měsíc nový blokátor.</div>';
  const cash=p.cashflow.events.slice(0,7).map(x=>`<div class="row"><span>${date(x.at)} · ${h(x.label)}</span><b class="${x.amount<0?'bad':'good'}">${x.amount>0?'+':''}${money(x.amount,c)}</b></div>`).join('')||'<div class="empty">Bez známého cashflow v příštím měsíci.</div>';
@@ -42,6 +42,7 @@ async function showNextMonthPlan(){
 }
 
 async function showYearAheadRadar(){
+ const {yearAheadRadar}=await import('./yearAheadRadar29.js');
  const r=yearAheadRadar(store.get()),from=monthLabel(r.months[0].key),to=monthLabel(r.months[r.months.length-1].key);
  const annualOut=Object.entries(r.totalOutflowByCurrency).map(([c,v])=>money(v,c)).join(' · ')||'—',goalPlan=Object.entries(r.goalPlanByCurrency).map(([c,v])=>money(v,c)).join(' · ')||'—';
  const peakRows=Object.values(r.peaksByCurrency).map(x=>`<div class="row"><span>${h(x.currency)} · nejvyšší známé výdaje</span><b>${h(monthLabel(x.month))} · ${money(x.outflow,x.currency)}</b></div>`).join('')||'<div class="empty">Bez známých budoucích výdajů.</div>';
@@ -53,12 +54,27 @@ async function showYearAheadRadar(){
  if(result==='open'&&top)nav(top.target||'home',top.mode||null);
 }
 
+function hydratePlanningMetrics(s,meta,token){
+ idle(async()=>{
+  try{
+   const [{personalMonthlyReview},{nextMonthPlan},{yearAheadRadar}]=await Promise.all([import('./monthlyReview29.js'),import('./nextMonthPlanner29.js'),import('./yearAheadRadar29.js')]);
+   const host=qs('#todayView');if(!host||host.dataset.planHydrateToken!==token)return;
+   const review=personalMonthlyReview(s,meta),next=nextMonthPlan(s),year=yearAheadRadar(s);
+   const rb=qs('[data-plan-review]',host),rs=qs('[data-plan-review-sub]',host),nb=qs('[data-plan-next]',host),ns=qs('[data-plan-next-sub]',host),yb=qs('[data-plan-year]',host),ys=qs('[data-plan-year-sub]',host);
+   if(rb){rb.textContent=review.status==='CLEAR'?'✓':review.attentionCount;rb.className=review.status==='ACTION'?'bad':review.attentionCount?'warn':'good'}if(rs)rs.textContent=`${review.period.daysLeft} dní do konce měsíce`;
+   if(nb){nb.textContent=next.status==='CLEAR'?'✓':next.attentionCount;nb.className=next.status==='ACTION'?'bad':next.attentionCount?'warn':'good'}if(ns)ns.textContent=next.period.key;
+   if(yb){yb.textContent=year.coverage.milestoneCount||'✓';yb.className=year.coverage.milestoneCount?'warn':'good'}if(ys)ys.textContent=`${year.coverage.monthsWithEvents}/12 měsíců s daty`;
+  }catch{}
+ });
+}
+
 export function renderToday(){
- const s=store.get(),meta=store.meta(),a=oneScreenAutopilot(s,meta),on=onboardingWizard(s,meta),inbox=personalInbox(s),review=personalMonthlyReview(s,meta),next=nextMonthPlan(s),year=yearAheadRadar(s),currency=a.money.primary||'CZK',safe=Number(a.money.safeToDeploy||0).toLocaleString('cs-CZ',{maximumFractionDigits:0}),decisions=buildPersonalToday(s),delta=decisionDelta30(decisions,meta.decisionBaseline30);
+ const s=store.get(),meta=store.meta(),a=oneScreenAutopilot(s,meta),on=onboardingWizard(s,meta),inbox=personalInbox(s),currency=a.money.primary||'CZK',safe=Number(a.money.safeToDeploy||0).toLocaleString('cs-CZ',{maximumFractionDigits:0}),decisions=buildPersonalToday(s),delta=decisionDelta30(decisions,meta.decisionBaseline30);
  const baselineCreated=!delta.initialized;if(baselineCreated)store.setMeta({decisionBaseline30:delta.current});
  const changeRows=delta.items.slice(0,5).map(x=>`<div class="autopilot29-row"><div><b>${h(x.title)}</b><small>${h(x.detail)}</small></div><div><span class="status ${tone(x.priority)}">${h(deltaLabel(x.type))}</span>${x.target?` <button class="btn" data-t29-open="${h(x.target)}" data-t29-home="${h(x.homeMode||'')}">Otevřít</button>`:''}</div></div>`).join('');
  const changeBody=baselineCreated?'<div class="empty success-empty">Výchozí rozhodovací stav byl právě uložen na tomto zařízení. Od další změny tu uvidíš, co se skutečně změnilo.</div>':changeRows||'<div class="empty success-empty">Žádná změna rozhodnutí od poslední kontroly.</div>';
  const changeButton=!baselineCreated&&delta.items.length?'<button class="btn" data-t29-action="ack-delta">Zkontrolováno</button>':'';
+ const token=`${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
  qs('#todayView').innerHTML=`<div class="view-head"><div><div class="eyebrow">KAMIL OS ${h(APP_VERSION)} / OSOBNÍ AUTOPILOT</div><h1>${a.quiet?'Všechno důležité je pod kontrolou.':'Tady je jen to, co teď stojí za pozornost.'}</h1><p>Žádné pracovní moduly. Jen osobní akce, peníze, blížící se termíny a skutečné změny.</p></div><div class="view-head-stat"><b class="${a.escalation.urgent?'bad':a.quality.high?'warn':'good'}">${a.doToday.length}</b><span>věcí dnes</span></div></div>
  <div class="autopilot29-grid">
   <div class="card autopilot29-card"><div class="card-head"><div><div class="eyebrow">UDĚLEJ DNES</div><h2>Nejdůležitější osobní kroky</h2></div><span class="status ${a.doToday.some(x=>x.priority>=90)?'bad':a.doToday.length?'warn':'good'}">${a.doToday.length}</span></div>${a.doToday.map(x=>row(x)).join('')||'<div class="empty success-empty">Nic zásadního dnes nehoří.</div>'}</div>
@@ -66,7 +82,9 @@ export function renderToday(){
   <div class="card autopilot29-card"><div class="card-head"><div><div class="eyebrow">BLÍŽÍ SE</div><h2>Připravit → naplánovat → řešit</h2></div><button class="btn" data-t29-open="home" data-t29-home="timeline">Timeline</button></div>${a.approaching.map(x=>`<div class="autopilot29-row"><div><b>${h(x.title)}</b><small>${h(x.label)} · ${h(x.detail)} · ${h(x.domain)}</small></div><span class="status ${tone(x.priority)}">${h(x.label)}</span></div>`).join('')||'<div class="empty">Bez blízkého osobního termínu.</div>'}</div>
   <div class="card autopilot29-card"><div class="card-head"><div><div class="eyebrow">CO SE ZMĚNILO</div><h2>${baselineCreated?'Decision Delta 30.5':delta.baselineAt?`Od ${date(delta.baselineAt)}`:'Od poslední kontroly'}</h2></div><div><span class="status ${delta.attention?'warn':'good'}">${baselineCreated?'START':delta.items.length}</span> ${changeButton}</div></div>${changeBody}<div class="decision-note">Porovnává aktuální rozhodnutí s posledním potvrzeným snapshotem. Baseline je jen na tomto zařízení; vypadnutí z Top priorit není automaticky „vyřešeno“.</div></div>
  </div>
- <div class="metric-strip autopilot29-strip"><button class="metric autopilot29-metric" data-t29-action="monthly-review"><span>Měsíční review</span><b class="${review.status==='ACTION'?'bad':review.attentionCount?'warn':'good'}">${review.status==='CLEAR'?'✓':review.attentionCount}</b><small>${review.period.daysLeft} dní do konce měsíce</small></button><button class="metric autopilot29-metric" data-t29-action="next-month"><span>Příští měsíc</span><b class="${next.status==='ACTION'?'bad':next.attentionCount?'warn':'good'}">${next.status==='CLEAR'?'✓':next.attentionCount}</b><small>${h(next.period.key)}</small></button><button class="metric autopilot29-metric" data-t29-action="year-ahead"><span>12 měsíců</span><b class="${year.coverage.milestoneCount?'warn':'good'}">${year.coverage.milestoneCount||'✓'}</b><small>${year.coverage.monthsWithEvents}/12 měsíců s daty</small></button><button class="metric autopilot29-metric" data-t29-action="inbox"><span>Personal Inbox</span><b class="${inbox.total?'warn':'good'}">${inbox.total}</b></button><button class="metric autopilot29-metric" data-t29-action="quality"><span>Kvalita dat</span><b class="${a.quality.high?'warn':'good'}">${a.quality.score}/100</b></button><button class="metric autopilot29-metric" data-t29-open="money"><span>Cíle / fondy</span><b class="${a.goals.attention?'warn':'good'}">${a.goals.total}</b></button><button class="metric autopilot29-metric" data-t29-action="onboarding"><span>Onboarding</span><b class="${on.complete?'good':on.steps.length?'warn':'good'}">${on.complete?'✓':on.steps.length}</b></button></div>`;
- qsa('[data-t29-open]',qs('#todayView')).forEach(b=>b.onclick=()=>nav(b.dataset.t29Open,b.dataset.t29Home||null));
- qsa('[data-t29-action]',qs('#todayView')).forEach(b=>b.onclick=()=>{if(b.dataset.t29Action==='ack-delta'){store.setMeta({decisionBaseline30:delta.current});renderToday()}else if(b.dataset.t29Action==='monthly-review')showMonthlyReview();else if(b.dataset.t29Action==='next-month')showNextMonthPlan();else if(b.dataset.t29Action==='year-ahead')showYearAheadRadar();else if(b.dataset.t29Action==='inbox')nav('home','dashboard');else if(b.dataset.t29Action==='quality')nav('home','risk');else nav('home','dashboard')});
+ <div class="metric-strip autopilot29-strip"><button class="metric autopilot29-metric" data-t29-action="monthly-review"><span>Měsíční review</span><b data-plan-review>…</b><small data-plan-review-sub>detail se dopočítá po zobrazení</small></button><button class="metric autopilot29-metric" data-t29-action="next-month"><span>Příští měsíc</span><b data-plan-next>…</b><small data-plan-next-sub>načítám plán</small></button><button class="metric autopilot29-metric" data-t29-action="year-ahead"><span>12 měsíců</span><b data-plan-year>…</b><small data-plan-year-sub>načítám radar</small></button><button class="metric autopilot29-metric" data-t29-action="inbox"><span>Personal Inbox</span><b class="${inbox.total?'warn':'good'}">${inbox.total}</b></button><button class="metric autopilot29-metric" data-t29-action="quality"><span>Kvalita dat</span><b class="${a.quality.high?'warn':'good'}">${a.quality.score}/100</b></button><button class="metric autopilot29-metric" data-t29-open="money"><span>Cíle / fondy</span><b class="${a.goals.attention?'warn':'good'}">${a.goals.total}</b></button><button class="metric autopilot29-metric" data-t29-action="onboarding"><span>Onboarding</span><b class="${on.complete?'good':on.steps.length?'warn':'good'}">${on.complete?'✓':on.steps.length}</b></button></div>`;
+ const host=qs('#todayView');host.dataset.planHydrateToken=token;
+ qsa('[data-t29-open]',host).forEach(b=>b.onclick=()=>nav(b.dataset.t29Open,b.dataset.t29Home||null));
+ qsa('[data-t29-action]',host).forEach(b=>b.onclick=()=>{if(b.dataset.t29Action==='ack-delta'){store.setMeta({decisionBaseline30:delta.current});renderToday()}else if(b.dataset.t29Action==='monthly-review')showMonthlyReview();else if(b.dataset.t29Action==='next-month')showNextMonthPlan();else if(b.dataset.t29Action==='year-ahead')showYearAheadRadar();else if(b.dataset.t29Action==='inbox')nav('home','dashboard');else if(b.dataset.t29Action==='quality')nav('home','risk');else nav('home','dashboard')});
+ hydratePlanningMetrics(s,meta,token);
 }
