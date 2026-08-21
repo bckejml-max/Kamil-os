@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+const text=f=>fs.readFileSync(f,'utf8'),assert=(x,m)=>{if(!x)throw new Error(m)};
+const meta=text('js/releaseMeta.js'),config=text('js/config.js'),manifest=text('manifest.webmanifest'),sw=text('sw.js'),preflight=text('js/preflight.js'),audit=text('js/xtbAudit24.js'),fx=text('js/marketQuoteIngest32.js'),contrib=text('js/xtbContribution32.js'),tickets=text('js/ticketPortfolio32.js'),ui=text('js/profitControlUi32.js'),live=text('js/liveBrain32.js'),copilot=text('js/copilotWrite32.js'),recovery=text('js/recoveryShield32.js');
+assert(meta.includes("APP_VERSION='32.5.0'")&&meta.includes("APP_RELEASE='32.5'"),'32.5 release metadata missing');
+assert(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
+assert(manifest.includes('Kamil OS 32.5')&&manifest.includes('Profit Control'),'32.5 manifest missing');
+assert(sw.includes('kamil-os-32.5.0-shell-r1')&&sw.includes('./js/xtbContribution32.js')&&sw.includes('./js/ticketPortfolio32.js')&&sw.includes('./js/profitControlUi32.js'),'32.5 PWA shell missing');
+assert(sw.includes("u.pathname.startsWith('/api/')===false"),'API responses must not enter PWA cache');
+assert(preflight.includes("import './profitControlUi32.js'"),'Profit Control not loaded');
+assert(fx.includes('marketFxRate32')&&fx.includes('fxSymbolsFromState32')&&fx.includes('requestedFx'),'FX ingestion missing');
+assert(audit.includes('valuationComplete')&&audit.includes('missingFx')&&audit.includes('currencyBreakdown'),'FX-safe audit missing');
+assert(contrib.includes("contract:'ALLOCATION_PROPOSAL_ONLY'")&&contrib.includes('requiresFreshXtb:true')&&contrib.includes('requiresCompleteFx:true')&&contrib.includes('autoTrade:false'),'contribution safety missing');
+assert(tickets.includes('ticketEventPortfolio32')&&tickets.includes('ticketActionQueue32')&&tickets.includes('autoPrice:false')&&tickets.includes('autoSell:false'),'ticket event portfolio safety missing');
+assert(ui.includes('Portfolio audit bez míchání měn')&&ui.includes("querySelector('.audit-grid')?.remove()")&&ui.includes('Event Portfolio & Action Queue'),'32.5 UI safety missing');
+assert(live.includes('autoTrading:false')&&live.includes('unsourcedOverride:false'),'Live Brain safety regressed');
+assert(copilot.includes("flow:['UNDERSTAND','PROPOSE','PREVIEW','CONFIRM','EXECUTE']")&&!copilot.includes('window.'),'Copilot write safety regressed');
+assert(recovery.includes("reason:'PRE_RESTORE'")&&!recovery.includes('.delete('),'Recovery safety regressed');
+console.log('KAMIL OS 32.5 STATIC QA PASS');
