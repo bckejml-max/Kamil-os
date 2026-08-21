@@ -43,7 +43,7 @@ export function compactLocalState42(){
       for(const path of paths){
         const k=keyOf(path),value=getPath(state,path);
         if(!Array.isArray(value))continue;
-        if(value.length||cold[domain][k]===undefined)cold[domain][k]=value;
+        if(value.length||hydrated.has(domain)||cold[domain][k]===undefined)cold[domain][k]=value;
         if(value.length){moved+=value.length;setPath(state,path,[]);changed=true}
       }
     }
