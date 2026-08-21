@@ -1,6 +1,6 @@
 (function(){
-  const VERSION='41.1.0';
-  const SNAPSHOT_KEY='kamil-os-fast-snapshot-41-1';
+  const VERSION='41.2.0';
+  const SNAPSHOT_KEY='kamil-os-fast-snapshot-41-2';
   const BOOT_KEY='kamil-os-41-boot-summary';
   const THEME_KEY='kamil-os-theme33';
   const root=document.documentElement;
@@ -18,7 +18,7 @@
   function fallbackHtml(){
     const b=parse(localStorage.getItem(BOOT_KEY)||'null',{})||{};
     const tasks=Number(b.tasks||0),waiting=Number(b.waiting||0),tickets=Number(b.tickets||0),inbox=Number(b.inbox||0);
-    return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Detail, cloud a analýzy běží až potom.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">První obrazovka už nečte celý datový soubor ani Undo historii.</div>`;
+    return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Detail, cloud a analýzy běží až potom.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">Historie XTB, ticketů, transakcí a auditů se při startu neotevírá. Načte se až v příslušné sekci.</div>`;
   }
   function paintInstant(){
     const host=document.querySelector('#todayView');if(!host)return;
@@ -50,6 +50,7 @@
     try{
       await import('./app.js');
       import('./state.js').then(({store})=>{const b=document.querySelector('#undoBtn');if(b)b.disabled=!store.undoCount()}).catch(()=>{});
+      idle(()=>import('./coldPartition42.js').then(m=>m.startColdPartition42()).catch(()=>{}),1200);
       setTimeout(saveSnapshot,1000);setTimeout(saveSnapshot,3500);
       idle(()=>Promise.allSettled([import('./theme33.js'),import('./releaseStamp.js'),import('./lazyBoot41.js')]),2000);
     }catch(error){
@@ -59,7 +60,7 @@
   }
 
   applyTheme();paintInstant();
-  requestAnimationFrame(loadStyles);
+  requestAnimationFrame(()=>requestAnimationFrame(loadStyles));
   window.addEventListener('kamil:view-change',e=>{if(e.detail==='today')setTimeout(saveSnapshot,900)});
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveSnapshot()});
   window.addEventListener('beforeunload',saveSnapshot);
