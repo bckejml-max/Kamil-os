@@ -12,3 +12,4 @@ for(const asset of ['./js/os40.js','./js/decisionCenter36.js','./js/changePulse3
 assert(/const CACHE='kamil-os-\d+\.\d+\.\d+-shell-r\d+'/.test(sw),'versioned PWA cache missing');
 assert(ui.includes('KAMIL OS 40.0')||ui.includes('AUTOPILOT / 40.0')||ui.includes('40.0 AUTOPILOT'),'OS40 user-facing command center marker missing');
 console.log('KAMIL OS 40 REGRESSION GATE PASS');
+await import('./os42_static_test.mjs');
