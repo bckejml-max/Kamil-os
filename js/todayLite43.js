@@ -18,11 +18,11 @@ function metrics(s={}){
  const waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[])].filter(open),inbox=(s.inbox||[]).filter(open),tasks=(s.tasks||[]).filter(open),tickets=(s.ticketBook?.items||[]).filter(activeTicket);
  return {tasks:tasks.length,waiting:waiting.length,inbox:inbox.length,tickets:tickets.length,next:nextTask(s)};
 }
-function scheduleFull(token,delay=700){
+function scheduleFull(token,delay=1800){
  clearTimeout(hydrateTimer);
  const run=()=>{if(todayVisible())hydrateFull(token)};
- if('requestIdleCallback'in window){requestIdleCallback(run,{timeout:Math.max(1000,delay+700)});return}
- hydrateTimer=setTimeout(run,delay);
+ if('requestIdleCallback'in window){requestIdleCallback(run,{timeout:4500});return}
+ hydrateTimer=setTimeout(run,Math.max(1800,delay));
 }
 async function hydrateFull(token){
  const host=qs('#todayView');if(!host||host.dataset.todayLite43!==token||!todayVisible())return false;
@@ -40,10 +40,10 @@ export function renderTodayLite43(){
  if(fullModule){fullModule.renderToday?.();return}
  const host=qs('#todayView');if(!host)return;
  const token=String(++seq),m=metrics(store.get());host.dataset.todayLite43=token;
- const next=m.next?`<div class="card"><div class="card-head"><div><div class="eyebrow">NEJBLIŽŠÍ ÚKOL</div><h2>${h(m.next.title)}</h2></div><b>${h(fmt(m.next.due))}</b></div><p class="muted">Plný prioritizační engine se dopočítá na pozadí.</p></div>`:'';
- host.innerHTML=`<div class="view-head"><div><div class="eyebrow">KAMIL OS ${APP_VERSION} / FAST TODAY</div><h1>Jsi uvnitř. Detail se dopočítává.</h1><p>Základní lokální stav je interaktivní hned; těžký Today Brain se načte až po prvním vykreslení.</p></div><button class="btn" data-today43-full>Načíst detail teď</button></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${m.tasks}</b></div><div class="metric"><span>Waiting For</span><b>${m.waiting}</b></div><div class="metric"><span>Inbox</span><b>${m.inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${m.tickets}</b></div></div>${next}<div class="decision-note">Kompletní doporučení, portfolio, ticket brain a osobní autopilot zůstávají zachované. Jen už neblokují první obrazovku.</div>`;
+ const next=m.next?`<div class="card"><div class="card-head"><div><div class="eyebrow">NEJBLIŽŠÍ ÚKOL</div><h2>${h(m.next.title)}</h2></div><b>${h(fmt(m.next.due))}</b></div><p class="muted">Plný prioritizační engine se dopočítá až ve volném čase prohlížeče.</p></div>`:'';
+ host.innerHTML=`<div class="view-head"><div><div class="eyebrow">KAMIL OS ${APP_VERSION} / FAST TODAY</div><h1>Jsi uvnitř. Detail se dopočítává.</h1><p>Základní lokální stav je interaktivní hned; těžký Today Brain dostane prostor až po prvním klidném okamžiku.</p></div><button class="btn" data-today43-full>Načíst detail teď</button></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${m.tasks}</b></div><div class="metric"><span>Waiting For</span><b>${m.waiting}</b></div><div class="metric"><span>Inbox</span><b>${m.inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${m.tickets}</b></div></div>${next}<div class="decision-note">Kompletní doporučení, portfolio, ticket brain a osobní autopilot zůstávají zachované. Jen už nemají právo zmrazit první sekundy po otevření.</div>`;
  qs('[data-today43-full]',host)?.addEventListener('click',()=>hydrateFull(token),{once:true});
- scheduleFull(token,700);
+ scheduleFull(token,1800);
 }
 
 export function warmFullToday43(){if(fullModule)return Promise.resolve(fullModule);fullPromise=fullPromise||import('./today29.js');return fullPromise.then(m=>fullModule=m).catch(()=>null)}
