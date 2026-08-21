@@ -1,11 +1,11 @@
 {
-  "name": "Kamil OS 32.8",
+  "name": "Kamil OS 41",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 32.8 Daily Profit Brief — one prioritized Today queue for cash, XTB and ticket resale decisions",
+  "description": "Kamil OS 41 — instantní lokální start, osobní autopilot, práce, finance a vstupenky.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#080b10",
-  "theme_color": "#080b10",
+  "background_color": "#f5f7fa",
+  "theme_color": "#f5f7fa",
   "icons": [
     {"src":"./icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
     {"src":"./icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}

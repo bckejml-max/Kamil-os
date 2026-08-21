@@ -1,0 +1,41 @@
+{
+  "name": "kamil-os-desktop",
+  "version": "41.0.0",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "prepare:web": "node scripts/prepare-web.cjs",
+    "dist:win": "npm run prepare:web && electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "^36.9.1",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "cz.kamil.os",
+    "productName": "Kamil OS",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "app/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Kamil OS"
+    },
+    "artifactName": "Kamil-OS-Setup-${version}-${arch}.${ext}"
+  }
+}

@@ -1,7 +1,7 @@
-const CACHE='kamil-os-40.2.0-runtime-r2';
+const CACHE='kamil-os-41.0.0-runtime-r1';
 const SHELL=[
   './','./index.html','./manifest.webmanifest','./styles.css','./today25.css','./personal29.css','./theme33.css',
-  './js/app.js','./js/viewRuntime41.js','./js/perf41.js','./js/theme33.js','./js/releaseMeta.js','./js/releaseStamp.js','./js/lazyBoot41.js',
+  './js/instantShell42.js','./js/app.js','./js/viewRuntime41.js','./js/perf41.js','./js/theme33.js','./js/releaseMeta.js','./js/releaseStamp.js','./js/lazyBoot41.js',
   './icons/icon-192.png','./icons/icon-512.png'
 ];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()))});
