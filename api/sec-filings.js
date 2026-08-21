@@ -1,6 +1,6 @@
 import {SEC_SOURCE_32,secRequestedTickers32,secTickerIndex32,secMaterialEvidence32} from '../js/secSource32.js';
 
-const USER_AGENT='KamilOS/32.4 (+https://kamil-os-smoke.vercel.app/)';
+const USER_AGENT='KamilOS/32.4.1 (+https://kamil-os-smoke.vercel.app/)';
 const TICKER_CACHE_MS=6*3600000;
 let tickerCache={at:0,index:null};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -14,10 +14,10 @@ async function tickerIndex(){
  if(tickerCache.index&&Date.now()-tickerCache.at<TICKER_CACHE_MS)return tickerCache.index;
  const json=await getJson(SEC_SOURCE_32.tickerMapUrl),index=secTickerIndex32(json);tickerCache={at:Date.now(),index};return index;
 }
+function requestUrl(req){return new URL(String(req.url||'/api/sec-filings'),'https://kamil-os-smoke.vercel.app')}
 function requested(req){
- const raw=req.query?.tickers??req.query?.ticker??'';
- const values=Array.isArray(raw)?raw:String(raw).split(',');
- return secRequestedTickers32(values,SEC_SOURCE_32.maxTickers);
+ const url=requestUrl(req),raw=url.searchParams.get('tickers')||url.searchParams.get('ticker')||'';
+ return secRequestedTickers32(String(raw).split(','),SEC_SOURCE_32.maxTickers);
 }
 
 export default async function handler(req,res){
@@ -37,6 +37,6 @@ export default async function handler(req,res){
    if(i<tickers.length-1)await sleep(125);
   }
   const fetchedAt=new Date().toISOString();
-  return res.status(200).json({ok:true,provider:SEC_SOURCE_32.provider,fetchedAt,requested:tickers,evidence,missing,errors,contract:{factsOnly:true,investmentAction:false,sourceAuthenticityConfidence:true}});
+  return res.status(200).json({ok:true,provider:SEC_SOURCE_32.provider,fetchedAt,requested:tickers,evidence,missing,errors,contract:{factsOnly:true,investmentAction:false,sourceAuthenticityConfidence:true,urlParser:'WHATWG'}});
  }catch(error){return res.status(502).json({ok:false,error:'SEC_UPSTREAM',message:String(error?.message||error).slice(0,120)})}
 }
