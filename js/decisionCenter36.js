@@ -51,10 +51,25 @@ export function recordDecisionMemory36(state={},row={},status='DONE',now=new Dat
 export function recordDecisionOutcome36(state={},memoryId='',outcome='NEUTRAL',now=new Date()){
  const item=memoryRows(state).find(x=>x.id===memoryId);if(!item||item.status!=='DONE')return null;const value=['GOOD','NEUTRAL','BAD'].includes(upper(outcome))?upper(outcome):'NEUTRAL';item.outcome=value;item.outcomeAt=new Date(now).toISOString();return item
 }
+
+function analyticsRow36(key,rows){
+ const [domain,action]=key.split('|'),samples=rows.length,good=rows.filter(x=>x.outcome==='GOOD').length,neutral=rows.filter(x=>x.outcome==='NEUTRAL').length,bad=rows.filter(x=>x.outcome==='BAD').length,net=good-bad,scorePct=samples?Math.round((net/samples)*100):0,goodPct=samples?Math.round((good/samples)*100):0;
+ const confidence=samples>=5?'TREND':samples>=3?'SIGNÁL':'MÁLO DAT';
+ const verdict=samples<3?'Sbírat další výsledky.':scorePct>=40?'Doporučení zatím funguje dobře.':scorePct<=-40?'Tady je potřeba pravidla zpřesnit.':'Výsledky jsou smíšené.';
+ return {key,domain,action,label:label(action),samples,good,neutral,bad,net,scorePct,goodPct,confidence,verdict,bias:Math.max(-8,Math.min(8,net*2))};
+}
+export function decisionAnalytics36(state={}){
+ const rated=memoryRows(state).filter(x=>x.status==='DONE'&&x.outcome),groups=new Map();
+ for(const x of rated){const key=learningKey(x.domain,x.action);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(x)}
+ const rows=[...groups.entries()].map(([key,list])=>analyticsRow36(key,list)).sort((a,b)=>b.samples-a.samples||b.scorePct-a.scorePct||a.key.localeCompare(b.key));
+ const mature=rows.filter(x=>x.samples>=3),best=[...mature].sort((a,b)=>b.scorePct-a.scorePct||b.samples-a.samples)[0]||null,worst=[...mature].sort((a,b)=>a.scorePct-b.scorePct||b.samples-a.samples)[0]||null;
+ const overall=analyticsRow36('CELKEM|ALL',rated);overall.domain='CELKEM';overall.action='ALL';overall.label='Všechna rozhodnutí';
+ return {rows,overall,best,worst,rated:rated.length,mature:mature.length,needsData:rows.filter(x=>x.samples<3).length,minSignalSamples:3,minTrendSamples:5,note:'Analytics je popisná zpětná vazba. Do 3 hodnocení nevyvozuje směr; od 5 hodnocení označuje výsledek jako trend.'};
+}
 export function decisionCenter36(state={},now=new Date()){
  const candidates=[...xtbRows36(state),...ticketRows36(state,now)].map(x=>applyMemory36(applyLearning36(x,state),state,now));
  const rows=candidates.filter(x=>!x.memoryActive||x.memory?.status==='SNOOZED').sort((a,b)=>b.priority-a.priority||a.title.localeCompare(b.title,'cs-CZ')).slice(0,8).map((x,i)=>({...x,rank:i+1}));
- const visibleImpact=rows.reduce((s,x)=>s+Math.max(0,n(x.impactCzk)),0),memory=decisionMemorySummary36(state),pendingOutcomes=pendingOutcomes36(state);
- const counts={critical:rows.filter(x=>x.priority>=90).length,blocked:rows.filter(x=>x.blocked).length,xtb:rows.filter(x=>x.domain==='XTB').length,tickets:rows.filter(x=>x.domain==='VSTUPENKY').length,visibleImpactCzk:round(visibleImpact),memory:memory.total,pendingOutcomes:pendingOutcomes.length};
- return {rows,counts,memory,pendingOutcomes,top:rows[0]||null,generatedAt:new Date(now).toISOString(),contract:{autoTrade:false,autoReprice:false,proposalOnly:true,explicitFeedbackOnly:true,maxLearnedPriorityShift:8,safetyBlocksNeverReduced:true},note:'Outcome Learning používá jen tvoje explicitní hodnocení dokončených rozhodnutí. Korekce priority je omezená na ±8 bodů a nikdy nesnižuje bezpečnostní blokaci.'};
+ const visibleImpact=rows.reduce((s,x)=>s+Math.max(0,n(x.impactCzk)),0),memory=decisionMemorySummary36(state),pendingOutcomes=pendingOutcomes36(state),analytics=decisionAnalytics36(state);
+ const counts={critical:rows.filter(x=>x.priority>=90).length,blocked:rows.filter(x=>x.blocked).length,xtb:rows.filter(x=>x.domain==='XTB').length,tickets:rows.filter(x=>x.domain==='VSTUPENKY').length,visibleImpactCzk:round(visibleImpact),memory:memory.total,pendingOutcomes:pendingOutcomes.length,rated:analytics.rated};
+ return {rows,counts,memory,pendingOutcomes,analytics,top:rows[0]||null,generatedAt:new Date(now).toISOString(),contract:{autoTrade:false,autoReprice:false,proposalOnly:true,explicitFeedbackOnly:true,maxLearnedPriorityShift:8,safetyBlocksNeverReduced:true,analyticsMinSignalSamples:3,analyticsMinTrendSamples:5},note:'Outcome Learning používá jen tvoje explicitní hodnocení dokončených rozhodnutí. Korekce priority je omezená na ±8 bodů a nikdy nesnižuje bezpečnostní blokaci.'};
 }
