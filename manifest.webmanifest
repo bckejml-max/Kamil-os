@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 32.7",
+  "name": "Kamil OS 32.8",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 32.7 Financial Command — visible XTB, money routing, realized trade outcomes and audited household cashflow",
+  "description": "Kamil OS 32.8 Daily Profit Brief — one prioritized Today queue for cash, XTB and ticket resale decisions",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
