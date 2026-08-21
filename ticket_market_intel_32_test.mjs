@@ -1,0 +1,10 @@
+import {ticketMarketPlan32,ticketEventMarketIntel32,ticketMarketIntel32Contract} from './js/ticketMarketIntel32.js';
+const assert=(x,m)=>{if(!x)throw new Error(m)},now=new Date(),day=86400000,iso=x=>new Date(x).toISOString().slice(0,10),fresh=now.toISOString();
+const state={ticketBook:{items:[],history:[]}};
+const base={name:'Clash 18 - A1',date:iso(now.getTime()+20*day),workflow:'LISTED',qty:2,buy:2000,buy1:1000,listPrice:2000,marketPrice:1500,marketCheckedAt:fresh,marketSourceUrl:'https://example.com/market',floorPrice:1100,transferStatus:'READY',sellBy:iso(now.getTime()+15*day)};
+let p=ticketMarketPlan32({id:'r',...base},state,now);assert(p.action==='REPRICE','fresh expensive listing should reprice');assert(p.suggestedPricePerTicket<2000&&p.suggestedPricePerTicket>=1100,'repricing step must reduce without crossing floor');assert(p.ladder.length>0&&p.ladder.every(x=>x.price>=1100),'ladder crossed floor');
+p=ticketMarketPlan32({id:'stale',...base,marketCheckedAt:new Date(now.getTime()-200*3600000).toISOString()},state,now);assert(p.action==='CHECK_MARKET'&&p.suggestedPricePerTicket===null&&p.ladder.length===0,'stale market must never create price');
+p=ticketMarketPlan32({id:'sell',...base,sellBy:iso(now.getTime()-day)},state,now);assert(p.action==='SELL_WINDOW'&&p.priority>=99&&p.suggestedPricePerTicket>=1100,'sell-by window should prioritize sourced liquidity');
+p=ticketMarketPlan32({id:'list',...base,workflow:'HOLD',listPrice:0},state,now);assert(p.action==='LIST'&&p.suggestedPricePerTicket>0,'fresh market inside sell phase should allow listing proposal');
+const grouped={ticketBook:{items:[{id:'a',...base},{id:'b',...base,name:'Clash 18 - B2',workflow:'HOLD',listPrice:0}],history:[]}},intel=ticketEventMarketIntel32(grouped,now);assert(intel.totalEvents===1&&intel.events[0].qty===4,'same event/date must consolidate');assert(!ticketMarketIntel32Contract.autoPrice&&!ticketMarketIntel32Contract.autoSell&&ticketMarketIntel32Contract.requiresFreshMarketForPrice&&!ticketMarketIntel32Contract.staleMarketCanDrivePrice,'ticket market safety contract failed');
+console.log('KAMIL OS 32.6 TICKET MARKET INTEL UNIT PASS');

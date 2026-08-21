@@ -1,0 +1,9 @@
+await import('./ticket_market_intel_32_test.mjs');
+await import('./ticket_market_intel_32_static_test.mjs');
+import fs from 'node:fs';
+const t=f=>fs.readFileSync(f,'utf8'),assert=(x,m)=>{if(!x)throw new Error(m)},meta=t('js/releaseMeta.js'),config=t('js/config.js'),manifest=t('manifest.webmanifest'),sw=t('sw.js'),pre=t('js/preflight.js'),engine=t('js/ticketMarketIntel32.js'),ui=t('js/ticketMarketIntelUi32.js'),profit=t('js/xtbContribution32.js'),brain=t('js/liveBrain32.js'),copilot=t('js/copilotWrite32.js'),recovery=t('js/recoveryShield32.js');
+assert(meta.includes("APP_VERSION='32.6.0'")&&meta.includes("APP_RELEASE='32.6'"),'32.6 metadata missing');assert(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');assert(manifest.includes('Kamil OS 32.6')&&manifest.includes('Ticket Market Intelligence'),'32.6 manifest missing');
+assert(sw.includes('kamil-os-32.6.0-shell-r1')&&sw.includes('./js/ticketMarketIntel32.js')&&sw.includes('./js/ticketMarketIntelUi32.js')&&sw.includes("u.pathname.startsWith('/api/')===false"),'32.6 shell/cache safety missing');
+assert(pre.includes("import './ticketMarketIntelUi32.js'"),'32.6 module not loaded');assert(engine.includes('PROPOSAL_ONLY')&&engine.includes('requiresFreshMarketForPrice:true')&&engine.includes('staleMarketCanDrivePrice:false'),'ticket price safety missing');assert(ui.includes('Repricing & Sell-by Intelligence'),'32.6 UI missing');
+assert(profit.includes('autoTrade:false')&&profit.includes('requiresCompleteFx:true'),'32.5 FX allocation safety regressed');assert(brain.includes('autoTrading:false')&&brain.includes('unsourcedOverride:false'),'Live Brain regressed');assert(copilot.includes("flow:['UNDERSTAND','PROPOSE','PREVIEW','CONFIRM','EXECUTE']"),'Copilot confirmation regressed');assert(recovery.includes("reason:'PRE_RESTORE'")&&!recovery.includes('.delete('),'Recovery regressed');
+console.log('KAMIL OS 32.6 STATIC QA PASS');

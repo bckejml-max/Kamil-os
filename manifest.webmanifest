@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 32.5",
+  "name": "Kamil OS 32.6",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 32.5 Profit Control — FX-safe XTB allocation, 25k contribution planning and event-level ticket action queues",
+  "description": "Kamil OS 32.6 Ticket Market Intelligence — source-aware repricing, sell-by discipline and event-level ticket actions",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080b10",
