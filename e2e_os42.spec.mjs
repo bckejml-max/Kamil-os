@@ -23,5 +23,5 @@ test('Kamil OS 42 Universal Search and Agent Layer are usable and proposal-only'
 
 test('Kamil OS 42 PWA cache contains OS42 layer',async({request})=>{
  const sw=await (await request.get(`${BASE}/sw.js`)).text();
- expect(sw).toContain('kamil-os-42.0.0-shell-r1');expect(sw).toContain('./js/os42.js');expect(sw).toContain('./js/os42Ui.js');
+ expect(sw).toContain('kamil-os-42.0.0-shell-r2');expect(sw).toContain('./js/os42.js');expect(sw).toContain('./js/os42Ui.js');
 });
