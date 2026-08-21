@@ -21,6 +21,6 @@ assert(core.version==='42.0'&&core.contract.criticalActionsRequireConfirmation==
 const meta=fs.readFileSync('js/releaseMeta.js','utf8'),index=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 assert(meta.includes("APP_VERSION='42.0.0'")&&meta.includes("APP_RELEASE='42.0'"),'OS42 release metadata missing');
 assert(index.includes('<title>Kamil OS 42.0</title>')&&index.includes('./js/os42Ui.js'),'OS42 shell integration missing');
-assert(sw.includes('kamil-os-42.0.0-shell-r1')&&sw.includes('./js/os42.js')&&sw.includes('./js/os42Ui.js'),'OS42 PWA integration missing');
+assert(sw.includes('kamil-os-42.0.0-shell-r2')&&sw.includes('./js/os42.js')&&sw.includes('./js/os42Ui.js'),'OS42 PWA integration missing');
 assert(pkg.version==='42.0.0','package version mismatch');
 console.log('KAMIL OS 42 STATIC RELEASE GATE PASS');
