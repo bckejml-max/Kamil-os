@@ -3,11 +3,9 @@ const COLD_KEY='kamil-os-41-2-cold-v1';
 const BOOT_KEY='kamil-os-41-boot-summary';
 
 const DOMAINS={
-  money:[['tradeJournal','trades'],['personalSpending','transactions'],['netWorthBook','history'],['importCenter','history']],
-  tickets:[['ticketBook','history'],['ticketBook','review']],
-  system:[['audit']]
+  money:[['tradeJournal','trades'],['personalSpending','transactions'],['netWorthBook','history'],['importCenter','history'],['investmentBook','history']]
 };
-const VIEW_DOMAINS={today:[],money:['money'],tickets:['tickets'],home:[],more:['system']};
+const VIEW_DOMAINS={today:[],money:['money'],tickets:[],home:[],more:[]};
 const hydrated=new Set();
 let started=false,compactTimer=null,storePromise=null;
 
@@ -103,4 +101,4 @@ export async function startColdPartition42(){
 export function coldStorageStats42(){
   try{return {mainBytes:(localStorage.getItem(MAIN_KEY)||'').length,coldBytes:(localStorage.getItem(COLD_KEY)||'').length,hydrated:[...hydrated]}}catch{return {mainBytes:0,coldBytes:0,hydrated:[...hydrated]}}
 }
-export const coldStorage42Info={domains:Object.keys(DOMAINS),goal:'keep historical arrays out of the startup state without deleting them'};
+export const coldStorage42Info={domains:Object.keys(DOMAINS),goal:'keep money history arrays out of startup state without changing Today, ticket learning or Change Pulse'};
