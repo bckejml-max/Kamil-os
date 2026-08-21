@@ -21,10 +21,12 @@ test('Kamil OS 32.4 local-first auth and critical flow',async({page})=>{
   await page.locator('#syncStatus').click();
   await expect(page.locator('#magicLinkBtn')).toContainText('Další odkaz za');
   await page.getByRole('button',{name:'Zpět do Kamil OS bez přihlášení'}).click();
+  await expect(page.locator('#appView')).toBeVisible();
 
-  for(const name of ['Peníze','Vstupenky','Domov','Více','Dnes']){
+  for(const [name,view] of [['Peníze','money'],['Vstupenky','tickets'],['Domov','home'],['Více','more'],['Dnes','today']]){
     await page.locator('#mainNav').getByRole('button',{name}).click();
-    await expect(page.locator('.view.on')).toBeVisible();
+    await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
+    await expect(page.locator(`#view-${view}`)).toBeVisible();
   }
 
   await expect(page.locator('#decisionJournal31Button')).toBeVisible();
