@@ -143,7 +143,10 @@ export function mergeColdState42(state={}){
 }
 export async function startColdPartition42(){
   if(started)return;started=true;
-  const store=await getStore();if(needsLocalCompaction42())compactLocalState42({force:true});patchStorePersistence(store);
+  const store=await getStore();
+  if(needsLocalCompaction42())compactLocalState42({force:true});
+  patchStorePersistence(store);
+  if(stateHasColdData(store.get()))persistPartitioned(store);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')try{persistPartitioned(store)}catch{}});
   window.addEventListener('beforeunload',()=>{try{persistPartitioned(store)}catch{}});
 }
