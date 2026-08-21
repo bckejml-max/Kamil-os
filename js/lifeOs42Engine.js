@@ -1,3 +1,4 @@
+import {adaptiveBias421} from './adaptive421.js';
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED']);
 const upper=v=>String(v||'').toUpperCase();
 const open=x=>!CLOSED.has(upper(x?.status||x?.workflow));
@@ -10,14 +11,14 @@ const SNAP='kamil-os-life42-snapshot';
 
 export function universalInbox42(s={}){
  const out=[];
- const add=(source,arr,kind,base=40)=>{for(const x of arr||[]){if(!open(x))continue;const d=days(due(x)),priority=Number(x.priority||0),score=base+Math.min(25,priority)+(d!==null&&d<0?35:d===0?28:d<=2?20:d<=7?10:0);out.push({source,kind,id:x.id||x.uid||null,title:title(x),due:due(x),days:d,score,owner:text(x.owner||x.assignee||x.assignedTo),raw:x});}};
+ const add=(source,arr,kind,base=40)=>{for(const x of arr||[]){if(!open(x))continue;const d=days(due(x)),priority=Number(x.priority||0),score=base+Math.min(25,priority)+(d!==null&&d<0?35:d===0?28:d<=2?20:d<=7?10:0)+adaptiveBias421(source,kind);out.push({source,kind,id:x.id||x.uid||null,title:title(x),due:due(x),days:d,score,owner:text(x.owner||x.assignee||x.assignedTo),raw:x});}};
  add('tasks',s.tasks,'Úkol',45);
  add('inbox',s.inbox,'Inbox',38);
  add('personalInbox',s.personalInbox?.items,'Osobní inbox',36);
  add('directorWaiting',s.directorBook?.waiting,'Waiting For',50);
  add('delegations',s.delegations,'Delegace',48);
  add('personalAdmin',s.personalAdmin?.items,'Administrativa',42);
- for(const x of s.ticketBook?.items||[]){if(!['HOLD','LISTED'].includes(upper(x.workflow||'HOLD')))continue;const d=days(x.date),score=35+(d!==null&&d<=3?45:d!==null&&d<=10?25:0)+(upper(x.workflow)==='HOLD'?8:0);out.push({source:'tickets',kind:'Vstupenka',id:x.id||null,title:title(x),due:x.date||null,days:d,score,owner:'',raw:x});}
+ for(const x of s.ticketBook?.items||[]){if(!['HOLD','LISTED'].includes(upper(x.workflow||'HOLD')))continue;const d=days(x.date),score=35+(d!==null&&d<=3?45:d!==null&&d<=10?25:0)+(upper(x.workflow)==='HOLD'?8:0)+adaptiveBias421('tickets','Vstupenka');out.push({source:'tickets',kind:'Vstupenka',id:x.id||null,title:title(x),due:x.date||null,days:d,score,owner:'',raw:x});}
  return out.sort((a,b)=>b.score-a.score||((ms(a.due)||Infinity)-(ms(b.due)||Infinity)));
 }
 
