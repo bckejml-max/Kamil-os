@@ -1,0 +1,14 @@
+await import('./qa_32_6.mjs');
+await import('./financial_decision_32_test.mjs');
+await import('./financial_decision_32_static_test.mjs');
+import fs from 'node:fs';
+const t=f=>fs.readFileSync(f,'utf8'),assert=(x,m)=>{if(!x)throw new Error(m)};
+const meta=t('js/releaseMeta.js'),config=t('js/config.js'),manifest=t('manifest.webmanifest'),sw=t('sw.js'),pre=t('js/preflight.js'),engine=t('js/financialDecision32.js'),ui=t('js/financialDecisionUi32.js');
+assert(meta.includes("APP_VERSION='32.7.0'")&&meta.includes("APP_RELEASE='32.7'"),'32.7 release metadata missing');
+assert(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
+assert(manifest.includes('Kamil OS 32.7')&&manifest.includes('Financial Command'),'32.7 manifest missing');
+assert(sw.includes('kamil-os-32.7.0-shell-r1')&&sw.includes('./js/financialDecision32.js')&&sw.includes('./js/financialDecisionUi32.js'),'32.7 PWA shell missing');
+assert(pre.includes("import './financialDecisionUi32.js'"),'Financial Command not loaded');
+assert(engine.includes("contract:'ROUTING_PROPOSAL_ONLY'")&&engine.includes('hardFloorBeforeXtb:true'),'Financial Command routing safety missing');
+assert(ui.includes('XTB & rozhodovací centrum')&&ui.includes('XTB je tady')&&ui.includes('Jak dopadly moje bývalé prodeje'),'32.7 user-facing financial UI missing');
+console.log('KAMIL OS 32.7 STATIC QA PASS');
