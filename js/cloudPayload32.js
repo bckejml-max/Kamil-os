@@ -1,3 +1,4 @@
+import {mergeColdState42} from './coldPartition42.js';
 const clone=v=>{try{return structuredClone(v)}catch{return JSON.parse(JSON.stringify(v??{}))}};
 const num=v=>Number.isFinite(Number(v))?Number(v):0;
 
@@ -7,7 +8,8 @@ export function cloudSchema32(payload,currentSchema){
 }
 
 export function cloudPayload32(state,currentSchema){
- const out=clone(state&&typeof state==='object'?state:{});
+ const source=mergeColdState42(state&&typeof state==='object'?state:{});
+ const out=clone(source);
  out.meta=out.meta&&typeof out.meta==='object'?out.meta:{};
  out.meta.schemaVersion=num(currentSchema)||num(out.meta.schemaVersion);
  delete out.meta.cloudMode;
@@ -31,4 +33,4 @@ export function mergeCloudIntoDevice32(localState,cloudState,currentSchema){
  return cloud;
 }
 
-export const cloudPayload32Info={localOnly:['undo','meta.cloudMode','meta.preflight','meta.smartSyncDevice31'],goal:'keep cloud snapshots compact and device-neutral'};
+export const cloudPayload32Info={localOnly:['undo','meta.cloudMode','meta.preflight','meta.smartSyncDevice31'],goal:'keep cloud snapshots compact and device-neutral while preserving cold local history'};
