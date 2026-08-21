@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 41.3",
+  "name": "Kamil OS 42",
   "short_name": "Kamil OS",
-  "description": "Kamil OS — osobní finance, vstupenky, Director Mode, Waiting For a osobní autopilot s progresivním rychlým startem a lazy historií.",
+  "description": "Kamil OS 42 — Kamil Brain, Universal Inbox, Change Feed, Director Mode 2.0, Money Autopilot, Ticket Cockpit, Meeting Prep, Relationship Memory a Daily Shutdown.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f5f7fa",
