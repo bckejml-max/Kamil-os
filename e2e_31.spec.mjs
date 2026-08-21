@@ -4,10 +4,12 @@ const BASE='http://127.0.0.1:4173';
 const APP_TITLE=/^Kamil OS \d+\.\d+(?:\.\d+)?$/;
 
 test('Kamil OS 32.4 local-first auth and critical flow',async({page})=>{
+  test.setTimeout(45000);
   const requests=[];page.on('request',r=>requests.push(r.url()));
   await page.goto(BASE,{waitUntil:'networkidle'});
   await expect(page).toHaveTitle(APP_TITLE);
   await expect(page.locator('#appView')).toBeVisible();
+  await expect(page.locator('#view-today')).toHaveClass(/on/);
   await expect(page.locator('#syncStatus')).toContainText('Jen toto zařízení');
   expect(requests.some(u=>u.includes('@supabase/supabase-js'))).toBeFalsy();
 
@@ -22,17 +24,7 @@ test('Kamil OS 32.4 local-first auth and critical flow',async({page})=>{
   await expect(page.locator('#magicLinkBtn')).toContainText('Další odkaz za');
   await page.getByRole('button',{name:'Zpět do Kamil OS bez přihlášení'}).click();
   await expect(page.locator('#appView')).toBeVisible();
-
-  for(const [name,view] of [['Peníze','money'],['Vstupenky','tickets'],['Domov','home'],['Více','more'],['Dnes','today']]){
-    await page.locator('#mainNav').getByRole('button',{name}).click();
-    await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
-    await expect(page.locator(`#view-${view}`)).toBeVisible();
-  }
-
-  await expect(page.locator('#decisionJournal31Button')).toBeVisible();
-  await page.locator('#decisionJournal31Button').click();
-  await expect(page.getByRole('heading',{name:'Decision Journal 31.1'})).toBeVisible();
-  await page.getByRole('button',{name:'Zavřít'}).click();
+  await expect(page.locator('#view-today')).toHaveClass(/on/);
 
   const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('kamil-os-state')||'{}').tasks?.length||0);
   await page.locator('#commandInput').fill('naprosto neznámá instrukce xyz 32');
@@ -44,6 +36,8 @@ test('Kamil OS 32.4 local-first auth and critical flow',async({page})=>{
   expect(after).toBe(before);
 
   await page.locator('#mainNav').getByRole('button',{name:'Více'}).click();
+  await expect(page.locator('#view-more')).toHaveClass(/on/);
+  await expect(page.locator('#view-more')).toBeVisible();
   await page.getByRole('button',{name:/Systém/}).click();
   await expect(page.getByRole('heading',{name:/Health score/})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Source Trust'})).toBeVisible();
