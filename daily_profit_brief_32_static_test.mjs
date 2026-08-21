@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+const t=f=>fs.readFileSync(f,'utf8'),assert=(x,m)=>{if(!x)throw new Error(m)},engine=t('js/dailyProfitBrief32.js'),ui=t('js/dailyProfitBriefUi32.js'),pre=t('js/preflight.js'),sw=t('sw.js');
+assert(engine.includes("contract:'READ_ONLY_DAILY_BRIEF'")&&engine.includes('autoTrade:false')&&engine.includes('autoPrice:false')&&engine.includes('neverMovesMoney:true'),'Daily Profit Brief safety contract missing');
+assert(engine.includes("router.code==='CASH_FLOOR'")&&engine.includes("priority:100")&&engine.includes("id:'money-floor'"),'cash floor priority gate missing');
+assert(engine.includes("domains:['Peníze','XTB','Vstupenky']")&&engine.includes('maxVisibleActions:6'),'brief domain/action cap missing');
+for(const bad of ['store.mutate(','fetch(','supabase.from('])assert(!engine.includes(bad),'Daily Profit Brief engine must remain read-only: '+bad);
+assert(ui.includes('DAILY PROFIT BRIEF 32.8')&&ui.includes("dataset.replacedBy='daily-profit-brief-32-8'")&&ui.includes('Brief pouze čte stav'),'Daily Profit Brief UI or legacy suppression missing');
+assert(!ui.includes('store.mutate('),'Daily Profit Brief UI must not mutate state');
+assert(pre.includes("import './dailyProfitBriefUi32.js'"),'Daily Profit Brief UI not loaded');
+assert(sw.includes('kamil-os-32.8.0-shell-r1')&&sw.includes('./js/dailyProfitBrief32.js')&&sw.includes('./js/dailyProfitBriefUi32.js'),'32.8 PWA shell missing');
+console.log('KAMIL OS 32.8 DAILY PROFIT BRIEF STATIC PASS');
