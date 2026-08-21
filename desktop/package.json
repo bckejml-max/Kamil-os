@@ -1,6 +1,6 @@
 {
   "name": "kamil-os-desktop",
-  "version": "41.4.1",
+  "version": "42.0.0",
   "private": true,
   "main": "main.cjs",
   "scripts": {
@@ -18,37 +18,11 @@
   "build": {
     "appId": "cz.kamil.os",
     "productName": "Kamil OS",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "main.cjs",
-      "preload.cjs",
-      "app/**/*"
-    ],
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "bckejml-max",
-        "repo": "Kamil-os",
-        "releaseType": "release"
-      }
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64"]
-        }
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Kamil OS"
-    },
+    "directories": {"output":"dist"},
+    "files": ["main.cjs","preload.cjs","app/**/*"],
+    "publish": [{"provider":"github","owner":"bckejml-max","repo":"Kamil-os","releaseType":"release"}],
+    "win": {"target":[{"target":"nsis","arch":["x64"]}]},
+    "nsis": {"oneClick":false,"allowToChangeInstallationDirectory":true,"createDesktopShortcut":true,"createStartMenuShortcut":true,"shortcutName":"Kamil OS"},
     "artifactName": "Kamil-OS-Setup-${version}-${arch}.${ext}"
   }
 }
