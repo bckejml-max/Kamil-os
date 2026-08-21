@@ -10,6 +10,17 @@ const round=v=>Math.round(n(v));
 const memoryRows=s=>Array.isArray(s?.decisionMemory36?.items)?s.decisionMemory36.items:[];
 const latestMemory=(s,id)=>memoryRows(s).filter(x=>x?.decisionId===id).sort((a,b)=>Date.parse(b.at||0)-Date.parse(a.at||0))[0]||null;
 const memoryActive=(m,now=new Date())=>{if(!m)return false;if(m.status==='DONE'||m.status==='IGNORED')return true;if(m.status==='SNOOZED'){const t=Date.parse(m.until||0);return Number.isFinite(t)&&t>now.getTime()}return false};
+const learningKey=(domain,action)=>`${upper(domain)}|${upper(action)}`;
+
+function outcomeScore36(value){const v=upper(value);return v==='GOOD'?1:v==='BAD'?-1:0}
+export function outcomeCalibration36(state={},domain='',action=''){
+ const key=learningKey(domain,action),rated=memoryRows(state).filter(x=>x.status==='DONE'&&x.outcome&&learningKey(x.domain,x.action)===key),sum=rated.reduce((s,x)=>s+outcomeScore36(x.outcome),0),raw=sum*2,bias=Math.max(-8,Math.min(8,raw));
+ return {key,samples:rated.length,good:rated.filter(x=>x.outcome==='GOOD').length,neutral:rated.filter(x=>x.outcome==='NEUTRAL').length,bad:rated.filter(x=>x.outcome==='BAD').length,bias};
+}
+function applyLearning36(row,state){
+ const learning=outcomeCalibration36(state,row.domain,row.action),protectedRow=row.blocked||row.action==='REFRESH_XTB',priority=protectedRow?row.priority:Math.max(0,Math.min(100,row.priority+learning.bias));
+ return {...row,rawRulePriority:row.priority,priority,tone:tone(priority),urgency:urgency(priority),learning};
+}
 function applyMemory36(row,state,now){const m=latestMemory(state,row.id);if(!m)return {...row,memory:null};const active=memoryActive(m,now);let adjustment=0;if(m.status==='SNOOZED'&&active)adjustment=-40;else if(m.status==='IGNORED')adjustment=-55;else if(m.status==='DONE')adjustment=-70;const effectivePriority=Math.max(0,Math.min(100,row.priority+adjustment));return {...row,memory:m,memoryActive:active,rawPriority:row.priority,priority:effectivePriority,tone:tone(effectivePriority),urgency:urgency(effectivePriority)}}
 
 function xtbNextStep36(action,d={}){
@@ -30,16 +41,20 @@ function ticketNextStep36(x={}){if(x.action==='VERIFY_DATA')return 'Opravit evid
 function ticketEvidence36(x={}){return x.recommendedSource==='VIAGOGO_SNAPSHOT'?'VIAGOGO SNAPSHOT':x.recommendedSource==='MARKET'?'MARKET SNAPSHOT':'BEZ MARKET DAT'}
 function ticketRows36(state={},now=new Date()){return ticketMarketBrain34(state,now).rows.filter(x=>x.priority>=80&&x.action!=='HOLD').map(x=>({id:`ticket:${x.ticketId}`,domain:'VSTUPENKY',target:'tickets',title:`${x.eventName} · ${label(x.action)}`,action:x.action,priority:Number(x.priority||0),tone:tone(x.priority),urgency:urgency(x.priority),reason:x.reason,detail:x.suggestedPrice?`Navržená cena ${Math.round(x.suggestedPrice).toLocaleString('cs-CZ')} Kč / ks`:null,nextStep:ticketNextStep36(x),evidence:ticketEvidence36(x),impactCzk:n(x.buyPer)>0?round(n(x.buyPer)*Math.max(1,n(x.qty))):null,potentialGrossCzk:x.grossAtSuggested===null||x.grossAtSuggested===undefined?null:round(x.grossAtSuggested),eventDays:x.eventDays,blocked:false,autoExecute:false}))}
 
-export function decisionMemorySummary36(state={}){const rows=memoryRows(state),last=rows[0]||null;return {total:rows.length,done:rows.filter(x=>x.status==='DONE').length,snoozed:rows.filter(x=>x.status==='SNOOZED').length,ignored:rows.filter(x=>x.status==='IGNORED').length,last}}
+export function decisionMemorySummary36(state={}){const rows=memoryRows(state),last=rows[0]||null,rated=rows.filter(x=>x.status==='DONE'&&x.outcome);return {total:rows.length,done:rows.filter(x=>x.status==='DONE').length,snoozed:rows.filter(x=>x.status==='SNOOZED').length,ignored:rows.filter(x=>x.status==='IGNORED').length,rated:rated.length,good:rated.filter(x=>x.outcome==='GOOD').length,bad:rated.filter(x=>x.outcome==='BAD').length,last}}
+export function pendingOutcomes36(state={},limit=4){return memoryRows(state).filter(x=>x.status==='DONE'&&!x.outcome).sort((a,b)=>Date.parse(b.at||0)-Date.parse(a.at||0)).slice(0,limit)}
 export function recordDecisionMemory36(state={},row={},status='DONE',now=new Date()){
  state.decisionMemory36=state.decisionMemory36||{items:[]};state.decisionMemory36.items=Array.isArray(state.decisionMemory36.items)?state.decisionMemory36.items:[];
  const s=upper(status),at=new Date(now).toISOString(),until=s==='SNOOZED'?new Date(new Date(now).getTime()+24*3600000).toISOString():null;
- state.decisionMemory36.items.unshift({id:`dm36-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,decisionId:row.id,title:row.title,domain:row.domain,action:row.action,status:s,at,until,priority:row.rawPriority??row.priority,impactCzk:row.impactCzk??null});state.decisionMemory36.items=state.decisionMemory36.items.slice(0,200);return state.decisionMemory36.items[0]
+ state.decisionMemory36.items.unshift({id:`dm36-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,decisionId:row.id,title:row.title,domain:row.domain,action:row.action,status:s,at,until,priority:row.rawRulePriority??row.rawPriority??row.priority,learnedPriority:row.rawPriority??row.priority,impactCzk:row.impactCzk??null,outcome:null,outcomeAt:null});state.decisionMemory36.items=state.decisionMemory36.items.slice(0,200);return state.decisionMemory36.items[0]
+}
+export function recordDecisionOutcome36(state={},memoryId='',outcome='NEUTRAL',now=new Date()){
+ const item=memoryRows(state).find(x=>x.id===memoryId);if(!item||item.status!=='DONE')return null;const value=['GOOD','NEUTRAL','BAD'].includes(upper(outcome))?upper(outcome):'NEUTRAL';item.outcome=value;item.outcomeAt=new Date(now).toISOString();return item
 }
 export function decisionCenter36(state={},now=new Date()){
- const candidates=[...xtbRows36(state),...ticketRows36(state,now)].map(x=>applyMemory36(x,state,now));
+ const candidates=[...xtbRows36(state),...ticketRows36(state,now)].map(x=>applyMemory36(applyLearning36(x,state),state,now));
  const rows=candidates.filter(x=>!x.memoryActive||x.memory?.status==='SNOOZED').sort((a,b)=>b.priority-a.priority||a.title.localeCompare(b.title,'cs-CZ')).slice(0,8).map((x,i)=>({...x,rank:i+1}));
- const visibleImpact=rows.reduce((s,x)=>s+Math.max(0,n(x.impactCzk)),0),memory=decisionMemorySummary36(state);
- const counts={critical:rows.filter(x=>x.priority>=90).length,blocked:rows.filter(x=>x.blocked).length,xtb:rows.filter(x=>x.domain==='XTB').length,tickets:rows.filter(x=>x.domain==='VSTUPENKY').length,visibleImpactCzk:round(visibleImpact),memory:memory.total};
- return {rows,counts,memory,top:rows[0]||null,generatedAt:new Date(now).toISOString(),contract:{autoTrade:false,autoReprice:false,proposalOnly:true,explicitFeedbackOnly:true},note:'Decision Memory mění pořadí jen podle tvého explicitního Hotovo / Odložit / Ignorovat. Nic si nedomýšlí a nic samo neprovádí.'};
+ const visibleImpact=rows.reduce((s,x)=>s+Math.max(0,n(x.impactCzk)),0),memory=decisionMemorySummary36(state),pendingOutcomes=pendingOutcomes36(state);
+ const counts={critical:rows.filter(x=>x.priority>=90).length,blocked:rows.filter(x=>x.blocked).length,xtb:rows.filter(x=>x.domain==='XTB').length,tickets:rows.filter(x=>x.domain==='VSTUPENKY').length,visibleImpactCzk:round(visibleImpact),memory:memory.total,pendingOutcomes:pendingOutcomes.length};
+ return {rows,counts,memory,pendingOutcomes,top:rows[0]||null,generatedAt:new Date(now).toISOString(),contract:{autoTrade:false,autoReprice:false,proposalOnly:true,explicitFeedbackOnly:true,maxLearnedPriorityShift:8,safetyBlocksNeverReduced:true},note:'Outcome Learning používá jen tvoje explicitní hodnocení dokončených rozhodnutí. Korekce priority je omezená na ±8 bodů a nikdy nesnižuje bezpečnostní blokaci.'};
 }
