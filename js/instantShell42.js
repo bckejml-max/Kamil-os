@@ -28,7 +28,8 @@
       const snap=parse(localStorage.getItem(SNAPSHOT_KEY)||'null');
       if(snap?.html&&typeof snap.html==='string'&&snap.html.length<120000&&now-Number(snap.at||0)<2*86400000)html=snap.html;
     }catch{}
-    host.innerHTML=html||fallbackHtml();host.dataset.instantShell='1';
+    host.innerHTML=html||fallbackHtml();host.dataset.instantShell='1';host.dataset.fastShell='1';
+    window.__KAMIL_SNAPSHOT_HIT__=!!html;
     window.__KAMIL_INSTANT_SHELL_AT__=performance.now();try{performance.mark('kamil-instant-shell')}catch{}
   }
   function loadStyles(){
