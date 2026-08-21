@@ -14,10 +14,13 @@ function currentView(){return document.querySelector('.view.on')?.id?.replace('v
 function boot(){
  let booted=false;
  const lateBoot=()=>{if(booted)return;booted=true;loadGroup(currentView(),{staged:true})};
- // requestIdleCallback can fire almost immediately; enforce a real grace period first.
+ // Background work gets a real grace period so startup stays responsive.
  setTimeout(()=>idle(lateBoot,4000),12000);
+ // Explicit navigation is user intent: primary UI loads now, expensive extras stay staged.
  window.addEventListener('kamil:view-change',e=>{booted=true;loadGroup(e.detail||'today',{staged:true})});
  window.addEventListener('kamil:navigate',e=>{booted=true;loadGroup(e.detail||'today',{staged:true})});
+ // Choosing a More/System submode is stronger intent; its diagnostic modules must be ready immediately.
+ window.addEventListener('kamil:more',()=>{booted=true;loadGroup('more',{staged:false})});
  setTimeout(()=>idle(()=>Promise.allSettled([loadModule('./autopilotNavBridge28.js'),loadModule('./personalPlusNav29.js')]),3500),15000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
