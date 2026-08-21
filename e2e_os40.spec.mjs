@@ -1,9 +1,9 @@
 import {test,expect} from '@playwright/test';
 
-test('Kamil OS 40 shell, free-text Copilot and decision engines load without page errors',async({page})=>{
+test('OS40 regression remains healthy inside current Kamil OS shell',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e?.message||e)));
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
- await expect(page.locator('.version').first()).toHaveText('40.0.0');
+ await expect(page.locator('.version').first()).toHaveText('42.0.0');
  await expect(page.locator('#todayView')).toBeVisible();
  await expect(page.locator('script[src="./js/focusActionUi35.js"]')).toHaveCount(1);
  await expect(page.locator('script[src="./js/changePulseUi35.js"]')).toHaveCount(1);
@@ -37,8 +37,8 @@ test('Kamil OS 40 shell, free-text Copilot and decision engines load without pag
  expect(errors).toEqual([]);
 });
 
-test('Kamil OS 40 PWA cache contains new and 35.1 integrated modules',async({request})=>{
+test('Current PWA cache preserves OS40 and OS42 modules',async({request})=>{
  const sw=await (await request.get('http://127.0.0.1:4173/sw.js')).text();
- expect(sw).toContain("kamil-os-40.0.0-shell-r1");
- for(const asset of ['./js/os40.js','./js/decisionCenter36.js','./js/changePulse35.js','./js/changePulseUi35.js','./js/focusActionUi35.js'])expect(sw).toContain(asset);
+ expect(sw).toContain("kamil-os-42.0.0-shell-r1");
+ for(const asset of ['./js/os40.js','./js/decisionCenter36.js','./js/changePulse35.js','./js/changePulseUi35.js','./js/focusActionUi35.js','./js/os42.js','./js/os42Ui.js'])expect(sw).toContain(asset);
 });
