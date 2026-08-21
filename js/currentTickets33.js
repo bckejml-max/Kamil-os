@@ -31,58 +31,30 @@ function findExisting(items,seed){
 
 function applySeed(target,seed){
  const wasClosed=CLOSED.has(String(target.workflow||'').toUpperCase());
- const extra={
-  snapshotTag:SNAPSHOT,
-  snapshotSource:'Excel · Flipování 2026',
-  snapshotSourceRow:seed.sourceRow,
-  snapshotAt:'2026-08-21',
-  eventName:seed.eventName,
-  name:seed.name,
-  qty:seed.qty,
-  buy:seed.buy,
-  date:seed.date,
-  section:seed.section||null,
-  row:seed.row||null,
-  inventorySection:seed.inventorySection||null,
-  inventoryWarning:seed.inventoryWarning||null
- };
+ const extra={snapshotTag:SNAPSHOT,snapshotSource:'Excel · Flipování 2026',snapshotSourceRow:seed.sourceRow,snapshotAt:'2026-08-21',eventName:seed.eventName,name:seed.name,qty:seed.qty,buy:seed.buy,date:seed.date,section:seed.section||null,row:seed.row||null,inventorySection:seed.inventorySection||null,inventoryWarning:seed.inventoryWarning||null};
  Object.assign(target,extra);
- if(seed.platform)target.platform=seed.platform;
- else if(!target.platform)target.platform='';
- if(!wasClosed){
-  target.workflow=seed.workflow;
-  target.listPrice=Number(seed.listPrice||0);
-  target.listedQty=seed.listedQty??null;
-  target.listingSource=seed.workflow==='LISTED'?'Viagogo':null;
-  target.listingSnapshotAt=seed.workflow==='LISTED'?'2026-08-21':null;
-  target.viagogoRecommended=seed.viagogoRecommended??null;
-  target.listingPremiumPct=seed.listingPremiumPct??null;
- }
+ if(seed.platform)target.platform=seed.platform;else if(!target.platform)target.platform='';
+ if(!wasClosed){target.workflow=seed.workflow;target.listPrice=Number(seed.listPrice||0);target.listedQty=seed.listedQty??null;target.listingSource=seed.workflow==='LISTED'?'Viagogo':null;target.listingSnapshotAt=seed.workflow==='LISTED'?'2026-08-21':null;target.viagogoRecommended=seed.viagogoRecommended??null;target.listingPremiumPct=seed.listingPremiumPct??null}
+}
+
+export function ticketSnapshotStatus33(state=store.get()){
+ const items=Array.isArray(state?.ticketBook?.items)?state.ticketBook.items:[];
+ const matched=CURRENT.filter(seed=>findExisting(items,seed)).length;
+ return {snapshot:SNAPSHOT,total:CURRENT.length,matched,missing:Math.max(0,CURRENT.length-matched),ready:state?.meta?.currentTicketSnapshot===SNAPSHOT&&matched===CURRENT.length};
 }
 
 export function ensureCurrentTicketSnapshot33(){
- const current=store.get();
- if(current?.meta?.currentTicketSnapshot===SNAPSHOT)return false;
- store.mutate('Aktualizovány vstupenky 21. 8. 2026',s=>{
+ const before=ticketSnapshotStatus33(store.get());
+ if(before.ready)return false;
+ store.mutate('Načten aktuální snapshot vstupenek',s=>{
   s.meta=s.meta||{};
   s.ticketBook=s.ticketBook||{items:[],watchlist:[],history:[],review:[]};
   s.ticketBook.items=Array.isArray(s.ticketBook.items)?s.ticketBook.items:[];
-  for(const seed of CURRENT){
-   let item=findExisting(s.ticketBook.items,seed);
-   if(!item){item={id:uid('ticket'),createdAt:new Date().toISOString()};s.ticketBook.items.push(item)}
-   applySeed(item,seed);
-  }
+  for(const seed of CURRENT){let item=findExisting(s.ticketBook.items,seed);if(!item){item={id:uid('ticket'),createdAt:new Date().toISOString()};s.ticketBook.items.push(item)}applySeed(item,seed)}
   s.meta.currentTicketSnapshot=SNAPSHOT;
   s.meta.currentTicketSnapshotAt=new Date().toISOString();
- },{undo:false});
+ });
  return true;
 }
 
-let applying=false;
-const ensure=()=>{
- if(applying)return;
- applying=true;
- try{ensureCurrentTicketSnapshot33()}finally{applying=false}
-};
-store.subscribe(()=>queueMicrotask(ensure));
-queueMicrotask(ensure);
+export const currentTicketSnapshot33Info={snapshot:SNAPSHOT,total:CURRENT.length,source:'Excel · Flipování 2026 + Viagogo snapshot 21. 8. 2026',policy:'read-only import until explicit ensureCurrentTicketSnapshot33()'};
