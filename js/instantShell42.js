@@ -20,7 +20,7 @@
   function fallbackHtml(){
     const b=parse(localStorage.getItem(BOOT_KEY)||'null',{})||{};
     const tasks=Number(b.tasks||0),waiting=Number(b.waiting||0),tickets=Number(b.tickets||0),inbox=Number(b.inbox||0);
-    return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Plný Today Brain se připojí až po prvním vykreslení.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">41.3 odděluje první interaktivní obrazovku od těžkého analytického dashboardu. Data ani funkce se nemažou.</div>`;
+    return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Plný Today Brain se připojí až po prvním vykreslení.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">41.3 odděluje lokální UI od cloudového přihlášení i těžkého analytického dashboardu. Data ani funkce se nemažou.</div>`;
   }
   function paintInstant(){
     const host=document.querySelector('#todayView');if(!host)return;
@@ -49,19 +49,33 @@
     try{localStorage.setItem(SNAPSHOT_KEY,JSON.stringify({version:VERSION,html,at:Date.now()}))}catch{}
   }
   function idle(fn,timeout=1800){if('requestIdleCallback'in window)return requestIdleCallback(fn,{timeout});return setTimeout(fn,450)}
-  function startLazyFeatures(){
-    if(lazyFeaturesStarted)return;lazyFeaturesStarted=true;
-    idle(()=>import('./lazyBoot41.js').catch(()=>{}),1800);
+  function startLazyFeatures(){if(lazyFeaturesStarted)return;lazyFeaturesStarted=true;idle(()=>import('./lazyBoot41.js').catch(()=>{}),1800)}
+  function waitForAppInteractive(appPromise){
+    return new Promise((resolve,reject)=>{
+      let done=false;
+      const finish=v=>{if(done)return;done=true;resolve(v)};
+      appPromise.then(()=>finish('module'),error=>{if(done)console.warn('[instantShell43] cloud/session completion',error);else{done=true;reject(error)}});
+      const tick=()=>{
+        if(done)return;
+        const host=document.querySelector('#todayView');
+        if(host?.dataset.todayLite43||host?.querySelector?.('[data-today43-full]')){finish('local-ui');return}
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
   }
   async function loadFullApp(){
     try{
       const partition=await import('./coldPartition42.js');
       try{const r=partition.compactLocalState42();window.__KAMIL_PREBOOT_COMPACT__=r;window.__KAMIL_PREBOOT_COMPACT_AT__=performance.now()}catch{}
-      await import('./app.js');
+      const appPromise=import('./app.js');
+      window.__KAMIL_APP_IMPORT_PROMISE__=appPromise;
+      window.__KAMIL_APP_READY_MODE__=await waitForAppInteractive(appPromise);
       window.__KAMIL_APP_READY_AT__=performance.now();try{performance.mark('kamil-app-ready')}catch{}
       document.querySelector('#todayView')?.removeAttribute('data-instant-shell');
       import('./state.js').then(({store})=>{const b=document.querySelector('#undoBtn');if(b)b.disabled=!store.undoCount()}).catch(()=>{});
       idle(()=>partition.startColdPartition42().catch?.(()=>{}),650);
+      if('serviceWorker'in navigator)idle(()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}),3000);
       setTimeout(saveSnapshot,3800);
       idle(()=>Promise.allSettled([import('./theme33.js'),import('./releaseStamp.js')]),2200);
       setTimeout(startLazyFeatures,8000);
