@@ -1,6 +1,6 @@
 (function(){
-  const VERSION='41.2.0';
-  const SNAPSHOT_KEY='kamil-os-fast-snapshot-41-2';
+  const VERSION='41.3.0';
+  const SNAPSHOT_KEY='kamil-os-fast-snapshot-41-3';
   const BOOT_KEY='kamil-os-41-boot-summary';
   const THEME_KEY='kamil-os-theme33';
   const root=document.documentElement;
@@ -19,7 +19,7 @@
   function fallbackHtml(){
     const b=parse(localStorage.getItem(BOOT_KEY)||'null',{})||{};
     const tasks=Number(b.tasks||0),waiting=Number(b.waiting||0),tickets=Number(b.tickets||0),inbox=Number(b.inbox||0);
-    return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Detail, cloud a analýzy běží až potom.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">Investiční historie, importované transakce a Net Worth historie se při startu neotevírají. Načtou se až v Penězích; ticket learning a Change Pulse zůstávají dostupné hned.</div>`;
+    return `<div class="view-head"><div><div class="eyebrow">KAMIL OS ${VERSION} / INSTANT START</div><h1>Kamil OS je připravený.</h1><p>Lokální přehled je vidět hned. Plný Today Brain se připojí až po prvním vykreslení.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${tasks}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Inbox</span><b>${inbox}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div></div><div class="decision-note">41.3 odděluje první interaktivní obrazovku od těžkého analytického dashboardu. Data ani funkce se nemažou.</div>`;
   }
   function paintInstant(){
     const host=document.querySelector('#todayView');if(!host)return;
@@ -50,19 +50,21 @@
   async function loadFullApp(){
     try{
       await import('./app.js');
+      document.querySelector('#todayView')?.removeAttribute('data-instant-shell');
       import('./state.js').then(({store})=>{const b=document.querySelector('#undoBtn');if(b)b.disabled=!store.undoCount()}).catch(()=>{});
-      idle(()=>import('./coldPartition42.js').then(m=>m.startColdPartition42()).catch(()=>{}),1200);
-      setTimeout(saveSnapshot,1000);setTimeout(saveSnapshot,3500);
-      idle(()=>Promise.allSettled([import('./theme33.js'),import('./releaseStamp.js'),import('./lazyBoot41.js')]),2000);
+      idle(()=>import('./coldPartition42.js').then(m=>m.startColdPartition42()).catch(()=>{}),900);
+      setTimeout(saveSnapshot,3800);
+      idle(()=>Promise.allSettled([import('./theme33.js'),import('./releaseStamp.js'),import('./lazyBoot41.js')]),2600);
     }catch(error){
-      console.error('[instantShell41]',error);
+      console.error('[instantShell43]',error);
       const host=document.querySelector('#todayView');if(host)host.insertAdjacentHTML('beforeend','<div class="decision-note bad">Detail aplikace se nepodařilo načíst. Lokální data zůstala beze změny.</div>');
     }
   }
 
   applyTheme();paintInstant();
   requestAnimationFrame(()=>requestAnimationFrame(loadStyles));
-  window.addEventListener('kamil:view-change',e=>{if(e.detail==='today')setTimeout(saveSnapshot,900)});
+  window.addEventListener('kamil:today-full-ready',()=>setTimeout(saveSnapshot,120));
+  window.addEventListener('kamil:view-change',e=>{if(e.detail==='today')setTimeout(saveSnapshot,1200)});
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveSnapshot()});
   window.addEventListener('beforeunload',saveSnapshot);
   requestAnimationFrame(()=>requestAnimationFrame(loadFullApp));
