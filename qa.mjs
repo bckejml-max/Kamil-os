@@ -12,6 +12,8 @@ const app=read('js/app.js');
 const runtime=read('js/viewRuntime41.js');
 const lazy=read('js/lazyBoot41.js');
 const instant=read('js/instantShell42.js');
+const today=read('js/todayLite43.js');
+const safeIntel=read('js/safeIntelligence438.js');
 const diagnostics=read('js/systemDiagnostics421.js');
 const rootPackage=JSON.parse(read('package.json'));
 const desktopPackage=JSON.parse(read('desktop/package.json'));
@@ -36,13 +38,13 @@ assert.ok(!cloud.includes('autoTrade:true'),'QA guard: cloud payload must not en
 assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');
 assert.ok(app.includes('requestAnimationFrame(()=>{const runForce='),'UI renders must remain coalesced');
 assert.ok(runtime.includes('warmViews=new Map()'),'runtime must cache warmed view renderers');
-assert.ok(runtime.includes('hydrateColdView42(key)'),'prefetch must hydrate required cold data before navigation');
+assert.ok(runtime.includes('hydrateColdView42(key)'),'opened views must hydrate required cold data before navigation');
 assert.ok(!ticketSeed.includes('store.subscribe(')&&!ticketSeed.includes('queueMicrotask(ensure)'),'ticket seed must never mutate on import');
 assert.ok(!investmentSeed.includes('store.subscribe(')&&!investmentSeed.includes('queueMicrotask(ensure)'),'investment seed must never mutate on import');
 assert.ok(platform43.includes('export const ROADMAP43=['),'43 platform must expose the 60-feature delivery registry');
 assert.ok(platform43.includes('startPlatform43')&&platform43.includes('dailyAutopilot43'),'43 resilience/autopilot engines missing');
 assert.ok(platform43.includes('waitingAutopilot43')&&platform43.includes('portfolio43')&&platform43.includes('tickets43'),'43 domain engines missing');
-assert.ok(lazy.includes("'./platform431LeanUi.js'")&&lazy.includes("'./platform431Stability.js'"),'43.1 lean/stability modules must remain lazy-loaded');
+assert.ok(lazy.includes("'./platform431LeanUi.js'")&&lazy.includes("'./platform431Stability.js'"),'43.1 lean/stability modules must remain available behind lazy loader');
 assert.ok(!lazy.includes("'./platform43Ui.js'"),'43.1 must not load the old full 60-feature dashboard');
 assert.ok(lean431.includes("let expanded=false")&&lean431.includes('Otevřít detail platformy'),'43.1 detail must be collapsed by default');
 assert.ok(lean431.includes('setTimeout(()=>{if(document.visibilityState')&&lean431.includes('900'),'43.1 platform rerenders must be debounced');
@@ -52,13 +54,25 @@ assert.ok(lazy.includes('safeMode()'),'Safe Mode guard missing from lazy loader'
 assert.ok(desktop43.includes('kamilDesktop43')&&desktop43.includes('Ctrl+Alt+K'),'desktop palette bridge missing');
 assert.ok(desktopMain.includes("globalShortcut.register('CommandOrControl+Alt+K'")&&desktopMain.includes('Universal Inbox'),'global desktop shortcut/tray actions missing');
 
-assert.equal(version,'43.7.0','43.7 release metadata must be aligned');
+assert.equal(version,'43.7.1','Safe Core release metadata must be aligned');
 assert.equal(release,'43.7','43.7 release label must be aligned');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.equal(desktopPackage.version,version,'desktop package version must match APP_VERSION');
-assert.ok(index.includes('43.7.0'),'43.7 static boot fallback must be aligned');
-assert.ok(instant.includes("const VERSION='43.7.0'")&&instant.includes("kamil-os-fast-snapshot-43-7"),'43.7 instant shell version/snapshot missing');
-assert.ok(sw.includes("const CACHE='kamil-os-43.7.0-runtime-r1'"),'43.7 service-worker cache version missing');
+assert.ok(index.includes('43.7.1'),'Safe Core static boot fallback must be aligned');
+assert.ok(instant.includes("const VERSION='43.7.1'")&&instant.includes("kamil-os-fast-snapshot-43-7"),'Safe Core instant shell version/snapshot missing');
+assert.ok(sw.includes("const CACHE='kamil-os-43.7.1-safe-core-r1'"),'Safe Core service-worker cache version missing');
+assert.ok(instant.includes('SAFE CORE 43.7.1')&&instant.includes('window.__KAMIL_SAFE_CORE__=true'),'Safe Core boot contract missing');
+assert.ok(runtime.includes('export function prefetchView41(){return Promise.resolve(null)}'),'Safe Core must disable hover/focus prefetch');
+assert.ok(runtime.includes('export function renderExtras41(){return Promise.resolve([])}'),'Safe Core must disable background extras');
+assert.ok(runtime.includes('export function refreshRiskBadge41(){return Promise.resolve(null)}'),'Safe Core must disable background risk badge');
+assert.ok(runtime.includes('export function scheduleNotifications41(){return Promise.resolve(null)}'),'Safe Core must disable background notifications');
+assert.ok(runtime.includes('export function warmRuntime41(){return Promise.resolve(null)}'),'Safe Core must disable runtime warming');
+assert.ok(!today.includes('scheduleFull(')&&!today.includes('setTimeout(()=>loadLife42'),'Today must not auto-hydrate heavy modules');
+assert.ok(today.includes("import('./safeIntelligence438.js')")&&today.includes('data-safe-intel="finance"')&&today.includes('data-safe-intel="work"')&&today.includes('data-safe-intel="mission"'),'Safe Intelligence controls missing');
+assert.ok(safeIntel.includes('export function financeTickets438')&&safeIntel.includes('export function work438')&&safeIntel.includes('export function mission438'),'Safe Intelligence engines missing');
+assert.ok(safeIntel.includes('window.__KAMIL_SAFE_INTEL_LAST__'),'Safe Intelligence performance measurement missing');
+assert.ok(!safeIntel.includes('setInterval(')&&!safeIntel.includes('requestIdleCallback')&&!safeIntel.includes('store.subscribe('),'Safe Intelligence must remain on-demand only');
+
 assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'responsive scheduler/input guard missing');
 assert.ok(lazy.includes("document.visibilityState==='hidden'")&&lazy.includes('await sleep(250)'),'scheduler must yield while hidden or busy');
 assert.ok(lazy.includes('window.__KAMIL_MODULE_TIMINGS__'),'per-module timing diagnostics missing');
@@ -74,6 +88,5 @@ assert.ok(lazy.includes('function updateMemory')&&lazy.includes('function stabil
 assert.ok(lazy.includes("status:'memory-blocked'")&&lazy.includes('allowMemoryRisk=false'),'43.7 automatic background isolation missing');
 assert.ok(lazy.includes("window.__KAMIL_MEMORY_BLOCKED_MODULES__")&&lazy.includes("window.__KAMIL_MEMORY_COLD_MODULES__"),'43.7 memory diagnostics globals missing');
 assert.ok(diagnostics.includes('43.7 STABILITY MEMORY')&&diagnostics.includes('Reset Stability Memory')&&diagnostics.includes('skóre'),'43.7 stability diagnostics missing');
-assert.ok(instant.includes('43.7 Stability Memory'),'43.7 boot message missing');
 
 console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version}`);
