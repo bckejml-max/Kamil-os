@@ -26,6 +26,7 @@ const stability431=read('js/platform431Stability.js');
 const desktop43=read('desktop/preload.cjs');
 const desktopMain=read('desktop/main.cjs');
 const lifeFiles=['lifePlanner446.js','cashflow447.js','wealth448.js','ticketIntel449.js','inbox450.js','maintenance451.js','family452.js','goals453.js','decision454.js','lifeDashboard455.js'].map(f=>read(`js/${f}`));
+const lifePlus=read('js/personalLifePlus475.js');
 
 const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
 const release=meta.match(/APP_RELEASE='([^']+)'/)?.[1];
@@ -88,7 +89,13 @@ assert.ok(lifeFiles[5].includes('export function maintenance451'),'45.1 Maintena
 assert.ok(lifeFiles[6].includes('export function family452'),'45.2 Family Planner missing');
 assert.ok(lifeFiles[7].includes('export function goals453'),'45.3 Goals missing');
 assert.ok(lifeFiles[8].includes('export function decision454'),'45.4 Decision Engine missing');
-assert.ok(lifeFiles[9].includes('export function lifeDashboard455')&&lifeFiles[9].includes('Unified Life Dashboard 45.5'),'45.5 Unified Life Dashboard missing');
+assert.ok(lifeFiles[9].includes('export function lifeDashboard455')&&lifeFiles[9].includes('Životní dashboard 47.5')&&lifeFiles[9].includes('Life+ 20'),'47.5 Unified Life Dashboard integration missing');
+
+assert.ok(!lifePlus.includes('setInterval(')&&!lifePlus.includes('requestIdleCallback')&&!lifePlus.includes('store.subscribe('),'Life+ 47.5 must stay click-only');
+assert.ok(!lifePlus.includes('store.update(')&&!lifePlus.includes('store.patch(')&&!lifePlus.includes('store.set('),'Life+ 47.5 must stay read-only');
+for(const fn of ['renewal456','insurance457','runway458','purchase459','goal460','household461','vehicle462','energy463','docs464','familyLoad465','ticketExposure466','xtb467','stress468','debts469','admin470','confidence471','reset472','opportunity473','noise474','health475'])assert.ok(lifePlus.includes(`export function ${fn}`),`Life+ engine ${fn} missing`);
+assert.ok(lifePlus.includes('export function personalLifePlus475')&&lifePlus.includes('openPersonalLifePlus475'),'Life+ 47.5 aggregator/UI missing');
+assert.ok(lifePlus.includes('WORK_RE')&&lifePlus.includes('filter(personal)'),'Life+ work-domain exclusion missing');
 
 assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'responsive scheduler/input guard missing');
 assert.ok(lazy.includes("document.visibilityState==='hidden'")&&lazy.includes('await sleep(250)'),'scheduler must yield while hidden or busy');
@@ -106,4 +113,4 @@ assert.ok(lazy.includes("status:'memory-blocked'")&&lazy.includes('allowMemoryRi
 assert.ok(lazy.includes("window.__KAMIL_MEMORY_BLOCKED_MODULES__")&&lazy.includes("window.__KAMIL_MEMORY_COLD_MODULES__"),'43.7 memory diagnostics globals missing');
 assert.ok(diagnostics.includes('43.7 STABILITY MEMORY')&&diagnostics.includes('Reset Stability Memory')&&diagnostics.includes('skóre'),'43.7 stability diagnostics missing');
 
-console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version} · PERSONAL LIFE OS 45.5`);
+console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version} · PERSONAL LIFE OS 47.5 · 20 LIFE+ ENGINES`);
