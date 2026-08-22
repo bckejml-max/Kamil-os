@@ -8,3 +8,4 @@
 - System diagnostics shows per-module score, mode, samples, failures and successes, plus a memory reset.
 - Preserves Safe Boot, Responsive Scheduler, Adaptive Loader, Cold Load, Auto Quarantine and Self-Healing.
 - Aligns web, PWA and desktop metadata at 43.7.0.
+- Production rollback restored on 2026-08-22 after OS50 client freeze.
