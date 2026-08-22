@@ -35,8 +35,10 @@ test('Safe Intelligence 43.8 gives actionable XTB, tickets, work and Mission Con
  await page.getByRole('button',{name:'Mission Control'}).click();
  await expect(page.getByRole('heading',{name:'Mission Control / Safe 43.8'})).toBeVisible();
  await expect(page.locator('#modalHost')).toContainText('TOP 3 TEĎ');
- await expect(page.locator('#modalHost')).toContainText('Obnovit XTB data před rozhodnutím');
- await expect(page.locator('#modalHost')).toContainText('PROVĚŘIT CENU');
+ await expect(page.locator('#modalHost')).toContainText('XTB data');
+ await expect(page.locator('#modalHost')).toContainText('OBNOVIT');
+ await expect(page.locator('#modalHost')).toContainText('Vstupenky k revizi');
+ await expect(page.locator('#modalHost')).toContainText('Čekám na odpověď');
  const first=await page.evaluate(()=>window.__KAMIL_SAFE_INTEL_LAST__);expect(first.name).toBe('mission438');expect(first.ms).toBeLessThan(500);
  await page.getByRole('button',{name:'Zavřít'}).click();
 
