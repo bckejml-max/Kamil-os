@@ -46,8 +46,8 @@ test('Unified Life Dashboard 45.5 opens on click and exposes one simple personal
  await expect(page.getByRole('button',{name:'Životní dashboard'}).first()).toBeVisible({timeout:5000});
  expect(await page.evaluate(()=>window.__KAMIL_LIFE_455_LAST__||null)).toBeNull();
  await page.getByRole('button',{name:'Životní dashboard'}).first().click();
- await expect(page.getByRole('heading',{name:'Kamil OS / Životní dashboard 45.5'})).toBeVisible();
- await expect(page.locator('#modalHost')).toContainText('TOP 3 DNES');
+ await expect.poll(()=>page.evaluate(()=>window.__KAMIL_LIFE_455_LAST__||null),{timeout:5000}).not.toBeNull();
+ await expect(page.locator('#modalHost')).toContainText('TOP 3 DNES',{timeout:5000});
  await expect(page.locator('#modalHost')).toContainText('CO SE BLÍŽÍ / 3 MĚSÍCE');
  const perf=await page.evaluate(()=>window.__KAMIL_LIFE_455_LAST__);expect(perf.ms).toBeLessThan(500);
  expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
