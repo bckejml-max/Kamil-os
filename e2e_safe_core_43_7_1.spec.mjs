@@ -1,15 +1,15 @@
 import {test,expect} from '@playwright/test';
 const BASE='http://127.0.0.1:4173';
 
-test('Personal Safe Core starts fast and no Life OS brain runs before click',async({page})=>{
+test('Personal Safe Core starts fast and market cockpit stays lightweight before click',async({page})=>{
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect(page).toHaveTitle(/^Kamil OS 43\.7\.1$/);
  await expect(page.locator('#appView')).toBeVisible();
- await expect(page.getByRole('heading',{name:'Můj život na jedné obrazovce.'})).toBeVisible({timeout:5000});
- const flags=await page.evaluate(()=>({safe:window.__KAMIL_SAFE_CORE__,platform:!!document.querySelector('#platform43')}));
- expect(flags.safe).toBe(true);expect(flags.platform).toBe(false);
+ await expect(page.getByRole('heading',{name:'XTB + vstupenky. Nic ostatního teď neřešíme.'})).toBeVisible({timeout:5000});
+ const flags=await page.evaluate(()=>({safe:window.__KAMIL_SAFE_CORE__,platform:!!document.querySelector('#platform43'),market:window.__KAMIL_MARKET_TOP3_533_LAST__||null}));
+ expect(flags.safe).toBe(true);expect(flags.platform).toBe(false);expect(flags.market).not.toBeNull();expect(flags.market.ms).toBeLessThan(200);
  await page.waitForTimeout(3000);
- const ran=await page.evaluate(()=>['__KAMIL_LIFE_446_LAST__','__KAMIL_CASHFLOW_447_LAST__','__KAMIL_WEALTH_448_LAST__','__KAMIL_TICKET_449_LAST__','__KAMIL_INBOX_450_LAST__','__KAMIL_MAINT_451_LAST__','__KAMIL_FAMILY_452_LAST__','__KAMIL_GOALS_453_LAST__','__KAMIL_DECISION_454_LAST__','__KAMIL_LIFE_455_LAST__','__KAMIL_LIFE_PLUS_475_LAST__'].some(k=>window[k]));
+ const ran=await page.evaluate(()=>['__KAMIL_LIFE_446_LAST__','__KAMIL_CASHFLOW_447_LAST__','__KAMIL_WEALTH_448_LAST__','__KAMIL_TICKET_449_LAST__','__KAMIL_INBOX_450_LAST__','__KAMIL_MAINT_451_LAST__','__KAMIL_FAMILY_452_LAST__','__KAMIL_GOALS_453_LAST__','__KAMIL_DECISION_454_LAST__','__KAMIL_LIFE_455_LAST__','__KAMIL_LIFE_PLUS_475_LAST__','__KAMIL_ASSISTANT_530_LAST__','__KAMIL_SUITE_530_LAST__'].some(k=>window[k]));
  expect(ran).toBe(false);
 });
 
@@ -42,14 +42,14 @@ test('Personal 44.6 through 47.5 engines calculate private life data and exclude
  expect(r.plus.renewal.soon.length).toBe(1);expect(r.plus.docs.soon.length).toBe(1);expect(r.plus.ticketExposure.capital).toBe(4000);expect(r.plus.noise.focus.some(x=>x.title.includes('Zakázka D4'))).toBe(false);expect(r.plus.health.score).toBeGreaterThanOrEqual(0);expect(r.plus.health.score).toBeLessThanOrEqual(100);
 });
 
-test('Unified Life Dashboard 47.5 opens on click and Life Plus stays click-only',async({page})=>{
+test('Unified Life Dashboard remains explicit and Life Plus stays click-only',async({page})=>{
  const errors=[];page.on('console',msg=>{if(msg.type()==='error')errors.push(msg.text())});page.on('pageerror',e=>errors.push(String(e.stack||e)));
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  const direct=await page.evaluate(async()=>{try{const m=await import('./js/lifeDashboard455.js');return{ok:true,has:typeof m.openLifeDashboard455==='function'&&typeof m.lifeDashboard455==='function'}}catch(e){return{ok:false,error:String(e?.stack||e)}}});
  expect(direct.ok,direct.error||'lifeDashboard455 direct import failed').toBe(true);expect(direct.has).toBe(true);
- await expect(page.getByRole('button',{name:'Životní dashboard'}).first()).toBeVisible({timeout:5000});
+ const trigger=page.locator('[data-life-dashboard]').first();await expect(trigger).toBeVisible({timeout:5000});
  expect(await page.evaluate(()=>window.__KAMIL_LIFE_455_LAST__||null)).toBeNull();expect(await page.evaluate(()=>window.__KAMIL_LIFE_PLUS_475_LAST__||null)).toBeNull();
- await page.getByRole('button',{name:'Životní dashboard'}).first().click();
+ await trigger.click();
  await page.waitForTimeout(500);
  const diag=await page.evaluate(()=>({ran:window.__KAMIL_LIFE_455_LAST__||null,error:window.__KAMIL_LIFE_455_ERROR__||null,importAt:window.__KAMIL_LIFE_455_IMPORT_AT__||null,importedAt:window.__KAMIL_LIFE_455_IMPORTED_AT__||null,toast:document.querySelector('#toastHost')?.textContent||'',modal:document.querySelector('#modalHost')?.textContent||''}));
  expect(diag.importAt,`click listener did not fire; console=${errors.join(' | ')}`).not.toBeNull();
