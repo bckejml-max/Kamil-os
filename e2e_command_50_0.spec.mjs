@@ -9,7 +9,7 @@ test('Command 50.0 stays click-only, personal and action-first',async({page})=>{
  expect(await page.evaluate(()=>window.__KAMIL_COMMAND_500_LAST__||null)).toBeNull();
  const r=await page.evaluate(async()=>{const m=await import('./js/personalCommand500.js');const s=JSON.parse(localStorage.getItem('kamil-os-state'));return m.command500(s)});
  expect(r.week.focus.some(x=>x.title.includes('D4'))).toBe(false);expect(r.calendar.events.some(x=>x.title.includes('PKS'))).toBe(false);expect(r.next.main).not.toBeNull();expect(r.data.coverage).toBeGreaterThanOrEqual(0);expect(r.portfolio.note).toContain('Žádný prodej se automaticky neprovede');expect(await page.evaluate(()=>window.__KAMIL_COMMAND_500_LAST__||null)).toBeNull();
- await page.evaluate(async()=>{const m=await import('./js/personalCommand500.js');return m.openCommand500()});
+ await page.evaluate(async()=>{const m=await import('./js/personalCommand500.js');m.openCommand500();return true});
  await page.waitForTimeout(250);
  const diag=await page.evaluate(()=>({ran:window.__KAMIL_COMMAND_500_LAST__||null,text:document.querySelector('#modalHost')?.textContent||'',platform:!!document.querySelector('#platform43')}));
  expect(diag.ran).not.toBeNull();expect(diag.ran.ms).toBeLessThan(500);expect(diag.text).toContain('Udělej teď');expect(diag.text).toContain('CO MŮŽE POČKAT');expect(diag.text).not.toContain('D4 fakturace');expect(diag.platform).toBe(false);
