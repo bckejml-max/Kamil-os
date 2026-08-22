@@ -55,5 +55,7 @@ const candidateRow=(x,i)=>`<div class="intel-row"><div class="intel-main"><b>${h
 
 export async function openBestNextMove565(){
  const x=bestNextMove565(),w=x.winner,body=`<div class="metric-strip"><div class="metric"><span>Best score</span><b class="${w?'good':''}">${w?w.score:'—'}</b></div><div class="metric"><span>Náskok</span><b>${x.margin===null?'—':x.margin}</b></div><div class="metric"><span>Výběr</span><b>${h(x.selection)}</b></div><div class="metric"><span>Kandidáti</span><b>${x.total}</b></div></div><div class="card"><div class="eyebrow">BEST NEXT MOVE 56.5</div><h2>${h(x.summary)}</h2>${w?`<p><b>${h(w.instruction||w.name||w.ticker)}</b> · ${h(w.domain)} · confidence ${w.confidence}% · priorita ${w.priority||0}/100.</p><p>${h([...w.reasons,...w.warnings].join(' · '))}</p>`:'<div class="empty success-empty">Nevyrábět akci jen proto, aby se něco dělo.</div>'}</div><div class="card"><div class="eyebrow">POŘADÍ PROVEDITELNÝCH KROKŮ</div>${x.rows.map(candidateRow).join('')||'<div class="empty">Žádné kandidáty.</div>'}</div><div class="decision-note">56.5 řadí pouze kroky, které už prošly Final Verdictem. Score je priorita provedení, ne pravděpodobnost zisku ani predikce ceny. Nic automaticky nenakupuje, neprodává, nepřevádí ani nepřecenňuje.</div>`;
- return modal('XTB + vstupenky / Best Next Move 56.5',body,[{label:'Zavřít',value:null,primary:true}]);
+ const choice=await modal('XTB + vstupenky / Best Next Move 56.5',body,[{label:'Action Sequence 56.6',value:'sequence',primary:true},{label:'Zavřít',value:null}]);
+ if(choice==='sequence'){const m=await import('./actionSequence566.js');return m.openActionSequence566()}
+ return choice;
 }
