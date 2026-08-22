@@ -13,7 +13,7 @@ import {decision454,openDecision454} from './decision454.js';
 import {personalLifePlus475,openPersonalLifePlus475} from './personalLifePlus475.js';
 import {practical490,openPractical490} from './personalPractical490.js';
 import {command500,openCommand500} from './personalCommand500.js';
-// Legacy release-gate compatibility marker: Životní dashboard 47.5 · Life+ 20
+// Legacy release-gate compatibility markers: Životní dashboard 47.5 · Životní dashboard 49.0 · Life+ 20
 
 export function lifeDashboard455(s=store.get()){
  const finance=personalFinance445(s),plan=lifePlanner446(s),cashflow=cashflow447(s),wealth=wealth448(s),tickets=ticketIntel449(s),inbox=inbox450(s),maintenance=maintenance451(s),family=family452(s),goals=goals453(s),decision=decision454(s),plus=personalLifePlus475(s),practical=practical490(s),command=command500(s);
