@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const practical=fs.readFileSync('js/personalPractical490.js','utf8');
+const dash=fs.readFileSync('js/lifeDashboard455.js','utf8');
+for(const bad of ['setInterval(','requestIdleCallback','store.subscribe(','store.update(','store.patch(','store.set('])assert.ok(!practical.includes(bad),`Practical 49.0 must stay click-only/read-only: ${bad}`);
+for(const fn of ['freshness476','missing477','funds478','bigPurchase479','savings480','netWorth481','commitments482','ticketRank483','sellToFund484','subscriptions485','vehicleFund486','homeFund487','travelFund488','familyPrep489','practical490'])assert.ok(practical.includes(`export function ${fn}`),`Missing practical engine ${fn}`);
+assert.ok(practical.includes('openPractical490')&&practical.includes('__KAMIL_PRACTICAL_490_LAST__'),'Practical 49.0 UI/timing missing');
+assert.ok(practical.includes('WORK_RE')&&practical.includes('filter(personal)'),'Practical work-domain exclusion missing');
+assert.ok(practical.includes('Pouze návrh zdroje hotovosti')&&practical.includes('žádný obchod'),'Sell-to-fund must remain proposal-only');
+assert.ok(dash.includes("from './personalPractical490.js'")&&dash.includes('Praktické centrum')&&dash.includes('Životní dashboard 49.0'),'Practical 49.0 dashboard integration missing');
+console.log('PERSONAL PRACTICAL 47.6–49.0 STATIC PASS');
