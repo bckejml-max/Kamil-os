@@ -43,5 +43,7 @@ const row=x=>`<div class="intel-row"><div class="intel-main"><b>${h(x.name||x.ti
 export async function openMarketConfidence556(){
  const x=marketConfidence556();
  const body=`<div class="metric-strip"><div class="metric"><span>Průměr confidence</span><b class="${cls(x.average)}">${x.average} %</b></div><div class="metric"><span>Vysoká</span><b class="good">${x.high}</b></div><div class="metric"><span>Pod 65 %</span><b class="${x.low?'bad':'good'}">${x.low}</b></div><div class="metric"><span>Celkem</span><b>${x.total}</b></div></div><div class="card"><div class="eyebrow">MARKET DATA CONFIDENCE 55.6</div><h2>${h(x.summary)}</h2><p>Confidence měří kvalitu uložených dat, ne pravděpodobnost zisku.</p></div><div class="card"><div class="eyebrow">NEJDŮVĚRYHODNĚJŠÍ DOPORUČENÍ</div>${x.all.slice(0,8).map(row).join('')||'<div class="empty">Bez market dat.</div>'}</div><div class="decision-note">55.6 je pouze datová vrstva. Vyšší confidence neznamená jistý výnos a nic automaticky neobchoduje, neprodává ani nepřecenňuje.</div>`;
- return modal('XTB + vstupenky / Confidence 55.6',body,[{label:'Zavřít',value:null,primary:true}]);
+ const choice=await modal('XTB + vstupenky / Confidence 55.6',body,[{label:'Konflikty 55.7',value:'conflicts',primary:true},{label:'Zavřít',value:null}]);
+ if(choice==='conflicts'){const m=await import('./decisionConflict557.js');return m.openDecisionConflict557()}
+ return choice;
 }
