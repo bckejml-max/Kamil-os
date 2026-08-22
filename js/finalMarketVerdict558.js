@@ -33,5 +33,7 @@ const row=x=>`<div class="intel-row"><div class="intel-main"><b>${h(x.name||x.ti
 
 export async function openFinalMarketVerdict558(){
  const x=finalMarketVerdict558(),body=`<div class="metric-strip"><div class="metric"><span>Akční</span><b class="good">${x.actionable.length}</b></div><div class="metric"><span>DO NOT ACT</span><b class="${x.blocked.length?'bad':'good'}">${x.blocked.length}</b></div><div class="metric"><span>Hold / wait</span><b>${x.wait.length}</b></div><div class="metric"><span>Celkem</span><b>${x.total}</b></div></div><div class="card"><div class="eyebrow">FINAL MARKET VERDICT 55.8</div><h2>${h(x.summary)}</h2><p>Akční verdikt projde jen při READY, confidence ≥ 65 % a bez konfliktu.</p></div><div class="card"><div class="eyebrow">FINÁLNÍ POŘADÍ</div>${x.rows.map(row).join('')||'<div class="empty">Bez market rozhodnutí.</div>'}</div><div class="decision-note">55.8 je finální rozhodovací filtr, ne exekuce. Nic automaticky nenakupuje, neprodává, nepřevádí ani nepřecenňuje.</div>`;
- return modal('XTB + vstupenky / Final Verdict 55.8',body,[{label:'Zavřít',value:null,primary:true}]);
+ const choice=await modal('XTB + vstupenky / Final Verdict 55.8',body,[{label:'Action Queue 55.9',value:'queue',primary:true},{label:'Zavřít',value:null}]);
+ if(choice==='queue'){const m=await import('./actionQueue559.js');return m.openActionQueue559()}
+ return choice;
 }
