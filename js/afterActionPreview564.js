@@ -57,5 +57,7 @@ const ticketRow=x=>`<div class="intel-row"><div class="intel-main"><b>${h(`${x.a
 
 export async function openAfterActionPreview564(){
  const x=afterActionPreview564(),body=`<div class="metric-strip"><div class="metric"><span>Kroky</span><b>${x.total}</b></div><div class="metric"><span>XTB concentration</span><b class="${x.concentrationWarnings.length?'warn':'good'}">${x.concentrationWarnings.length}</b></div><div class="metric"><span>Ticket net při SELL</span><b>${h(fmt(x.ticketNet))}</b></div><div class="metric"><span>Ticket P/L při SELL</span><b class="${x.ticketProfit<0?'bad':'good'}">${h(fmt(x.ticketProfit))}</b></div></div><div class="card"><div class="eyebrow">AFTER ACTION PREVIEW 56.4</div><h2>${h(x.summary)}</h2><p>Co by se matematicky změnilo, kdybys ručně provedl dnešní ověřené XTB + ticket kroky.</p></div><div class="card"><div class="eyebrow">XTB · PŘED → PO</div>${x.xtb.map(xtbRow).join('')||'<div class="empty">Žádná dnešní XTB akce.</div>'}</div><div class="card"><div class="eyebrow">VSTUPENKY · PŘED → PO</div>${x.tickets.map(ticketRow).join('')||'<div class="empty">Žádná dnešní ticket akce.</div>'}</div><div class="decision-note">56.4 je pouze statická simulace nad uloženými daty. Nezapisuje změny a nic nenakupuje, neprodává ani nepřecenňuje. XTB váhový preview se zobrazí jen tam, kde existuje spolehlivá CZK valuace; měny se svévolně nepřevádějí.</div>`;
- return modal('XTB + vstupenky / After Action 56.4',body,[{label:'Zavřít',value:null,primary:true}]);
+ const choice=await modal('XTB + vstupenky / After Action 56.4',body,[{label:'Best Next Move 56.5',value:'best',primary:true},{label:'Zavřít',value:null}]);
+ if(choice==='best'){const m=await import('./bestNextMove565.js');return m.openBestNextMove565()}
+ return choice;
 }
