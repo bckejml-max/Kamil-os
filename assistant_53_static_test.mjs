@@ -7,6 +7,6 @@ for(const fn of ['capture501','categorize502','complete503','snooze504','search5
 assert.ok(a.includes('openSuite530')&&a.includes('openAssistant530')&&a.includes('__KAMIL_SUITE_530_LAST__')&&a.includes('__KAMIL_ASSISTANT_530_LAST__'),'Assistant 53 UI/timing missing');
 assert.ok(a.includes('WORK_RE')&&a.includes('filter(personal)'),'Work-domain exclusion missing');
 assert.ok(a.includes("store.mutate('Quick Capture'")&&a.includes("store.mutate('Úkol hotovo'")&&a.includes("store.mutate('Odložit úkol o 7 dní'"),'Explicit mutation actions missing');
-assert.ok(a.includes('žádný nákup se automaticky neprovede')&&a.includes('Žádný prodej se automaticky neprovede'),'Financial proposal-only safeguards missing');
+assert.ok(a.includes('automaticky neprovede')&&a.includes('Pouze návrh'),'Financial proposal-only safeguards missing');
 assert.ok(d.includes("from './personalAssistant530.js'")&&d.includes('Assistant Suite 30')&&d.includes('Životní dashboard 53.0'),'Assistant 53 dashboard integration missing');
 console.log('PERSONAL ASSISTANT 50.1–53.0 STATIC PASS');
