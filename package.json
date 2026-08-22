@@ -4,7 +4,7 @@
   "version": "43.7.1",
   "type": "module",
   "scripts": {
-    "test:e2e": "playwright test e2e_safe_core_43_7_1.spec.mjs e2e_personal_finance_44_5.spec.mjs e2e_market_decision_53_4.spec.mjs e2e_market_suite_55_4.spec.mjs e2e_execution_readiness_55_5.spec.mjs e2e_market_confidence_55_6.spec.mjs e2e_decision_conflict_55_7.spec.mjs e2e_final_market_verdict_55_8.spec.mjs e2e_action_queue_55_9.spec.mjs e2e_market_home_56_0.spec.mjs --reporter=line"
+    "test:e2e": "playwright test e2e_safe_core_43_7_1.spec.mjs e2e_personal_finance_44_5.spec.mjs e2e_market_decision_53_4.spec.mjs e2e_market_suite_55_4.spec.mjs e2e_execution_readiness_55_5.spec.mjs e2e_market_confidence_55_6.spec.mjs e2e_decision_conflict_55_7.spec.mjs e2e_final_market_verdict_55_8.spec.mjs e2e_action_queue_55_9.spec.mjs e2e_market_home_56_0.spec.mjs e2e_exact_today_plan_56_1.spec.mjs --reporter=line"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0"
