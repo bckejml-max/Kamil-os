@@ -22,7 +22,8 @@ assert.ok(!lite.includes('requestIdleCallback'),'Today must not schedule hidden 
 assert.ok(lite.includes("import('./lifeDashboard455.js')"),'Unified Life Dashboard must be lazy imported on explicit click');
 assert.ok(lite.includes('data-life-dashboard'),'Unified Life Dashboard click control missing');
 assert.ok(!lite.includes('data-safe-intel="work"'),'Work Command Center must not be exposed in personal core UI');
-assert.ok(lite.includes('PERSONAL HOME 53.1')&&lite.includes('__KAMIL_PERSONAL_HOME_531_LAST__'),'Personal Home 53.1 lightweight cockpit contract missing');
+assert.ok(lite.includes('MARKET COCKPIT 53.3')&&lite.includes('__KAMIL_MARKET_TOP3_533_LAST__')&&lite.includes('__KAMIL_PERSONAL_HOME_531_LAST__'),'Market Home 53.3 lightweight cockpit contract missing');
+assert.ok(lite.includes('smartMarketTop3(')&&lite.includes('ticketStats(')&&lite.includes('xtbStats('),'Market Home 53.3 decision signals missing');
 assert.ok(runtime.includes('export function prefetchView41(){return Promise.resolve(null)}'),'hover/focus prefetch must stay disabled');
 assert.ok(runtime.includes('export function renderExtras41(){return Promise.resolve([])}'),'background extras must stay disabled');
 assert.ok(runtime.includes('export function refreshRiskBadge41(){return Promise.resolve(null)}'),'background risk calculation must stay disabled');
@@ -34,4 +35,4 @@ assert.ok(life.includes('Unified Life Dashboard 53.0')&&life.includes('lifeDashb
 assert.ok(sw.includes('networkFirst'),'Safe Core service worker must prefer fresh runtime code');
 assert.ok(!sw.includes('staleWhileRevalidate'),'Safe Core must not serve stale runtime code first');
 
-console.log(`KAMIL OS ${version.join('.')} PERSONAL HOME 53.1 PERFORMANCE STATIC TEST PASS`);
+console.log(`KAMIL OS ${version.join('.')} MARKET HOME 53.3 PERFORMANCE STATIC TEST PASS`);
