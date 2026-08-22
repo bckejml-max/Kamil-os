@@ -1,7 +1,9 @@
 import {test,expect} from '@playwright/test';
 
+const base='http://127.0.0.1:4173/';
+
 test('43.7 stability memory blocks risky background module', async ({page})=>{
-  await page.goto('/');
+  await page.goto(base);
   const result=await page.evaluate(async()=>{
     localStorage.setItem('kamil-os-stability-memory-43-7',JSON.stringify({
       './ticketProfitUi29.js':{score:12,samples:4,failures:2,successes:4,lastMs:1500,updatedAt:Date.now()}
