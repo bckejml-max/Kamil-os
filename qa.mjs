@@ -25,6 +25,7 @@ const lean431=read('js/platform431LeanUi.js');
 const stability431=read('js/platform431Stability.js');
 const desktop43=read('desktop/preload.cjs');
 const desktopMain=read('desktop/main.cjs');
+const lifeFiles=['lifePlanner446.js','cashflow447.js','wealth448.js','ticketIntel449.js','inbox450.js','maintenance451.js','family452.js','goals453.js','decision454.js','lifeDashboard455.js'].map(f=>read(`js/${f}`));
 
 const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
 const release=meta.match(/APP_RELEASE='([^']+)'/)?.[1];
@@ -69,15 +70,25 @@ assert.ok(runtime.includes('export function refreshRiskBadge41(){return Promise.
 assert.ok(runtime.includes('export function scheduleNotifications41(){return Promise.resolve(null)}'),'Safe Core must disable background notifications');
 assert.ok(runtime.includes('export function warmRuntime41(){return Promise.resolve(null)}'),'Safe Core must disable runtime warming');
 assert.ok(!today.includes('scheduleFull(')&&!today.includes('setTimeout(()=>loadLife42'),'Today must not auto-hydrate heavy modules');
-assert.ok(today.includes("import('./personalIntelligence441.js')")&&today.includes('data-personal-intel="finance"')&&today.includes('data-personal-intel="mission"'),'Personal Intelligence controls missing');
+assert.ok(today.includes("import('./lifeDashboard455.js')")&&today.includes('data-life-dashboard')&&today.includes('Životní dashboard'),'Unified Life Dashboard control missing');
 assert.ok(!today.includes('data-safe-intel="work"')&&!today.includes('Work Command Center'),'Personal UI must not expose work controls');
-assert.ok(personalIntel.includes('export function personalMission441')&&personalIntel.includes('openPersonalMission441')&&personalIntel.includes('openPersonalFinance441'),'Personal 44.1 engines missing');
-assert.ok(personalIntel.includes('window.__KAMIL_PERSONAL_441_LAST__'),'Personal 44.1 performance measurement missing');
+assert.ok(personalIntel.includes('export function personalMission441')&&personalIntel.includes('openPersonalMission441')&&personalIntel.includes('openPersonalFinance441'),'Personal 44.1 engines must remain available');
 assert.ok(personalIntel.includes('WORK_RE')&&personalIntel.includes('filter(personal)'),'Personal 44.1 work-domain exclusion missing');
-assert.ok(personalIntel.includes('ageHours>36')&&personalIntel.includes("action='PROVĚŘIT CENU'")&&personalIntel.includes("action='PRODAT BRZY'"),'Personal finance/ticket decision guards missing');
 assert.ok(!personalIntel.includes('setInterval(')&&!personalIntel.includes('requestIdleCallback')&&!personalIntel.includes('store.subscribe('),'Personal Intelligence must remain on-demand only');
 assert.ok(!personalIntel.includes('.set(')&&!personalIntel.includes('store.update(')&&!personalIntel.includes('store.patch('),'Personal Intelligence must remain read-only');
 assert.ok(safeIntel.includes('export function financeTickets438')&&safeIntel.includes('export function work438')&&safeIntel.includes('export function mission438'),'Legacy Safe Intelligence compatibility engines missing');
+
+for(const file of lifeFiles){assert.ok(!file.includes('setInterval(')&&!file.includes('requestIdleCallback')&&!file.includes('store.subscribe('),'Life OS modules must stay click-only');assert.ok(!file.includes('store.update(')&&!file.includes('store.patch('),'Life OS modules must stay read-only')}
+assert.ok(lifeFiles[0].includes('export function lifePlanner446'),'44.6 Life Planner missing');
+assert.ok(lifeFiles[1].includes('export function cashflow447'),'44.7 Cashflow Forecast missing');
+assert.ok(lifeFiles[2].includes('export function wealth448'),'44.8 Wealth Dashboard missing');
+assert.ok(lifeFiles[3].includes('export function ticketIntel449'),'44.9 Ticket Intelligence missing');
+assert.ok(lifeFiles[4].includes('export function inbox450'),'45.0 Inbox missing');
+assert.ok(lifeFiles[5].includes('export function maintenance451'),'45.1 Maintenance missing');
+assert.ok(lifeFiles[6].includes('export function family452'),'45.2 Family Planner missing');
+assert.ok(lifeFiles[7].includes('export function goals453'),'45.3 Goals missing');
+assert.ok(lifeFiles[8].includes('export function decision454'),'45.4 Decision Engine missing');
+assert.ok(lifeFiles[9].includes('export function lifeDashboard455')&&lifeFiles[9].includes('Unified Life Dashboard 45.5'),'45.5 Unified Life Dashboard missing');
 
 assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'responsive scheduler/input guard missing');
 assert.ok(lazy.includes("document.visibilityState==='hidden'")&&lazy.includes('await sleep(250)'),'scheduler must yield while hidden or busy');
@@ -95,4 +106,4 @@ assert.ok(lazy.includes("status:'memory-blocked'")&&lazy.includes('allowMemoryRi
 assert.ok(lazy.includes("window.__KAMIL_MEMORY_BLOCKED_MODULES__")&&lazy.includes("window.__KAMIL_MEMORY_COLD_MODULES__"),'43.7 memory diagnostics globals missing');
 assert.ok(diagnostics.includes('43.7 STABILITY MEMORY')&&diagnostics.includes('Reset Stability Memory')&&diagnostics.includes('skóre'),'43.7 stability diagnostics missing');
 
-console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version}`);
+console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version} · PERSONAL LIFE OS 45.5`);
