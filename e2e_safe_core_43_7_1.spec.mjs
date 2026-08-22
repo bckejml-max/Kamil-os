@@ -5,11 +5,11 @@ test('Personal Safe Core starts fast and market cockpit stays lightweight before
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect(page).toHaveTitle(/^Kamil OS 43\.7\.1$/);
  await expect(page.locator('#appView')).toBeVisible();
- await expect(page.getByRole('heading',{name:'XTB + vstupenky. Nic ostatního teď neřešíme.'})).toBeVisible({timeout:5000});
- const flags=await page.evaluate(()=>({safe:window.__KAMIL_SAFE_CORE__,platform:!!document.querySelector('#platform43'),market:window.__KAMIL_MARKET_TOP3_533_LAST__||null}));
- expect(flags.safe).toBe(true);expect(flags.platform).toBe(false);expect(flags.market).not.toBeNull();expect(flags.market.ms).toBeLessThan(200);
+ await expect(page.getByRole('heading',{name:'XTB + vstupenky. Co přesně udělat teď?'})).toBeVisible({timeout:5000});
+ const flags=await page.evaluate(()=>({safe:window.__KAMIL_SAFE_CORE__,platform:!!document.querySelector('#platform43'),market:window.__KAMIL_MARKET_TOP3_533_LAST__||null,marketHome:window.__KAMIL_MARKET_HOME_560_LAST__||null,queue:window.__KAMIL_ACTION_QUEUE_559_LAST__||null,final:window.__KAMIL_FINAL_VERDICT_558_LAST__||null}));
+ expect(flags.safe).toBe(true);expect(flags.platform).toBe(false);expect(flags.market).not.toBeNull();expect(flags.market.ms).toBeLessThan(200);expect(flags.marketHome).not.toBeNull();expect(flags.marketHome.ms).toBeLessThan(200);expect(flags.queue).toBeNull();expect(flags.final).toBeNull();
  await page.waitForTimeout(3000);
- const ran=await page.evaluate(()=>['__KAMIL_LIFE_446_LAST__','__KAMIL_CASHFLOW_447_LAST__','__KAMIL_WEALTH_448_LAST__','__KAMIL_TICKET_449_LAST__','__KAMIL_INBOX_450_LAST__','__KAMIL_MAINT_451_LAST__','__KAMIL_FAMILY_452_LAST__','__KAMIL_GOALS_453_LAST__','__KAMIL_DECISION_454_LAST__','__KAMIL_LIFE_455_LAST__','__KAMIL_LIFE_PLUS_475_LAST__','__KAMIL_ASSISTANT_530_LAST__','__KAMIL_SUITE_530_LAST__','__KAMIL_DECISION_534_LAST__'].some(k=>window[k]));
+ const ran=await page.evaluate(()=>['__KAMIL_LIFE_446_LAST__','__KAMIL_CASHFLOW_447_LAST__','__KAMIL_WEALTH_448_LAST__','__KAMIL_TICKET_449_LAST__','__KAMIL_INBOX_450_LAST__','__KAMIL_MAINT_451_LAST__','__KAMIL_FAMILY_452_LAST__','__KAMIL_GOALS_453_LAST__','__KAMIL_DECISION_454_LAST__','__KAMIL_LIFE_455_LAST__','__KAMIL_LIFE_PLUS_475_LAST__','__KAMIL_ASSISTANT_530_LAST__','__KAMIL_SUITE_530_LAST__','__KAMIL_DECISION_534_LAST__','__KAMIL_READINESS_555_LAST__','__KAMIL_CONFIDENCE_556_LAST__','__KAMIL_CONFLICT_557_LAST__','__KAMIL_FINAL_VERDICT_558_LAST__','__KAMIL_ACTION_QUEUE_559_LAST__'].some(k=>window[k]));
  expect(ran).toBe(false);
 });
 
