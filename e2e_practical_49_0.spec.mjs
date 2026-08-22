@@ -16,7 +16,7 @@ test('Practical 49.0 stays click-only, private and proposal-only',async({page})=
  const sell=await page.evaluate(async()=>{const m=await import('./js/personalPractical490.js');const s=JSON.parse(localStorage.getItem('kamil-os-state'));return m.sellToFund484(s,60000)});
  expect(sell.covered).toBe(60000);expect(sell.shortfall).toBe(0);expect(sell.note).toContain('nic se neprodává');
  const before=await page.evaluate(()=>window.__KAMIL_PRACTICAL_490_LAST__||null);expect(before).toBeNull();
- await page.getByRole('button',{name:'Životní dashboard'}).first().click();
+ await page.locator('[data-life-dashboard]').first().click();
  await expect(page.getByRole('button',{name:'Praktické centrum'})).toBeVisible({timeout:5000});
  await page.getByRole('button',{name:'Praktické centrum'}).click();
  await page.waitForTimeout(300);

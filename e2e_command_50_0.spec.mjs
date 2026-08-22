@@ -14,7 +14,7 @@ test('Command 50.0 stays click-only, personal and action-first',async({page})=>{
  expect(r.data.coverage).toBeGreaterThanOrEqual(0);
  expect(r.portfolio.note).toContain('Žádný prodej se automaticky neprovede');
  expect(await page.evaluate(()=>window.__KAMIL_COMMAND_500_LAST__||null)).toBeNull();
- await page.getByRole('button',{name:'Životní dashboard'}).first().click();
+ await page.locator('[data-life-dashboard]').first().click();
  await expect(page.getByRole('button',{name:'Udělej teď'})).toBeVisible({timeout:5000});
  await page.getByRole('button',{name:'Udělej teď'}).click();
  await page.waitForTimeout(250);
