@@ -71,7 +71,11 @@ assert.ok(!today.includes('scheduleFull(')&&!today.includes('setTimeout(()=>load
 assert.ok(today.includes("import('./safeIntelligence438.js')")&&today.includes('data-safe-intel="finance"')&&today.includes('data-safe-intel="work"')&&today.includes('data-safe-intel="mission"'),'Safe Intelligence controls missing');
 assert.ok(safeIntel.includes('export function financeTickets438')&&safeIntel.includes('export function work438')&&safeIntel.includes('export function mission438'),'Safe Intelligence engines missing');
 assert.ok(safeIntel.includes('window.__KAMIL_SAFE_INTEL_LAST__'),'Safe Intelligence performance measurement missing');
+assert.ok(safeIntel.includes('ageHours>36')&&safeIntel.includes("action='PROVĚŘIT CENU'")&&safeIntel.includes("action='PRODAT BRZY'"),'43.8 finance/ticket decision guards missing');
+assert.ok(safeIntel.includes('Obnovit XTB data před rozhodnutím')&&safeIntel.includes('TERMÍNY ŘEDITELE'),'43.8 Mission/Work priorities missing');
+assert.ok(safeIntel.includes('pouze doporučení')&&safeIntel.includes('nic se samo neobchoduje'),'43.8 proposal-only messaging missing');
 assert.ok(!safeIntel.includes('setInterval(')&&!safeIntel.includes('requestIdleCallback')&&!safeIntel.includes('store.subscribe('),'Safe Intelligence must remain on-demand only');
+assert.ok(!safeIntel.includes('.set(')&&!safeIntel.includes('store.update(')&&!safeIntel.includes('store.patch('),'Safe Intelligence must remain read-only');
 
 assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'responsive scheduler/input guard missing');
 assert.ok(lazy.includes("document.visibilityState==='hidden'")&&lazy.includes('await sleep(250)'),'scheduler must yield while hidden or busy');
