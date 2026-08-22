@@ -22,6 +22,7 @@ assert.ok(!lite.includes('requestIdleCallback'),'Today must not schedule hidden 
 assert.ok(lite.includes("import('./lifeDashboard455.js')"),'Unified Life Dashboard must be lazy imported on explicit click');
 assert.ok(lite.includes('data-life-dashboard'),'Unified Life Dashboard click control missing');
 assert.ok(!lite.includes('data-safe-intel="work"'),'Work Command Center must not be exposed in personal core UI');
+assert.ok(lite.includes('PERSONAL HOME 53.1')&&lite.includes('__KAMIL_PERSONAL_HOME_531_LAST__'),'Personal Home 53.1 lightweight cockpit contract missing');
 assert.ok(runtime.includes('export function prefetchView41(){return Promise.resolve(null)}'),'hover/focus prefetch must stay disabled');
 assert.ok(runtime.includes('export function renderExtras41(){return Promise.resolve([])}'),'background extras must stay disabled');
 assert.ok(runtime.includes('export function refreshRiskBadge41(){return Promise.resolve(null)}'),'background risk calculation must stay disabled');
@@ -29,8 +30,8 @@ assert.ok(runtime.includes('export function scheduleNotifications41(){return Pro
 assert.ok(runtime.includes('export function warmRuntime41(){return Promise.resolve(null)}'),'runtime warming must stay disabled');
 assert.ok(!personalIntel.includes('setInterval(')&&!personalIntel.includes('requestIdleCallback')&&!personalIntel.includes('store.subscribe('),'Legacy Personal Intelligence must stay purely on-demand');
 for(const file of lifeFiles){assert.ok(!file.includes('setInterval(')&&!file.includes('requestIdleCallback')&&!file.includes('store.subscribe('),'Life OS engines must be purely click-only');assert.ok(!file.includes('store.update(')&&!file.includes('store.patch('),'Life OS engines must stay read-only')}
-assert.ok(life.includes('Unified Life Dashboard 45.5')&&life.includes('lifeDashboard455'),'Unified Life Dashboard contract missing');
+assert.ok(life.includes('Unified Life Dashboard 53.0')&&life.includes('lifeDashboard455'),'Unified Life Dashboard 53.0 contract missing');
 assert.ok(sw.includes('networkFirst'),'Safe Core service worker must prefer fresh runtime code');
 assert.ok(!sw.includes('staleWhileRevalidate'),'Safe Core must not serve stale runtime code first');
 
-console.log(`KAMIL OS ${version.join('.')} PERSONAL LIFE OS 45.5 PERFORMANCE STATIC TEST PASS`);
+console.log(`KAMIL OS ${version.join('.')} PERSONAL HOME 53.1 PERFORMANCE STATIC TEST PASS`);
