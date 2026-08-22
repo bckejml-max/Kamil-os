@@ -17,6 +17,7 @@ assert(recovery.includes("reason:'PRE_RESTORE'")&&recovery.includes('maybeCreate
 assert(!recovery.includes('.delete(')&&!recovery.includes('.remove('),'client must not delete recovery snapshots');
 assert(preflight.includes("import './marketEdgeUi32.js'")&&preflight.includes("import './recoveryShieldUi32.js'"),'Market Edge side-effect modules not loaded');
 assert(sw.includes("u.pathname.startsWith('/api/')===false")||sw.includes("url.pathname.startsWith('/api/')"),'API routes must stay outside service-worker runtime caching');
-assert(sw.includes('staleWhileRevalidate')&&sw.includes('./js/instantShell42.js'),'runtime cache must preserve fast shell without pre-caching every optional feature');
+assert(sw.includes('networkFirst')&&sw.includes('./js/instantShell42.js')&&!sw.includes('staleWhileRevalidate'),'Safe Core runtime must preserve the fast shell while always preferring fresh code');
+assert(!sw.includes('./js/marketEdgeUi32.js')&&!sw.includes('./js/platform431LeanUi.js'),'optional intelligence modules must not be pre-cached into the Safe Core shell');
 assert(meta.includes('APP_VERSION=')&&meta.includes('APP_RELEASE='),'release metadata contract missing');
 console.log('KAMIL OS MARKET EDGE STATIC PASS');
