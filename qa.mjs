@@ -52,12 +52,12 @@ assert.ok(lazy.includes('safeMode()'),'Safe Mode guard missing from lazy loader'
 assert.ok(desktop43.includes('kamilDesktop43')&&desktop43.includes('Ctrl+Alt+K'),'desktop palette bridge missing');
 assert.ok(desktopMain.includes("globalShortcut.register('CommandOrControl+Alt+K'")&&desktopMain.includes('Universal Inbox'),'global desktop shortcut/tray actions missing');
 
-assert.equal(version,'43.5.0','43.5 release metadata must be aligned');
-assert.equal(release,'43.5','43.5 release label must be aligned');
+assert.equal(version,'43.6.0','43.6 release metadata must be aligned');
+assert.equal(release,'43.6','43.6 release label must be aligned');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.equal(desktopPackage.version,version,'desktop package version must match APP_VERSION');
-assert.ok(instant.includes("const VERSION='43.5.0'")&&instant.includes("kamil-os-fast-snapshot-43-5"),'43.5 instant shell version/snapshot missing');
-assert.ok(sw.includes("const CACHE='kamil-os-43.5.0-runtime-r1'"),'43.5 service-worker cache version missing');
+assert.ok(instant.includes("const VERSION='43.6.0'")&&instant.includes("kamil-os-fast-snapshot-43-6"),'43.6 instant shell version/snapshot missing');
+assert.ok(sw.includes("const CACHE='kamil-os-43.6.0-runtime-r1'"),'43.6 service-worker cache version missing');
 assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'responsive scheduler/input guard missing');
 assert.ok(lazy.includes("document.visibilityState==='hidden'")&&lazy.includes('await sleep(250)'),'scheduler must yield while hidden or busy');
 assert.ok(lazy.includes('window.__KAMIL_MODULE_TIMINGS__'),'per-module timing diagnostics missing');
@@ -67,12 +67,15 @@ assert.ok(lazy.includes('prev.avg*.7+ms*.3'),'timing history must use smoothed m
 assert.ok(lazy.includes('COLD_THRESHOLD_MS=1100')&&lazy.includes('COLD_MIN_SAMPLES=3'),'cold-load qualification guard missing');
 assert.ok(lazy.includes('function coldCandidate')&&lazy.includes('backgroundPaths()'),'cold-load candidate discovery missing');
 assert.ok(lazy.includes("status:'deferred'")&&lazy.includes('allowCold=false'),'cold module must remain deferred in automatic background loading');
-assert.ok(lazy.includes("QUARANTINE_KEY='kamil-os-module-quarantine-43-5'"),'43.5 quarantine storage missing');
-assert.ok(lazy.includes('QUARANTINE_FAILURES=2')&&lazy.includes('QUARANTINE_TTL_MS=6*60*60*1000'),'43.5 quarantine thresholds missing');
-assert.ok(lazy.includes('function recordFailure')&&lazy.includes('backgroundPaths().has(path)'),'43.5 quarantine must apply only to noncritical background modules');
-assert.ok(lazy.includes("status:'quarantined'")&&lazy.includes('allowQuarantined=false'),'43.5 quarantined module must be skipped automatically');
-assert.ok(lazy.includes("'kamil:retry-quarantined-module'")&&lazy.includes("'kamil:module-quarantine-recovered'"),'43.5 explicit quarantine recovery path missing');
-assert.ok(diagnostics.includes('Karanténa:')&&diagnostics.includes('Zkusit znovu')&&diagnostics.includes('Vyčistit karanténu'),'43.5 quarantine diagnostics controls missing');
-assert.ok(instant.includes('43.5 Auto Quarantine'),'43.5 boot message missing');
+assert.ok(lazy.includes("QUARANTINE_KEY='kamil-os-module-quarantine-43-5'"),'quarantine storage missing');
+assert.ok(lazy.includes('QUARANTINE_FAILURES=2')&&lazy.includes('QUARANTINE_TTL_MS=6*60*60*1000'),'quarantine thresholds missing');
+assert.ok(lazy.includes('function recordFailure')&&lazy.includes('backgroundPaths().has(path)'),'quarantine must apply only to noncritical background modules');
+assert.ok(lazy.includes("status:'quarantined'")&&lazy.includes('allowQuarantined=false'),'quarantined module must be skipped automatically');
+assert.ok(lazy.includes('SELF_HEAL_PROBE_DELAY_MS=20*60*1000')&&lazy.includes('SELF_HEAL_MAX_PROBES=3'),'43.6 self-healing probe limits missing');
+assert.ok(lazy.includes('function safeToSelfHeal')&&lazy.includes("document.visibilityState==='visible'")&&lazy.includes('lastUserIntentAt>8000'),'43.6 safe probe window missing');
+assert.ok(lazy.includes('probeQuarantinedModule436')&&lazy.includes('runSelfHealingSweep436'),'43.6 self-healing engine missing');
+assert.ok(lazy.includes("'kamil:self-heal-now'")&&lazy.includes("'kamil:module-self-healed'"),'43.6 self-healing event path missing');
+assert.ok(diagnostics.includes('43.6 SELF-HEALING LOADER')&&diagnostics.includes('Bezpečně otestovat')&&diagnostics.includes('auto test'),'43.6 self-healing diagnostics missing');
+assert.ok(instant.includes('43.6 Self-Healing'),'43.6 boot message missing');
 
 console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version}`);
