@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+const f='js/todayLite43.js',a=fs.readFileSync(f,'utf8');
+execFileSync(process.execPath,['--check',f],{stdio:'inherit'});
+for(const bad of ['setInterval(','requestIdleCallback','store.subscribe('])assert.ok(!a.includes(bad),`Home 53.1 must not background-run: ${bad}`);
+assert.ok(a.includes('PERSONAL HOME 53.1')&&a.includes('Můj život na jedné obrazovce.'),'Home 53.1 cockpit missing');
+assert.ok(a.includes('__KAMIL_PERSONAL_HOME_531_LAST__'),'Home 53.1 timing marker missing');
+assert.ok(a.includes('WORK_RE')&&a.includes('.filter(personal)'),'Work exclusion missing');
+assert.ok(a.includes("import('./personalAssistant530.js')")&&a.includes('assistantModule()'),'Assistant must stay lazy');
+assert.ok(!a.includes("from './personalAssistant530.js'"),'Assistant must not be a startup static import');
+console.log('PERSONAL HOME 53.1 STATIC PASS');
