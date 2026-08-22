@@ -25,12 +25,13 @@ test('Safe Core navigation loads only the explicitly opened section',async({page
  expect(runtime).toBeNull();
 });
 
-test('Safe Intelligence 43.9 explains priorities and routes them only after click',async({page})=>{
- const tomorrow=new Date(Date.now()+86400000).toISOString().slice(0,10),stale=new Date(Date.now()-48*3600000).toISOString();
- await page.addInitScript(({tomorrow,stale})=>localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},financePlan:{cashNow:100000,reserveFloor:50000,plannedInvestment:25000},tasks:[{id:'safe-task',title:'Safe test úkol',due:tomorrow,status:'OPEN',priority:90}],directorBook:{waiting:[{id:'wait-1',title:'Čekám na odpověď',status:'OPEN',due:tomorrow}]},ticketBook:{items:[{id:'ticket-1',name:'Safe ticket',date:tomorrow,sellBy:tomorrow,workflow:'LISTED',buy:2000,qty:2,listPrice:1800,marketPrice:1400,marketCheckedAt:new Date().toISOString()}],watchlist:[],history:[]},xtbReport:{positionCount:2,czkValue:125000,asOf:stale,positions:[{ticker:'AAA.US',valueCzk:80000,profitCzk:8000,profitPct:10},{ticker:'BBB.US',valueCzk:45000,profitCzk:-2500,profitPct:-5.3}]}})),{tomorrow,stale});
+test('Safe Intelligence 43.9 and Work Command Center 44.0 stay explainable and click-only',async({page})=>{
+ const tomorrow=new Date(Date.now()+86400000).toISOString().slice(0,10),stale=new Date(Date.now()-48*3600000).toISOString(),yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+ await page.addInitScript(({tomorrow,stale,yesterday})=>localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},financePlan:{cashNow:100000,reserveFloor:50000,plannedInvestment:25000},tasks:[{id:'safe-task',title:'Safe test úkol',due:tomorrow,status:'OPEN',priority:90,projectId:'p1'},{id:'late-task',title:'Zakázkový úkol po termínu',due:yesterday,status:'OPEN',priority:95,projectId:'p1'}],projects:[{id:'p1',name:'D4 Test Zakázka',status:'ACTIVE',owner:'Kamil',risk:'HIGH',deadline:tomorrow,next:'Uzavřít ZL',money:{contractValue:1000000,approvedChanges:200000,pendingClaims:300000,invoiced:700000,paid:500000}}],changeOrders:[{id:'zl1',name:'ZL 001 Test',projectName:'D4 Test Zakázka',status:'QUOTED',amount:400000,approvedAmount:150000,invoicedAmount:50000}],directorBook:{waiting:[{id:'wait-1',title:'Čekám na odpověď',status:'OPEN',due:tomorrow}]},ticketBook:{items:[{id:'ticket-1',name:'Safe ticket',date:tomorrow,sellBy:tomorrow,workflow:'LISTED',buy:2000,qty:2,listPrice:1800,marketPrice:1400,marketCheckedAt:new Date().toISOString()}],watchlist:[],history:[]},xtbReport:{positionCount:2,czkValue:125000,asOf:stale,positions:[{ticker:'AAA.US',valueCzk:80000,profitCzk:8000,profitPct:10},{ticker:'BBB.US',valueCzk:45000,profitCzk:-2500,profitPct:-5.3}]}})),{tomorrow,stale,yesterday});
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect(page.getByRole('heading',{name:'Chytré moduly na vyžádání'})).toBeVisible({timeout:5000});
  expect(await page.evaluate(()=>window.__KAMIL_SAFE_INTEL_LAST__||null)).toBeNull();
+ expect(await page.evaluate(()=>window.__KAMIL_WORK_440_LAST__||null)).toBeNull();
 
  await page.getByRole('button',{name:'Mission Control'}).click();
  await expect(page.getByRole('heading',{name:'Mission Control / Safe 43.9'})).toBeVisible();
@@ -54,7 +55,13 @@ test('Safe Intelligence 43.9 explains priorities and routes them only after clic
  await page.getByRole('button',{name:'Zavřít'}).click();
 
  await page.getByRole('button',{name:'Work Command Center'}).click();
- await expect(page.getByRole('heading',{name:'Work Command Center / Safe 43.9'})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Work Command Center 44.0'})).toBeVisible();
+ await expect(page.locator('#modalHost')).toContainText('TOP RIZIKA / KDE HOŘÍ PENÍZE NEBO TERMÍN');
+ await expect(page.locator('#modalHost')).toContainText('D4 Test Zakázka');
+ await expect(page.locator('#modalHost')).toContainText('ZL / FINANČNÍ EXPOZICE');
+ await expect(page.locator('#modalHost')).toContainText('ZL 001 Test');
+ await expect(page.locator('#modalHost')).toContainText('FAKTURACE / CASH RISK');
  await expect(page.locator('#modalHost')).toContainText('Fakturace na dodavatele');
+ const work=await page.evaluate(()=>window.__KAMIL_WORK_440_LAST__);expect(work.ms).toBeLessThan(500);
  expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
 });
