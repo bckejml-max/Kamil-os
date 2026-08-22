@@ -11,6 +11,7 @@ test('Personal Safe Core starts fast and keeps background intelligence off',asyn
  await page.waitForTimeout(3000);
  expect(await page.evaluate(()=>window.__KAMIL_PERSONAL_441_LAST__||null)).toBeNull();
  expect(await page.evaluate(()=>window.__KAMIL_DAILY_442_LAST__||null)).toBeNull();
+ expect(await page.evaluate(()=>window.__KAMIL_ADMIN_443_LAST__||null)).toBeNull();
  expect(await page.evaluate(()=>window.__KAMIL_WORK_440_LAST__||null)).toBeNull();
 });
 
@@ -34,7 +35,6 @@ test('Personal 44.1 excludes work domain and keeps XTB tickets and private prior
  await expect(page.getByRole('button',{name:'Work Command Center'})).toHaveCount(0);
  await expect(page.locator('#todayView')).not.toContainText('D4 Test Zakázka');
  await expect(page.locator('#todayView')).not.toContainText('Fakturace na dodavatele');
-
  await page.getByRole('button',{name:'Osobní Mission Control'}).click();
  await expect(page.getByRole('heading',{name:'Kamil OS / Osobní Mission Control'})).toBeVisible();
  await expect(page.locator('#modalHost')).toContainText('TOP 3 TEĎ / SOUKROMĚ');
@@ -45,7 +45,6 @@ test('Personal 44.1 excludes work domain and keeps XTB tickets and private prior
  await expect(page.locator('#modalHost')).not.toContainText('ZL 001 Test');
  const personal=await page.evaluate(()=>window.__KAMIL_PERSONAL_441_LAST__);expect(personal.ms).toBeLessThan(500);
  await page.getByRole('button',{name:'Zavřít'}).click();
-
  await page.getByRole('button',{name:'Peníze + vstupenky'}).click();
  await expect(page.getByRole('heading',{name:'Peníze + vstupenky / Personal 44.1'})).toBeVisible();
  await expect(page.locator('#modalHost')).toContainText('125 000 Kč');
@@ -70,5 +69,23 @@ test('Personal 44.2 Daily Hub combines today money calendar admin and home only 
  await expect(page.locator('#modalHost')).not.toContainText('Fakturace zakázky D4');
  await expect(page.locator('#modalHost')).not.toContainText('PKS pracovní porada');
  const daily=await page.evaluate(()=>window.__KAMIL_DAILY_442_LAST__);expect(daily.ms).toBeLessThan(500);
+ expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
+});
+
+test('Personal 44.3 Admin Center tracks private admin and excludes work only on click',async({page})=>{
+ const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10),soon=new Date(Date.now()+7*86400000).toISOString().slice(0,10);
+ await page.addInitScript(({yesterday,soon})=>localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},insurance:{items:[{id:'i1',title:'Pojištění domu',provider:'Kooperativa',renewalDate:soon,status:'OPEN',amount:4200}]},vehicles:[{id:'v1',title:'STK auta',expiry:yesterday,status:'OPEN'}],personalContracts:[{id:'c1',title:'Smlouva elektřina',renewalDate:soon,status:'OPEN'}],subscriptions:[{id:'s1',title:'Cloud úložiště',nextPaymentAt:soon,status:'OPEN',amount:199}],personalDocuments:[{id:'d1',title:'Pas',expiry:soon,status:'OPEN'}],contracts:[{id:'w1',title:'Pracovní zakázka D4 fakturace',renewalDate:yesterday,status:'OPEN',area:'práce'}]})),{yesterday,soon});
+ await page.goto(BASE,{waitUntil:'domcontentloaded'});
+ await expect(page.getByRole('button',{name:'Osobní administrativa'})).toBeVisible({timeout:5000});
+ expect(await page.evaluate(()=>window.__KAMIL_ADMIN_443_LAST__||null)).toBeNull();
+ await page.getByRole('button',{name:'Osobní administrativa'}).click();
+ await expect(page.getByRole('heading',{name:'Osobní administrativa / 44.3'})).toBeVisible();
+ await expect(page.locator('#modalHost')).toContainText('STK auta');
+ await expect(page.locator('#modalHost')).toContainText('Pojištění domu');
+ await expect(page.locator('#modalHost')).toContainText('Smlouva elektřina');
+ await expect(page.locator('#modalHost')).toContainText('Cloud úložiště');
+ await expect(page.locator('#modalHost')).toContainText('Pas');
+ await expect(page.locator('#modalHost')).not.toContainText('Pracovní zakázka D4 fakturace');
+ const admin=await page.evaluate(()=>window.__KAMIL_ADMIN_443_LAST__);expect(admin.ms).toBeLessThan(500);
  expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
 });
