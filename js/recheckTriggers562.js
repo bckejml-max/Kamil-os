@@ -37,10 +37,10 @@ function xtbTriggers(row,zones,profits,earnings){
 }
 
 function ticketTriggers(row,ladders,safeById){
- const out=[],ladder=ladders.get(row.id),safe=N(safeById.get(row.id)?.safePrice),texts=[...A(row.blockers),...A(row.warnings),...A(row.reasons)].join(' · '),age=row.marketAgeHours;
- if(/aktuální market cena/i.test(texts)||!N(row.market))out.push({kind:'MARKET',when:'TEĎ',text:'Doplň aktuální market cenu z ověřitelného zdroje.'});
- if(age===null||age===undefined||age>8)out.push({kind:'FRESHNESS',when:'TEĎ',text:`Aktualizuj market cenu; pro čistý akční verdikt musí být kontrola nejvýš 8 h stará${Number.isFinite(age)?` (teď ${Math.round(age)} h)`:''}.`});
- if(N(row.dataQuality)<70)out.push({kind:'QUALITY',when:'TEĎ',text:`Doplň ticket data tak, aby kvalita byla alespoň 70/100 (teď ${N(row.dataQuality)}/100).`});
+ const out=[],ladder=ladders.get(row.id),safe=N(safeById.get(row.id)?.safePrice),texts=[...A(row.blockers),...A(row.warnings),...A(row.reasons)].join(' · '),age=row.marketAgeHours,original=U(row.originalAction||row.action),needsFresh=row.verdict==='DO NOT ACT YET'||['SELL','REPRICE','LIST'].includes(original)||(row.days!==null&&row.days!==undefined&&row.days<=14);
+ if(needsFresh&&(/aktuální market cena/i.test(texts)||!N(row.market)))out.push({kind:'MARKET',when:'TEĎ',text:'Doplň aktuální market cenu z ověřitelného zdroje.'});
+ if(needsFresh&&(age===null||age===undefined||age>8))out.push({kind:'FRESHNESS',when:'TEĎ',text:`Aktualizuj market cenu; pro čistý akční verdikt musí být kontrola nejvýš 8 h stará${Number.isFinite(age)?` (teď ${Math.round(age)} h)`:''}.`});
+ if(needsFresh&&N(row.dataQuality)<70)out.push({kind:'QUALITY',when:'TEĎ',text:`Doplň ticket data tak, aby kvalita byla alespoň 70/100 (teď ${N(row.dataQuality)}/100).`});
  if(/deadline|datum akce/i.test(texts))out.push({kind:'DATE',when:'TEĎ',text:'Doplň prodejní deadline nebo datum akce.'});
  if(safe&&N(row.market)>0&&N(row.market)<safe)out.push({kind:'FLOOR',when:'CENOVÝ TRIGGER',text:`Akční prodej znovu prověř až při market ceně alespoň ${fmtNum(safe)} Kč / ks, nebo po novém ručním rozhodnutí o ztrátě.`});
  if(['HOLD','WAIT'].includes(U(row.verdict))){const m=nextTicketMilestone(ladder);if(m){out.push({kind:'LADDER',when:m.inDays===0?'TEĎ':`ZA ${m.inDays} D`,text:`Až bude ${m.daysLeft} dní do termínu, zkontroluj čerstvou market cenu a přepočítej repricing ladder.`})}}
