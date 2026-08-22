@@ -1,0 +1,25 @@
+name: Personal Assistant 53 QA
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  assistant53:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Assistant 53 static safety
+        run: node assistant_53_static_test.mjs
+      - name: Install browser QA
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Assistant 53 browser gate
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          npx playwright test e2e_assistant_53_0.spec.mjs --reporter=line
