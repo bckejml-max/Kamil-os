@@ -1,0 +1,25 @@
+name: Personal Practical 49 QA
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  practical49:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Practical 49 static safety
+        run: node practical_49_static_test.mjs
+      - name: Install browser QA
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Practical 49 browser gate
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          npx playwright test e2e_practical_49_0.spec.mjs --reporter=line
