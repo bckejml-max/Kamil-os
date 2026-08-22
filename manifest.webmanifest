@@ -1,7 +1,7 @@
 {
-  "name": "Kamil OS 43.6",
+  "name": "Kamil OS 43.7",
   "short_name": "Kamil OS",
-  "description": "Kamil OS 43.6 — Lean Autopilot, Safe Mode, Responsive Scheduler, Adaptive Loader, Cold Load, Auto Quarantine a Self-Healing bezpečné návraty modulů.",
+  "description": "Kamil OS 43.7 — Stability Memory, Self-Healing, Auto Quarantine, Adaptive Loader, Cold Load, Safe Mode a responzivní background scheduler.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f5f7fa",
