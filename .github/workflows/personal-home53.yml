@@ -1,10 +1,10 @@
-name: Personal Home 53.1 QA
+name: Personal Home 53 QA
 on:
   pull_request:
   push:
     branches: [main]
 jobs:
-  home531:
+  home53:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,9 +17,9 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Home 53.1 browser/performance gate
+      - name: Home 53 browser/performance gates
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_personal_home_53_1.spec.mjs --reporter=line
+          npx playwright test e2e_personal_home_53_1.spec.mjs e2e_personal_home_53_2.spec.mjs --reporter=line
