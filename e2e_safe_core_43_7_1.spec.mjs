@@ -12,6 +12,7 @@ test('Personal Safe Core starts fast and keeps background intelligence off',asyn
  expect(await page.evaluate(()=>window.__KAMIL_PERSONAL_441_LAST__||null)).toBeNull();
  expect(await page.evaluate(()=>window.__KAMIL_DAILY_442_LAST__||null)).toBeNull();
  expect(await page.evaluate(()=>window.__KAMIL_ADMIN_443_LAST__||null)).toBeNull();
+ expect(await page.evaluate(()=>window.__KAMIL_HOME_444_LAST__||null)).toBeNull();
  expect(await page.evaluate(()=>window.__KAMIL_WORK_440_LAST__||null)).toBeNull();
 });
 
@@ -87,5 +88,26 @@ test('Personal 44.3 Admin Center tracks private admin and excludes work only on 
  await expect(page.locator('#modalHost')).toContainText('Pas');
  await expect(page.locator('#modalHost')).not.toContainText('Pracovní zakázka D4 fakturace');
  const admin=await page.evaluate(()=>window.__KAMIL_ADMIN_443_LAST__);expect(admin.ms).toBeLessThan(500);
+ expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
+});
+
+test('Personal 44.4 Family & Home Center combines family home shopping service costs and dates only on click',async({page})=>{
+ const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10),today=new Date().toISOString().slice(0,10),soon=new Date(Date.now()+5*86400000).toISOString().slice(0,10);
+ await page.addInitScript(({yesterday,today,soon})=>localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},family:{tasks:[{id:'f1',title:'Objednat pleny',due:today,status:'OPEN',owner:'Kamil'}]},home:{tasks:[{id:'h1',title:'Vyměnit filtr rekuperace',due:soon,status:'OPEN'}],service:[{id:'h2',title:'Servis tepelného čerpadla',due:soon,status:'OPEN',amount:3500}]},shopping:{items:[{id:'s1',title:'Koupit dětskou výživu',due:today,status:'OPEN'}]},vehicles:[{id:'v1',title:'Přezutí auta',nextService:yesterday,status:'OPEN'}],householdBills:{items:[{id:'b1',title:'Elektřina domácnost',due:soon,status:'OPEN',amount:4200}]},calendar:{events:[{id:'c1',title:'Rodinná oslava',start:soon},{id:'c2',title:'PKS pracovní porada',start:soon,category:'práce'}]},projects:[{id:'w1',name:'Zakázka D4',status:'ACTIVE'}]})),{yesterday,today,soon});
+ await page.goto(BASE,{waitUntil:'domcontentloaded'});
+ await expect(page.getByRole('button',{name:'Rodina & domov'})).toBeVisible({timeout:5000});
+ expect(await page.evaluate(()=>window.__KAMIL_HOME_444_LAST__||null)).toBeNull();
+ await page.getByRole('button',{name:'Rodina & domov'}).click();
+ await expect(page.getByRole('heading',{name:'Rodina & domov / 44.4'})).toBeVisible();
+ await expect(page.locator('#modalHost')).toContainText('Objednat pleny');
+ await expect(page.locator('#modalHost')).toContainText('Vyměnit filtr rekuperace');
+ await expect(page.locator('#modalHost')).toContainText('Servis tepelného čerpadla');
+ await expect(page.locator('#modalHost')).toContainText('Koupit dětskou výživu');
+ await expect(page.locator('#modalHost')).toContainText('Přezutí auta');
+ await expect(page.locator('#modalHost')).toContainText('Rodinná oslava');
+ await expect(page.locator('#modalHost')).toContainText('4 200 Kč');
+ await expect(page.locator('#modalHost')).not.toContainText('PKS pracovní porada');
+ await expect(page.locator('#modalHost')).not.toContainText('Zakázka D4');
+ const home=await page.evaluate(()=>window.__KAMIL_HOME_444_LAST__);expect(home.ms).toBeLessThan(500);
  expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
 });
