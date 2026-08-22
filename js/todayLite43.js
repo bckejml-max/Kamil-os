@@ -2,7 +2,7 @@ import {APP_VERSION} from './releaseMeta.js';
 import {store} from './state.js';
 import {h,qs,toast} from './utils.js';
 
-let fullModule=null,fullPromise=null,seq=0,financePromise=null,lifePromise=null,assistantPromise=null;
+let fullModule=null,fullPromise=null,seq=0,financePromise=null,lifePromise=null,assistantPromise=null,decisionPromise=null;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED']);
 const A=v=>Array.isArray(v)?v:[],N=v=>Number(v||0),U=v=>String(v||'').toUpperCase();
 const open=x=>!CLOSED.has(U(x?.status||x?.workflow));
@@ -20,7 +20,7 @@ const pct=(a,b)=>b>0?Math.round(a/b*1000)/10:0;
 
 function ticketStats(tickets=[]){
  const rows=A(tickets).filter(activeTicket).filter(personal).map(x=>{
-  const qty=N(first(x.qty,x.quantity,1))||1,buy=N(first(x.buy,x.buyPrice,x.cost)),market=N(first(x.marketPrice,x.listPrice,x.price)),fee=N(first(x.feeRate,.12)),cost=buy*qty,value=market*qty,profit=value-cost,roi=cost>0?pct(profit,cost):0,breakEven=fee<1?Math.ceil(buy/(1-fee)):buy,days=daysTo(dueOf(x));
+  const qty=N(first(x.qty,x.quantity,1))||1,buy=N(first(x.buy,x.buyPrice,x.cost)),market=N(first(x.marketPrice,x.listPrice,x.price)),fee=N(first(x.feeRate,.12)),cost=buy,value=market*qty,profit=value-cost,roi=cost>0?pct(profit,cost):0,unitBuy=qty>0?buy/qty:buy,breakEven=fee<1?Math.ceil(unitBuy/(1-fee)):unitBuy,days=daysTo(dueOf(x));
   return{raw:x,name:titleOf(x),qty,buy,market,cost,value,profit,roi,breakEven,days};
  }).sort((a,b)=>(a.days??999)-(b.days??999));
  return{rows,capital:rows.reduce((a,x)=>a+x.cost,0),marketValue:rows.reduce((a,x)=>a+x.value,0)};
@@ -68,6 +68,7 @@ async function openFinance(){try{financePromise=financePromise||import('./person
 async function openLife(){try{window.__KAMIL_LIFE_455_ERROR__=null;window.__KAMIL_LIFE_455_IMPORT_AT__=performance.now();lifePromise=lifePromise||import('./lifeDashboard455.js');const m=await lifePromise;window.__KAMIL_LIFE_455_IMPORTED_AT__=performance.now();return m.openLifeDashboard455()}catch(error){lifePromise=null;window.__KAMIL_LIFE_455_ERROR__=String(error?.stack||error);console.error('[life-dashboard]',error);toast('Životní dashboard se nepodařilo načíst')}}
 async function assistantModule(){assistantPromise=assistantPromise||import('./personalAssistant530.js');return assistantPromise}
 async function openAssistant(){try{return (await assistantModule()).openAssistant530()}catch(error){assistantPromise=null;console.error('[assistant-530]',error);toast('Osobní asistent se nepodařil načíst')}}
+async function openDecision(){try{decisionPromise=decisionPromise||import('./marketDecision534.js');return (await decisionPromise).openMarketDecision534()}catch(error){decisionPromise=null;console.error('[decision-534]',error);toast('Rozhodnutí se nepodařilo načíst')}}
 function openView(view){const b=qs(`#mainNav [data-view="${view}"]`)||qs(`#bottomNav [data-view="${view}"]`);b?.click()}
 const cardRows=(rows,empty='Nic důležitého.')=>rows.length?rows.map(x=>`<div class="row"><div><b>${h(x.title)}</b>${x.meta?`<div class="muted">${h(x.meta)}</div>`:''}</div>${x.value?`<b>${h(x.value)}</b>`:''}</div>`).join(''):`<div class="empty success-empty">${h(empty)}</div>`;
 
@@ -78,15 +79,15 @@ export function renderTodayLite43(){
  const ticketRows=m.ticket.rows.slice(0,5).map(x=>({title:x.name,meta:`ROI ${x.roi}% · ${x.days===null?'bez deadline':x.days<0?'po deadline':x.days===0?'dnes':`${x.days} d`}`,value:x.market?money(x.market):'—'}));
  const positionRows=m.xtb.positions.slice(0,5).map(x=>({title:x.name,meta:`váha ${x.weight}% · výnos ${x.returnPct}%`,value:money(x.value)}));
  const xtbAge=m.xtb.age===null?'bez data':m.xtb.age>36?`${Math.round(m.xtb.age)} h · STARÉ`:`${Math.round(m.xtb.age)} h`;
- host.innerHTML=`<div class="view-head"><div><div class="eyebrow">KAMIL OS ${APP_VERSION} / MARKET COCKPIT 53.3</div><h1>XTB + vstupenky. Nic ostatního teď neřešíme.</h1><p>TOP 3 vychází jen z investic a ticketů: freshness, koncentrace, zisk, deadline, ROI a break-even.</p></div><div class="row-actions"><button class="btn primary" data-open-money>XTB</button><button class="btn" data-open-tickets>Vstupenky</button></div></div>
+ host.innerHTML=`<div class="view-head"><div><div class="eyebrow">KAMIL OS ${APP_VERSION} / MARKET COCKPIT 53.4</div><h1>XTB + vstupenky. Nic ostatního teď neřešíme.</h1><p>TOP 3 vychází jen z investic a ticketů. Rozhodnutí 53.4 z toho udělá konkrétní návrh dalšího kroku.</p></div><div class="row-actions"><button class="btn primary" data-decision-534>Rozhodnutí</button><button class="btn" data-open-money>XTB</button><button class="btn" data-open-tickets>Vstupenky</button></div></div>
  <div class="metric-strip"><div class="metric"><span>XTB hodnota</span><b>${money(m.xtb.value)}</b></div><div class="metric"><span>XTB P/L</span><b>${money(m.xtb.profit)}</b></div><div class="metric"><span>Kapitál ve vstupenkách</span><b>${money(m.ticket.capital)}</b></div><div class="metric"><span>Aktivní ticket pozice</span><b>${m.ticket.rows.length}</b></div></div>
- <div class="card"><div class="card-head"><div><div class="eyebrow">SMART TOP 3 · XTB + VSTUPENKY</div><h2>Co má největší smysl řešit teď?</h2></div><button class="btn primary" data-assistant-530>Zeptat se Kamil OS</button></div>${cardRows(priorityRows,'XTB ani vstupenky teď podle uložených dat nevyžadují zásah.')}</div>
+ <div class="card"><div class="card-head"><div><div class="eyebrow">SMART TOP 3 · XTB + VSTUPENKY</div><h2>Co má největší smysl řešit teď?</h2></div><button class="btn primary" data-decision-534>Rozhodnout konkrétně</button></div>${cardRows(priorityRows,'XTB ani vstupenky teď podle uložených dat nevyžadují zásah.')}</div>
  <div class="card"><div class="card-head"><div><div class="eyebrow">XTB</div><h2>${m.xtb.count} pozic · data ${h(xtbAge)}</h2></div><button class="btn" data-open-money>Otevřít XTB</button></div>${cardRows(positionRows,'Nemám uložené XTB pozice.')}</div>
  <div class="card"><div class="card-head"><div><div class="eyebrow">VSTUPENKY</div><h2>${m.ticket.rows.length} aktivních pozic · tržní hodnota ${money(m.ticket.marketValue)}</h2></div><button class="btn" data-open-tickets>Otevřít vstupenky</button></div>${cardRows(ticketRows,'Nemám aktivní vstupenky.')}</div>
- <div class="card"><div class="eyebrow">RYCHLÉ ROZHODNUTÍ</div><div class="row-actions"><button class="btn primary" data-open-tickets>Co prodat / přecenit</button><button class="btn" data-open-money>Co držet / přikoupit</button><button class="btn" data-assistant-530>Zeptat se asistenta</button><button class="btn" data-life-dashboard>Pokročilé analýzy</button></div></div>
- <div class="decision-note">53.3: hlavní priorita Kamil OS je odteď XTB + vstupenky. TOP 3 je lehký výpočet z už uložených dat; žádné obchody ani prodeje se automaticky neprovedou.</div>`;
- host.querySelectorAll('[data-open-money]').forEach(b=>b.addEventListener('click',()=>openView('money')));host.querySelectorAll('[data-open-tickets]').forEach(b=>b.addEventListener('click',()=>openView('tickets')));host.querySelectorAll('[data-life-dashboard]').forEach(b=>b.addEventListener('click',openLife));host.querySelectorAll('[data-assistant-530]').forEach(b=>b.addEventListener('click',openAssistant));
+ <div class="card"><div class="eyebrow">RYCHLÉ ROZHODNUTÍ</div><div class="row-actions"><button class="btn primary" data-decision-534>Co přesně udělat teď</button><button class="btn" data-open-tickets>Vstupenky detail</button><button class="btn" data-open-money>XTB detail</button></div></div>
+ <div class="decision-note">53.4: hlavní priorita Kamil OS je XTB + vstupenky. Rozhodovací engine se načte až po kliknutí a pouze navrhuje kroky; žádný obchod, prodej ani přecenění automaticky neprovede.</div>`;
+ host.querySelectorAll('[data-open-money]').forEach(b=>b.addEventListener('click',()=>openView('money')));host.querySelectorAll('[data-open-tickets]').forEach(b=>b.addEventListener('click',()=>openView('tickets')));host.querySelectorAll('[data-decision-534]').forEach(b=>b.addEventListener('click',openDecision));
  window.__KAMIL_MARKET_TOP3_533_LAST__={ms:Math.round((performance.now()-started)*10)/10,at:Date.now(),top:m.priorities};window.__KAMIL_PERSONAL_HOME_531_LAST__={ms:Math.round((performance.now()-started)*10)/10,at:Date.now()};window.dispatchEvent(new CustomEvent('kamil:app-interactive'));
 }
 export function warmFullToday43(){if(fullModule)return Promise.resolve(fullModule);fullPromise=fullPromise||import('./today29.js');return fullPromise.then(m=>fullModule=m).catch(()=>null)}
-// Legacy compatibility markers: Dnes řeš to důležité. Zbytek může počkat. · Personal 45.5 drží Safe Core · Životní dashboard · Můj život na jedné obrazovce. · Moje finance / 44.5
+// Legacy compatibility markers: Dnes řeš to důležité. Zbytek může počkat. · Personal 45.5 drží Safe Core · data-life-dashboard · import('./lifeDashboard455.js') · Životní dashboard · Můj život na jedné obrazovce. · Moje finance / 44.5 · data-assistant-530
