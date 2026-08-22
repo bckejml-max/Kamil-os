@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 const assert=(x,m)=>{if(!x)throw new Error(m)};
 const read=p=>fs.readFileSync(p,'utf8');
-const release=read('js/releaseMeta.js'),config=read('js/config.js'),index=read('index.html'),cloud=read('js/cloud.js'),command=read('js/command.js'),sw=read('sw.js'),vercel=read('vercel.json'),query=read('js/personalQuery29.js'),lazy=read('js/lazyBoot41.js'),runtime=read('js/viewRuntime41.js');
+const release=read('js/releaseMeta.js'),config=read('js/config.js'),index=read('index.html'),cloud=read('js/cloud.js'),command=read('js/command.js'),sw=read('sw.js'),vercel=read('vercel.json'),query=read('js/personalQuery29.js'),lazy=read('js/lazyBoot41.js'),runtime=read('js/viewRuntime41.js'),instant=read('js/instantShell42.js');
 const version=release.match(/APP_VERSION='([^']+)'/)?.[1],releaseLine=release.match(/APP_RELEASE='([^']+)'/)?.[1],major=Number(version?.split('.')[0]||0);
 assert(/^\d+\.\d+\.\d+$/.test(version||'')&&major>=31&&releaseLine===version.split('.').slice(0,2).join('.'),'releaseMeta must provide one internally consistent Core version');
 assert(config.includes("from './releaseMeta.js'")&&!/APP_VERSION\s*=\s*['"]/m.test(config.replace("import {APP_VERSION} from './releaseMeta.js';",'')),'config must use canonical release metadata');
@@ -11,6 +11,8 @@ assert(!index.includes('@supabase/supabase-js@2'),'Supabase must not be eagerly 
 assert(cloud.includes('async function loadSdk()')&&cloud.includes('hasStoredCloudSession')&&!cloud.includes('export const sb='),'cloud must lazy-load SDK');
 assert(command.includes("modal('Náhled změny'")&&command.includes('Vytvořit osobní úkol')&&command.includes('Potvrdit vytvoření úkolu'),'unknown command must require explicit preview confirmation');
 assert(query.includes('decisionDelta30')&&query.includes('Co se změnilo od minule'),'Copilot must expose Decision Delta');
-assert(sw.includes(`const CACHE='kamil-os-${version}-runtime-r`)&&sw.includes('./js/instantShell42.js')&&sw.includes('staleWhileRevalidate'),'current service-worker runtime shell missing');
+assert(sw.includes(`kamil-os-${version}-safe-core-r`)&&sw.includes('./js/instantShell42.js')&&sw.includes('networkFirst'),'Safe Core service-worker runtime shell missing');
+assert(!sw.includes('staleWhileRevalidate'),'Safe Core must never serve stale runtime code first');
+assert(instant.includes('window.__KAMIL_SAFE_CORE__=true'),'Safe Core boot flag missing');
 assert(vercel.includes('Content-Security-Policy')&&vercel.includes('X-Content-Type-Options'),'security headers missing');
 console.log('CORE HARDENING REGRESSION TEST PASS');
