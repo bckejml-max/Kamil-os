@@ -10,6 +10,7 @@ test('Personal Safe Core starts fast and keeps background intelligence off',asyn
  expect(flags.safe).toBe(true);expect(flags.platform).toBe(false);
  await page.waitForTimeout(3000);
  expect(await page.evaluate(()=>window.__KAMIL_PERSONAL_441_LAST__||null)).toBeNull();
+ expect(await page.evaluate(()=>window.__KAMIL_DAILY_442_LAST__||null)).toBeNull();
  expect(await page.evaluate(()=>window.__KAMIL_WORK_440_LAST__||null)).toBeNull();
 });
 
@@ -49,5 +50,25 @@ test('Personal 44.1 excludes work domain and keeps XTB tickets and private prior
  await expect(page.getByRole('heading',{name:'Peníze + vstupenky / Personal 44.1'})).toBeVisible();
  await expect(page.locator('#modalHost')).toContainText('125 000 Kč');
  await expect(page.locator('#modalHost')).toContainText('PROVĚŘIT CENU');
+ expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
+});
+
+test('Personal 44.2 Daily Hub combines today money calendar admin and home only on click',async({page})=>{
+ const today=new Date().toISOString().slice(0,10),tomorrow=new Date(Date.now()+86400000).toISOString().slice(0,10),stale=new Date(Date.now()-50*3600000).toISOString();
+ await page.addInitScript(({today,tomorrow,stale})=>localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},tasks:[{id:'p1',title:'Objednat servis auta',due:today,status:'OPEN'},{id:'w1',title:'Fakturace zakázky D4',due:today,status:'OPEN',area:'práce'}],calendar:{events:[{id:'c1',title:'Rodinná návštěva',start:today},{id:'c2',title:'PKS pracovní porada',start:today,category:'práce'}]},personalAdmin:{items:[{id:'a1',title:'Obnovit pojištění auta',due:tomorrow,status:'OPEN'}]},familyHome:{items:[{id:'h1',title:'Koupit dětské pleny',due:tomorrow,status:'OPEN'}]},ticketBook:{items:[{id:'t1',name:'Koncert',workflow:'LISTED',sellBy:tomorrow,buy:2000,qty:2,listPrice:2500}]},xtbReport:{czkValue:150000,asOf:stale}})),{today,tomorrow,stale});
+ await page.goto(BASE,{waitUntil:'domcontentloaded'});
+ await expect(page.getByRole('button',{name:'Můj dnešek'}).first()).toBeVisible({timeout:5000});
+ expect(await page.evaluate(()=>window.__KAMIL_DAILY_442_LAST__||null)).toBeNull();
+ await page.getByRole('button',{name:'Můj dnešek'}).first().click();
+ await expect(page.getByRole('heading',{name:'Můj dnešek / Personal 44.2'})).toBeVisible();
+ await expect(page.locator('#modalHost')).toContainText('CO DNES ŘEŠIT');
+ await expect(page.locator('#modalHost')).toContainText('Objednat servis auta');
+ await expect(page.locator('#modalHost')).toContainText('Rodinná návštěva');
+ await expect(page.locator('#modalHost')).toContainText('Obnovit pojištění auta');
+ await expect(page.locator('#modalHost')).toContainText('Koupit dětské pleny');
+ await expect(page.locator('#modalHost')).toContainText('150 000 Kč');
+ await expect(page.locator('#modalHost')).not.toContainText('Fakturace zakázky D4');
+ await expect(page.locator('#modalHost')).not.toContainText('PKS pracovní porada');
+ const daily=await page.evaluate(()=>window.__KAMIL_DAILY_442_LAST__);expect(daily.ms).toBeLessThan(500);
  expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
 });
