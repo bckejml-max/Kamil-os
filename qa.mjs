@@ -46,19 +46,21 @@ assert.ok(lazy.includes("'./platform431LeanUi.js'")&&lazy.includes("'./platform4
 assert.ok(!lazy.includes("'./platform43Ui.js'"),'43.1 must not load the old full 60-feature dashboard');
 assert.ok(lean431.includes("let expanded=false")&&lean431.includes('Otevřít detail platformy'),'43.1 detail must be collapsed by default');
 assert.ok(lean431.includes('setTimeout(()=>{if(document.visibilityState')&&lean431.includes('900'),'43.1 platform rerenders must be debounced');
-assert.ok(stability431.includes("entryTypes:['longtask']")&&stability431.includes("lag>1200"),'43.1 freeze detector missing');
-assert.ok(stability431.includes('recent.length>=3')&&stability431.includes('setSafeMode43(true)'),'43.1 automatic Safe Mode trip missing');
+assert.ok(stability431.includes("entryTypes:['longtask']")&&stability431.includes('LAG_TRIP_MS=1200'),'43.8 freeze sentinel thresholds missing');
+assert.ok(stability431.includes('heartbeatLag431')&&stability431.includes('INCIDENT_COALESCE_MS=1200'),'43.8 monotonic/coalescing freeze sentinel missing');
+assert.ok(stability431.includes('SEVERE_LAG_MS=2500')&&stability431.includes("'severe-event-loop-lag'"),'43.8 severe stall classification missing');
+assert.ok(stability431.includes('recent.length>=3')&&stability431.includes('setSafeMode43(true)'),'automatic Safe Mode trip missing');
 assert.ok(lazy.includes('safeMode()'),'Safe Mode guard missing from lazy loader');
 assert.ok(desktop43.includes('kamilDesktop43')&&desktop43.includes('Ctrl+Alt+K'),'desktop palette bridge missing');
 assert.ok(desktopMain.includes("globalShortcut.register('CommandOrControl+Alt+K'")&&desktopMain.includes('Universal Inbox'),'global desktop shortcut/tray actions missing');
 
-assert.equal(version,'43.7.0','43.7 release metadata must be aligned');
-assert.equal(release,'43.7','43.7 release label must be aligned');
+assert.equal(version,'43.8.0','43.8 release metadata must be aligned');
+assert.equal(release,'43.8','43.8 release label must be aligned');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.equal(desktopPackage.version,version,'desktop package version must match APP_VERSION');
-assert.ok(index.includes('43.7.0'),'43.7 static boot fallback must be aligned');
-assert.ok(instant.includes("const VERSION='43.7.0'")&&instant.includes("kamil-os-fast-snapshot-43-7"),'43.7 instant shell version/snapshot missing');
-assert.ok(sw.includes("const CACHE='kamil-os-43.7.0-runtime-r1'"),'43.7 service-worker cache version missing');
+assert.ok(index.includes('43.8.0'),'43.8 static boot fallback must be aligned');
+assert.ok(instant.includes("const VERSION='43.8.0'")&&instant.includes("kamil-os-fast-snapshot-43-8"),'43.8 instant shell version/snapshot missing');
+assert.ok(sw.includes("const CACHE='kamil-os-43.8.0-runtime-r1'"),'43.8 service-worker cache version missing');
 assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'responsive scheduler/input guard missing');
 assert.ok(lazy.includes("document.visibilityState==='hidden'")&&lazy.includes('await sleep(250)'),'scheduler must yield while hidden or busy');
 assert.ok(lazy.includes('window.__KAMIL_MODULE_TIMINGS__'),'per-module timing diagnostics missing');
@@ -74,6 +76,6 @@ assert.ok(lazy.includes('function updateMemory')&&lazy.includes('function stabil
 assert.ok(lazy.includes("status:'memory-blocked'")&&lazy.includes('allowMemoryRisk=false'),'43.7 automatic background isolation missing');
 assert.ok(lazy.includes("window.__KAMIL_MEMORY_BLOCKED_MODULES__")&&lazy.includes("window.__KAMIL_MEMORY_COLD_MODULES__"),'43.7 memory diagnostics globals missing');
 assert.ok(diagnostics.includes('43.7 STABILITY MEMORY')&&diagnostics.includes('Reset Stability Memory')&&diagnostics.includes('skóre'),'43.7 stability diagnostics missing');
-assert.ok(instant.includes('43.7 Stability Memory'),'43.7 boot message missing');
+assert.ok(instant.includes('43.8 Freeze Sentinel'),'43.8 boot message missing');
 
 console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version}`);

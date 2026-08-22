@@ -1,7 +1,7 @@
 {
   "name": "kamil-os",
   "private": true,
-  "version": "43.7.0",
+  "version": "43.8.0",
   "type": "module",
   "scripts": {
     "test:e2e": "playwright test e2e_*.spec.mjs --reporter=line"
