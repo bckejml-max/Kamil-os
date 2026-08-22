@@ -56,6 +56,7 @@ assert.equal(version,'43.7.0','43.7 release metadata must be aligned');
 assert.equal(release,'43.7','43.7 release label must be aligned');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.equal(desktopPackage.version,version,'desktop package version must match APP_VERSION');
+assert.ok(index.includes('43.7.0'),'43.7 static boot fallback must be aligned');
 assert.ok(instant.includes("const VERSION='43.7.0'")&&instant.includes("kamil-os-fast-snapshot-43-7"),'43.7 instant shell version/snapshot missing');
 assert.ok(sw.includes("const CACHE='kamil-os-43.7.0-runtime-r1'"),'43.7 service-worker cache version missing');
 assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'responsive scheduler/input guard missing');
