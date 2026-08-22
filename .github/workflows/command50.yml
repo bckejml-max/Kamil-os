@@ -1,0 +1,25 @@
+name: Personal Command 50 QA
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  command50:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Command 50 static safety
+        run: node command_50_static_test.mjs
+      - name: Install browser QA
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Command 50 browser gate
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          npx playwright test e2e_command_50_0.spec.mjs --reporter=line

@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const command=fs.readFileSync('js/personalCommand500.js','utf8');
+const dash=fs.readFileSync('js/lifeDashboard455.js','utf8');
+for(const bad of ['setInterval(','requestIdleCallback','store.subscribe(','store.update(','store.patch(','store.set('])assert.ok(!command.includes(bad),`Command 50.0 must stay click-only/read-only: ${bad}`);
+for(const fn of ['nextAction491','dataGap492','fundPressure493','purchaseDecision494','cashBuffer495','ticketDecision496','portfolioFunding497','calendarLoad498','weeklyFocus499','command500'])assert.ok(command.includes(`export function ${fn}`),`Missing Command engine ${fn}`);
+assert.ok(command.includes('openCommand500')&&command.includes('__KAMIL_COMMAND_500_LAST__'),'Command 50.0 UI/timing missing');
+assert.ok(command.includes('WORK_RE')&&command.includes('filter(personal)'),'Command work-domain exclusion missing');
+assert.ok(command.includes('Pouze návrh')&&command.includes('Žádný prodej se automaticky neprovede'),'Portfolio funding must remain proposal-only');
+assert.ok(dash.includes("from './personalCommand500.js'")&&dash.includes("label:'Udělej teď'")&&dash.includes('Životní dashboard 50.0'),'Command 50.0 dashboard integration missing');
+console.log('PERSONAL COMMAND 49.1–50.0 STATIC PASS');
