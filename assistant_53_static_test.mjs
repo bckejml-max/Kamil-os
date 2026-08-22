@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+execFileSync(process.execPath,['--check','js/personalAssistant530.js'],{stdio:'inherit'});
 const a=fs.readFileSync('js/personalAssistant530.js','utf8');
 const d=fs.readFileSync('js/lifeDashboard455.js','utf8');
 for(const bad of ['setInterval(','requestIdleCallback','store.subscribe('])assert.ok(!a.includes(bad),`Assistant 53.0 must not background-run: ${bad}`);
