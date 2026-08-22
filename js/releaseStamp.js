@@ -15,6 +15,5 @@ function start(){
  stamp();
  window.addEventListener('kamil:navigate',()=>queueMicrotask(stamp));
  window.addEventListener('kamil:release-stamp',()=>queueMicrotask(stamp));
- setTimeout(()=>import('./os50Ui.js').catch(error=>console.warn('[os50]',error)),600);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
