@@ -1,6 +1,6 @@
 {
   "name": "kamil-os-desktop",
-  "version": "43.4.0",
+  "version": "43.5.0",
   "private": true,
   "main": "main.cjs",
   "scripts": {
