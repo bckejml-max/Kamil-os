@@ -61,5 +61,7 @@ const row=(x,mode)=>`<div class="intel-row"><div class="intel-main"><b>${h(x.nam
 
 export async function openRecheckTriggers562(){
  const x=recheckTriggers562(),body=`<div class="metric-strip"><div class="metric"><span>Ověř teď</span><b class="${x.verifyNow.length?'bad':'good'}">${x.verifyNow.length}</b></div><div class="metric"><span>Čeká na trigger</span><b>${x.waiting.length}</b></div><div class="metric"><span>Celkem</span><b>${x.total}</b></div></div><div class="card"><div class="eyebrow">RECHECK TRIGGERS 56.2</div><h2>${h(x.summary)}</h2><p>Každé OVĚŘ / ČEKEJ je převedené na konkrétní podmínku, kdy má smysl verdikt přepočítat.</p></div><div class="card"><div class="eyebrow">OVĚŘ TEĎ</div>${x.verifyNow.map(v=>row(v,'now')).join('')||'<div class="empty success-empty">Nic nepotřebuje okamžité doplnění dat.</div>'}</div><div class="card"><div class="eyebrow">ČEKEJ NA TRIGGER</div>${x.waiting.map(v=>row(v,'wait')).join('')||'<div class="empty">Žádný čekající trigger.</div>'}</div><div class="decision-note">56.2 nic nesleduje na pozadí a neposílá automatické obchody ani repricing. Triggery jsou pouze podmínky pro další ruční kontrolu nad uloženými daty.</div>`;
- return modal('XTB + vstupenky / Recheck Triggers 56.2',body,[{label:'Zavřít',value:null,primary:true}]);
+ const choice=await modal('XTB + vstupenky / Recheck Triggers 56.2',body,[{label:'Změny 56.3',value:'changes',primary:true},{label:'Zavřít',value:null}]);
+ if(choice==='changes'){const m=await import('./decisionChange563.js');return m.openDecisionChangeTracker563()}
+ return choice;
 }
