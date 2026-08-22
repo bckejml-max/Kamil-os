@@ -5,7 +5,7 @@ test('Personal Safe Core starts fast and no Life OS brain runs before click',asy
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect(page).toHaveTitle(/^Kamil OS 43\.7\.1$/);
  await expect(page.locator('#appView')).toBeVisible();
- await expect(page.getByRole('heading',{name:'Dnes řeš to důležité. Zbytek může počkat.'})).toBeVisible({timeout:5000});
+ await expect(page.getByRole('heading',{name:'Můj život na jedné obrazovce.'})).toBeVisible({timeout:5000});
  const flags=await page.evaluate(()=>({safe:window.__KAMIL_SAFE_CORE__,platform:!!document.querySelector('#platform43')}));
  expect(flags.safe).toBe(true);expect(flags.platform).toBe(false);
  await page.waitForTimeout(3000);
