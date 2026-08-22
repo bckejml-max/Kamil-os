@@ -25,7 +25,7 @@ test('Safe Core navigation loads only the explicitly opened section',async({page
  expect(runtime).toBeNull();
 });
 
-test('Safe Intelligence 43.8 gives actionable XTB, tickets, work and Mission Control only after click',async({page})=>{
+test('Safe Intelligence 43.9 explains priorities and routes them only after click',async({page})=>{
  const tomorrow=new Date(Date.now()+86400000).toISOString().slice(0,10),stale=new Date(Date.now()-48*3600000).toISOString();
  await page.addInitScript(({tomorrow,stale})=>localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},financePlan:{cashNow:100000,reserveFloor:50000,plannedInvestment:25000},tasks:[{id:'safe-task',title:'Safe test úkol',due:tomorrow,status:'OPEN',priority:90}],directorBook:{waiting:[{id:'wait-1',title:'Čekám na odpověď',status:'OPEN',due:tomorrow}]},ticketBook:{items:[{id:'ticket-1',name:'Safe ticket',date:tomorrow,sellBy:tomorrow,workflow:'LISTED',buy:2000,qty:2,listPrice:1800,marketPrice:1400,marketCheckedAt:new Date().toISOString()}],watchlist:[],history:[]},xtbReport:{positionCount:2,czkValue:125000,asOf:stale,positions:[{ticker:'AAA.US',valueCzk:80000,profitCzk:8000,profitPct:10},{ticker:'BBB.US',valueCzk:45000,profitCzk:-2500,profitPct:-5.3}]}})),{tomorrow,stale});
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
@@ -33,17 +33,20 @@ test('Safe Intelligence 43.8 gives actionable XTB, tickets, work and Mission Con
  expect(await page.evaluate(()=>window.__KAMIL_SAFE_INTEL_LAST__||null)).toBeNull();
 
  await page.getByRole('button',{name:'Mission Control'}).click();
- await expect(page.getByRole('heading',{name:'Mission Control / Safe 43.8'})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Mission Control / Safe 43.9'})).toBeVisible();
  await expect(page.locator('#modalHost')).toContainText('TOP 3 TEĎ');
+ await expect(page.locator('#modalHost')).toContainText('Proč teď:');
+ await expect(page.locator('#modalHost')).toContainText('První krok:');
+ await expect(page.locator('#modalHost')).toContainText('CO MŮŽE POČKAT');
  await expect(page.locator('#modalHost')).toContainText('XTB data');
  await expect(page.locator('#modalHost')).toContainText('OBNOVIT');
- await expect(page.locator('#modalHost')).toContainText('Vstupenky k revizi');
  await expect(page.locator('#modalHost')).toContainText('Čekám na odpověď');
+ await expect(page.getByRole('button',{name:'Otevřít #1'})).toBeVisible();
  const first=await page.evaluate(()=>window.__KAMIL_SAFE_INTEL_LAST__);expect(first.name).toBe('mission438');expect(first.ms).toBeLessThan(500);
  await page.getByRole('button',{name:'Zavřít'}).click();
 
  await page.getByRole('button',{name:'XTB + vstupenky'}).click();
- await expect(page.getByRole('heading',{name:'Peníze + vstupenky / Safe 43.8'})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Peníze + vstupenky / Safe 43.9'})).toBeVisible();
  await expect(page.locator('#modalHost')).toContainText('125 000 Kč');
  await expect(page.locator('#modalHost')).toContainText('AAA.US');
  await expect(page.locator('#modalHost')).toContainText('XTB data jsou starší než 36 h');
@@ -51,7 +54,7 @@ test('Safe Intelligence 43.8 gives actionable XTB, tickets, work and Mission Con
  await page.getByRole('button',{name:'Zavřít'}).click();
 
  await page.getByRole('button',{name:'Work Command Center'}).click();
- await expect(page.getByRole('heading',{name:'Work Command Center / Safe 43.8'})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Work Command Center / Safe 43.9'})).toBeVisible();
  await expect(page.locator('#modalHost')).toContainText('Fakturace na dodavatele');
  expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
 });
