@@ -16,7 +16,7 @@ test('Assistant 53.0 is private, click-only and action-first',async({page})=>{
  expect(r.warranty[0].title).toBe('Pračka');
  expect(r.assistant.answer).toContain('Teď řeš');
  expect(JSON.stringify(r.suite)).not.toContain('PKS pracovní fakturace');
- await page.getByRole('button',{name:'Životní dashboard'}).first().click();
+ await page.locator('[data-life-dashboard]').first().click();
  await expect(page.getByRole('button',{name:'Assistant Suite 30'})).toBeVisible({timeout:5000});
  await page.getByRole('button',{name:'Assistant Suite 30'}).click();
  await page.waitForTimeout(250);
