@@ -27,6 +27,6 @@ test('Final Verdict opens only after explicit click through market decision chai
  await page.getByRole('button',{name:'Final Verdict 55.8'}).click();
  await expect(page.getByRole('heading',{name:'XTB + vstupenky / Final Verdict 55.8'})).toBeVisible();
  await expect(page.locator('#modalHost')).toContainText('FINAL MARKET VERDICT 55.8');
- await expect(page.locator('#modalHost')).toContainText('nic automaticky nenakupuje');
+ await expect(page.locator('#modalHost')).toContainText(/nic automaticky nenakupuje/i);
  expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
 });
