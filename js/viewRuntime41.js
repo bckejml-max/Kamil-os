@@ -1,4 +1,5 @@
 import {hydrateColdView42} from './coldPartition42.js';
+import {scheduleOs50FastBoot} from './os50FastBootGuard.js';
 const modules=new Map(),warmViews=new Map();
 const viewDefs={today:['./todayLite43.js','renderTodayLite43'],money:['./money24.js','renderMoney'],tickets:['./tickets24.js','renderTickets'],home:['./home26.js','renderHome'],more:['./more26.js','renderMore']};
 export const validViews41=new Set(Object.keys(viewDefs));
@@ -17,7 +18,7 @@ export async function setMoreMode41(mode){await hydrateColdView42('more');const 
 export async function openCapture41(type){const m=await load('./capture26.js');return m.openQuickCapture(type)}
 export async function renderCommandResults41(value){const m=await load('./command.js');return m.renderResults(value)}
 export async function executeCommand41(value){const m=await load('./command.js');return m.execute(value)}
-export function renderExtras41(view){const run=()=>{const jobs=[];if(view!=='today')jobs.push(load('./autopilotUi28.js').then(m=>m.renderAutopilot?.(view)));jobs.push(load('./personalPlusUi29.js').then(m=>m.renderPersonalPlus?.(view)));if(view==='more')jobs.push(load('./perfUi43.js').then(m=>m.renderPerf43?.()));return Promise.allSettled(jobs)};if(view==='today'){afterGraceIdle(run,18000,5000);return Promise.resolve([])}return run()}
+export function renderExtras41(view){const run=()=>{const jobs=[];if(view!=='today')jobs.push(load('./autopilotUi28.js').then(m=>m.renderAutopilot?.(view)));jobs.push(load('./personalPlusUi29.js').then(m=>m.renderPersonalPlus?.(view)));if(view==='more')jobs.push(load('./perfUi43.js').then(m=>m.renderPerf43?.()));return Promise.allSettled(jobs)};if(view==='today'){scheduleOs50FastBoot(load);afterGraceIdle(run,18000,5000);return Promise.resolve([])}return run()}
 let riskTimer=null;
 async function doRiskBadge(state){try{const m=await load('./personalRisk25.js'),risk=m.personalRiskCenter(state),count=Number(risk?.critical||0)+Number(risk?.high||0),b=document.querySelector('#moreBadge');if(b){b.textContent=count;b.classList.toggle('hidden',!count)}return count}catch{return 0}}
 export function refreshRiskBadge41(state,delay=9000){clearTimeout(riskTimer);riskTimer=setTimeout(()=>idle(()=>doRiskBadge(state),3000),Math.max(9000,delay));return Promise.resolve(null)}
