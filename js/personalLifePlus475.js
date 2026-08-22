@@ -10,7 +10,6 @@ const first=(...v)=>v.find(x=>x!==undefined&&x!==null&&x!=='')??null;
 const ts=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?t:null};
 const daysTo=v=>{const t=ts(v);return t===null?null:Math.ceil((t-Date.now())/86400000)};
 const ageDays=v=>{const t=ts(v);return t===null?null:Math.floor((Date.now()-t)/86400000)};
-const sum=rows=>A(rows).reduce((a,x)=>a+N(x),0);
 const pct=(a,b)=>b>0?Math.round(a/b*100):0;
 
 function financeBase(s={}){
@@ -24,8 +23,9 @@ function financeBase(s={}){
 }
 
 export function renewal456(s=store.get()){
- const rows=[...A(s.subscriptions?.items),...A(s.renewals?.items),...A(s.contracts?.items),...A(s.householdBills?.items)]
-  .filter(open).filter(personal).map(x=>({title:first(x.title,x.name,'Obnova'),date:first(x.renewalDate,x.nextPayment,x.due,x.expiresAt),days:daysTo(first(x.renewalDate,x.nextPayment,x.due,x.expiresAt)),amount:N(first(x.annualAmount,x.amount,x.price)),autoRenew:Boolean(first(x.autoRenew,x.recurring,false))}));
+ const explicit=[...A(s.subscriptions?.items),...A(s.renewals?.items),...A(s.contracts?.items)];
+ const recurringBills=A(s.householdBills?.items).filter(x=>Boolean(x?.recurring||x?.autoRenew||x?.renewalDate||x?.nextPayment));
+ const rows=[...explicit,...recurringBills].filter(open).filter(personal).map(x=>({title:first(x.title,x.name,'Obnova'),date:first(x.renewalDate,x.nextPayment,x.due,x.expiresAt),days:daysTo(first(x.renewalDate,x.nextPayment,x.due,x.expiresAt)),amount:N(first(x.annualAmount,x.amount,x.price)),autoRenew:Boolean(first(x.autoRenew,x.recurring,false))}));
  const soon=rows.filter(x=>x.days!==null&&x.days>=0&&x.days<=45).sort((a,b)=>a.days-b.days);
  return{rows,soon,annualExposure:rows.reduce((a,x)=>a+x.amount,0)};
 }
