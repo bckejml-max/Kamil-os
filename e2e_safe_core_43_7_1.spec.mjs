@@ -42,13 +42,19 @@ test('Personal 44.6 through 45.5 engines calculate private life data and exclude
 });
 
 test('Unified Life Dashboard 45.5 opens on click and exposes one simple personal entry point',async({page})=>{
+ const errors=[];page.on('console',msg=>{if(msg.type()==='error')errors.push(msg.text())});page.on('pageerror',e=>errors.push(String(e.stack||e)));
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
+ const direct=await page.evaluate(async()=>{try{const m=await import('./js/lifeDashboard455.js');return{ok:true,has:typeof m.openLifeDashboard455==='function'&&typeof m.lifeDashboard455==='function'}}catch(e){return{ok:false,error:String(e?.stack||e)}}});
+ expect(direct.ok,direct.error||'lifeDashboard455 direct import failed').toBe(true);expect(direct.has).toBe(true);
  await expect(page.getByRole('button',{name:'Životní dashboard'}).first()).toBeVisible({timeout:5000});
  expect(await page.evaluate(()=>window.__KAMIL_LIFE_455_LAST__||null)).toBeNull();
  await page.getByRole('button',{name:'Životní dashboard'}).first().click();
- await expect.poll(()=>page.evaluate(()=>window.__KAMIL_LIFE_455_LAST__||null),{timeout:5000}).not.toBeNull();
- await expect(page.locator('#modalHost')).toContainText('TOP 3 DNES',{timeout:5000});
- await expect(page.locator('#modalHost')).toContainText('CO SE BLÍŽÍ / 3 MĚSÍCE');
- const perf=await page.evaluate(()=>window.__KAMIL_LIFE_455_LAST__);expect(perf.ms).toBeLessThan(500);
+ await page.waitForTimeout(800);
+ const diag=await page.evaluate(()=>({ran:window.__KAMIL_LIFE_455_LAST__||null,error:window.__KAMIL_LIFE_455_ERROR__||null,importAt:window.__KAMIL_LIFE_455_IMPORT_AT__||null,importedAt:window.__KAMIL_LIFE_455_IMPORTED_AT__||null,toast:document.querySelector('#toastHost')?.textContent||'',modal:document.querySelector('#modalHost')?.textContent||''}));
+ expect(diag.importAt,`click listener did not fire; console=${errors.join(' | ')}`).not.toBeNull();
+ expect(diag.error,`dashboard error; console=${errors.join(' | ')}`).toBeNull();
+ expect(diag.importedAt,`dashboard import did not finish; console=${errors.join(' | ')}`).not.toBeNull();
+ expect(diag.ran,`dashboard did not run; console=${errors.join(' | ')} toast=${diag.toast}`).not.toBeNull();
+ expect(diag.modal).toContain('TOP 3 DNES');expect(diag.modal).toContain('CO SE BLÍŽÍ / 3 MĚSÍCE');expect(diag.ran.ms).toBeLessThan(500);
  expect(await page.evaluate(()=>!!document.querySelector('#platform43'))).toBe(false);
 });
