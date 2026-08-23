@@ -3,13 +3,15 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 const f='js/todayLite43.js',a=fs.readFileSync(f,'utf8'),decision=fs.readFileSync('js/marketDecision534.js','utf8'),queue=fs.readFileSync('js/actionQueue559.js','utf8');
 execFileSync(process.execPath,['--check',f],{stdio:'inherit'});execFileSync(process.execPath,['--check','js/marketDecision534.js'],{stdio:'inherit'});execFileSync(process.execPath,['--check','js/actionQueue559.js'],{stdio:'inherit'});
-for(const bad of ['setInterval(','requestIdleCallback','store.subscribe(']){assert.ok(!a.includes(bad),`Home 56.0 must not background-run: ${bad}`);assert.ok(!decision.includes(bad),`Decision 53.4 must not background-run: ${bad}`);assert.ok(!queue.includes(bad),`Action Queue 55.9 must not background-run: ${bad}`)}
-assert.ok(a.includes('MARKET HOME 56.0')&&a.includes('XTB + vstupenky. Co přesně udělat teď?'),'Market Home 56.0 missing');
-assert.ok(a.includes('__KAMIL_MARKET_HOME_560_LAST__')&&a.includes('__KAMIL_MARKET_TOP3_533_LAST__')&&a.includes('__KAMIL_PERSONAL_HOME_531_LAST__'),'Home timing markers missing');
+for(const bad of ['setInterval(','requestIdleCallback','store.subscribe(']){assert.ok(!a.includes(bad),`Home must not background-run: ${bad}`);assert.ok(!decision.includes(bad),`Decision 53.4 must not background-run: ${bad}`);assert.ok(!queue.includes(bad),`Action Queue 55.9 must not background-run: ${bad}`)}
+assert.ok((a.includes('MARKET HOME 56.0')||a.includes('MARKET HOME 58.8'))&&a.includes('XTB + vstupenky. Co přesně udělat teď?'),'Market Home missing');
+assert.ok(a.includes('__KAMIL_MARKET_HOME_560_LAST__')&&a.includes('__KAMIL_MARKET_HOME_588_LAST__')&&a.includes('__KAMIL_MARKET_TOP3_533_LAST__')&&a.includes('__KAMIL_PERSONAL_HOME_531_LAST__'),'Home timing markers missing');
 assert.ok(a.includes('ticketStats(')&&a.includes('xtbStats(')&&a.includes('smartMarketTop3('),'XTB/ticket smart TOP 3 missing');
 assert.ok(a.includes('breakEven')&&a.includes('returnPct')&&a.includes('weight'),'Market risk signals missing');
 assert.ok(a.includes('WORK_RE')&&a.includes('.filter(personal)'),'Work exclusion missing');
-assert.ok(a.includes("import('./actionQueue559.js')")&&a.includes('data-action-queue-559'),'Action Queue 55.9 must be direct, lazy and explicit');
+assert.ok(a.includes("import('./marketCommander587.js')")&&a.includes('data-market-commander-587'),'Market Commander 58.7 must be direct, lazy and explicit');
+assert.ok(!a.includes("from './marketCommander587.js'"),'Market Commander must not be a startup static import');
+assert.ok(a.includes("import('./actionQueue559.js')")&&a.includes('data-action-queue-559'),'Action Queue 55.9 must stay direct, lazy and explicit');
 assert.ok(!a.includes("from './actionQueue559.js'"),'Action Queue 55.9 must not be a startup static import');
 assert.ok(a.includes("import('./marketDecision534.js')")&&a.includes('data-decision-534'),'Decision 53.4 diagnostics must stay lazy and explicit');
 assert.ok(!a.includes("from './marketDecision534.js'"),'Decision 53.4 must not be a startup static import');
@@ -17,4 +19,4 @@ assert.ok(decision.includes("from './xtbPlanner24.js'")&&decision.includes("from
 assert.ok(decision.includes('__KAMIL_DECISION_534_LAST__')&&!decision.includes('store.update(')&&!decision.includes('store.patch('),'Decision 53.4 must stay measurable and read-only');
 assert.ok(queue.includes("from './finalMarketVerdict558.js'")&&queue.includes('__KAMIL_ACTION_QUEUE_559_LAST__'),'Action Queue must reuse final gated verdict and stay measurable');
 assert.ok(!a.includes('personalCalendar(')&&!a.includes('personalHomeRows(')&&!a.includes('adminRows('),'Non-market priorities must not drive Home');
-console.log('PERSONAL MARKET HOME 56.0 STATIC PASS');
+console.log('PERSONAL MARKET HOME 58.8 STATIC PASS');
