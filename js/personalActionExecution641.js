@@ -15,13 +15,13 @@ export function completePersonalAction641(action){
  store.mutate(`Dokončena osobní věc: ${action.title||rawId}`,s=>{const x=kind==='task'?findTask(s,rawId):kind==='admin'?findAdmin(s,rawId):kind==='waiting'?findWaiting(s,rawId):null;if(x){x.status='DONE';x.completedAt=now();changed=true}},{undo:true,cloud:true,audit:true});return changed;
 }
 
-function prepareCalendarAction641(action){let created=null;const sourceEventId=String(action.id||action.title||'calendar');store.mutate(`Přidána příprava: ${action.title}`,s=>{s.tasks=Array.isArray(s.tasks)?s.tasks:[];const existing=s.tasks.find(x=>x.sourceEventId===sourceEventId&&String(x.status||'OPEN').toUpperCase()!=='DONE');if(existing){created=existing;return}created={id:uid('family-prep'),title:`Připravit: ${action.title||'rodinná událost'}`,status:'OPEN',category:'Rodina',area:'Rodina',due:new Date().toISOString(),sourceEventId,createdAt:now()};s.tasks.push(created)},{undo:true,cloud:true,audit:true});return created}
+function prepareCalendarAction641(action){let created=null;const sourceEventId=String(action.id||action.title||'calendar').replace(/^calendar:/,'');store.mutate(`Přidána příprava: ${action.title}`,s=>{s.tasks=Array.isArray(s.tasks)?s.tasks:[];const existing=s.tasks.find(x=>String(x.sourceEventId||'')===sourceEventId&&String(x.status||'OPEN').toUpperCase()!=='DONE');if(existing){created=existing;return}created={id:uid('family-prep'),title:`Připravit: ${action.title||'rodinná událost'}`,status:'OPEN',category:'Rodina',area:'Rodina',due:new Date().toISOString(),sourceEventId,createdAt:now()};s.tasks.push(created)},{undo:true,cloud:true,audit:true});return created}
 
 export async function openPersonalAction641(action){
  if(!action)return null;
  if(action.kind==='calendar'){
   const choice=await modal(action.title||'Rodinný termín',`<div class="card"><p>${h(action.why||'')}</p><div class="decision-note"><b>Další krok:</b> ${h(action.next||'Připravit se na událost.')}</div></div>`,[{label:'Připravit',value:'prepare',primary:true},{label:'Zavřít',value:null}]);
-  if(choice==='prepare'){prepareCalendarAction641(action);toast('Příprava přidána do osobních úkolů.');return 'prepared'}return choice;
+  if(choice==='prepare'){prepareCalendarAction641(action);toast('Příprava je v osobních úkolech.');return 'prepared'}return choice;
  }
  if(action.kind==='data'){
   const r=personalVaultRecord640(action.recordId);if(!r)return null;const body=`<div class="card"><h2>${h(r.title)}</h2><p>${h(r.status.detail)}</p><div class="decision-note"><b>Co dál:</b> ${h(r.nextAction)}</div></div>`;
