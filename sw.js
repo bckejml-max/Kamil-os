@@ -1,6 +1,6 @@
-const CACHE='kamil-os-64.0-personal-ux-r1';
+const CACHE='kamil-os-64.0-personal-ux-r2';
 const SHELL=[
-  './','./index.html','./manifest.webmanifest','./personal64.css',
+  './','./index.html','./manifest.webmanifest','./styles.css','./theme33.css','./personal64.css',
   './js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js','./js/state.js','./js/utils.js',
   './js/viewRuntime41.js','./js/personalShell640.js','./js/personalVault640.js','./js/personalActions640.js','./js/personalAsk640.js',
   './js/personalToday640.js','./js/personalFamily640.js','./js/personalHome640.js','./js/personalMoney640.js','./js/personalDocuments640.js','./js/personalMore640.js',
