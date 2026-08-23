@@ -1,28 +1,25 @@
 import {store} from './state.js';
 import {h,qs} from './utils.js';
-import {ensurePersonalVault640,personalVault640} from './personalVault640.js';
-import {personalActions640} from './personalActions640.js';
-import {answerPersonalQuestion640} from './personalAsk640.js';
+import {ensurePersonalVault640} from './personalVault640.js';
 import {openPersonalAction641} from './personalActionExecution641.js';
+import {personalDailyAssistant650,personalActionCta650} from './personalAssistant650.js';
 
-const badge=x=>x.level==='critical'?'DŮLEŽITÉ':x.level==='high'?'BRZY':x.level==='medium'?'HLÍDAT':'POZDĚJI';
 const go=route=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:route}));
 const hour=()=>new Date().getHours();
 const greeting=()=>hour()<11?'Dobré ráno.':hour()<18?'Dobré odpoledne.':'Dobrý večer.';
-const actionHtml=(x,i)=>`<article class="ux64-action ux64-${h(x.level)}"><div class="ux64-action-top"><span class="ux64-rank">${i+1}</span><span class="ux64-badge">${badge(x)}</span><span class="ux64-time">${h(String(x.minutes))} min</span></div><h2>${h(x.title)}</h2><p>${h(x.why)}</p><div class="ux64-next">${h(x.next)}</div><button class="btn primary" data-ux64-action="${h(x.id)}">${x.kind==='data'?'Vyřešit':'Otevřít / hotovo'}</button></article>`;
+const badge=x=>x?.level==='critical'?'DŮLEŽITÉ':x?.level==='high'?'BRZY':x?.level==='medium'?'HLÍDAT':'POZDĚJI';
+const primaryHtml=x=>`<article class="ux65-primary ux64-${h(x.level)}"><div class="ux64-action-top"><span class="ux64-badge">${badge(x)}</span><span class="ux64-time">${h(String(x.minutes||5))} min</span></div><h2>${h(x.title)}</h2><p>${h(x.why)}</p><div class="ux64-next">${h(x.next)}</div><button class="btn primary" data-ux65-action="${h(x.id)}">${h(x.cta||personalActionCta650(x))}</button></article>`;
+const secondaryHtml=x=>`<div class="row ux65-secondary"><div><b>${h(x.title)}</b><div class="muted">${h(x.why)}</div></div><button class="btn" data-ux65-action="${h(x.id)}">${h(x.cta||personalActionCta650(x))}</button></div>`;
 
 export function renderPersonalToday640(){
- ensurePersonalVault640();
- const s=store.get(),vault=personalVault640(s),actions=personalActions640(s),host=qs('#todayView');if(!host)return;
- const top=actions.top3,askId='ux64AskInput';
- host.innerHTML=`<div class="ux64-page"><section class="ux64-hero"><div class="eyebrow">KAMIL OS 64.1 / DNES</div><h1>${greeting()}</h1><p>${top.length?`Máš ${top.length} ${top.length===1?'věc':'věci'}, které stojí za řešení.`:'Dnes nic osobního nehoří.'}</p></section>
- <section class="ux64-actions">${top.length?top.map(actionHtml).join(''):'<div class="card ux64-clear"><b>Všechno důležité je teď v pořádku.</b><p class="muted">Můžeš se podívat dopředu nebo se zeptat na osobní data.</p></div>'}</section>
- <section class="card ux64-ask"><div class="eyebrow">ZEPTEJ SE KAMIL OS</div><h2>Co chceš vědět o svých osobních věcech?</h2><div class="ux64-ask-row"><input id="${askId}" placeholder="Např. Kolik mě stojí pojistky ročně?"><button class="btn primary" id="ux64AskBtn">Zeptat se</button></div><div id="ux64AskResult" class="ux64-answer muted">Odpovídám jen z uložených osobních dat. Když něco nevím, řeknu to.</div></section>
- <section class="card ux64-data-health"><div><div class="eyebrow">OSOBNÍ DATA</div><h2>${vault.coverage}% pokrytí</h2><p class="muted">${vault.action.length?`${vault.action.length} údajů ještě stojí za ověření.`:'Základní osobní údaje jsou v pořádku.'}</p></div><div class="ux64-progress"><span style="width:${Math.max(0,Math.min(100,vault.coverage))}%"></span></div><button class="btn" data-ux64-go="more">Dokumenty a data</button></section></div>`;
- host.querySelectorAll('[data-ux64-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.ux64Go)));
- host.querySelectorAll('[data-ux64-action]').forEach(b=>b.addEventListener('click',async()=>{const action=personalActions640(store.get()).all.find(x=>x.id===b.dataset.ux64Action);if(!action)return;await openPersonalAction641(action);renderPersonalToday640()}));
- const input=host.querySelector(`#${askId}`),result=host.querySelector('#ux64AskResult');
- const run=()=>{const a=answerPersonalQuestion640(input.value,store.get());result.classList.remove('muted');result.innerHTML=`<b>${h(a.title)}</b>${a.body?`<p>${h(a.body)}</p>`:''}${a.lines?.length?`<ul>${a.lines.map(x=>`<li>${h(x)}</li>`).join('')}</ul>`:''}`};
- host.querySelector('#ux64AskBtn')?.addEventListener('click',run);input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();run()}});
- if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_641_LAST__={at:Date.now(),view:'today',top:top.map(x=>x.title),coverage:vault.coverage};
+ ensurePersonalVault640();const s=store.get(),d=personalDailyAssistant650(s),host=qs('#todayView');if(!host)return;
+ host.innerHTML=`<div class="ux64-page ux65-today"><section class="ux64-hero ux65-hero"><div class="eyebrow">DNES</div><h1>${greeting()}</h1><p>${h(d.headline)}</p></section>
+ ${d.primary?`<section>${primaryHtml(d.primary)}</section>`:'<section class="card ux64-clear"><b>Všechno důležité je teď v pořádku.</b><p class="muted">Nemusíš nic spravovat jen proto, že je appka otevřená.</p></section>'}
+ ${d.secondary.length?`<section class="card ux65-later"><div class="eyebrow">POTOM</div>${d.secondary.map(secondaryHtml).join('')}</section>`:''}
+ <section class="ux65-context"><button class="ux65-chip" data-go="waiting"><b>${d.waitingCount}</b><span>Čekám na odpověď</span></button><button class="ux65-chip" data-go="family"><b>${d.tomorrowCount}</b><span>Zítra</span></button><button class="ux65-chip" data-go="family"><b>${d.next7Count}</b><span>Do 7 dní</span></button></section>
+ <section class="ux65-quick"><button class="btn" data-ask="Co mám dnes řešit?">Co dnes řešit?</button><button class="btn" data-ask="Co mi končí?">Co mi končí?</button><button class="btn" data-ask="Na co čekám?">Na co čekám?</button></section></div>`;
+ host.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+ host.querySelectorAll('[data-ask]').forEach(b=>b.addEventListener('click',()=>{const input=qs('#commandInput');if(input){input.value=b.dataset.ask;input.focus();qs('#commandGo')?.click()}}));
+ host.querySelectorAll('[data-ux65-action]').forEach(b=>b.addEventListener('click',async()=>{const fresh=personalDailyAssistant650(store.get()).top.find(x=>x.id===b.dataset.ux65Action);if(!fresh)return;await openPersonalAction641(fresh);renderPersonalToday640()}));
+ if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_650_LAST__={at:Date.now(),view:'today',primary:d.primary?.title||null,secondary:d.secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount};
 }
