@@ -22,9 +22,13 @@ export function commanderNextAction595(s=store.get()){
 
 export async function openCommanderNextAction595(){
  const x=commanderNextAction595(),body=`<div class="metric-strip"><div class="metric"><span>Blokováno</span><b class="${x.blocked?'bad':'good'}">${x.blocked?'ANO':'NE'}</b></div><div class="metric"><span>Další krok</span><b>${h(x.action.kind)}</b></div><div class="metric"><span>Commander</span><b>${h(x.decision.mode)}</b></div></div><div class="card"><div class="eyebrow">COMMANDER NEXT ACTION 59.5</div><h2>${h(x.action.title)}</h2><p>${h(x.action.detail)}</p>${x.top?`<p><b>${h(x.top.when)}</b> · ${h(x.top.name)}</p>`:''}</div><div class="decision-note">59.5 pouze naviguje na správnou existující kontrolu. Nic automaticky neobchoduje, neprodává, nepřecenňuje ani neupravuje portfolio či ticket data.</div>`;
- const actions=x.action.target?[{label:x.action.label,value:x.action.target,primary:true},{label:'Zavřít',value:null}]:[{label:'Zavřít',value:null,primary:true}];
+ const actions=x.action.target?[{label:x.action.label,value:x.action.target,primary:true},{label:'Ověřit po opravě 59.6',value:'rerun'},{label:'Zavřít',value:null}]:[{label:'Ověřit po opravě 59.6',value:'rerun',primary:true},{label:'Zavřít',value:null}];
  const choice=await modal('XTB + vstupenky / Commander Next Action 59.5',body,actions);
- if(choice==='reality'){const m=await import('./postExecutionReality593.js');return m.openPostExecutionReality593()}
- if(choice==='recheck'){const m=await import('./recheckTriggers562.js');return m.openRecheckTriggers562()}
+ if(choice==='reality'||choice==='recheck'){
+  const r=await import('./commanderFixRerun596.js');r.armFixRerun596();
+  if(choice==='reality'){const m=await import('./postExecutionReality593.js');return m.openPostExecutionReality593()}
+  const m=await import('./recheckTriggers562.js');return m.openRecheckTriggers562();
+ }
+ if(choice==='rerun'){const m=await import('./commanderFixRerun596.js');return m.openCommanderFixRerun596()}
  return choice;
 }
