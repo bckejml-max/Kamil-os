@@ -1,6 +1,6 @@
 export const qs=(s,r=document)=>r.querySelector(s);
 export const qsa=(s,r=document)=>[...r.querySelectorAll(s)];
-export const h=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
+export const h=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 export const norm=v=>String(v??'').toLowerCase().trim().replace(/\s+/g,' ');
 export const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v)||0);
 export const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
