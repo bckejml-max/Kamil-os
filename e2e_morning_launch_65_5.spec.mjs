@@ -12,8 +12,8 @@ test('65.5 morning keeps later-today events in today, not tomorrow',async({page}
  await expect(page.getByRole('button',{name:'Zítra'}).locator('b')).toHaveText('1');
  await page.getByRole('button',{name:'Ranní přehled'}).first().click();
  const modal=page.locator('#modalHost');
- await expect(modal.getByText('Dnešní návštěva')).toBeVisible();
- await expect(modal.getByText('Urgovat odpověď')).toBeVisible();
+ await expect(modal.getByText('Dnešní návštěva',{exact:true})).toBeVisible();
+ await expect(modal.getByText('Urgovat odpověď',{exact:true})).toBeVisible();
  await expect(modal).not.toContainText('Zítřejší kontrola');
 });
 
