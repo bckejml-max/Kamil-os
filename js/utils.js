@@ -25,6 +25,10 @@ export const modal=(title,body,buttons=[])=>new Promise(resolve=>{
   if(title==='XTB + vstupenky / Market Commander 58.7'&&/MARKET COMMANDER 59\.0/.test(String(body))&&/class="good">ACT<\/b>/.test(String(body))){
     const x=document.createElement('button');x.className='btn';x.textContent='Provedl jsem to ručně';x.type='button';x.dataset.executionCheckin591='1';x.onclick=async()=>{close(null);try{const m=await import('./executionReceipt591.js');await m.openExecutionReceipt591()}catch(error){console.error('[execution-receipt-591]',error);toast('Execution check-in se nepodařilo otevřít')}};qs('[data-modal-buttons]',el).prepend(x);
   }
+  if(title==='XTB + vstupenky / Market Commander 58.7'&&/MARKET COMMANDER 59\.0/.test(String(body))){
+    let hasReceipts=false;try{const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');hasReceipts=Array.isArray(s.marketExecutionHistory?.receipts)&&s.marketExecutionHistory.receipts.length>0}catch{}
+    if(hasReceipts){const x=document.createElement('button');x.className='btn';x.textContent='Ověřit provedení 59.2';x.type='button';x.dataset.executionReconciliation592='1';x.onclick=async()=>{close(null);try{const m=await import('./executionReconciliation592.js');await m.openExecutionReconciliation592()}catch(error){console.error('[execution-reconciliation-592]',error);toast('Execution reconciliation se nepodařilo otevřít')}};qs('[data-modal-buttons]',el).prepend(x)}
+  }
   const onKey=e=>{
     if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close(null);return}
     if(e.key==='Enter'&&primaryBtn&&!e.shiftKey&&!e.ctrlKey&&!e.metaKey){
