@@ -1,8 +1,8 @@
-const CACHE='kamil-os-64.8-release-hardening-r1';
+const CACHE='kamil-os-65.6-ticket-market-watch-r2';
 const SHELL=[
-  './','./index.html','./manifest.webmanifest','./styles.css','./theme33.css','./personal64.css',
+  './','./index.html','./manifest.webmanifest','./styles.css','./theme33.css','./personal64.css','./personal65.css',
   './js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js','./js/state.js','./js/utils.js',
-  './js/viewRuntime41.js','./js/personalShell640.js','./js/personalHardening648.js','./js/personalVault640.js','./js/personalActions640.js','./js/personalAsk640.js',
+  './js/viewRuntime41.js','./js/personalShell640.js','./js/personalHardening650.js','./js/personalVault640.js','./js/personalActions640.js','./js/personalAsk640.js','./js/personalAssistant650.js','./js/personalWaiting650.js','./js/personalUsage650.js','./js/personalDate650.js','./js/personalDailyRhythm651.js','./js/personalTomorrow653.js','./js/personalMorning655.js','./js/ticketMarketWatch656.js',
   './js/personalToday640.js','./js/personalFamily640.js','./js/personalHome640.js','./js/personalMoney640.js','./js/personalDocuments640.js','./js/personalMore640.js',
   './js/personalActionExecution641.js','./js/personalVaultEdit641.js','./js/personalFollowup642.js','./js/personalCapture643.js','./js/personalFamilyHomeActions644.js','./js/personalMoneyActions645.js','./js/personalDocumentActions646.js','./js/personalSettings647.js',
   './js/cloud.js','./js/cloudPayload32.js','./js/authUx32.js','./js/coldPartition42.js','./js/perf41.js',

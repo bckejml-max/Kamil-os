@@ -22,7 +22,7 @@ export function savePriorityArea647(area='none'){
 }
 
 export function exportPersonalData647(s=store.get()){
- const payload={exportedAt:new Date().toISOString(),version:'64.7',personalSettings:s.personalSettings||{},tasks:(s.tasks||[]).filter(x=>!WORK_RE.test(`${x.title||''} ${x.category||''} ${x.area||''}`)),delegations:(s.delegations||[]).filter(x=>!WORK_RE.test(`${x.title||''} ${x.category||''}`)),personalAdmin:s.personalAdmin||{items:[]},personalInbox:s.personalInbox||{items:[]},personalGoals:s.personalGoals||{items:[]},personalSpending:s.personalSpending||{transactions:[]},familyHome:s.familyHome||{members:[]},personalVault:s.personalVault||{items:[],evidence:[]},calendar:{...(s.calendar||{}),events:(s.calendar?.events||[]).filter(x=>!WORK_RE.test(`${x.title||x.summary||''} ${x.category||''}`))}};
+ const payload={exportedAt:new Date().toISOString(),version:'65.0',personalSettings:s.personalSettings||{},tasks:(s.tasks||[]).filter(x=>!WORK_RE.test(`${x.title||''} ${x.category||''} ${x.area||''}`)),delegations:(s.delegations||[]).filter(x=>!WORK_RE.test(`${x.title||''} ${x.category||''}`)),personalAdmin:s.personalAdmin||{items:[]},personalInbox:s.personalInbox||{items:[]},personalGoals:s.personalGoals||{items:[]},personalSpending:s.personalSpending||{transactions:[]},familyHome:s.familyHome||{members:[]},personalVault:s.personalVault||{items:[],evidence:[]},calendar:{...(s.calendar||{}),events:(s.calendar?.events||[]).filter(x=>!WORK_RE.test(`${x.title||x.summary||''} ${x.category||''}`))}};
  downloadJson(`kamil-os-personal-${new Date().toISOString().slice(0,10)}.json`,payload);return payload;
 }
 

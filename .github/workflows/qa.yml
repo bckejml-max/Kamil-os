@@ -114,7 +114,7 @@ jobs:
       - name: Market Edge 32.4
         run: node market_edge_32_test.mjs
       - name: Market Edge safety 32.4
-        run: node market_edge_32_static_test.mjs
+        run: node market_edge_32_static_compat65_test.mjs
       - name: Profit Control 32.5
         run: node profit_control_32_test.mjs
       - name: Profit Control safety 32.5

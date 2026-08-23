@@ -1,38 +1,35 @@
 import {store} from './state.js';
 import {personalVault640} from './personalVault640.js';
-import {personalActions640} from './personalActions640.js';
+import {personalDailyAssistant650,personalWaitingCenter650,personalHomeTimeline650,personalMoneyPlan650,personalSearch650,personalWeeklyReset650} from './personalAssistant650.js';
 
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 const date=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?new Date(t).toLocaleDateString('cs-CZ'):'—'};
+const yearEnd=()=>new Date(new Date().getFullYear(),11,31,23,59,59,999).getTime();
+const auditText=x=>String(x?.reason||x?.title||x?.action||x?.label||x?.message||'Změna');
+const auditAt=x=>x?.at||x?.createdAt||x?.time||x?.timestamp||null;
+const named=x=>x?.provider&&x.provider!=='Neurčeno'?`${x.title} · ${x.provider}`:x.title;
 
 export function answerPersonalQuestion640(question,s=store.get()){
- const q=norm(question),v=personalVault640(s),actions=personalActions640(s);
+ const q=norm(question).trim(),v=personalVault640(s),daily=personalDailyAssistant650(s),waiting=personalWaitingCenter650(s),moneyPlan=personalMoneyPlan650(s);
  const insurance=v.insurance,knownInsurance=insurance.filter(x=>Number(x.monthlyAmount||x.annualAmount)>0),unknownInsurance=insurance.filter(x=>!Number(x.monthlyAmount||x.annualAmount));
+ if(!q)return{title:'Na co se chceš zeptat?',body:'Odpovídám jen z tvých uložených osobních dat.',lines:['Co mám dnes řešit?','Na co čekám?','Co mi končí?','Kolik platím měsíčně?']};
  if((q.includes('pojist')||q.includes('pojistk'))&&(q.includes('kolik')||q.includes('roc')||q.includes('mesic')||q.includes('stoji'))){
-  const lines=knownInsurance.map(x=>`${x.title}: ${x.monthlyAmount?`${money(x.monthlyAmount)}/měs.`:`${money(x.annualAmount)}/rok`}`);
-  if(unknownInsurance.length)lines.push(`Nezapočítáno: ${unknownInsurance.map(x=>x.title).join(', ')} — částka není spolehlivě známá.`);
-  return{title:`Známé pojistky: ${money(v.insuranceAnnual)} ročně`,body:`To je přibližně ${money(v.insuranceAnnual/12)} měsíčně.`,lines};
+  const lines=knownInsurance.map(x=>`${named(x)}: ${x.monthlyAmount?`${money(x.monthlyAmount)}/měs.`:`${money(x.annualAmount)}/rok`}`);if(unknownInsurance.length)lines.push(`Nezapočítáno: ${unknownInsurance.map(named).join(', ')} — částka není spolehlivě známá.`);
+  return{title:`Známé pojistky: ${money(v.insuranceAnnual)} ročně`,body:`Přibližně ${money(v.insuranceAnnual/12)} měsíčně.`,lines};
  }
- if(q.includes('hypot')){
-  const x=v.records.find(r=>r.recordType==='mortgage');return x?{title:`Hypotéka: ${money(x.balance)}`,body:`Známá splátka ${money(x.monthlyAmount)}/měs. · stav k ${date(x.asOf)}.`,lines:[x.nextAction]}:{title:'Hypotéku v osobních datech nemám.',body:'Doplň aktuální zůstatek a splátku.',lines:[]};
- }
- if(q.includes('elektr')||q.includes('eon')){
-  const x=v.records.find(r=>r.recordType==='utility');return x?{title:x.title,body:`Smlouva do ${date(x.validUntil)}.`,lines:[x.noticeBy?`Rozhodnutí nejpozději ${date(x.noticeBy)}.`:'',x.nextAction].filter(Boolean)}:{title:'Elektřinu v osobních datech nemám.',body:'',lines:[]};
- }
- if(q.includes('konci')||q.includes('platnost')||q.includes('obnov')||q.includes('vyprsi')){
-  const rows=v.records.filter(x=>x.validUntil||x.noticeBy||x.reviewAt).sort((a,b)=>Date.parse(a.noticeBy||a.validUntil||a.reviewAt)-Date.parse(b.noticeBy||b.validUntil||b.reviewAt));
-  return{title:rows.length?'Nejbližší známé termíny':'Nemám známý termín k ukázání.',body:'',lines:rows.slice(0,6).map(x=>`${x.title}: ${date(x.noticeBy||x.validUntil||x.reviewAt)}`)};
- }
- if(q.includes('chybi')||q.includes('overit')||q.includes('nejist')||q.includes('data')){
-  return{title:`K ověření: ${v.action.length}`,body:`Pokrytí osobních dat je ${v.coverage} %.`,lines:v.action.slice(0,6).map(x=>`${x.title}: ${x.nextAction}`)};
- }
- if(q.includes('kolik platim')||q.includes('fixni')||q.includes('mesicne')||q.includes('mesicni')){
-  return{title:`Známé pravidelné závazky: ${money(v.monthlyKnown)}/měs.`,body:'Součet zahrnuje jen částky, které máme spolehlivě uložené.',lines:v.records.filter(x=>x.monthlyAmount||x.annualAmount).map(x=>`${x.title}: ${x.monthlyAmount?`${money(x.monthlyAmount)}/měs.`:`${money(x.annualAmount)}/rok`}`)};
- }
- if(q.includes('dnes')||q.includes('co mam')||q.includes('resit')||q.includes('priorit')){
-  return{title:actions.summary,body:'',lines:actions.top3.map((x,i)=>`${i+1}. ${x.title} — ${x.why}`)};
- }
- const cloud=s.meta?.cloudMode==='cloud'?'Cloud je připojený.':'Data jsou zatím jen na tomto zařízení.';
- return{title:'Můžu odpovídat z uložených osobních dat.',body:`${v.summary}. ${cloud}`,lines:['Zkus: „Kolik mě stojí pojistky ročně?“','„Co mi končí?“','„Co mám dnes řešit?“','„Kolik platím měsíčně?“']};
+ if(q.includes('hypot')){const x=v.records.find(r=>r.recordType==='mortgage');return x?{title:`Hypotéka: ${money(x.balance)}`,body:`Známá splátka ${money(x.monthlyAmount)}/měs. · stav k ${date(x.asOf)}.`,lines:[x.nextAction]}:{title:'Hypotéku v osobních datech nemám.',body:'Doplň aktuální zůstatek a splátku.',lines:[]}}
+ if(q.includes('elektr')||q.includes('eon')){const x=v.records.find(r=>r.recordType==='utility');return x?{title:x.title,body:`Smlouva do ${date(x.validUntil)}.`,lines:[x.noticeBy?`Rozhodnutí nejpozději ${date(x.noticeBy)}.`:'',x.nextAction].filter(Boolean)}:{title:'Elektřinu v osobních datech nemám.',body:'',lines:[]}}
+ if(q.includes('cekam')||q.includes('odpoved')||q.includes('follow'))return{title:`Čekáš na ${waiting.count} ${waiting.count===1?'věc':'věcí'}.`,body:waiting.overdue.length?`${waiting.overdue.length} už je po plánovaném follow-up.`:'Žádný follow-up není po termínu.',lines:waiting.rows.slice(0,8).map(x=>`${x.title||x.name}: ${x.when}`)};
+ if(q.includes('do konce roku')||q.includes('letos')||q.includes('do konce letos')){const end=yearEnd(),rows=v.records.filter(x=>{const t=Date.parse(x.noticeBy||x.validUntil||x.reviewAt||'');return Number.isFinite(t)&&t>=Date.now()&&t<=end}).sort((a,b)=>Date.parse(a.noticeBy||a.validUntil||a.reviewAt)-Date.parse(b.noticeBy||b.validUntil||b.reviewAt));return{title:rows.length?`Do konce roku máš ${rows.length} známých termínů.`:'Do konce roku nemám ve Vaultu známý termín.',body:'Ukazuju jen strukturovaná osobní data.',lines:rows.map(x=>`${x.title}: ${date(x.noticeBy||x.validUntil||x.reviewAt)} · ${x.nextAction}`)}}
+ if(q.includes('konci')||q.includes('platnost')||q.includes('obnov')||q.includes('vyprsi')){const rows=v.records.filter(x=>x.validUntil||x.noticeBy||x.reviewAt).sort((a,b)=>Date.parse(a.noticeBy||a.validUntil||a.reviewAt)-Date.parse(b.noticeBy||b.validUntil||b.reviewAt));return{title:rows.length?'Nejbližší známé termíny':'Nemám známý termín k ukázání.',body:'',lines:rows.slice(0,8).map(x=>`${x.title}: ${date(x.noticeBy||x.validUntil||x.reviewAt)} · ${x.nextAction}`)}}
+ if(q.includes('chybi')||q.includes('overit')||q.includes('nejist')||q.includes('doklad'))return{title:v.action.length?`${v.action.length} věci nemáme aktuálně potvrzené.`:'Základní osobní údaje jsou potvrzené.',body:'Neřeš procenta — ukazuju jen konkrétní mezery.',lines:v.action.slice(0,8).map(x=>`${x.title}: ${x.nextAction}`)};
+ if(q.includes('kolik platim')||q.includes('fixni')||q.includes('mesicne')||q.includes('mesicni'))return{title:`Známé pravidelné závazky: ${money(v.monthlyKnown)}/měs.`,body:moneyPlan.recentSpend?`Evidované výdaje za posledních 31 dní: ${money(moneyPlan.recentSpend)}.`:'Výdaje za posledních 31 dní nemám kompletně spočítané.',lines:v.records.filter(x=>x.monthlyAmount||x.annualAmount).map(x=>`${named(x)}: ${x.monthlyAmount?`${money(x.monthlyAmount)}/měs.`:`${money(x.annualAmount)}/rok`}`)};
+ if(q.includes('zbytec')||q.includes('usetrit')||q.includes('šetřit')||q.includes('setrit')){const recurring=v.records.filter(x=>x.monthlyAmount||x.annualAmount).sort((a,b)=>(Number(b.monthlyAmount||0)+Number(b.annualAmount||0)/12)-(Number(a.monthlyAmount||0)+Number(a.annualAmount||0)/12));return{title:'Tady jsou největší známé pravidelné platby.',body:'Bez ceny trhu nebo podmínek smlouvy neumím poctivě říct, která je zbytečná. Můžu ale ukázat, co stojí za revizi.',lines:recurring.slice(0,8).map(x=>`${named(x)}: ${x.monthlyAmount?`${money(x.monthlyAmount)}/měs.`:`${money(x.annualAmount)}/rok`} · ${x.nextAction||'zkontrolovat podmínky'}`)}}
+ if(q.includes('zmenil')||q.includes('zmena')||q.includes('posledn')){const rows=(s.audit||[]).slice().reverse().filter(x=>Date.parse(auditAt(x)||'')>=Date.now()-31*86400000).slice(0,8);return{title:rows.length?'Poslední osobní změny':'Za poslední měsíc nemám auditované změny.',body:'',lines:rows.map(x=>`${date(auditAt(x))}: ${auditText(x)}`)}}
+ if(q.includes('tyden')||q.includes('týden')||q.includes('reset')||q.includes('pristi tyden')){const w=personalWeeklyReset650(s);return{title:'Týdenní reset',body:w.summary,lines:[...w.next7.slice(0,4).map(x=>`${x.title||x.summary}: ${x.d===0?'dnes':x.d===1?'zítra':`za ${x.d} d`}`),...w.waiting.slice(0,3).map(x=>`Čekám: ${x.title||x.name}`),...w.stale.slice(0,3).map(x=>`Ověřit: ${x.title}`)]}}
+ if(q.includes('dum')||q.includes('dům')||q.includes('servis')||q.includes('udrz')||q.includes('údrž')){const rows=personalHomeTimeline650(s);return{title:rows.length?'Nejbližší věci kolem domu':'Kolem domu nemám známý termín do 12 měsíců.',body:'',lines:rows.slice(0,8).map(x=>`${x.title}: ${date(x.date)} · ${x.next}`)}}
+ if(q.includes('dnes')||q.includes('co mam')||q.includes('resit')||q.includes('priorit'))return{title:daily.headline,body:daily.primary?`Nejdřív: ${daily.primary.title}.`:'',lines:daily.top.map((x,i)=>`${i+1}. ${x.title} — ${x.why}`)};
+ const found=personalSearch650(question,s);if(found.length)return{title:`Našel jsem ${found.length} ${found.length===1?'výsledek':'výsledků'}.`,body:'Hledám v osobních smlouvách, úkolech, čekání a kalendáři.',lines:found.map(x=>`${x.title} · ${x.meta}`),results:found};
+ const cloud=s.meta?.cloudMode==='cloud'?'Cloud je připojený.':'Data jsou zatím jen na tomto zařízení.';return{title:'Tohle zatím z uložených dat neumím určit.',body:`${cloud} Nechci hádat.`,lines:['Zkus konkrétní název smlouvy nebo osoby.','Nebo: „Co mám dnes řešit?“, „Na co čekám?“, „Co mi končí do konce roku?“']};
 }

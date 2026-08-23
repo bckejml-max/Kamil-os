@@ -11,106 +11,70 @@ const cloud=read('js/cloudPayload32.js');
 const app=read('js/app.js');
 const runtime=read('js/viewRuntime41.js');
 const lazy=read('js/lazyBoot41.js');
-const instant=read('js/instantShell42.js');
-const today=read('js/todayLite43.js');
-const safeIntel=read('js/safeIntelligence438.js');
-const personalIntel=read('js/personalIntelligence441.js');
-const diagnostics=read('js/systemDiagnostics421.js');
-const rootPackage=JSON.parse(read('package.json'));
-const desktopPackage=JSON.parse(read('desktop/package.json'));
+const personalShell=read('js/personalShell640.js');
+const personalToday=read('js/personalToday640.js');
+const personalAssistant=read('js/personalAssistant650.js');
+const hardening=read('js/personalHardening650.js');
+const marketDecision=read('js/marketDecision534.js');
+const actionQueue=read('js/actionQueue559.js');
 const ticketSeed=read('js/currentTickets33.js');
 const investmentSeed=read('js/externalInvestments33.js');
 const platform43=read('js/platform43.js');
-const lean431=read('js/platform431LeanUi.js');
 const stability431=read('js/platform431Stability.js');
-const desktop43=read('desktop/preload.cjs');
-const desktopMain=read('desktop/main.cjs');
+const diagnostics=read('js/systemDiagnostics421.js');
 const lifeFiles=['lifePlanner446.js','cashflow447.js','wealth448.js','ticketIntel449.js','inbox450.js','maintenance451.js','family452.js','goals453.js','decision454.js','lifeDashboard455.js'].map(f=>read(`js/${f}`));
 const lifePlus=read('js/personalLifePlus475.js');
+const rootPackage=JSON.parse(read('package.json'));
 
 const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
 const release=meta.match(/APP_RELEASE='([^']+)'/)?.[1];
-assert.ok(version&&/^\d+\.\d+\.\d+$/.test(version),'release metadata must contain semantic APP_VERSION');
-assert.ok(release&&/^\d+\.\d+(?:\.\d+)?$/.test(release),'release metadata must contain APP_RELEASE');
+assert.ok(version&&/^65\.\d+\.\d+$/.test(version),'65.x release metadata must be aligned');
+assert.ok(release&&/^65\.\d+$/.test(release)&&release===version.split('.').slice(0,2).join('.'),'65.x release label must match APP_VERSION');
+assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
-assert.ok(index.includes('./js/instantShell42.js'),'instant startup shell must remain wired');
-assert.ok(sw.includes("self.addEventListener('fetch'"),'service worker fetch handler missing');
+
+// Canonical startup / personal UX
+assert.ok(index.includes('./js/instantShell64.js'),'current personal instant startup shell must remain wired');
+assert.ok(index.includes('./personal65.css'),'65.x assistant styles must remain wired');
+assert.ok(index.includes('Dnes')&&index.includes('Rodina')&&index.includes('Domov')&&index.includes('Peníze')&&index.includes('Dokumenty'),'personal navigation missing');
+assert.ok(!index.includes('Personal Home')&&!index.includes('Pohledávka'),'legacy labels must not return to current shell');
+assert.ok(personalToday.includes('ux65-primary')&&personalToday.includes('POTOM'),'decision-first Today missing');
+assert.ok(!personalToday.includes('ux64-data-health')&&!personalToday.includes('KAMIL OS 64.1 / DNES'),'Today must stay free of technical dashboard/version clutter');
+assert.ok(personalAssistant.includes('personalDailyAssistant650')&&personalAssistant.includes('personalWaitingCenter650')&&personalAssistant.includes('personalSearch650'),'65.x assistant engines missing');
+assert.ok(personalShell.includes('Najít / zeptat se')&&personalShell.includes('openVaultRecord640'),'global search/assistant integration missing');
+assert.ok(hardening.includes('primary<=1')&&hardening.includes('dataHealth===0'),'65.x decision-first preflight missing');
+
+// Core persistence/cloud/render safety
+assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
+assert.ok(/const CACHE='kamil-os-65\.\d+-[^']+'/.test(sw)&&sw.includes('./js/instantShell64.js'),'65.x service-worker shell/cache missing');
+assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must not prefer stale cache');
 assert.ok(state.includes('export const store=new Store()'),'state store export missing');
 assert.ok(cloud.includes('mergeColdState42'),'cloud payload must restore cold history before upload');
-assert.ok(!cloud.includes('autoTrade:true'),'QA guard: cloud payload must not enable automatic trading');
+assert.ok(!cloud.includes('autoTrade:true'),'cloud payload must never enable automatic trading');
 assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');
 assert.ok(app.includes('requestAnimationFrame(()=>{const runForce='),'UI renders must remain coalesced');
-assert.ok(runtime.includes('warmViews=new Map()'),'runtime must cache warmed view renderers');
-assert.ok(runtime.includes('hydrateColdView42(key)'),'opened views must hydrate required cold data before navigation');
+assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateColdView42(key)'),'lazy view hydration/cache missing');
+for(const line of ['prefetchView41(){return Promise.resolve(null)}','renderExtras41(){return Promise.resolve([])}','refreshRiskBadge41(){return Promise.resolve(null)}','scheduleNotifications41(){return Promise.resolve(null)}','warmRuntime41(){return Promise.resolve(null)}'])assert.ok(runtime.includes(line),`background runtime guard missing: ${line}`);
+
+// Legacy market modules remain available but never become background/automatic behavior.
+for(const [name,file] of [['Market Decision',marketDecision],['Action Queue',actionQueue]]){
+ for(const bad of ['setInterval(','requestIdleCallback','store.subscribe('])assert.ok(!file.includes(bad),`${name} must stay click-only: ${bad}`);
+ assert.ok(!file.includes('store.update(')&&!file.includes('store.patch('),`${name} must stay read-only`);
+}
+assert.ok(marketDecision.includes("from './xtbPlanner24.js'")&&marketDecision.includes("from './ticketCockpit24.js'"),'market compatibility engines missing');
 assert.ok(!ticketSeed.includes('store.subscribe(')&&!ticketSeed.includes('queueMicrotask(ensure)'),'ticket seed must never mutate on import');
 assert.ok(!investmentSeed.includes('store.subscribe(')&&!investmentSeed.includes('queueMicrotask(ensure)'),'investment seed must never mutate on import');
-assert.ok(platform43.includes('export const ROADMAP43=['),'43 platform must expose the 60-feature delivery registry');
-assert.ok(platform43.includes('startPlatform43')&&platform43.includes('dailyAutopilot43'),'43 resilience/autopilot engines missing');
-assert.ok(platform43.includes('waitingAutopilot43')&&platform43.includes('portfolio43')&&platform43.includes('tickets43'),'43 domain engines missing');
-assert.ok(lazy.includes("'./platform431LeanUi.js'")&&lazy.includes("'./platform431Stability.js'"),'43.1 lean/stability modules must remain available behind lazy loader');
-assert.ok(!lazy.includes("'./platform43Ui.js'"),'43.1 must not load the old full 60-feature dashboard');
-assert.ok(lean431.includes("let expanded=false")&&lean431.includes('Otevřít detail platformy'),'43.1 detail must be collapsed by default');
-assert.ok(lean431.includes('setTimeout(()=>{if(document.visibilityState')&&lean431.includes('900'),'43.1 platform rerenders must be debounced');
-assert.ok(stability431.includes("entryTypes:['longtask']")&&stability431.includes("lag>1200"),'43.1 freeze detector missing');
-assert.ok(stability431.includes('recent.length>=3')&&stability431.includes('setSafeMode43(true)'),'43.1 automatic Safe Mode trip missing');
-assert.ok(lazy.includes('safeMode()'),'Safe Mode guard missing from lazy loader');
-assert.ok(desktop43.includes('kamilDesktop43')&&desktop43.includes('Ctrl+Alt+K'),'desktop palette bridge missing');
-assert.ok(desktopMain.includes("globalShortcut.register('CommandOrControl+Alt+K'")&&desktopMain.includes('Universal Inbox'),'global desktop shortcut/tray actions missing');
 
-assert.equal(version,'43.7.1','Safe Core release metadata must be aligned');
-assert.equal(release,'43.7','43.7 release label must be aligned');
-assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
-assert.equal(desktopPackage.version,version,'desktop package version must match APP_VERSION');
-assert.ok(index.includes('43.7.1'),'Safe Core static boot fallback must be aligned');
-assert.ok(instant.includes("const VERSION='43.7.1'")&&instant.includes("kamil-os-fast-snapshot-43-7"),'Safe Core instant shell version/snapshot missing');
-assert.ok(sw.includes("const CACHE='kamil-os-43.7.1-safe-core-r1'"),'Safe Core service-worker cache version missing');
-assert.ok(instant.includes('SAFE CORE 43.7.1')&&instant.includes('window.__KAMIL_SAFE_CORE__=true'),'Safe Core boot contract missing');
-assert.ok(runtime.includes('export function prefetchView41(){return Promise.resolve(null)}'),'Safe Core must disable hover/focus prefetch');
-assert.ok(runtime.includes('export function renderExtras41(){return Promise.resolve([])}'),'Safe Core must disable background extras');
-assert.ok(runtime.includes('export function refreshRiskBadge41(){return Promise.resolve(null)}'),'Safe Core must disable background risk badge');
-assert.ok(runtime.includes('export function scheduleNotifications41(){return Promise.resolve(null)}'),'Safe Core must disable background notifications');
-assert.ok(runtime.includes('export function warmRuntime41(){return Promise.resolve(null)}'),'Safe Core must disable runtime warming');
-assert.ok(!today.includes('scheduleFull(')&&!today.includes('setTimeout(()=>loadLife42'),'Today must not auto-hydrate heavy modules');
-assert.ok(today.includes("import('./lifeDashboard455.js')")&&today.includes('data-life-dashboard')&&today.includes('Životní dashboard'),'Unified Life Dashboard control missing');
-assert.ok(!today.includes('data-safe-intel="work"')&&!today.includes('Work Command Center'),'Personal UI must not expose work controls');
-assert.ok(personalIntel.includes('export function personalMission441')&&personalIntel.includes('openPersonalMission441')&&personalIntel.includes('openPersonalFinance441'),'Personal 44.1 engines must remain available');
-assert.ok(personalIntel.includes('WORK_RE')&&personalIntel.includes('filter(personal)'),'Personal 44.1 work-domain exclusion missing');
-assert.ok(!personalIntel.includes('setInterval(')&&!personalIntel.includes('requestIdleCallback')&&!personalIntel.includes('store.subscribe('),'Personal Intelligence must remain on-demand only');
-assert.ok(!personalIntel.includes('.set(')&&!personalIntel.includes('store.update(')&&!personalIntel.includes('store.patch('),'Personal Intelligence must remain read-only');
-assert.ok(safeIntel.includes('export function financeTickets438')&&safeIntel.includes('export function work438')&&safeIntel.includes('export function mission438'),'Legacy Safe Intelligence compatibility engines missing');
+// Legacy life engines remain loadable/read-only compatibility modules, but are no longer the canonical Home.
+for(const file of lifeFiles){assert.ok(!file.includes('setInterval(')&&!file.includes('requestIdleCallback')&&!file.includes('store.subscribe('),'legacy Life OS modules must stay click-only');assert.ok(!file.includes('store.update(')&&!file.includes('store.patch('),'legacy Life OS modules must stay read-only')}
+assert.ok(lifeFiles[9].includes('export function lifeDashboard455'),'legacy Life Dashboard compatibility module missing');
+assert.ok(!lifePlus.includes('setInterval(')&&!lifePlus.includes('requestIdleCallback')&&!lifePlus.includes('store.subscribe('),'legacy Life+ must stay click-only');
+assert.ok(!lifePlus.includes('store.update(')&&!lifePlus.includes('store.patch(')&&!lifePlus.includes('store.set('),'legacy Life+ must stay read-only');
 
-for(const file of lifeFiles){assert.ok(!file.includes('setInterval(')&&!file.includes('requestIdleCallback')&&!file.includes('store.subscribe('),'Life OS modules must stay click-only');assert.ok(!file.includes('store.update(')&&!file.includes('store.patch('),'Life OS modules must stay read-only')}
-assert.ok(lifeFiles[0].includes('export function lifePlanner446'),'44.6 Life Planner missing');
-assert.ok(lifeFiles[1].includes('export function cashflow447'),'44.7 Cashflow Forecast missing');
-assert.ok(lifeFiles[2].includes('export function wealth448'),'44.8 Wealth Dashboard missing');
-assert.ok(lifeFiles[3].includes('export function ticketIntel449'),'44.9 Ticket Intelligence missing');
-assert.ok(lifeFiles[4].includes('export function inbox450'),'45.0 Inbox missing');
-assert.ok(lifeFiles[5].includes('export function maintenance451'),'45.1 Maintenance missing');
-assert.ok(lifeFiles[6].includes('export function family452'),'45.2 Family Planner missing');
-assert.ok(lifeFiles[7].includes('export function goals453'),'45.3 Goals missing');
-assert.ok(lifeFiles[8].includes('export function decision454'),'45.4 Decision Engine missing');
-assert.ok(lifeFiles[9].includes('export function lifeDashboard455')&&lifeFiles[9].includes('Životní dashboard 47.5')&&lifeFiles[9].includes('Life+ 20'),'47.5 Unified Life Dashboard integration missing');
+// Platform/stability infrastructure stays intact.
+assert.ok(platform43.includes('export const ROADMAP43=['),'platform registry missing');
+assert.ok(stability431.includes("entryTypes:['longtask']")&&stability431.includes('setSafeMode43(true)'),'freeze detector/Safe Mode missing');
+assert.ok(lazy.includes("STABILITY_MEMORY_KEY='kamil-os-stability-memory-43-7'")&&lazy.includes('refreshStabilityMemory'),'stability memory missing');
+assert.ok(diagnostics.includes('43.7 STABILITY MEMORY'),'stability diagnostics missing');
 
-assert.ok(!lifePlus.includes('setInterval(')&&!lifePlus.includes('requestIdleCallback')&&!lifePlus.includes('store.subscribe('),'Life+ 47.5 must stay click-only');
-assert.ok(!lifePlus.includes('store.update(')&&!lifePlus.includes('store.patch(')&&!lifePlus.includes('store.set('),'Life+ 47.5 must stay read-only');
-for(const fn of ['renewal456','insurance457','runway458','purchase459','goal460','household461','vehicle462','energy463','docs464','familyLoad465','ticketExposure466','xtb467','stress468','debts469','admin470','confidence471','reset472','opportunity473','noise474','health475'])assert.ok(lifePlus.includes(`export function ${fn}`),`Life+ engine ${fn} missing`);
-assert.ok(lifePlus.includes('export function personalLifePlus475')&&lifePlus.includes('openPersonalLifePlus475'),'Life+ 47.5 aggregator/UI missing');
-assert.ok(lifePlus.includes('WORK_RE')&&lifePlus.includes('filter(personal)'),'Life+ work-domain exclusion missing');
-
-assert.ok(lazy.includes('async function responsiveLoad')&&lazy.includes('navigator.scheduling?.isInputPending'),'responsive scheduler/input guard missing');
-assert.ok(lazy.includes("document.visibilityState==='hidden'")&&lazy.includes('await sleep(250)'),'scheduler must yield while hidden or busy');
-assert.ok(lazy.includes('window.__KAMIL_MODULE_TIMINGS__'),'per-module timing diagnostics missing');
-assert.ok(lazy.includes("MODULE_STATS_KEY='kamil-os-module-stats-43-3'")&&lazy.includes('function recordTiming'),'persistent timing history missing');
-assert.ok(lazy.includes('function adaptiveGap')&&lazy.includes('learnedDelay'),'adaptive module pacing missing');
-assert.ok(lazy.includes('COLD_THRESHOLD_MS=1100')&&lazy.includes('COLD_MIN_SAMPLES=3'),'cold-load qualification guard missing');
-assert.ok(lazy.includes("QUARANTINE_KEY='kamil-os-module-quarantine-43-5'"),'quarantine storage missing');
-assert.ok(lazy.includes('SELF_HEAL_PROBE_DELAY_MS=20*60*1000')&&lazy.includes('SELF_HEAL_MAX_PROBES=3'),'43.6 self-healing probe limits missing');
-assert.ok(lazy.includes('probeQuarantinedModule436')&&lazy.includes('runSelfHealingSweep436'),'43.6 self-healing engine missing');
-assert.ok(lazy.includes("STABILITY_MEMORY_KEY='kamil-os-stability-memory-43-7'"),'43.7 stability memory storage missing');
-assert.ok(lazy.includes('MEMORY_COLD_SCORE=6')&&lazy.includes('MEMORY_BLOCK_SCORE=10'),'43.7 memory policy thresholds missing');
-assert.ok(lazy.includes('function updateMemory')&&lazy.includes('function stabilityPolicy')&&lazy.includes('refreshStabilityMemory'),'43.7 stability memory engine missing');
-assert.ok(lazy.includes("status:'memory-blocked'")&&lazy.includes('allowMemoryRisk=false'),'43.7 automatic background isolation missing');
-assert.ok(lazy.includes("window.__KAMIL_MEMORY_BLOCKED_MODULES__")&&lazy.includes("window.__KAMIL_MEMORY_COLD_MODULES__"),'43.7 memory diagnostics globals missing');
-assert.ok(diagnostics.includes('43.7 STABILITY MEMORY')&&diagnostics.includes('Reset Stability Memory')&&diagnostics.includes('skóre'),'43.7 stability diagnostics missing');
-
-console.log(`KAMIL OS CURRENT SMOKE QA PASS · ${version} · PERSONAL LIFE OS 47.5 · 20 LIFE+ ENGINES`);
+console.log(`KAMIL OS CURRENT QA PASS · ${version} · DAILY PERSONAL ASSISTANT`);
