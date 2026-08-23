@@ -9,15 +9,15 @@ const auditAt=x=>x?.at||x?.createdAt||x?.time||x?.timestamp||null;
 const fmtDate=v=>v?new Date(v).toLocaleString('cs-CZ'):'—';
 
 export function personalSettings647(s=store.get()){
- const p=s.personalSettings||{},priorityAreas=Array.isArray(p.priorityAreas)&&p.priorityAreas.length?p.priorityAreas:['family','home','money','admin'];
+ const p=s.personalSettings||{},priorityArea=AREAS.some(x=>x[0]===p.priorityArea)?p.priorityArea:'none';
  const vault=personalVault640(s),recentAudit=(s.audit||[]).filter(x=>!WORK_RE.test(auditText(x))).slice(-12).reverse();
  const missing=vault.records.filter(x=>x.status.severity>0).length;
- return{priorityAreas,cloud:s.meta?.cloudMode==='cloud',lastCloudAt:s.meta?.lastCloudAt||null,lastMutationAt:s.meta?.lastMutationAt||null,coverage:vault.coverage,records:vault.records.length,missing,recentAudit,summary:`${vault.coverage}% dat · ${missing} položek k aktualizaci`};
+ return{priorityArea,cloud:s.meta?.cloudMode==='cloud',lastCloudAt:s.meta?.lastCloudAt||null,lastMutationAt:s.meta?.lastMutationAt||null,coverage:vault.coverage,records:vault.records.length,missing,recentAudit,summary:`${vault.coverage}% dat · ${missing} položek k aktualizaci`};
 }
 
-export function savePriorityAreas647(areas=[]){
- const clean=AREAS.map(x=>x[0]).filter(x=>areas.includes(x));
- store.mutate('Nastaveny osobní priority',s=>{s.personalSettings=s.personalSettings||{};s.personalSettings.priorityAreas=clean.length?clean:['family','home','money','admin'];s.personalSettings.updatedAt=new Date().toISOString()},{undo:true,cloud:true,audit:true});
+export function savePriorityArea647(area='none'){
+ const clean=AREAS.some(x=>x[0]===area)?area:'none';
+ store.mutate('Nastavena hlavní osobní priorita',s=>{s.personalSettings=s.personalSettings||{};s.personalSettings.priorityArea=clean;s.personalSettings.updatedAt=new Date().toISOString()},{undo:true,cloud:true,audit:true});
  return clean;
 }
 
@@ -27,13 +27,10 @@ export function exportPersonalData647(s=store.get()){
 }
 
 export async function openPersonalSettings647(){
- const x=personalSettings647();
- const checks=AREAS.map(([id,label])=>`<label class="row"><input type="checkbox" name="area" value="${id}" ${x.priorityAreas.includes(id)?'checked':''}><span>${h(label)}</span></label>`).join('');
- const body=`<div class="card"><div class="eyebrow">CO MÁ MÍT PŘEDNOST</div><p class="muted">Vybrané oblasti dostanou v Dnes malou prioritu navíc. Termín a skutečná naléhavost mají pořád přednost.</p>${checks}</div>`;
- const host=document.createElement('div');host.innerHTML=body;
- const result=await formModal('Osobní nastavení',host.innerHTML,{submitLabel:'Uložit priority'});
- if(result){const values=[...document.querySelectorAll('input[name="area"]:checked')].map(n=>n.value);savePriorityAreas647(values);toast('Osobní priority uloženy.');return values}
- return null;
+ const x=personalSettings647(),opts=[['none','Bez zvýhodnění'],...AREAS].map(([id,label])=>`<option value="${id}" ${x.priorityArea===id?'selected':''}>${h(label)}</option>`).join('');
+ const body=`<div class="form-grid"><label>Co má mít malou prioritu navíc<select name="priorityArea" autofocus>${opts}</select></label><div class="decision-note">Termíny a skutečná naléhavost mají vždy přednost. Tohle jen pomáhá rozhodnout mezi podobně důležitými věcmi.</div></div>`;
+ const result=await formModal('Osobní nastavení',body,{submitLabel:'Uložit prioritu'});
+ if(result){savePriorityArea647(result.priorityArea);toast('Osobní priorita uložena.');return result.priorityArea}return null;
 }
 
 export async function openPersonalDataHealth647(){
