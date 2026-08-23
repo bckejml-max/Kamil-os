@@ -14,8 +14,10 @@ jobs:
       - name: Syntax check personal 65 modules
         run: |
           node --check js/personalAssistant650.js
+          node --check js/personalDate650.js
           node --check js/personalDailyRhythm651.js
           node --check js/personalTomorrow653.js
+          node --check js/personalMorning655.js
           node --check js/personalToday640.js
           node --check js/personalWaiting650.js
           node --check js/personalAsk640.js
@@ -45,4 +47,4 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_daily_personal_assistant_65_0.spec.mjs e2e_daily_rhythm_65_1.spec.mjs e2e_zero_friction_today_65_2.spec.mjs e2e_tomorrow_radar_65_3.spec.mjs e2e_night_handoff_65_4.spec.mjs --reporter=line
+          npx playwright test e2e_daily_personal_assistant_65_0.spec.mjs e2e_daily_rhythm_65_1.spec.mjs e2e_zero_friction_today_65_2.spec.mjs e2e_tomorrow_radar_65_3.spec.mjs e2e_night_handoff_65_4.spec.mjs e2e_morning_launch_65_5.spec.mjs --reporter=line
