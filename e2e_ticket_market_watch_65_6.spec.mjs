@@ -11,8 +11,9 @@ test('65.6 Ticket Market Watch reads private ticketBook states and never auto-se
  await page.addInitScript(state=>localStorage.setItem('kamil-os-state',JSON.stringify(state)),state);
  await page.route('**/api/ticket-market-watch',async route=>{const body=route.request().postDataJSON?.()||{},items=body.items||[],results=items.filter(x=>['LISTED','NOT_LISTED'].includes(x.status)).map(x=>({...x,market:x.viagogoUrl?{price:150,currency:'USD',priceCzk:3200,confidence:'section',checkedAt:new Date().toISOString()}:null,source:x.viagogoUrl?{status:'ok',message:'Cena nalezena pro sekci.'}:{status:'missing',message:'Chybí Viagogo URL'},recommendation:x.viagogoUrl?{code:'HOLD',label:'DRŽET',reason:'Test market.'}:{code:'SOURCE_MISSING',label:'DOPLNIT VIAGOGO ODKAZ',reason:'Přidej konkrétní event stránku.'}}));await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,version:'65.6',checkedAt:new Date().toISOString(),summary:{listed:3,notListed:4},results})})});
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
- await page.getByRole('button',{name:'Více'}).first().click();
- await page.getByRole('button',{name:'Ticket Market Watch'}).click();
+ await page.locator('#mainNav [data-personal-more]').click();
+ await expect(page.locator('#modalHost')).toContainText('Osobní přehled a nastavení');
+ await page.locator('#modalHost').getByRole('button',{name:'Ticket Market Watch'}).click();
  const modal=page.locator('#modalHost');
  await expect(modal).toContainText('Viagogo trh bez automatického prodeje');
  await expect(modal).toContainText('Nabízíš3 ks');
