@@ -13,6 +13,13 @@ const daysTo=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.ceil((
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 const fmtDate=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?new Date(t).toLocaleDateString('cs-CZ'):'—'};
 const currentHour=()=>new Date().getHours();
+const futurePersonal=s=>{
+ const rows=[];
+ for(const x of (s.calendar?.events||[]).filter(personal)){const d=daysTo(x.start||x.date||x.when);if(d!==null&&d>0&&d<=7)rows.push({...x,d,sourceKind:'calendar'});}
+ for(const x of (s.tasks||[]).filter(open).filter(personal).filter(x=>!x.waitingFor)){const d=daysTo(dateOf(x));if(d!==null&&d>0&&d<=7)rows.push({...x,d,sourceKind:'task'});}
+ for(const x of (s.personalAdmin?.items||[]).filter(open).filter(personal).filter(x=>!x.waitingFor)){if(String(x.id||'').startsWith('recovered-'))continue;const d=daysTo(dateOf(x));if(d!==null&&d>0&&d<=7)rows.push({...x,d,sourceKind:'admin'});}
+ return rows.sort((a,b)=>a.d-b.d||String(a.title||a.name||a.summary||'').localeCompare(String(b.title||b.name||b.summary||''),'cs'));
+};
 
 export function personalActionCta650(a){
  if(!a)return 'Otevřít';
@@ -33,12 +40,11 @@ export function personalActionCta650(a){
 export function personalDailyAssistant650(s=store.get()){
  const actions=personalActions640(s),hour=currentHour();
  const waiting=(s.delegations||[]).filter(open).filter(personal).map(x=>({...x,d:daysTo(dateOf(x))})).sort((a,b)=>(a.d??999)-(b.d??999));
- const tomorrow=(s.calendar?.events||[]).filter(personal).map(x=>({...x,d:daysTo(x.start||x.date||x.when)})).filter(x=>x.d===1);
- const next7=(s.calendar?.events||[]).filter(personal).map(x=>({...x,d:daysTo(x.start||x.date||x.when)})).filter(x=>x.d!==null&&x.d>=0&&x.d<=7).sort((a,b)=>a.d-b.d);
+ const upcoming=futurePersonal(s),tomorrow=upcoming.filter(x=>x.d===1),next7=upcoming;
  const top=actions.top3.map(x=>({...x,cta:personalActionCta650(x)}));
  const primary=top[0]||null,secondary=top.slice(1,3);
  const evening=hour>=18,morning=hour<11;
- const headline=primary?(evening?`Dnes ještě stojí za to vyřešit 1 důležitou věc.`:morning?`Začni jednou důležitou věcí.`:`Teď má největší smysl tohle.`):evening?(tomorrow.length?`Dnes je klid. Zítra máš ${tomorrow.length} ${tomorrow.length===1?'událost':'události'}.`:'Dnes je hotovo.'):'Dnes nic osobního nehoří.';
+ const headline=primary?(evening?`Dnes ještě stojí za to vyřešit 1 důležitou věc.`:morning?`Začni jednou důležitou věcí.`:`Teď má největší smysl tohle.`):evening?(tomorrow.length?`Dnes je klid. Zítra máš ${tomorrow.length} ${tomorrow.length===1?'věc':'věci'}.`:'Dnes je hotovo.'):'Dnes nic osobního nehoří.';
  return{primary,secondary,top,waiting,tomorrow,next7,hour,headline,waitingCount:waiting.length,tomorrowCount:tomorrow.length,next7Count:next7.length,summary:primary?`${primary.title} · ${primary.cta}`:'Bez urgentní osobní akce'};
 }
 
@@ -79,5 +85,5 @@ export function personalSearch650(query,s=store.get()){
 
 export function personalWeeklyReset650(s=store.get()){
  const d=personalDailyAssistant650(s),v=personalVault640(s),done=(s.audit||[]).filter(x=>{const t=Date.parse(x.at||x.createdAt||'');return Number.isFinite(t)&&t>=Date.now()-7*DAY&&!WORK_RE.test(String(x.reason||x.title||x.action||''))}).slice(-8).reverse();
- const stale=v.action.slice(0,5);return{done,next7:d.next7,waiting:d.waiting.slice(0,5),stale,summary:`${done.length} posledních změn · ${d.next7.length} událostí do 7 dní · ${d.waiting.length} čekání`};
+ const stale=v.action.slice(0,5);return{done,next7:d.next7,waiting:d.waiting.slice(0,5),stale,summary:`${done.length} posledních změn · ${d.next7.length} věcí do 7 dní · ${d.waiting.length} čekání`};
 }
