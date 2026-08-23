@@ -2,6 +2,7 @@ import {store} from './state.js';
 import {modal,toast,h} from './utils.js';
 import {personalVaultRecord640,confirmVaultRecord640} from './personalVault640.js';
 import {openVaultEdit641} from './personalVaultEdit641.js';
+import {postponePersonalAction642,markPersonalWaiting642} from './personalFollowup642.js';
 
 const now=()=>new Date().toISOString();
 const splitId=id=>{const s=String(id||''),i=s.indexOf(':');return i<0?[s,'']:[s.slice(0,i),s.slice(i+1)]};
@@ -34,7 +35,11 @@ export async function openPersonalAction641(action){
   if(choice==='confirm'){confirmVaultRecord640(r.id);toast('Údaj potvrzen.');return 'confirmed'}
   return choice;
  }
- const choice=await modal(action.title||'Osobní úkol',`<div class="card"><p>${h(action.why||'')}</p><div class="decision-note"><b>Další krok:</b> ${h(action.next||'')}</div></div>`,[{label:'Hotovo',value:'done',primary:true},{label:'Zavřít',value:null}]);
+ const buttons=[{label:'Hotovo',value:'done',primary:true},{label:'Za 3 dny',value:'3d'},{label:'Za týden',value:'7d'}];
+ if(action.kind!=='waiting')buttons.push({label:'Čekám na odpověď',value:'waiting'});buttons.push({label:'Zavřít',value:null});
+ const choice=await modal(action.title||'Osobní úkol',`<div class="card"><p>${h(action.why||'')}</p><div class="decision-note"><b>Další krok:</b> ${h(action.next||'')}</div></div>`,buttons);
  if(choice==='done'){if(completePersonalAction641(action)){toast('Hotovo.');return 'done'}toast('Položku se nepodařilo najít.');}
+ if(choice==='3d'||choice==='7d'){const days=choice==='3d'?3:7;if(postponePersonalAction642(action,days)){toast(`Posunuto o ${days} dní.`);return 'postponed'}}
+ if(choice==='waiting'){if(markPersonalWaiting642(action,3)){toast('Přidáno do čekání. Follow-up za 3 dny.');return 'waiting'}}
  return choice;
 }
