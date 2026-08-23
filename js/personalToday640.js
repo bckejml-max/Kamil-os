@@ -15,15 +15,17 @@ const secondaryHtml=x=>`<div class="row ux65-secondary"><div><b>${h(x.title)}</b
 
 export function renderPersonalToday640(){
  ensurePersonalVault640();const s=store.get(),d=personalDailyAssistant650(s),rhythm=personalDailyRhythm651(s),host=qs('#todayView');if(!host)return;
- host.innerHTML=`<div class="ux64-page ux65-today"><section class="ux64-hero ux65-hero"><div class="eyebrow">DNES</div><h1>${greeting()}</h1><p>${h(d.headline)}</p></section>
- ${d.primary?`<section>${primaryHtml(d.primary)}</section>`:'<section class="card ux64-clear"><b>Všechno důležité je teď v pořádku.</b><p class="muted">Nemusíš nic spravovat jen proto, že je appka otevřená.</p></section>'}
- ${d.secondary.length?`<section class="card ux65-later"><div class="eyebrow">POTOM</div>${d.secondary.map(secondaryHtml).join('')}</section>`:''}
+ const late=rhythm.mode==='late',primary=late?(rhythm.urgent[0]||null):d.primary,secondary=late?rhythm.urgent.slice(1,3):d.secondary;
+ const headline=late?rhythm.summary:d.headline;
+ host.innerHTML=`<div class="ux64-page ux65-today"><section class="ux64-hero ux65-hero"><div class="eyebrow">DNES</div><h1>${greeting()}</h1><p>${h(headline)}</p></section>
+ ${primary?`<section>${primaryHtml(primary)}</section>`:`<section class="card ux64-clear"><b>${late?'Dnešek můžeš uzavřít.':'Všechno důležité je teď v pořádku.'}</b><p class="muted">${late?'Neurgentní věci nechávám na zítřek.':'Nemusíš nic spravovat jen proto, že je appka otevřená.'}</p></section>`}
+ ${secondary.length?`<section class="card ux65-later"><div class="eyebrow">${late?'JEŠTĚ DNES':'POTOM'}</div>${secondary.map(secondaryHtml).join('')}</section>`:''}
  <section class="ux65-context"><button class="ux65-chip" data-waiting-open><b>${d.waitingCount}</b><span>Čekám na odpověď</span></button><button class="ux65-chip" data-family-open><b>${d.tomorrowCount}</b><span>Zítra</span></button><button class="ux65-chip" data-family-open><b>${d.next7Count}</b><span>Do 7 dní</span></button><button class="ux65-chip" data-daily-close><b>${rhythm.done}</b><span>Dnes hotovo</span></button></section>
- <section class="ux65-quick"><button class="btn" data-ask="Co mám dnes řešit?">Co dnes řešit?</button><button class="btn" data-ask="Co mi končí?">Co mi končí?</button><button class="btn" data-ask="Na co čekám?">Na co čekám?</button><button class="btn" data-daily-close>${rhythm.mode==='evening'?'Uzavřít den':'Denní přehled'}</button></section></div>`;
+ <section class="ux65-quick"><button class="btn" data-ask="Co mám dnes řešit?">Co dnes řešit?</button><button class="btn" data-ask="Co mi končí?">Co mi končí?</button><button class="btn" data-ask="Na co čekám?">Na co čekám?</button><button class="btn ${late?'primary':''}" data-daily-close>${late?'Uzavřít den':rhythm.mode==='evening'?'Uzavřít den':'Denní přehled'}</button></section></div>`;
  host.querySelector('[data-waiting-open]')?.addEventListener('click',()=>openPersonalWaiting650());
  host.querySelectorAll('[data-family-open]').forEach(b=>b.addEventListener('click',()=>go('tickets')));
  host.querySelectorAll('[data-daily-close]').forEach(b=>b.addEventListener('click',()=>openDailyClose651()));
  host.querySelectorAll('[data-ask]').forEach(b=>b.addEventListener('click',()=>{const input=qs('#commandInput');if(input){input.value=b.dataset.ask;input.focus();qs('#commandGo')?.click()}}));
  host.querySelectorAll('[data-ux65-action]').forEach(b=>b.addEventListener('click',async()=>{const fresh=personalDailyAssistant650(store.get()).top.find(x=>x.id===b.dataset.ux65Action);if(!fresh)return;await openPersonalAction641(fresh);renderPersonalToday640()}));
- if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_651_LAST__={at:Date.now(),view:'today',primary:d.primary?.title||null,secondary:d.secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,doneToday:rhythm.done,mode:rhythm.mode};
+ if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_652_LAST__={at:Date.now(),view:'today',primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,doneToday:rhythm.done,mode:rhythm.mode,lateCalm:late&&!primary};
 }
