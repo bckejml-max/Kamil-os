@@ -25,5 +25,5 @@ async function askGlobal(){
 export function bindPersonalShell640(){
  if(bound)return;bound=true;qsa('[data-personal-more]').forEach(b=>b.addEventListener('click',()=>{markPersonalUsage650('action','more');openPersonalMore640()}));window.addEventListener('kamil:view-change',e=>apply(e.detail,true));window.addEventListener('kamil:release-stamp',()=>apply(currentView,false));
  const input=qs('#commandInput'),go=qs('#commandGo');if(input){input.placeholder='Zeptej se nebo hledej: Allianz, hypotéka, co mi končí…';input.oninput=null;input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();askGlobal()}if(e.key==='Escape'){input.value='';input.blur()}}}if(go){go.textContent='Najít / zeptat se';go.onclick=askGlobal}
- const add=qs('#quickAddBtn');if(add)add.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();markPersonalUsage650('action','capture');openPersonalCapture643(captureType())},true);apply('today',true);startTicketMarketAuto656();
+ const add=qs('#quickAddBtn');if(add)add.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();markPersonalUsage650('action','capture');openPersonalCapture643(captureType())},true);apply('today',true);startTicketMarketAuto656();window.__KAMIL_PERSONAL_SHELL_BOUND__=true;
 }
