@@ -10,10 +10,8 @@ const viewDefs={
 export const validViews41=new Set(Object.keys(viewDefs));
 function load(path){if(modules.has(path))return modules.get(path);const p=import(path).catch(err=>{modules.delete(path);throw err});modules.set(path,p);return p}
 function warmView(name='today'){
- const key=validViews41.has(name)?name:'today';
- if(warmViews.has(key))return warmViews.get(key);
- const def=viewDefs[key],p=Promise.resolve().then(()=>hydrateColdView42(key)).then(()=>load(def[0])).then(m=>m[def[1]]).catch(err=>{warmViews.delete(key);throw err});
- warmViews.set(key,p);return p;
+ const key=validViews41.has(name)?name:'today';if(warmViews.has(key))return warmViews.get(key);
+ const def=viewDefs[key],p=Promise.resolve().then(()=>hydrateColdView42(key)).then(()=>load(def[0])).then(m=>m[def[1]]).catch(err=>{warmViews.delete(key);throw err});warmViews.set(key,p);return p;
 }
 export function getViewRenderer41(name='today'){return warmView(name)}
 export function prefetchView41(){return Promise.resolve(null)}
@@ -23,6 +21,6 @@ export async function renderCommandResults41(){return Promise.resolve(null)}
 export async function executeCommand41(){return Promise.resolve(null)}
 export function renderExtras41(){return Promise.resolve([])}
 export function refreshRiskBadge41(){return Promise.resolve(null)}
-export async function runPreflight41(){try{const m=await load('./personalHardening648.js');return {...m.personalReleasePreflight648(),safeCore:true,personalUx:'64.8'}}catch(error){return{ok:false,safeCore:true,personalUx:'64.8',error:String(error?.message||error)}}}
+export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:'65.0'}}catch(error){return{ok:false,safeCore:true,personalUx:'65.0',error:String(error?.message||error)}}}
 export function scheduleNotifications41(){return Promise.resolve(null)}
 export function warmRuntime41(){return Promise.resolve(null)}
