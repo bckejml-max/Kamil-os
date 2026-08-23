@@ -22,13 +22,13 @@ export function personalActions640(s=store.get()){
   const score=90+v.status.severity/4;
   push({id:`vault:${v.id}`,score,title:v.title,why:v.status.detail,next:v.nextAction,minutes:minutesFor(v),kind:'data',route:routeForVault(v),recordId:v.id});
  }
- for(const t of (s.tasks||[]).filter(open).filter(personal)){
+ for(const t of (s.tasks||[]).filter(open).filter(personal).filter(x=>!x.waitingFor)){
   const d=daysTo(dueOf(t));push({id:`task:${t.id}`,score:dueScore(d),title:t.title||t.name||'Osobní úkol',why:`Osobní úkol · ${whenLabel(d)}`,next:'Dokončit nebo posunout termín.',minutes:Number(t.estimateMinutes||15),kind:'task',route:'today'});
  }
  for(const w of (s.delegations||[]).filter(open).filter(personal)){
   const d=daysTo(dueOf(w));push({id:`waiting:${w.id||w.title}`,score:Math.max(78,dueScore(d)-6),title:w.title||w.name||'Čekám na odpověď',why:`Čekáš na reakci · ${whenLabel(d)}`,next:'Udělej follow-up, pokud je termín splněný.',minutes:3,kind:'waiting',route:'today'});
  }
- for(const a of (s.personalAdmin?.items||[]).filter(open).filter(personal)){
+ for(const a of (s.personalAdmin?.items||[]).filter(open).filter(personal).filter(x=>!x.waitingFor)){
   if(String(a.id||'').startsWith('recovered-'))continue;
   const d=daysTo(dueOf(a));push({id:`admin:${a.id}`,score:Math.max(55,dueScore(d)-4),title:a.title||a.name||'Osobní administrativa',why:`Administrativa · ${whenLabel(d)}`,next:'Vyřídit nebo doložit další krok.',minutes:5,kind:'admin',route:'more'});
  }
