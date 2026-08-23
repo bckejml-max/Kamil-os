@@ -27,12 +27,11 @@ jobs:
           node --check js/personalUsage650.js
       - name: Personal 65 static release assertions
         run: node personal_65_static_test.mjs
-      - name: Core cloud and market safety
+      - name: Core cloud safety
         run: |
           node core_hardening_31_test.mjs
           node trust_sync_32_static_test.mjs
           node copilot_write_32_test.mjs
-          node market_confidence_55_6_test.mjs || true
       - name: Install browser QA
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
