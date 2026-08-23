@@ -34,5 +34,5 @@ export function answerPersonalQuestion640(question,s=store.get()){
   return{title:actions.summary,body:'',lines:actions.top3.map((x,i)=>`${i+1}. ${x.title} — ${x.why}`)};
  }
  const cloud=s.meta?.cloudMode==='cloud'?'Cloud je připojený.':'Data jsou zatím jen na tomto zařízení.';
- return{title:'Můžu odpovídat z Personal Data Vaultu.',body:`${v.summary}. ${cloud}`,lines:['Zkus: „Kolik mě stojí pojistky ročně?“','„Co mi končí?“','„Co mám dnes řešit?“','„Kolik platím měsíčně?“']};
+ return{title:'Můžu odpovídat z uložených osobních dat.',body:`${v.summary}. ${cloud}`,lines:['Zkus: „Kolik mě stojí pojistky ročně?“','„Co mi končí?“','„Co mám dnes řešit?“','„Kolik platím měsíčně?“']};
 }
