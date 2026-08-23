@@ -1,6 +1,6 @@
 export const qs=(s,r=document)=>r.querySelector(s);
 export const qsa=(s,r=document)=>[...r.querySelectorAll(s)];
-export const h=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+export const h=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
 export const norm=v=>String(v??'').toLowerCase().trim().replace(/\s+/g,' ');
 export const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v)||0);
 export const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
@@ -28,6 +28,9 @@ export const modal=(title,body,buttons=[])=>new Promise(resolve=>{
   if(title==='XTB + vstupenky / Market Commander 58.7'&&/MARKET COMMANDER 59\.0/.test(String(body))){
     let hasReceipts=false;try{const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');hasReceipts=Array.isArray(s.marketExecutionHistory?.receipts)&&s.marketExecutionHistory.receipts.length>0}catch{}
     if(hasReceipts){const x=document.createElement('button');x.className='btn';x.textContent='Ověřit provedení 59.2';x.type='button';x.dataset.executionReconciliation592='1';x.onclick=async()=>{close(null);try{const m=await import('./executionReconciliation592.js');await m.openExecutionReconciliation592()}catch(error){console.error('[execution-reconciliation-592]',error);toast('Execution reconciliation se nepodařilo otevřít')}};qs('[data-modal-buttons]',el).prepend(x)}
+  }
+  if(title==='XTB + vstupenky / Execution Reconciliation 59.2'&&/EXECUTION RECONCILIATION 59\.2/.test(String(body))){
+    const x=document.createElement('button');x.className='btn';x.textContent='Reality Check 59.3';x.type='button';x.dataset.postExecutionReality593='1';x.onclick=async()=>{close(null);try{const m=await import('./postExecutionReality593.js');await m.openPostExecutionReality593()}catch(error){console.error('[post-execution-reality-593]',error);toast('Reality check se nepodařilo otevřít')}};qs('[data-modal-buttons]',el).prepend(x);
   }
   const onKey=e=>{
     if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close(null);return}
