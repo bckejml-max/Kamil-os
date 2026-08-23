@@ -4,7 +4,7 @@ import {openPersonalAction641} from './personalActionExecution641.js';
 import {personalWaitingCenter650} from './personalAssistant650.js';
 
 const actionFor=x=>({id:`waiting:${x.id||x.title}`,kind:'waiting',title:x.title||x.name||'Čekám na odpověď',why:`Čekáš na reakci · ${x.when}`,next:'Udělej follow-up, uzavři čekání nebo posuň další kontrolu.',minutes:3,route:'today'});
-const rowsHtml=w=>w.rows.map((x,i)=>`<div class="row ux64-row"><div><b>${h(x.title||x.name||'Čekám na odpověď')}</b><div class="muted">${h(x.when)}</div></div><button class="btn ${x.days!==null&&x.days<=0?'primary':''}" data-waiting-choice="${i}">${x.days!==null&&x.days<=0?'Follow-up':'Otevřít'}</button></div>`).join('');
+const rowsHtml=w=>w.rows.map(x=>`<div class="row ux64-row"><div><b>${h(x.title||x.name||'Čekám na odpověď')}</b><div class="muted">${h(x.when)}</div></div><span class="ux64-status">${x.days!==null&&x.days<=0?'Follow-up':'Čekám'}</span></div>`).join('');
 
 export async function openPersonalWaiting650(){
  const w=personalWaitingCenter650(store.get());
