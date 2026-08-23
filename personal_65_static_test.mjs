@@ -1,13 +1,15 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const read=f=>fs.readFileSync(f,'utf8');
-const meta=read('js/releaseMeta.js'),index=read('index.html'),today=read('js/personalToday640.js'),assistant=read('js/personalAssistant650.js'),rhythm=read('js/personalDailyRhythm651.js'),tomorrow=read('js/personalTomorrow653.js'),ask=read('js/personalAsk640.js'),waiting=read('js/personalWaiting650.js'),shell=read('js/personalShell640.js'),docs=read('js/personalDocuments640.js'),money=read('js/personalMoney640.js'),home=read('js/personalHome640.js'),family=read('js/personalFamily640.js'),usage=read('js/personalUsage650.js'),followup=read('js/personalFollowup642.js'),actions=read('js/personalActionExecution641.js'),sw=read('sw.js');
-assert.ok(meta.includes("APP_VERSION='65.4.0'")&&meta.includes("APP_RELEASE='65.4'"),'65.4 metadata missing');
+const meta=read('js/releaseMeta.js'),index=read('index.html'),today=read('js/personalToday640.js'),assistant=read('js/personalAssistant650.js'),date=read('js/personalDate650.js'),rhythm=read('js/personalDailyRhythm651.js'),tomorrow=read('js/personalTomorrow653.js'),morning=read('js/personalMorning655.js'),ask=read('js/personalAsk640.js'),waiting=read('js/personalWaiting650.js'),shell=read('js/personalShell640.js'),docs=read('js/personalDocuments640.js'),money=read('js/personalMoney640.js'),home=read('js/personalHome640.js'),family=read('js/personalFamily640.js'),usage=read('js/personalUsage650.js'),followup=read('js/personalFollowup642.js'),actions=read('js/personalActionExecution641.js'),priority=read('js/personalActions640.js'),sw=read('sw.js');
+assert.ok(meta.includes("APP_VERSION='65.5.0'")&&meta.includes("APP_RELEASE='65.5'"),'65.5 metadata missing');
 assert.ok(index.includes('./personal65.css')&&index.includes('./js/instantShell64.js'),'65.x shell wiring missing');
 assert.ok(today.includes('ux65-primary')&&today.includes('POTOM')&&!today.includes('ux64-data-health'),'Today must remain one-action-first and free of data dashboard');
 assert.ok(today.includes('data-waiting-open')&&today.includes('data-tomorrow-open')&&today.includes('data-next7-open')&&today.includes('data-daily-close'),'Today context shortcuts missing');
 assert.ok(today.includes("rhythm.mode==='late'")&&today.includes('Dnešek můžeš uzavřít'),'late calm Today missing');
-assert.ok(today.includes('ux65-night-handoff')&&today.includes('Otevřít zítřek')&&today.includes("late?`<section class=\"ux65-quick\"") ,'65.4 Night Handoff missing');
+assert.ok(today.includes('ux65-night-handoff')&&today.includes('Otevřít zítřek'),'Night Handoff missing');
+assert.ok(today.includes('ux65-morning-launch')&&today.includes('Ranní přehled')&&morning.includes('personalMorningLaunch655')&&morning.includes('openMorningLaunch655'),'65.5 Morning Launch missing');
+assert.ok(date.includes('Date.UTC')&&date.includes('personalDaysTo650')&&priority.includes("import {personalDaysTo650}")&&assistant.includes("import {personalDaysTo650}")&&morning.includes("import {personalDaysTo650}"),'65.5 calendar-day semantics missing');
 assert.ok(assistant.includes('futurePersonal')&&assistant.includes("sourceKind:'task'")&&assistant.includes("sourceKind:'admin'")&&assistant.includes("sourceKind:'calendar'"),'unified future-personal radar missing');
 assert.ok(tomorrow.includes('openPersonalTomorrow653')&&tomorrow.includes('openPersonalNext7Days653')&&tomorrow.includes('openPersonalAction641'),'Tomorrow Radar actions missing');
 assert.ok(assistant.includes('personalActionCta650')&&assistant.includes('personalDailyAssistant650')&&assistant.includes('personalWaitingCenter650')&&assistant.includes('personalHomeTimeline650')&&assistant.includes('personalMoneyPlan650')&&assistant.includes('personalSearch650')&&assistant.includes('personalWeeklyReset650'),'65 assistant engine surface incomplete');
@@ -21,6 +23,6 @@ assert.ok(docs.includes('Proč tomu Kamil OS věří')&&docs.includes('+ Přidat
 assert.ok(money.includes('Měsíční plán domácnosti')&&money.includes('Neúplná data'),'household money/data-quality UX missing');
 assert.ok(home.includes('DALŠÍCH 12 MĚSÍCŮ')&&family.includes('+ Rodinný úkol')&&family.includes('VÍKEND'),'home/family assistant upgrades missing');
 assert.ok(usage.includes("localStorage.setItem(KEY")&&!usage.includes('fetch(')&&!usage.includes('store.'),'usage signals must remain local-only and content-free');
-assert.ok(sw.includes("kamil-os-65.4-night-handoff-r1")&&sw.includes('./js/personalAssistant650.js')&&sw.includes('./js/personalDailyRhythm651.js')&&sw.includes('./js/personalTomorrow653.js')&&sw.includes('./js/personalFollowup642.js')&&sw.includes('./personal65.css'),'65.4 service-worker cache missing');
+assert.ok(sw.includes("kamil-os-65.5-morning-launch-r1")&&sw.includes('./js/personalDate650.js')&&sw.includes('./js/personalMorning655.js')&&sw.includes('./js/personalTomorrow653.js')&&sw.includes('./personal65.css'),'65.5 service-worker cache missing');
 for(const bad of ['XTB + vstupenky. Co přesně udělat teď?','KAMIL OS 64.1 / DNES','Personal Home'])assert.ok(!today.includes(bad)&&!index.includes(bad),`legacy personal UX leak: ${bad}`);
-console.log('KAMIL OS 65.4 PERSONAL STATIC RELEASE PASS');
+console.log('KAMIL OS 65.5 PERSONAL STATIC RELEASE PASS');
