@@ -1,12 +1,14 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const read=f=>fs.readFileSync(f,'utf8');
-const meta=read('js/releaseMeta.js'),index=read('index.html'),today=read('js/personalToday640.js'),assistant=read('js/personalAssistant650.js'),rhythm=read('js/personalDailyRhythm651.js'),ask=read('js/personalAsk640.js'),waiting=read('js/personalWaiting650.js'),shell=read('js/personalShell640.js'),docs=read('js/personalDocuments640.js'),money=read('js/personalMoney640.js'),home=read('js/personalHome640.js'),family=read('js/personalFamily640.js'),usage=read('js/personalUsage650.js'),followup=read('js/personalFollowup642.js'),actions=read('js/personalActionExecution641.js'),sw=read('sw.js');
-assert.ok(meta.includes("APP_VERSION='65.2.0'")&&meta.includes("APP_RELEASE='65.2'"),'65.2 metadata missing');
+const meta=read('js/releaseMeta.js'),index=read('index.html'),today=read('js/personalToday640.js'),assistant=read('js/personalAssistant650.js'),rhythm=read('js/personalDailyRhythm651.js'),tomorrow=read('js/personalTomorrow653.js'),ask=read('js/personalAsk640.js'),waiting=read('js/personalWaiting650.js'),shell=read('js/personalShell640.js'),docs=read('js/personalDocuments640.js'),money=read('js/personalMoney640.js'),home=read('js/personalHome640.js'),family=read('js/personalFamily640.js'),usage=read('js/personalUsage650.js'),followup=read('js/personalFollowup642.js'),actions=read('js/personalActionExecution641.js'),sw=read('sw.js');
+assert.ok(meta.includes("APP_VERSION='65.3.0'")&&meta.includes("APP_RELEASE='65.3'"),'65.3 metadata missing');
 assert.ok(index.includes('./personal65.css')&&index.includes('./js/instantShell64.js'),'65.x shell wiring missing');
 assert.ok(today.includes('ux65-primary')&&today.includes('POTOM')&&!today.includes('ux64-data-health'),'Today must remain one-action-first and free of data dashboard');
-assert.ok(today.includes('data-waiting-open')&&today.includes('data-family-open')&&today.includes('data-daily-close'),'Today context shortcuts and daily close missing');
+assert.ok(today.includes('data-waiting-open')&&today.includes('data-tomorrow-open')&&today.includes('data-next7-open')&&today.includes('data-daily-close'),'Today context shortcuts missing');
 assert.ok(today.includes("rhythm.mode==='late'")&&today.includes('Dnešek můžeš uzavřít'),'65.2 late calm Today missing');
+assert.ok(assistant.includes('futurePersonal')&&assistant.includes("sourceKind:'task'")&&assistant.includes("sourceKind:'admin'")&&assistant.includes("sourceKind:'calendar'"),'65.3 unified future-personal radar missing');
+assert.ok(tomorrow.includes('openPersonalTomorrow653')&&tomorrow.includes('openPersonalNext7Days653')&&tomorrow.includes('openPersonalAction641'),'65.3 Tomorrow Radar actions missing');
 assert.ok(assistant.includes('personalActionCta650')&&assistant.includes('personalDailyAssistant650')&&assistant.includes('personalWaitingCenter650')&&assistant.includes('personalHomeTimeline650')&&assistant.includes('personalMoneyPlan650')&&assistant.includes('personalSearch650')&&assistant.includes('personalWeeklyReset650'),'65 assistant engine surface incomplete');
 assert.ok(rhythm.includes('personalDailyRhythm651')&&rhythm.includes('openDailyClose651')&&rhythm.includes('personalDailyMode652')&&rhythm.includes("hour>=21?'late'")&&rhythm.includes('Dnes hotovo')&&rhythm.includes('Follow-up do zítřka'),'65.2 Daily Rhythm surface incomplete');
 assert.ok(followup.includes('postponePersonalActionToTomorrow642')&&followup.includes('setHours(9,0,0,0)'),'65.2 tomorrow-morning snooze missing');
@@ -18,6 +20,6 @@ assert.ok(docs.includes('Proč tomu Kamil OS věří')&&docs.includes('+ Přidat
 assert.ok(money.includes('Měsíční plán domácnosti')&&money.includes('Neúplná data'),'household money/data-quality UX missing');
 assert.ok(home.includes('DALŠÍCH 12 MĚSÍCŮ')&&family.includes('+ Rodinný úkol')&&family.includes('VÍKEND'),'home/family assistant upgrades missing');
 assert.ok(usage.includes("localStorage.setItem(KEY")&&!usage.includes('fetch(')&&!usage.includes('store.'),'usage signals must remain local-only and content-free');
-assert.ok(sw.includes("kamil-os-65.2-zero-friction-today-r1")&&sw.includes('./js/personalAssistant650.js')&&sw.includes('./js/personalDailyRhythm651.js')&&sw.includes('./js/personalFollowup642.js')&&sw.includes('./personal65.css'),'65.2 service-worker cache missing');
+assert.ok(sw.includes("kamil-os-65.3-tomorrow-radar-r1")&&sw.includes('./js/personalAssistant650.js')&&sw.includes('./js/personalDailyRhythm651.js')&&sw.includes('./js/personalTomorrow653.js')&&sw.includes('./js/personalFollowup642.js')&&sw.includes('./personal65.css'),'65.3 service-worker cache missing');
 for(const bad of ['XTB + vstupenky. Co přesně udělat teď?','KAMIL OS 64.1 / DNES','Personal Home'])assert.ok(!today.includes(bad)&&!index.includes(bad),`legacy personal UX leak: ${bad}`);
-console.log('KAMIL OS 65.2 PERSONAL STATIC RELEASE PASS');
+console.log('KAMIL OS 65.3 PERSONAL STATIC RELEASE PASS');
