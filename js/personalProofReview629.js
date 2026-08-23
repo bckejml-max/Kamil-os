@@ -1,0 +1,37 @@
+import {store} from './state.js';
+import {personalProofInbox628,previewProofImpact628} from './personalProofInbox628.js';
+import {evidenceLedger630,confirmEvidence630,removeEvidence630} from './personalEvidenceLedger630.js';
+import {evidenceFreshnessById631} from './personalEvidenceFreshness631.js';
+
+const KEY='kamil-os-personal-proof-review-629';
+const safeParse=v=>{try{return JSON.parse(v||'{}')||{}}catch{return{}}};
+const read=()=>typeof sessionStorage==='undefined'?{}:safeParse(sessionStorage.getItem(KEY));
+const write=v=>{if(typeof sessionStorage!=='undefined')sessionStorage.setItem(KEY,JSON.stringify(v));return v};
+
+const stageLabel=(s,f)=>s==='CONFIRMED'?(f?.freshnessStatus==='DUE_SOON'?'POTVRZENO · BRZY OBNOVIT':'POTVRZENO UŽIVATELEM'):s==='REVIEW'?(f?.freshnessStatus==='STALE'?'ZNOVU OVĚŘIT':'ZKONTROLOVAT'):s==='FOUND'?'NALEZENO':'ČEKÁ NA DŮKAZ';
+
+export function personalProofReview629(s=store.get()){
+ const inbox=personalProofInbox628(s),saved=read(),ledger=evidenceLedger630(),persistent=new Map(ledger.items.map(v=>[v.id,v]));
+ const items=inbox.items.map(v=>{
+  const state=saved[v.id]||{},proof=persistent.get(v.id),freshness=proof?evidenceFreshnessById631(v.id):null;
+  const usableProof=!!proof&&freshness?.freshnessStatus!=='STALE';
+  const stage=usableProof?'CONFIRMED':(proof?'REVIEW':(state.stage||'MISSING'));
+  const effective=stage==='CONFIRMED'?v.target:v.current;
+  const staleNote=proof&&!usableProof?`Dřívější potvrzení je ${freshness?.ageDays||'?'} dní staré; je nutné ho obnovit.`:'';
+  return{...v,stage,stageLabel:stageLabel(stage,freshness),proofNote:proof?.note||state.note||'',updatedAt:proof?.confirmedAt||state.updatedAt||null,effectiveConfidence:effective,persistent:!!proof,proofUsable:usableProof,freshness,staleNote,preview:previewProofImpact628(v.id,s)};
+ });
+ const confirmed=items.filter(v=>v.stage==='CONFIRMED'),review=items.filter(v=>v.stage==='REVIEW'),found=items.filter(v=>v.stage==='FOUND'),missing=items.filter(v=>v.stage==='MISSING');
+ const average=items.length?Math.round(items.reduce((a,v)=>a+v.effectiveConfidence,0)/items.length):100;
+ return{items,confirmed,review,found,missing,average,ledger,main:missing[0]||review[0]||found[0]||null,summary:`Proof Review · potvrzeno ${confirmed.length} · ke kontrole ${review.length+found.length} · chybí ${missing.length}`};
+}
+
+export function setProofStage629(id,stage,note=''){
+ if(!['MISSING','FOUND','REVIEW','CONFIRMED'].includes(stage))throw new Error('Unsupported proof stage');
+ const saved=read();saved[id]={stage,note:String(note||'').slice(0,500),updatedAt:new Date().toISOString()};write(saved);
+ if(stage==='CONFIRMED'){const item=personalProofInbox628(store.get()).items.find(x=>x.id===id);if(item)confirmEvidence630({id,title:item.title,note,before:item.current,after:item.target});}
+ return saved[id];
+}
+
+export function clearProofReview629(id){const saved=read();delete saved[id];write(saved);return true;}
+export function revokeConfirmedProof629(id){removeEvidence630(id);const saved=read();saved[id]={stage:'REVIEW',note:'Potvrzení bylo odvoláno.',updatedAt:new Date().toISOString()};write(saved);return true;}
+export function proofReviewStorageKey629(){return KEY;}
