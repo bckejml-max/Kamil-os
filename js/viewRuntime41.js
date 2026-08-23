@@ -18,11 +18,11 @@ function warmView(name='today'){
 export function getViewRenderer41(name='today'){return warmView(name)}
 export function prefetchView41(){return Promise.resolve(null)}
 export async function setMoreMode41(){return Promise.resolve(null)}
-export async function openCapture41(type){const m=await load('./capture26.js');return m.openQuickCapture(type)}
-export async function renderCommandResults41(value){const m=await load('./command.js');return m.renderResults(value)}
-export async function executeCommand41(value){const m=await load('./command.js');return m.execute(value)}
+export async function openCapture41(type='task'){const m=await load('./personalCapture643.js');return m.openPersonalCapture643(type)}
+export async function renderCommandResults41(){return Promise.resolve(null)}
+export async function executeCommand41(){return Promise.resolve(null)}
 export function renderExtras41(){return Promise.resolve([])}
 export function refreshRiskBadge41(){return Promise.resolve(null)}
-export async function runPreflight41(){return {ok:true,safeCore:true,personalUx:'64.0',skipped:true}}
+export async function runPreflight41(){try{const m=await load('./personalHardening648.js');return {...m.personalReleasePreflight648(),safeCore:true,personalUx:'64.8'}}catch(error){return{ok:false,safeCore:true,personalUx:'64.8',error:String(error?.message||error)}}}
 export function scheduleNotifications41(){return Promise.resolve(null)}
 export function warmRuntime41(){return Promise.resolve(null)}
