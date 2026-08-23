@@ -10,8 +10,8 @@ const TITLES={today:'DNES',tickets:'RODINA',home:'DOMOV',money:'PENÍZE',more:'D
 let bound=false,currentView='today';
 const captureType=()=>currentView==='home'?'contract':currentView==='more'?'insurance':'task';
 const nav=v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v}));
-function apply(view='today'){
- currentView=view;const page=qs('#pageTitle');if(page)page.textContent=TITLES[view]||'DNES';document.title='Kamil OS';markPersonalUsage650('view',TITLES[view]||'DNES');
+function apply(view='today',track=true){
+ currentView=view;const page=qs('#pageTitle');if(page)page.textContent=TITLES[view]||'DNES';document.title='Kamil OS';if(track)markPersonalUsage650('view',TITLES[view]||'DNES');
  qsa('.version').forEach(x=>x.classList.add('hidden'));
  const add=qs('#quickAddBtn');if(add){add.classList.remove('hidden');const b=qs('b',add);if(b)b.textContent='Přidat';add.title='Přidat osobní úkol, čekání, administrativu nebo smlouvu'}
 }
@@ -22,7 +22,7 @@ async function askGlobal(){
  const buttons=(a.results||[]).slice(0,6).map((r,i)=>({label:`Otevřít · ${r.title}`,value:`result:${i}`,primary:i===0}));buttons.push({label:'Zavřít',value:null,primary:!buttons.length});const choice=await modal('Kamil OS',body,buttons);if(String(choice||'').startsWith('result:'))return openResult(a.results[Number(choice.split(':')[1])]);return choice;
 }
 export function bindPersonalShell640(){
- if(bound)return;bound=true;qsa('[data-personal-more]').forEach(b=>b.addEventListener('click',()=>{markPersonalUsage650('action','more');openPersonalMore640()}));window.addEventListener('kamil:view-change',e=>apply(e.detail));
+ if(bound)return;bound=true;qsa('[data-personal-more]').forEach(b=>b.addEventListener('click',()=>{markPersonalUsage650('action','more');openPersonalMore640()}));window.addEventListener('kamil:view-change',e=>apply(e.detail,true));window.addEventListener('kamil:release-stamp',()=>apply(currentView,false));
  const input=qs('#commandInput'),go=qs('#commandGo');if(input){input.placeholder='Zeptej se nebo hledej: Allianz, hypotéka, co mi končí…';input.oninput=null;input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();askGlobal()}if(e.key==='Escape'){input.value='';input.blur()}}}if(go){go.textContent='Najít / zeptat se';go.onclick=askGlobal}
- const add=qs('#quickAddBtn');if(add)add.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();markPersonalUsage650('action','capture');openPersonalCapture643(captureType())},true);apply('today');
+ const add=qs('#quickAddBtn');if(add)add.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();markPersonalUsage650('action','capture');openPersonalCapture643(captureType())},true);apply('today',true);
 }
