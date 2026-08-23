@@ -1,35 +1,36 @@
 import {store} from './state.js';
 import {modal,toast,h} from './utils.js';
 import {personalVaultRecord640,confirmVaultRecord640} from './personalVault640.js';
+import {openVaultEdit641} from './personalVaultEdit641.js';
 
 const now=()=>new Date().toISOString();
-const CLOSED='DONE';
+const splitId=id=>{const s=String(id||''),i=s.indexOf(':');return i<0?[s,'']:[s.slice(0,i),s.slice(i+1)]};
 const findTask=(s,id)=>Array.isArray(s.tasks)?s.tasks.find(x=>String(x.id)===String(id)):null;
 const findAdmin=(s,id)=>Array.isArray(s.personalAdmin?.items)?s.personalAdmin.items.find(x=>String(x.id)===String(id)):null;
 const findWaiting=(s,id)=>Array.isArray(s.delegations)?s.delegations.find(x=>String(x.id||x.title)===String(id)):null;
 
 export function completePersonalAction641(action){
  if(!action?.id)return false;
- const [kind,rawId]=String(action.id).split(':');
+ const [kind,rawId]=splitId(action.id);
  if(kind==='vault')return !!confirmVaultRecord640(rawId);
- if(kind==='task'){
-  let changed=false;store.mutate(`Dokončen osobní úkol: ${action.title||rawId}`,s=>{const x=findTask(s,rawId);if(x){x.status=CLOSED;x.completedAt=now();changed=true}},{undo:true,cloud:true,audit:true});return changed;
- }
- if(kind==='admin'){
-  let changed=false;store.mutate(`Vyřízena osobní administrativa: ${action.title||rawId}`,s=>{const x=findAdmin(s,rawId);if(x){x.status='DONE';x.completedAt=now();changed=true}},{undo:true,cloud:true,audit:true});return changed;
- }
- if(kind==='waiting'){
-  let changed=false;store.mutate(`Uzavřeno čekání: ${action.title||rawId}`,s=>{const x=findWaiting(s,rawId);if(x){x.status='DONE';x.completedAt=now();changed=true}},{undo:true,cloud:true,audit:true});return changed;
- }
- return false;
+ let changed=false;
+ store.mutate(`Dokončena osobní věc: ${action.title||rawId}`,s=>{
+  const x=kind==='task'?findTask(s,rawId):kind==='admin'?findAdmin(s,rawId):kind==='waiting'?findWaiting(s,rawId):null;
+  if(x){x.status='DONE';x.completedAt=now();changed=true}
+ },{undo:true,cloud:true,audit:true});
+ return changed;
 }
 
 export async function openPersonalAction641(action){
  if(!action)return null;
+ if(action.kind==='calendar'){
+  return modal(action.title||'Rodinný termín',`<div class="card"><p>${h(action.why||'')}</p><div class="decision-note"><b>Připravit:</b> ${h(action.next||'')}</div></div>`,[{label:'Zavřít',value:null,primary:true}]);
+ }
  if(action.kind==='data'){
   const r=personalVaultRecord640(action.recordId);if(!r)return null;
   const body=`<div class="card"><h2>${h(r.title)}</h2><p>${h(r.status.detail)}</p><div class="decision-note"><b>Co dál:</b> ${h(r.nextAction)}</div></div>`;
-  const choice=await modal('Osobní údaj',body,[{label:'Mám aktuální doklad / údaj — potvrdit',value:'confirm',primary:true},{label:'Jen otevřít dokumenty',value:'open'},{label:'Zavřít',value:null}]);
+  const choice=await modal('Osobní údaj',body,[{label:'Upravit údaje',value:'edit'},{label:'Mám aktuální doklad / údaj — potvrdit',value:'confirm',primary:true},{label:'Zavřít',value:null}]);
+  if(choice==='edit'){await openVaultEdit641(r.id);return 'edited'}
   if(choice==='confirm'){confirmVaultRecord640(r.id);toast('Údaj potvrzen.');return 'confirmed'}
   return choice;
  }
