@@ -5,8 +5,8 @@ import {openPersonalAction641} from './personalActionExecution641.js';
 import {personalDailyAssistant650,personalActionCta650} from './personalAssistant650.js';
 import {openPersonalWaiting650} from './personalWaiting650.js';
 import {personalDailyRhythm651,openDailyClose651} from './personalDailyRhythm651.js';
+import {openPersonalTomorrow653,openPersonalNext7Days653} from './personalTomorrow653.js';
 
-const go=route=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:route}));
 const hour=()=>new Date().getHours();
 const greeting=()=>hour()<11?'Dobré ráno.':hour()<18?'Dobré odpoledne.':'Dobrý večer.';
 const badge=x=>x?.level==='critical'?'DŮLEŽITÉ':x?.level==='high'?'BRZY':x?.level==='medium'?'HLÍDAT':'POZDĚJI';
@@ -20,12 +20,13 @@ export function renderPersonalToday640(){
  host.innerHTML=`<div class="ux64-page ux65-today"><section class="ux64-hero ux65-hero"><div class="eyebrow">DNES</div><h1>${greeting()}</h1><p>${h(headline)}</p></section>
  ${primary?`<section>${primaryHtml(primary)}</section>`:`<section class="card ux64-clear"><b>${late?'Dnešek můžeš uzavřít.':'Všechno důležité je teď v pořádku.'}</b><p class="muted">${late?'Neurgentní věci nechávám na zítřek.':'Nemusíš nic spravovat jen proto, že je appka otevřená.'}</p></section>`}
  ${secondary.length?`<section class="card ux65-later"><div class="eyebrow">${late?'JEŠTĚ DNES':'POTOM'}</div>${secondary.map(secondaryHtml).join('')}</section>`:''}
- <section class="ux65-context"><button class="ux65-chip" data-waiting-open><b>${d.waitingCount}</b><span>Čekám na odpověď</span></button><button class="ux65-chip" data-family-open><b>${d.tomorrowCount}</b><span>Zítra</span></button><button class="ux65-chip" data-family-open><b>${d.next7Count}</b><span>Do 7 dní</span></button><button class="ux65-chip" data-daily-close><b>${rhythm.done}</b><span>Dnes hotovo</span></button></section>
+ <section class="ux65-context"><button class="ux65-chip" data-waiting-open><b>${d.waitingCount}</b><span>Čekám na odpověď</span></button><button class="ux65-chip" data-tomorrow-open><b>${d.tomorrowCount}</b><span>Zítra</span></button><button class="ux65-chip" data-next7-open><b>${d.next7Count}</b><span>Do 7 dní</span></button><button class="ux65-chip" data-daily-close><b>${rhythm.done}</b><span>Dnes hotovo</span></button></section>
  <section class="ux65-quick"><button class="btn" data-ask="Co mám dnes řešit?">Co dnes řešit?</button><button class="btn" data-ask="Co mi končí?">Co mi končí?</button><button class="btn" data-ask="Na co čekám?">Na co čekám?</button><button class="btn ${late?'primary':''}" data-daily-close>${late?'Uzavřít den':rhythm.mode==='evening'?'Uzavřít den':'Denní přehled'}</button></section></div>`;
  host.querySelector('[data-waiting-open]')?.addEventListener('click',()=>openPersonalWaiting650());
- host.querySelectorAll('[data-family-open]').forEach(b=>b.addEventListener('click',()=>go('tickets')));
+ host.querySelector('[data-tomorrow-open]')?.addEventListener('click',()=>openPersonalTomorrow653());
+ host.querySelector('[data-next7-open]')?.addEventListener('click',()=>openPersonalNext7Days653());
  host.querySelectorAll('[data-daily-close]').forEach(b=>b.addEventListener('click',()=>openDailyClose651()));
  host.querySelectorAll('[data-ask]').forEach(b=>b.addEventListener('click',()=>{const input=qs('#commandInput');if(input){input.value=b.dataset.ask;input.focus();qs('#commandGo')?.click()}}));
  host.querySelectorAll('[data-ux65-action]').forEach(b=>b.addEventListener('click',async()=>{const fresh=personalDailyAssistant650(store.get()).top.find(x=>x.id===b.dataset.ux65Action);if(!fresh)return;await openPersonalAction641(fresh);renderPersonalToday640()}));
- if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_652_LAST__={at:Date.now(),view:'today',primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,doneToday:rhythm.done,mode:rhythm.mode,lateCalm:late&&!primary};
+ if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_653_LAST__={at:Date.now(),view:'today',primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,next7:d.next7Count,doneToday:rhythm.done,mode:rhythm.mode,lateCalm:late&&!primary};
 }
