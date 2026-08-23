@@ -33,7 +33,9 @@ const label=s=>({CLEARED:'VYŘEŠENO',CHANGED:'ZMĚNĚNO',SAME:'STEJNÉ',NO_BASE
 export async function openCommanderFixRerun596(){
  const x=commanderFixRerun596(),before=x.before?.top,current=x.current?.top;
  const body=`<div class="metric-strip"><div class="metric"><span>Výsledek</span><b class="${cls(x.status)}">${h(label(x.status))}</b></div><div class="metric"><span>Předtím</span><b>${h(x.before?.decisionMode||'—')}</b></div><div class="metric"><span>Teď</span><b>${h(x.current?.decisionMode||'—')}</b></div></div><div class="card"><div class="eyebrow">FIX & RE-RUN 59.6</div><h2>${h(x.summary)}</h2></div><div class="card"><div class="eyebrow">PŘED → TEĎ</div><div class="intel-row"><div class="intel-main"><b>Před opravou</b><span>${h(before?`${before.when}: ${before.text}`:'Bez uloženého startovního blockeru.')}</span></div></div><div class="intel-row"><div class="intel-main"><b>Po přepočtu</b><span>${h(current?`${current.when}: ${current.text}`:'Žádný známý blocker.')}</span></div></div></div><div class="decision-note">59.6 pouze znovu čte aktuální uložený stav a porovnává ho s explicitně zapamatovaným blockerem z 59.5. Nic neopravuje, neobchoduje, neprodává ani nepřecenňuje automaticky.</div>`;
- const choice=await modal('XTB + vstupenky / Fix & Re-run 59.6',body,[{label:'Znovu přepočítat',value:'rerun',primary:true},{label:'Zavřít',value:null}]);
+ const actions=x.status==='SAME'||x.status==='CHANGED'?[{label:'Co ještě chybí 59.7',value:'guide',primary:true},{label:'Znovu přepočítat',value:'rerun'},{label:'Zavřít',value:null}]:[{label:'Znovu přepočítat',value:'rerun',primary:true},{label:'Zavřít',value:null}];
+ const choice=await modal('XTB + vstupenky / Fix & Re-run 59.6',body,actions);
+ if(choice==='guide'){const m=await import('./commanderGuidedResolution597.js');return m.openCommanderGuidedResolution597()}
  if(choice==='rerun')return openCommanderFixRerun596();
  return choice;
 }
