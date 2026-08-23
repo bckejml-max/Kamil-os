@@ -11,8 +11,8 @@ assert(!index.includes('@supabase/supabase-js@2'),'Supabase must not be eagerly 
 assert(cloud.includes('async function loadSdk()')&&cloud.includes('hasStoredCloudSession')&&!cloud.includes('export const sb='),'cloud must lazy-load SDK');
 assert(command.includes("modal('Náhled změny'")&&command.includes('Vytvořit osobní úkol')&&command.includes('Potvrdit vytvoření úkolu'),'legacy unknown command mutation must still require explicit preview confirmation');
 assert(query.includes('decisionDelta30')&&query.includes('Co se změnilo od minule'),'legacy Copilot Decision Delta compatibility missing');
-assert(sw.includes("const CACHE='kamil-os-65.0-daily-personal-assistant-r1'")&&sw.includes('./js/instantShell64.js')&&sw.includes('networkFirst'),'65.0 service-worker runtime shell missing');
+assert(/const CACHE='kamil-os-65\.[0-9]+-[^']+'/.test(sw)&&sw.includes('./js/instantShell64.js')&&sw.includes('networkFirst'),'65.x service-worker runtime shell missing');
 assert(!sw.includes('staleWhileRevalidate'),'runtime code must never serve stale-first');
-assert(instant.includes("import('./personalHardening650.js')")&&hardening.includes('personalReleasePreflight650'),'65.0 personal boot/preflight contract missing');
+assert(instant.includes("import('./personalHardening650.js')")&&hardening.includes('personalReleasePreflight650'),'65.x personal boot/preflight contract missing');
 assert(vercel.includes('Content-Security-Policy')&&vercel.includes('X-Content-Type-Options'),'security headers missing');
-console.log('CORE HARDENING 65.0 REGRESSION TEST PASS');
+console.log(`CORE HARDENING ${releaseLine} REGRESSION TEST PASS`);
