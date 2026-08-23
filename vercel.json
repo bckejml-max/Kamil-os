@@ -6,6 +6,12 @@
       "main": true
     }
   },
+  "crons": [
+    {
+      "path": "/api/ticket-market-watch",
+      "schedule": "0 */6 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
