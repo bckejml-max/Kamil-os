@@ -4,12 +4,11 @@ import {openPersonalMore640} from './personalMore640.js';
 import {answerPersonalQuestion640} from './personalAsk640.js';
 
 const TITLES={today:'DNES',tickets:'RODINA',home:'DOMOV',money:'PENÍZE',more:'DOKUMENTY'};
-const ADD={today:'Osobní úkol',home:'Osobní položka',money:'Pohledávka'};
 let bound=false;
 function apply(view='today'){
  const page=qs('#pageTitle');if(page)page.textContent=TITLES[view]||'DNES';
  qsa('.version').forEach(x=>x.textContent=APP_VERSION);document.title=`Kamil OS ${APP_VERSION}`;
- const add=qs('#quickAddBtn');if(add){const show=!!ADD[view];add.classList.toggle('hidden',!show);const b=qs('b',add);if(b&&show)b.textContent=ADD[view]}
+ const add=qs('#quickAddBtn');if(add){const show=view==='today';add.classList.toggle('hidden',!show);const b=qs('b',add);if(b)b.textContent='Osobní úkol'}
 }
 async function askGlobal(){
  const input=qs('#commandInput'),q=input?.value.trim();if(!q){input?.focus();return null}
