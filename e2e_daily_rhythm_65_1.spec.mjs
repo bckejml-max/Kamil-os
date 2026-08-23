@@ -19,6 +19,7 @@ test('65.1 Daily Rhythm shows completed count and opens daily close',async({page
  });
  expect(out.done).toBeGreaterThanOrEqual(1);expect(out.tomorrow).toBeGreaterThanOrEqual(1);expect(out.followups).toBeGreaterThanOrEqual(1);expect(out.closeButtons).toBeGreaterThanOrEqual(1);expect(out.text).toContain('Dnes hotovo');
  await page.locator('[data-daily-close]').last().click();
- await expect(page.getByText('Follow-up do zítřka')).toBeVisible();
- await expect(page.getByText('Rodinný test zítra')).toBeVisible();
+ const modal=page.locator('#modalHost');
+ await expect(modal.getByText('Follow-up do zítřka')).toBeVisible();
+ await expect(modal.getByText('Rodinný test zítra')).toBeVisible();
 });
