@@ -15,6 +15,8 @@ const personalShell=read('js/personalShell640.js');
 const personalToday=read('js/personalToday640.js');
 const personalAssistant=read('js/personalAssistant650.js');
 const hardening=read('js/personalHardening650.js');
+const ticketCommander=read('js/ticketCommander660.js');
+const ticketCloud=read('js/ticketCloud660.js');
 const marketDecision=read('js/marketDecision534.js');
 const actionQueue=read('js/actionQueue559.js');
 const ticketSeed=read('js/currentTickets33.js');
@@ -28,25 +30,26 @@ const rootPackage=JSON.parse(read('package.json'));
 
 const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
 const release=meta.match(/APP_RELEASE='([^']+)'/)?.[1];
-assert.ok(version&&/^65\.\d+\.\d+$/.test(version),'65.x release metadata must be aligned');
-assert.ok(release&&/^65\.\d+$/.test(release)&&release===version.split('.').slice(0,2).join('.'),'65.x release label must match APP_VERSION');
+assert.ok(version&&/^\d+\.\d+\.\d+$/.test(version)&&Number(version.split('.')[0])>=65,'current personal release metadata must be aligned');
+assert.ok(release&&/^\d+\.\d+$/.test(release)&&release===version.split('.').slice(0,2).join('.'),'release label must match APP_VERSION');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 
 // Canonical startup / personal UX
 assert.ok(index.includes('./js/instantShell64.js'),'current personal instant startup shell must remain wired');
-assert.ok(index.includes('./personal65.css'),'65.x assistant styles must remain wired');
+assert.ok(index.includes('./personal65.css'),'personal assistant styles must remain wired');
 assert.ok(index.includes('Dnes')&&index.includes('Rodina')&&index.includes('Domov')&&index.includes('Peníze')&&index.includes('Dokumenty'),'personal navigation missing');
 assert.ok(!index.includes('Personal Home')&&!index.includes('Pohledávka'),'legacy labels must not return to current shell');
 assert.ok(personalToday.includes('ux65-primary')&&personalToday.includes('POTOM'),'decision-first Today missing');
 assert.ok(!personalToday.includes('ux64-data-health')&&!personalToday.includes('KAMIL OS 64.1 / DNES'),'Today must stay free of technical dashboard/version clutter');
-assert.ok(personalAssistant.includes('personalDailyAssistant650')&&personalAssistant.includes('personalWaitingCenter650')&&personalAssistant.includes('personalSearch650'),'65.x assistant engines missing');
+assert.ok(personalAssistant.includes('personalDailyAssistant650')&&personalAssistant.includes('personalWaitingCenter650')&&personalAssistant.includes('personalSearch650'),'personal assistant engines missing');
 assert.ok(personalShell.includes('Najít / zeptat se')&&personalShell.includes('openVaultRecord640'),'global search/assistant integration missing');
-assert.ok(hardening.includes('primary<=1')&&hardening.includes('dataHealth===0'),'65.x decision-first preflight missing');
+assert.ok(hardening.includes('primary<=1')&&hardening.includes('dataHealth===0'),'decision-first preflight missing');
+assert.ok(ticketCommander.includes('TICKET PROFIT COMMANDER 66.0')&&ticketCloud.includes("from('ticket_inventory')")&&!/service[_-]?role/i.test(ticketCloud),'66.0 private Ticket Intelligence missing or unsafe');
 
 // Core persistence/cloud/render safety
 assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
-assert.ok(/const CACHE='kamil-os-65\.\d+-[^']+'/.test(sw)&&sw.includes('./js/instantShell64.js'),'65.x service-worker shell/cache missing');
+assert.ok(/const CACHE='kamil-os-\d+\.\d+-[^']+'/.test(sw)&&sw.includes('./js/instantShell64.js'),'current service-worker shell/cache missing');
 assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must not prefer stale cache');
 assert.ok(state.includes('export const store=new Store()'),'state store export missing');
 assert.ok(cloud.includes('mergeColdState42'),'cloud payload must restore cold history before upload');
@@ -77,4 +80,4 @@ assert.ok(stability431.includes("entryTypes:['longtask']")&&stability431.include
 assert.ok(lazy.includes("STABILITY_MEMORY_KEY='kamil-os-stability-memory-43-7'")&&lazy.includes('refreshStabilityMemory'),'stability memory missing');
 assert.ok(diagnostics.includes('43.7 STABILITY MEMORY'),'stability diagnostics missing');
 
-console.log(`KAMIL OS CURRENT QA PASS · ${version} · DAILY PERSONAL ASSISTANT`);
+console.log(`KAMIL OS CURRENT QA PASS · ${version} · PERSONAL + TICKET INTELLIGENCE`);
