@@ -1,7 +1,7 @@
 import {store} from './state.js';
 import {personalVault640} from './personalVault640.js';
+import {personalDaysTo650} from './personalDate650.js';
 
-const DAY=86400000;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED']);
 const WORK_RE=/zak[aá]zk|faktur|dodavat|cest[aá]k|doch[aá]zk|ředitel|reditel|pks|cpi|zbrojov|projektov[aá] karta|pracovn|xtb|ticket|vstupenk/i;
 const FAMILY_RE=/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/i;
@@ -11,7 +11,7 @@ const text=x=>`${x?.title||''} ${x?.name||''} ${x?.subject||''} ${x?.category||'
 const personal=x=>!WORK_RE.test(text(x));
 const open=x=>!CLOSED.has(String(x?.status||x?.workflow||'').toUpperCase());
 const dueOf=x=>x?.due||x?.dueAt||x?.deadline||x?.followUpAt||x?.nextAt||x?.date||x?.start||null;
-const daysTo=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.ceil((t-Date.now())/DAY):null};
+const daysTo=personalDaysTo650;
 const dueScore=d=>d===null?35:d<0?125+Math.min(12,Math.abs(d)):d===0?120:d===1?110:d<=3?98:d<=7?82:d<=14?60:35;
 const whenLabel=d=>d===null?'bez termínu':d<0?`${Math.abs(d)} d po termínu`:d===0?'dnes':d===1?'zítra':`za ${d} d`;
 const level=s=>s>=110?'critical':s>=90?'high':s>=70?'medium':'low';
