@@ -1,4 +1,5 @@
 import {hydrateColdView42} from './coldPartition42.js';
+import {APP_RELEASE} from './releaseMeta.js';
 const modules=new Map(),warmViews=new Map();
 const viewDefs={
  today:['./personalToday640.js','renderPersonalToday640'],
@@ -21,6 +22,6 @@ export async function renderCommandResults41(){return Promise.resolve(null)}
 export async function executeCommand41(){return Promise.resolve(null)}
 export function renderExtras41(){return Promise.resolve([])}
 export function refreshRiskBadge41(){return Promise.resolve(null)}
-export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:'65.0'}}catch(error){return{ok:false,safeCore:true,personalUx:'65.0',error:String(error?.message||error)}}}
+export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}}
 export function scheduleNotifications41(){return Promise.resolve(null)}
 export function warmRuntime41(){return Promise.resolve(null)}
