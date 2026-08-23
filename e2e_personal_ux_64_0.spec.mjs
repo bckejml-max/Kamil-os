@@ -3,8 +3,8 @@ const BASE='http://127.0.0.1:4173';
 
 test('current personal shell opens with a persistent vault and no market leakage',async({page})=>{
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
- await expect(page.getByRole('button',{name:/Rodina/i}).first()).toBeVisible();
- await expect(page.getByRole('button',{name:/Dokumenty/i}).first()).toBeVisible();
+ await expect(page.locator('#mainNav [data-view="tickets"]')).toBeVisible();
+ await expect(page.locator('#mainNav [data-view="more"]')).toBeVisible();
  await expect(page.locator('#todayView')).toContainText(/Dobr|Všechno důležité|stojí za řešení/i);
  await expect(page.locator('#todayView')).not.toContainText('XTB');
  await expect(page.locator('#todayView')).not.toContainText('Vstupenky');
@@ -22,7 +22,7 @@ test('personal insurance cost answer includes providers and known amounts',async
 
 test('documents keep cards simple and technical source details out of the main list',async({page})=>{
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
- await page.getByRole('button',{name:/Dokumenty/i}).first().click();
+ await page.locator('#mainNav [data-view="more"]').click();
  await expect(page.locator('#moreView')).toContainText('Smlouvy, pojistky a důležité údaje');
  await expect(page.locator('#moreView')).toContainText('Pojištění auta');
  await expect(page.locator('#moreView')).toContainText('Co dál:');
