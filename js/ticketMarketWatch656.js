@@ -1,4 +1,4 @@
-import {modal,h} from './utils.js';
+import {modal,formModal,h} from './utils.js';
 
 const PREF_KEY='kamil-ticket-market-prefs-656';
 const SNAP_KEY='kamil-ticket-market-snapshot-656';
@@ -24,9 +24,9 @@ const recClass=code=>code==='LOWER'?'critical':code==='RAISE'||code==='LIST'?'su
 const sourceLabel=r=>r.market?.confidence==='section'?'stejná sekce':r.market?.confidence==='event-floor'?'minimum celé akce':r.source?.status==='missing'?'chybí zdroj':'zdroj nečitelný';
 const trendFor=id=>{const rows=safeJson(HISTORY_KEY,{})[id]||[];if(rows.length<2)return null;const a=rows.at(-2)?.priceCzk,b=rows.at(-1)?.priceCzk;if(!a||!b)return null;const pct=(b/a-1)*100;return{pct,label:Math.abs(pct)<1?'beze změny':pct>0?`+${pct.toFixed(0)} %`:`${pct.toFixed(0)} %`}};
 async function editItem656(item){
-  const p=prefs(),cur=p[item.id]||{};const body=`<label class="field"><span>Viagogo event URL</span><input id="tmwUrl" type="url" value="${h(cur.viagogoUrl||item.viagogoUrl||'')}" placeholder="https://www.viagogo.com/.../E-..."></label><label class="field"><span>Moje aktuální nabídková cena / ks (Kč)</span><input id="tmwAsk" type="number" min="0" step="1" value="${h(cur.askEachCzk||'')}"></label><p class="muted">OS cenu na Viagogo nikdy sám nezmění. Tohle číslo slouží jen pro doporučení ZLEVNIT / ZDRAŽIT / DRŽET.</p>`;
-  const choice=await modal(`Trh: ${item.label}`,body,[{label:'Uložit',value:'save',primary:true},{label:'Zrušit',value:null}]);if(choice!=='save')return false;
-  const url=document.querySelector('#tmwUrl')?.value?.trim()||'',ask=Number(document.querySelector('#tmwAsk')?.value||0)||null;
+  const p=prefs(),cur=p[item.id]||{};const body=`<label class="field"><span>Viagogo event URL</span><input name="viagogoUrl" type="url" value="${h(cur.viagogoUrl||item.viagogoUrl||'')}" placeholder="https://www.viagogo.com/.../E-..."></label><label class="field"><span>Moje aktuální nabídková cena / ks (Kč)</span><input name="askEachCzk" type="number" min="0" step="1" value="${h(cur.askEachCzk||'')}"></label><p class="muted">OS cenu na Viagogo nikdy sám nezmění. Tohle číslo slouží jen pro doporučení ZLEVNIT / ZDRAŽIT / DRŽET.</p>`;
+  const data=await formModal(`Trh: ${item.label}`,body,{submitLabel:'Uložit'});if(!data)return false;
+  const url=String(data.viagogoUrl||'').trim(),ask=Number(data.askEachCzk||0)||null;
   if(url&&!/^https:\/\/(?:www\.)?viagogo\.com\//i.test(url)){await modal('Neplatný odkaz','<p>Odkaz musí vést na veřejnou event stránku viagogo.com.</p>',[{label:'OK',value:null,primary:true}]);return false}
   p[item.id]={viagogoUrl:url||null,askEachCzk:ask};savePrefs(p);localStorage.removeItem(SNAP_KEY);return true;
 }
@@ -42,7 +42,6 @@ export async function openTicketMarketWatch656(force=false){
   const checked=snap.checkedAt?new Date(snap.checkedAt).toLocaleString('cs-CZ'):'zatím neproběhl',coverage=watch.filter(x=>x.source?.status==='ok').length;
   const body=`<div class="card"><div class="eyebrow">TICKET MARKET WATCH 65.6</div><h2>Viagogo trh bez automatického prodeje</h2><div class="row"><span>Nabízíš</span><b>${watch.filter(x=>x.status==='LISTED').reduce((a,x)=>a+Number(x.qty||0),0)} ks</b></div><div class="row"><span>Nenabízíš</span><b>${watch.filter(x=>x.status==='NOT_LISTED').reduce((a,x)=>a+Number(x.qty||0),0)} ks</b></div><div class="row"><span>Živé zdroje</span><b>${coverage}/${watch.length}</b></div><div class="row"><span>Poslední kontrola</span><b>${h(checked)}</b></div><p class="muted">Kontrola běží při otevření OS a potom na pozadí každých 30 minut. OS pouze doporučuje — nikdy sám neupraví cenu, listing ani prodej.</p></div>${watch.map(watchedRow).join('')}${fulfillmentRows(merged)}`;
   const choice=await modal('Ticket Market Watch',body,[{label:'Obnovit Viagogo teď',value:'refresh',primary:true},{label:'Zavřít',value:null}]);
-  document.querySelectorAll('[data-tmw-edit]').forEach(()=>{});
   if(choice==='refresh'){localStorage.removeItem(SNAP_KEY);return openTicketMarketWatch656(true)}return choice;
 }
 export async function openTicketMarketItem656(id){const inv=await inventory(),item=mergePrefs(inv.items||[]).find(x=>x.id===id);if(!item)return false;const changed=await editItem656(item);if(changed)return openTicketMarketWatch656(true);return false}
