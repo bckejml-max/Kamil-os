@@ -8,6 +8,8 @@ test('64.5 updates mortgage and bank snapshots through the vault',async({page})=
 });
 
 test('64.5 money view exposes direct actions',async({page})=>{
- await page.goto(BASE,{waitUntil:'domcontentloaded'});await page.getByRole('button',{name:/Peníze/i}).first().click();
+ await page.goto(BASE,{waitUntil:'domcontentloaded'});
+ await expect.poll(async()=>page.evaluate(()=>window.__KAMIL_PERSONAL_SHELL_BOUND__===true),{timeout:10000}).toBe(true);
+ await page.getByRole('button',{name:/Peníze/i}).first().click();
  await expect(page.locator('#moneyView')).toContainText('Aktualizovat zůstatek');await expect(page.locator('#moneyView')).toContainText('Doplnit stav k datu');await expect(page.locator('#moneyView')).toContainText('Finanční úkol');
 });
