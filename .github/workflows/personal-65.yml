@@ -26,6 +26,8 @@ jobs:
           node --check js/personalMore640.js
           node --check js/personalHardening650.js
           node --check js/personalUsage650.js
+          node --check js/personalActionExecution641.js
+          node --check js/personalFollowup642.js
       - name: Personal 65 static release assertions
         run: node personal_65_static_test.mjs
       - name: Core cloud safety
@@ -42,4 +44,4 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_daily_personal_assistant_65_0.spec.mjs e2e_daily_rhythm_65_1.spec.mjs --reporter=line
+          npx playwright test e2e_daily_personal_assistant_65_0.spec.mjs e2e_daily_rhythm_65_1.spec.mjs e2e_zero_friction_today_65_2.spec.mjs --reporter=line
