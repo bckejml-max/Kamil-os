@@ -9,10 +9,10 @@ test('65.3 Tomorrow Radar includes tasks, admin and calendar in one center',asyn
  const chip=page.getByRole('button',{name:'Zítra'});
  await expect(chip.locator('b')).toHaveText('3',{timeout:5000});
  await chip.click();
- const modal=page.locator('#modalHost');
- await expect(modal.getByText('Zavolat do pojišťovny')).toBeVisible();
- await expect(modal.getByText('Doplnit formulář')).toBeVisible();
- await expect(modal.getByText('Rodinná návštěva')).toBeVisible();
+ const rows=page.locator('#modalHost .row b');
+ await expect(rows.filter({hasText:'Zavolat do pojišťovny'})).toBeVisible();
+ await expect(rows.filter({hasText:'Doplnit formulář'})).toBeVisible();
+ await expect(rows.filter({hasText:'Rodinná návštěva'})).toBeVisible();
 });
 
 test('65.3 next-7 center is separate from Family navigation',async({page})=>{
@@ -20,6 +20,6 @@ test('65.3 next-7 center is separate from Family navigation',async({page})=>{
  await page.addInitScript(state=>localStorage.setItem('kamil-os-state',JSON.stringify(state)),state);
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await page.getByRole('button',{name:'Do 7 dní'}).click();
- await expect(page.locator('#modalHost').getByText('Osobní kontrola za tři dny')).toBeVisible();
+ await expect(page.locator('#modalHost .row b').filter({hasText:'Osobní kontrola za tři dny'})).toBeVisible();
  await expect(page.locator('#pageTitle')).toHaveText('DNES');
 });
