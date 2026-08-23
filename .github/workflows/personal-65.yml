@@ -1,24 +1,28 @@
-name: Kamil OS 65 Personal Release
+name: Kamil OS 66 Personal + Ticket Intelligence Release
 on:
   pull_request:
   push:
     branches: [main]
 jobs:
-  personal65:
+  personal66:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Syntax check personal 65 modules
+      - name: Syntax check personal + ticket intelligence modules
         run: |
           node --check js/personalAssistant650.js
           node --check js/personalDate650.js
           node --check js/personalDailyRhythm651.js
           node --check js/personalTomorrow653.js
           node --check js/personalMorning655.js
+          node --check js/personalTicketBriefing660.js
           node --check js/ticketMarketWatch656.js
+          node --check js/ticketCloud660.js
+          node --check js/ticketImport660.js
+          node --check js/ticketCommander660.js
           node --check api/ticket-market-watch.js
           node --check js/personalToday640.js
           node --check js/personalWaiting650.js
@@ -33,9 +37,9 @@ jobs:
           node --check js/personalUsage650.js
           node --check js/personalActionExecution641.js
           node --check js/personalFollowup642.js
-      - name: Personal 65 static release assertions
+      - name: Personal + Ticket 66 static release assertions
         run: node personal_65_static_test.mjs
-      - name: Ticket Market API parser
+      - name: Ticket Intelligence API parser
         run: node ticket_market_api_65_6_test.mjs
       - name: Core cloud safety
         run: |
@@ -46,9 +50,9 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser E2E 65
+      - name: Browser E2E 66
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_daily_personal_assistant_65_0.spec.mjs e2e_daily_rhythm_65_1.spec.mjs e2e_zero_friction_today_65_2.spec.mjs e2e_tomorrow_radar_65_3.spec.mjs e2e_night_handoff_65_4.spec.mjs e2e_morning_launch_65_5.spec.mjs e2e_ticket_market_watch_65_6.spec.mjs --reporter=line
+          npx playwright test e2e_daily_personal_assistant_65_0.spec.mjs e2e_daily_rhythm_65_1.spec.mjs e2e_zero_friction_today_65_2.spec.mjs e2e_tomorrow_radar_65_3.spec.mjs e2e_night_handoff_65_4.spec.mjs e2e_morning_launch_65_5.spec.mjs e2e_ticket_market_watch_65_6.spec.mjs e2e_ticket_intelligence_66_0.spec.mjs --reporter=line
