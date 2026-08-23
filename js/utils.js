@@ -22,6 +22,9 @@ export const modal=(title,body,buttons=[])=>new Promise(resolve=>{
   const close=v=>{if(closed)return;closed=true;cleanup();el.remove();resolve(v)};
   let primaryBtn=null;
   buttons.forEach(b=>{const x=document.createElement('button');x.className='btn '+(b.primary?'primary':'')+(b.danger?' danger':'');x.textContent=b.label;x.type='button';x.onclick=()=>close(b.value);qs('[data-modal-buttons]',el).appendChild(x);if(b.primary)primaryBtn=x});
+  if(title==='XTB + vstupenky / Market Commander 58.7'&&/MARKET COMMANDER 59\.0/.test(String(body))&&/class="good">ACT<\/b>/.test(String(body))){
+    const x=document.createElement('button');x.className='btn';x.textContent='Provedl jsem to ručně';x.type='button';x.dataset.executionCheckin591='1';x.onclick=async()=>{close(null);try{const m=await import('./executionReceipt591.js');await m.openExecutionReceipt591()}catch(error){console.error('[execution-receipt-591]',error);toast('Execution check-in se nepodařilo otevřít')}};qs('[data-modal-buttons]',el).prepend(x);
+  }
   const onKey=e=>{
     if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close(null);return}
     if(e.key==='Enter'&&primaryBtn&&!e.shiftKey&&!e.ctrlKey&&!e.metaKey){
