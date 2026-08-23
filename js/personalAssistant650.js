@@ -1,6 +1,7 @@
 import {store} from './state.js';
 import {personalVault640} from './personalVault640.js';
 import {personalActions640} from './personalActions640.js';
+import {personalDaysTo650} from './personalDate650.js';
 
 const DAY=86400000;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED']);
@@ -9,7 +10,7 @@ const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const personal=x=>!WORK_RE.test(`${x?.title||''} ${x?.name||''} ${x?.subject||''} ${x?.category||''} ${x?.area||''} ${x?.project||''}`);
 const open=x=>!CLOSED.has(String(x?.status||x?.workflow||'').toUpperCase());
 const dateOf=x=>x?.due||x?.dueAt||x?.deadline||x?.followUpAt||x?.nextAt||x?.date||x?.start||x?.when||null;
-const daysTo=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.ceil((t-Date.now())/DAY):null};
+const daysTo=personalDaysTo650;
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 const fmtDate=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?new Date(t).toLocaleDateString('cs-CZ'):'—'};
 const currentHour=()=>new Date().getHours();
