@@ -34,5 +34,7 @@ const row=x=>`<div class="intel-row"><div class="intel-main"><b>${h(x.name)}</b>
 
 export async function openCommanderBlocker594(){
  const x=commanderBlockerResolver594(),body=`<div class="metric-strip"><div class="metric"><span>Blokováno</span><b class="${x.blocked?'bad':'good'}">${x.blocked?'ANO':'NE'}</b></div><div class="metric"><span>Známé blokery</span><b>${x.rows.length}</b></div><div class="metric"><span>Commander režim</span><b>${h(x.decision.mode)}</b></div></div><div class="card"><div class="eyebrow">COMMANDER BLOCKER RESOLVER 59.4</div><h2>${h(x.summary)}</h2>${x.top?`<p><b>${h(x.top.when)}</b> · ${h(x.top.name)}</p>`:'<p>Žádný konkrétní blocker není potřeba řešit teď.</p>'}</div><div class="card"><div class="eyebrow">POŘADÍ ODBLOKOVÁNÍ</div>${x.rows.slice(0,8).map(row).join('')||'<div class="empty success-empty">Bez známých blockerů.</div>'}</div><div class="decision-note">59.4 pouze řadí už existující blokery z Post-Execution Reality 59.3 a Recheck Triggers 56.2. Nic nesleduje na pozadí, nic neopravuje automaticky a nic neobchoduje, neprodává ani nepřecenňuje.</div>`;
- return modal('XTB + vstupenky / Commander Blocker Resolver 59.4',body,[{label:'Zavřít',value:null,primary:true}]);
+ const choice=await modal('XTB + vstupenky / Commander Blocker Resolver 59.4',body,[{label:'Co mám udělat teď 59.5',value:'next',primary:true},{label:'Zavřít',value:null}]);
+ if(choice==='next'){const m=await import('./commanderNextAction595.js');return m.openCommanderNextAction595()}
+ return choice;
 }
