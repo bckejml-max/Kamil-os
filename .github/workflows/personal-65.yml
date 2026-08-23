@@ -18,6 +18,8 @@ jobs:
           node --check js/personalDailyRhythm651.js
           node --check js/personalTomorrow653.js
           node --check js/personalMorning655.js
+          node --check js/ticketMarketWatch656.js
+          node --check api/ticket-market-watch.js
           node --check js/personalToday640.js
           node --check js/personalWaiting650.js
           node --check js/personalAsk640.js
@@ -33,6 +35,8 @@ jobs:
           node --check js/personalFollowup642.js
       - name: Personal 65 static release assertions
         run: node personal_65_static_test.mjs
+      - name: Ticket Market API parser
+        run: node ticket_market_api_65_6_test.mjs
       - name: Core cloud safety
         run: |
           node core_hardening_31_test.mjs
@@ -47,4 +51,4 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_daily_personal_assistant_65_0.spec.mjs e2e_daily_rhythm_65_1.spec.mjs e2e_zero_friction_today_65_2.spec.mjs e2e_tomorrow_radar_65_3.spec.mjs e2e_night_handoff_65_4.spec.mjs e2e_morning_launch_65_5.spec.mjs --reporter=line
+          npx playwright test e2e_daily_personal_assistant_65_0.spec.mjs e2e_daily_rhythm_65_1.spec.mjs e2e_zero_friction_today_65_2.spec.mjs e2e_tomorrow_radar_65_3.spec.mjs e2e_night_handoff_65_4.spec.mjs e2e_morning_launch_65_5.spec.mjs e2e_ticket_market_watch_65_6.spec.mjs --reporter=line
