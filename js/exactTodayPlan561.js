@@ -3,6 +3,7 @@ import {h,money,modal} from './utils.js';
 import {actionQueue559} from './actionQueue559.js';
 import {xtbTradePlanner} from './xtbPlanner24.js';
 import {ticketMinimumSafePrice,ticketRepricingLadder} from './marketSuite554.js';
+import {pendingExecutionReceipt591,receiptRefreshInstruction591} from './executionReceipt591.js';
 
 const A=v=>Array.isArray(v)?v:[];
 const N=v=>Number(v||0);
@@ -50,6 +51,12 @@ function exactRow(row,s,planByTicker,ladderById,safeById){
  return{...row,capitalDirection,capitalAmount,capitalCurrency:'CZK',capitalEffect:effect,exactQty:qty,conditionalNetRevenue:net,conditionalProfit:profit,safePrice:safe||null,targetPrice:price||null};
 }
 
+function receiptGate(row,s){
+ const receipt=pendingExecutionReceipt591(s,row);if(!receipt)return null;
+ const name=row.name||row.ticker||'market akce',nextStep=receiptRefreshInstruction591(row),when=new Date(receipt.at).toLocaleString('cs-CZ');
+ return{...row,receiptPending:true,receiptAt:receipt.at,originalAction:row.verdict,verdict:'WAIT',instruction:`Obnov data po ruční akci: ${name}`,detail:`Ruční ${receipt.verdict||row.verdict||'akce'} byla potvrzena ${when}. Zdrojová data se od té doby nezměnila.`,nextStep,capitalDirection:null,capitalAmount:null,capitalEffect:nextStep};
+}
+
 function flowSummary(rows,direction){
  const sums=new Map();
  for(const x of rows){if(x.capitalDirection!==direction||!x.capitalAmount||!x.capitalCurrency)continue;const c=U(x.capitalCurrency);sums.set(c,(sums.get(c)||0)+N(x.capitalAmount))}
@@ -58,17 +65,19 @@ function flowSummary(rows,direction){
 
 export function exactTodayPlan561(s=store.get()){
  const started=performance.now(),queue=actionQueue559(s),planner=xtbTradePlanner(s),ladders=ticketRepricingLadder(s),safe=ticketMinimumSafePrice(s),planByTicker=new Map(A(planner.plans).map(x=>[U(x.ticker),x])),ladderById=new Map(A(ladders).map(x=>[x.id,x])),safeById=new Map(A(safe).map(x=>[x.id,x]));
- const now=queue.doNow.map(x=>exactRow(x,s,planByTicker,ladderById,safeById)),verify=queue.verify.map(x=>exactRow(x,s,planByTicker,ladderById,safeById)),wait=queue.wait.map(x=>exactRow(x,s,planByTicker,ladderById,safeById));
- const releaseText=flowSummary(now,'RELEASE'),useText=flowSummary(now,'USE'),summary=now.length?`Dnes máš ${now.length} ruční ${now.length===1?'krok':'kroky'} připravené k provedení.`:verify.length?`Nejdřív ověř ${verify.length} blokované ${verify.length===1?'rozhodnutí':'rozhodnutí'}.`:'Dnes není potřeba dělat žádný market krok.';
- const result={now,verify,wait,total:now.length+verify.length+wait.length,releaseText,useText,summary,generatedAt:new Date().toISOString()};
- window.__KAMIL_EXACT_TODAY_561_LAST__={ms:Math.round((performance.now()-started)*10)/10,at:Date.now(),now:now.length,verify:verify.length,wait:wait.length};
+ const rawNow=queue.doNow.map(x=>exactRow(x,s,planByTicker,ladderById,safeById)),now=[],receiptLocks=[];
+ for(const row of rawNow){const gated=receiptGate(row,s);if(gated)receiptLocks.push(gated);else now.push(row)}
+ const verify=[...receiptLocks,...queue.verify.map(x=>exactRow(x,s,planByTicker,ladderById,safeById))],wait=queue.wait.map(x=>exactRow(x,s,planByTicker,ladderById,safeById));
+ const releaseText=flowSummary(now,'RELEASE'),useText=flowSummary(now,'USE'),summary=now.length?`Dnes máš ${now.length} ruční ${now.length===1?'krok':'kroky'} připravené k provedení.`:receiptLocks.length?`Po ${receiptLocks.length} potvrzené ruční akci nejdřív obnov zdrojová data.`:verify.length?`Nejdřív ověř ${verify.length} blokované ${verify.length===1?'rozhodnutí':'rozhodnutí'}.`:'Dnes není potřeba dělat žádný market krok.';
+ const result={now,verify,wait,receiptLocks,total:now.length+verify.length+wait.length,releaseText,useText,summary,generatedAt:new Date().toISOString()};
+ window.__KAMIL_EXACT_TODAY_561_LAST__={ms:Math.round((performance.now()-started)*10)/10,at:Date.now(),now:now.length,verify:verify.length,wait:wait.length,receiptLocks:receiptLocks.length};
  return result;
 }
 
 const row=(x,mode)=>`<div class="intel-row"><div class="intel-main"><b>${h(x.instruction)}</b><span>${h(x.capitalEffect||x.detail||x.nextStep||'Bez dalšího detailu.')}</span></div><div class="row-actions"><span class="decision-action ${mode==='now'?'good':mode==='verify'?'bad':'warn'}">${mode==='now'?'DNES':mode==='verify'?'OVĚŘ':'ČEKEJ'}</span><span class="status">${x.confidence}%</span></div></div>`;
 
 export async function openExactTodayPlan561(){
- const x=exactTodayPlan561(),body=`<div class="metric-strip"><div class="metric"><span>Dnešní kroky</span><b class="good">${x.now.length}</b></div><div class="metric"><span>Uvolní kapitál</span><b>${h(x.releaseText)}</b></div><div class="metric"><span>Použije kapitál</span><b>${h(x.useText)}</b></div><div class="metric"><span>Blokery</span><b class="${x.verify.length?'bad':'good'}">${x.verify.length}</b></div></div><div class="card"><div class="eyebrow">EXACT TODAY PLAN 56.1</div><h2>${h(x.summary)}</h2><p>Jen ruční XTB a ticket kroky, které prošly Final Verdictem. Kapitál se nesčítá napříč měnami bez konverze.</p></div><div class="card"><div class="eyebrow">1 · UDĚLEJ DNES</div>${x.now.map(v=>row(v,'now')).join('')||'<div class="empty success-empty">Žádná ověřená market akce dnes není nutná.</div>'}</div><div class="card"><div class="eyebrow">2 · NEJDŘÍV OVĚŘ</div>${x.verify.map(v=>row(v,'verify')).join('')||'<div class="empty success-empty">Žádný blocker.</div>'}</div><div class="card"><div class="eyebrow">3 · DRŽ & ČEKEJ</div>${x.wait.slice(0,8).map(v=>row(v,'wait')).join('')||'<div class="empty">Bez čekajících položek.</div>'}</div><div class="decision-note">56.1 pouze počítá podmíněný kapitálový dopad z uložených dat. Neprovádí nákup, prodej, převod ani repricing. U ticketu je P/L matematika pro uvedenou cenu, ne predikce budoucího prodeje.</div>`;
+ const x=exactTodayPlan561(),body=`<div class="metric-strip"><div class="metric"><span>Dnešní kroky</span><b class="good">${x.now.length}</b></div><div class="metric"><span>Uvolní kapitál</span><b>${h(x.releaseText)}</b></div><div class="metric"><span>Použije kapitál</span><b>${h(x.useText)}</b></div><div class="metric"><span>Blokery</span><b class="${x.verify.length?'bad':'good'}">${x.verify.length}</b></div></div><div class="card"><div class="eyebrow">EXACT TODAY PLAN 56.1</div><h2>${h(x.summary)}</h2><p>Jen ruční XTB a ticket kroky, které prošly Final Verdictem. Kapitál se nesčítá napříč měnami bez konverze.</p></div><div class="card"><div class="eyebrow">1 · UDĚLEJ DNES</div>${x.now.map(v=>row(v,'now')).join('')||'<div class="empty success-empty">Žádná ověřená market akce dnes není nutná.</div>'}</div><div class="card"><div class="eyebrow">2 · NEJDŘÍV OVĚŘ</div>${x.verify.map(v=>row(v,'verify')).join('')||'<div class="empty success-empty">Žádný blocker.</div>'}</div><div class="card"><div class="eyebrow">3 · DRŽ & ČEKEJ</div>${x.wait.slice(0,8).map(v=>row(v,'wait')).join('')||'<div class="empty">Bez čekajících položek.</div>'}</div><div class="decision-note">56.1 pouze počítá podmíněný kapitálový dopad z uložených dat. Neprovádí nákup, prodej, převod ani repricing. U ticketu je P/L matematika pro uvedenou cenu, ne predikce budoucího prodeje. Receipt 59.1 pouze zabrání opakování stejné ruční akce nad nezměněnými daty.</div>`;
  const choice=await modal('XTB + vstupenky / Exact Today Plan 56.1',body,[{label:'After Action 56.4',value:'preview',primary:true},{label:'Recheck Triggers 56.2',value:'recheck'},{label:'Zavřít',value:null}]);
  if(choice==='preview'){const m=await import('./afterActionPreview564.js');return m.openAfterActionPreview564()}
  if(choice==='recheck'){const m=await import('./recheckTriggers562.js');return m.openRecheckTriggers562()}
