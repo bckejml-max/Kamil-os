@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 const BASE='http://127.0.0.1:4173';
 
-const openAdd=page=>page.getByRole('button',{name:/^Přidat$/i}).first().click();
+const openAdd=page=>page.locator('#quickAddBtn').click();
 
 test('Quick Add creates a personal waiting item',async({page})=>{
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
