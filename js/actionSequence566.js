@@ -38,6 +38,12 @@ function applyTicket(s,row){
  return{ok:false,stop:true,note:'Nepodporovaná ticket akce.'};
 }
 
+export function applyVirtualAction566(s,row){
+ if(row?.domain==='XTB')return applyXtb(s,row);
+ if(row?.domain==='Vstupenky')return applyTicket(s,row);
+ return{ok:false,stop:true,note:'Neznámá market doména.'};
+}
+
 function flowAdd(map,row){if(!row.capitalDirection||!row.capitalAmount||!row.capitalCurrency)return;const c=U(row.capitalCurrency),x=map.get(c)||{release:0,use:0};if(row.capitalDirection==='RELEASE')x.release+=N(row.capitalAmount);if(row.capitalDirection==='USE')x.use+=N(row.capitalAmount);map.set(c,x)}
 function flowText(map){return[...map.entries()].map(([c,x])=>`${c}: +${fmt(x.release,c)} / -${fmt(x.use,c)}${x.release||x.use?` · net ${fmt(x.release-x.use,c)}`:''}`).join(' · ')||'Bez potvrzeného cash flow.'}
 
@@ -48,7 +54,7 @@ export function actionSequence566(s=store.get(),limit=3){
   const ranked=bestNextMove565(virtual),candidate=A(ranked.rows).find(x=>actionable(x)&&!done.has(x.key));
   if(!candidate)break;done.add(candidate.key);
   const before={xtbCzkValue:N(virtual.xtbReport?.czkValue)||null,activeTickets:A(virtual.ticketBook?.items).filter(x=>!['SOLD','CANCELLED'].includes(U(x.workflow))).length};
-  const applied=candidate.domain==='XTB'?applyXtb(virtual,candidate):applyTicket(virtual,candidate);
+  const applied=applyVirtualAction566(virtual,candidate);
   if(!applied.ok){skipped.push({...candidate,reason:applied.note});if(applied.stop){stopReason=applied.note;break}continue}
   flowAdd(flows,candidate);
   const after={xtbCzkValue:N(virtual.xtbReport?.czkValue)||null,activeTickets:A(virtual.ticketBook?.items).filter(x=>!['SOLD','CANCELLED'].includes(U(x.workflow))).length};
@@ -64,5 +70,7 @@ const row=x=>`<div class="intel-row"><div class="intel-main"><b>${h(`${x.sequenc
 
 export async function openActionSequence566(){
  const x=actionSequence566(),body=`<div class="metric-strip"><div class="metric"><span>Kroky</span><b class="good">${x.total}</b></div><div class="metric"><span>Další po sekvenci</span><b>${h(x.next?.instruction||x.next?.name||'—')}</b></div><div class="metric"><span>Stop</span><b class="${x.stopReason?'warn':'good'}">${x.stopReason?'ANO':'NE'}</b></div></div><div class="card"><div class="eyebrow">ACTION SEQUENCE 56.6</div><h2>${h(x.summary)}</h2><p>Po každém kroku se další pořadí znovu počítá nad virtuálně změněným portfoliem / ticket inventory.</p></div><div class="card"><div class="eyebrow">1 → 2 → 3</div>${x.steps.map(row).join('')||'<div class="empty success-empty">Žádná ověřená akce teď není nutná.</div>'}</div><div class="card"><div class="eyebrow">KAPITÁL PO SEKVENCI</div><p>${h(x.flowText)}</p>${x.stopReason?`<p class="warn">${h(x.stopReason)}</p>`:''}</div><div class="decision-note">56.6 je pouze virtuální sekvence. Stav se nikam nezapisuje a nic se neobchoduje ani nepřecenňuje. Uvolněný kapitál se automaticky nepřelévá mezi tickety a XTB ani mezi měnami; bez spolehlivé CZK valuace se sekvence raději zastaví.</div>`;
- return modal('XTB + vstupenky / Action Sequence 56.6',body,[{label:'Zavřít',value:null,primary:true}]);
+ const choice=await modal('XTB + vstupenky / Action Sequence 56.6',body,[{label:'Risk Budget 56.7',value:'risk',primary:true},{label:'Zavřít',value:null}]);
+ if(choice==='risk'){const m=await import('./sequenceRiskBudget567.js');return m.openSequenceRiskBudget567()}
+ return choice;
 }
