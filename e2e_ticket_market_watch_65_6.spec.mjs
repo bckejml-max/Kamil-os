@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 const BASE='http://127.0.0.1:4173';
 
-test('65.6 Ticket Market Watch reads private ticketBook states and never auto-sells',async({page})=>{
+test('65.6 Ticket Market Watch reads private ticketBook states, edits own ask and never auto-sells',async({page})=>{
  const state={meta:{schemaVersion:80},tasks:[],personalAdmin:{items:[]},delegations:[],calendar:{events:[]},ticketBook:{history:[],watchlist:[],review:[],items:[
   {id:'listed-a',name:'Test Concert A - S10',eventName:'Test Concert A',date:'2026-09-01',section:'S10',qty:3,buy:3000,listPrice:1500,workflow:'LISTED',marketStatus:'LISTED',viagogoUrl:'https://www.viagogo.com/E-1'},
   {id:'hold-b',name:'Test Sport B - B2',eventName:'Test Sport B',date:'2026-10-01',section:'B2',qty:4,buy:4000,workflow:'HOLD',marketStatus:'NOT_LISTED'},
@@ -24,4 +24,10 @@ test('65.6 Ticket Market Watch reads private ticketBook states and never auto-se
  await expect(modal).toContainText('Prodáno / nedoručeno');
  await expect(modal).toContainText('Čekáš na peníze');
  await expect(modal).not.toContainText('AUTO SELL');
+ const listed=modal.locator('.tmw-row').filter({hasText:'Test Concert A - S10'});
+ await listed.getByRole('button',{name:'Upravit sledování'}).click();
+ await expect(modal).toContainText('Moje aktuální nabídková cena / ks');
+ await modal.locator('input[name="askEachCzk"]').fill('1700');
+ await modal.getByRole('button',{name:'Uložit'}).click();
+ await expect.poll(async()=>page.evaluate(()=>JSON.parse(localStorage.getItem('kamil-os-state')||'{}').ticketBook?.items?.find(x=>x.id==='listed-a')?.listPrice)).toBe(1700);
 });
