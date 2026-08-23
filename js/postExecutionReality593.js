@@ -73,5 +73,7 @@ const rowHtml=x=>{const c=x.comparison,s=x.state,capital=c.actualGross===null?'U
 
 export async function openPostExecutionReality593(){
  const x=postExecutionReality593(),body=`<div class="metric-strip"><div class="metric"><span>Odpovídá</span><b class="good">${x.counts.match}</b></div><div class="metric"><span>Částečně</span><b class="warn">${x.counts.partial}</b></div><div class="metric"><span>Nesouhlasí</span><b class="bad">${x.counts.mismatch}</b></div><div class="metric"><span>Unknown</span><b>${x.counts.unknown}</b></div></div><div class="card"><div class="eyebrow">POST-EXECUTION REALITY CHECK 59.3</div><h2>${h(x.summary)}</h2><p>59.3 odděluje původní plán, ručně potvrzený execution receipt a nový uložený zdrojový stav. UNKNOWN znamená, že změnu nelze z dostupných dat bezpečně doložit; není to odhad.</p></div><div class="card"><div class="eyebrow">PLÁN → RECEIPT → REALITA</div>${x.rows.slice(0,12).map(rowHtml).join('')||'<div class="empty">Zatím není co kontrolovat.</div>'}</div><div class="decision-note">Hrubá hodnota = pouze qty × ručně zadaná execution cena (nebo explicitní plánovaná částka). 59.3 z ní neodvozuje čistý broker cash, poplatky ani FX. XTB execution cenu nikdy nebere z aktuální portfolio ceny. Vše je read-only; nic se neobchoduje, neprodává ani nepřecenňuje.</div>`;
- return modal('XTB + vstupenky / Post-Execution Reality Check 59.3',body,[{label:'Zavřít',value:null,primary:true}]);
+ const choice=await modal('XTB + vstupenky / Post-Execution Reality Check 59.3',body,[{label:'Blockery 59.4',value:'blockers',primary:true},{label:'Zavřít',value:null}]);
+ if(choice==='blockers'){const m=await import('./commanderBlocker594.js');return m.openCommanderBlocker594()}
+ return choice;
 }
