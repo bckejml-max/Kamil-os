@@ -1,6 +1,6 @@
-const CACHE='kamil-os-68.0-official-viagogo-r1';
+const CACHE='kamil-os-68.1-viagogo-status-r1';
 const SHELL=[
-  './','./index.html','./manifest.webmanifest','./styles.css','./theme33.css','./personal64.css','./personal65.css','./home68.css','./personal69.css','./family70.css',
+  './','./index.html','./manifest.webmanifest','./styles.css','./theme33.css','./personal64.css','./personal65.css','./home68.css','./personal69.css','./family70.css','./ticket68.css',
   './js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js','./js/state.js','./js/utils.js',
   './js/viewRuntime41.js','./js/personalShell640.js','./js/personalHardening650.js','./js/personalVault640.js','./js/personalActions640.js','./js/personalAsk640.js','./js/personalAssistant650.js','./js/personalWaiting650.js','./js/personalUsage650.js','./js/personalDate650.js','./js/personalDailyRhythm651.js','./js/personalTomorrow653.js','./js/personalMorning655.js','./js/personalTicketBriefing660.js','./js/ticketMarketWatch656.js','./js/ticketCloud660.js','./js/ticketSearchFallback676.js','./js/ticketImport660.js','./js/ticketCommander660.js','./js/ticketPage665.js',
   './js/personalToday640.js','./js/personalFamily640.js','./js/personalHome640.js','./js/personalMoney640.js','./js/personalDocuments640.js','./js/personalMore640.js',
