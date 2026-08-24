@@ -14,8 +14,8 @@ export async function setMoreMode41(){return Promise.resolve(null)}
 export async function openCapture41(type='task'){const m=await load('./personalCapture643.js');return m.openPersonalCapture643(type)}
 export async function renderCommandResults41(q=''){const m=await load('./command.js');return m.renderResults(q)}
 export async function executeCommand41(q=''){const m=await load('./command.js');return m.execute(q)}
-export function renderExtras41(){return Promise.resolve([])}
+export async function renderExtras41(view='today'){if(view==='today'){const m=await load('./personalWeekly700.js');return m.appendWeeklyReset700()}return null}
 export function refreshRiskBadge41(){return Promise.resolve(null)}
-export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE,canonicalViews:[...validViews41],commandBar:true,inbox:true}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}}
+export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE,canonicalViews:[...validViews41],commandBar:true,inbox:true,weeklyReset:true}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}}
 export function scheduleNotifications41(){return Promise.resolve(null)}
 export function warmRuntime41(){load('./command.js').catch(()=>{});return Promise.resolve(null)}
