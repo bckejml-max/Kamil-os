@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {rankOneBestMove673} from './js/personalOneBestMove673.js';
+import {rankOneBestMove673} from './js/oneBestMoveRank673.js';
 
 const personalCritical={title:'Rodinný termín',level:'critical',why:'Dnes je termín.',cta:'Vyřešit'};
 const personalMedium={title:'Ověřit smlouvu',level:'medium',why:'Je dobré ji zkontrolovat.',cta:'Ověřit'};
