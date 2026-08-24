@@ -20,17 +20,21 @@ jobs:
           test -f js/personalToday640.js
           test -f js/personalInbox690.js
           test -f js/personalMoney640.js
+          test -f js/personalWeekly700.js
           test -f js/ticketPage665.js
           test -f js/ticketCloud660.js
           test -f js/command.js
+          test -f js/personalQuery29.js
           test -f core70.css
           test -f api/core70-health.js
+          test -f CORE70.md
       - name: Syntax check canonical JavaScript
         run: |
           node --check js/viewRuntime41.js
           node --check js/personalToday640.js
           node --check js/personalInbox690.js
           node --check js/personalMoney640.js
+          node --check js/personalWeekly700.js
           node --check js/ticketPage665.js
           node --check js/ticketCloud660.js
           node --check js/command.js
@@ -39,10 +43,12 @@ jobs:
       - name: Canonical runtime assertions
         run: |
           grep -q "personalInbox690" js/viewRuntime41.js
+          grep -q "personalWeekly700" js/viewRuntime41.js
           grep -q "renderCommandResults41" js/viewRuntime41.js
           grep -q "executeCommand41" js/viewRuntime41.js
           grep -q "viagogo-official" js/ticketCloud660.js
           grep -q "core70-health" js/personalToday640.js
-      - name: Prevent known dead ticket route regression
+      - name: Prevent known routing regressions
         run: |
           ! grep -R "ticket-market-watch-v673" js api || (echo "Dead v673 route reintroduced" && exit 1)
+          ! grep -q "ticketMarketWatch656.js" sw.js || (echo "Legacy ticketMarketWatch656 returned to active shell" && exit 1)
