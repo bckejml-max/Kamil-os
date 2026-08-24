@@ -4,7 +4,7 @@ const modules=new Map(),warmViews=new Map();
 const viewDefs={
  today:['./personalToday640.js','renderPersonalToday640'],
  money:['./personalMoney640.js','renderPersonalMoney640'],
- tickets:['./personalFamily640.js','renderPersonalFamily640'],
+ tickets:['./personalTickets671.js','renderPersonalTickets671'],
  home:['./personalHome640.js','renderPersonalHome640'],
  more:['./personalDocuments640.js','renderPersonalDocuments640']
 };
