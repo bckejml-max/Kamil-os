@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 const BASE='http://127.0.0.1:4173';
 
-const openAdd=page=>page.locator('#quickAddBtn').click();
+const openAdd=async page=>{await page.waitForFunction(()=>window.__KAMIL_PERSONAL_SHELL_BOUND__===true);await page.locator('#quickAddBtn').click();await expect(page.getByRole('dialog')).toBeVisible({timeout:10000});};
 
 test('Quick Add creates a personal waiting item',async({page})=>{
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
