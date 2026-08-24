@@ -1,5 +1,7 @@
 import {store} from './state.js';
 import {h,qs} from './utils.js';
+import {session} from './cloud.js';
+import {loadTicketCloud660} from './ticketCloud660.js';
 import {ensurePersonalVault640} from './personalVault640.js';
 import {openPersonalAction641} from './personalActionExecution641.js';
 import {personalDailyAssistant650,personalActionCta650} from './personalAssistant650.js';
@@ -17,6 +19,18 @@ const primaryHtml=x=>`<article class="ux65-primary ux64-${h(x.level)}"><div clas
 const secondaryHtml=(x,i)=>`<article class="ux66-secondary-card ux64-${h(x.level)}"><div class="ux64-action-top"><span class="ux66-rank">${i+2}</span><span class="ux64-badge">${badge(x)}</span><span class="ux64-time">${h(String(x.minutes||5))} min</span></div><h3>${h(x.title)}</h3><p>${h(x.why)}</p><button class="btn" data-ux65-action="${h(x.id)}">${h(x.cta||personalActionCta650(x))}</button></article>`;
 const tomorrowPreview=rows=>rows.length?`<section class="card ux65-night-handoff"><div class="eyebrow">ZÍTRA</div>${rows.slice(0,2).map(x=>`<div class="row"><span>${h(titleOf(x))}</span><b>${h(x.sourceKind==='calendar'?'Kalendář':x.sourceKind==='admin'?'Administrativa':'Úkol')}</b></div>`).join('')}<button class="btn" data-tomorrow-open>Otevřít zítřek</button></section>`:'';
 const morningPreview=x=>`<section class="card ux65-morning-launch"><div class="eyebrow">START DNE</div><div class="row"><span>Dnes v kalendáři</span><b>${x.calendar.length}</b></div><div class="row"><span>Follow-up dnes / po termínu</span><b>${x.followups.length}</b></div><button class="btn" data-morning-open>Ranní přehled</button></section>`;
+const healthPill=(tone,label,detail)=>`<span class="os684-pill ${tone}"><i></i><b>${h(label)}</b><small>${h(detail)}</small></span>`;
+async function appendSystemHealth684(host){
+ try{
+  const [sess,cloud,vr]=await Promise.all([session(),loadTicketCloud660(),fetch('/api/viagogo-official',{cache:'no-store'}).then(r=>r.json()).catch(()=>({configured:false}))]);
+  const latest=cloud?.snapshots?.[0]?.checked_at||null,age=latest?Math.max(0,(Date.now()-Date.parse(latest))/36e5):null;
+  const cloudP=sess?healthPill('ok','Cloud','připojen'):healthPill('bad','Cloud','odpojen');
+  const ticketP=age==null?healthPill('warn','Tržní data','bez kontroly'):age>24?healthPill('warn','Tržní data',`${Math.round(age)} h stará`):healthPill('ok','Tržní data',age<1?'čerstvá':`${Math.round(age)} h`);
+  const vgP=vr?.configured?healthPill('ok','Viagogo API','připojeno'):healthPill('warn','Viagogo API','nepřipojeno');
+  const wrap=document.createElement('section');wrap.className='card os684-health';wrap.innerHTML=`<div class="os684-head"><div><div class="eyebrow">STAV OS</div><b>Datové zdroje</b></div><button class="btn" data-os684-tickets>Vstupenky</button></div><div class="os684-pills">${cloudP}${ticketP}${vgP}</div>`;
+  host.querySelector('.ux65-today')?.appendChild(wrap);wrap.querySelector('[data-os684-tickets]')?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'tickets'})));
+ }catch{}
+}
 
 export function renderPersonalToday640(){
  ensurePersonalVault640();const s=store.get(),d=personalDailyAssistant650(s),rhythm=personalDailyRhythm651(s),morningData=personalMorningLaunch655(s),host=qs('#todayView');if(!host)return;
@@ -35,6 +49,6 @@ export function renderPersonalToday640(){
  host.querySelectorAll('[data-morning-open]').forEach(b=>b.addEventListener('click',()=>openMorningLaunch655()));
  host.querySelectorAll('[data-ask]').forEach(b=>b.addEventListener('click',()=>{const input=qs('#commandInput');if(input){input.value=b.dataset.ask;input.focus();qs('#commandGo')?.click()}}));
  host.querySelectorAll('[data-ux65-action]').forEach(b=>b.addEventListener('click',async()=>{const fresh=personalDailyAssistant650(store.get()).top.find(x=>x.id===b.dataset.ux65Action);if(!fresh)return;await openPersonalAction641(fresh);renderPersonalToday640()}));
- if(morning)appendTicketBriefing660(host).catch(()=>null);
- if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_660_LAST__={at:Date.now(),view:'today',primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,next7:d.next7Count,doneToday:rhythm.done,mode:rhythm.mode,lateCalm:late&&!primary,nightHandoff:late,morningLaunch:morning,morningCalendar:morningData.calendar.length,morningFollowups:morningData.followups.length,ticketBriefing:'critical-only',topThree:true};
+ if(morning)appendTicketBriefing660(host).catch(()=>null);appendSystemHealth684(host);
+ if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_660_LAST__={at:Date.now(),view:'today',primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,next7:d.next7Count,doneToday:rhythm.done,mode:rhythm.mode,lateCalm:late&&!primary,nightHandoff:late,morningLaunch:morning,morningCalendar:morningData.calendar.length,morningFollowups:morningData.followups.length,ticketBriefing:'critical-only',topThree:true,systemHealth:true};
 }
