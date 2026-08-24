@@ -3,9 +3,10 @@ import {personalDailyAssistant650} from './personalAssistant650.js';
 import {personalVault640} from './personalVault640.js';
 import {dailyTicketPriority672} from './personalTicketPriority672.js';
 import {openTicketCommander660} from './ticketCommander660.js';
+import {rankOneBestMove673} from './oneBestMoveRank673.js';
+export {rankOneBestMove673} from './oneBestMoveRank673.js';
 
 const daysOld=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.floor((Date.now()-t)/86400000):null};
-const personalScore=a=>a?.level==='critical'?110:a?.level==='high'?85:a?.level==='medium'?60:a?40:0;
 
 export function moneyPriority673(s){
  const v=personalVault640(s),bank=v.records.find(x=>x.recordType==='bank-data'),mortgage=v.records.find(x=>x.recordType==='mortgage'),bankAge=daysOld(bank?.asOf),mortgageAge=daysOld(mortgage?.asOf);
@@ -13,15 +14,6 @@ export function moneyPriority673(s){
  if(bankAge!==null&&bankAge>40)return{kind:'money',score:72,title:'Aktualizovat bankovní data',label:'PENÍZE',reason:`Poslední potvrzený stav je ${bankAge} dní starý.`,cta:'Aktualizovat',route:'money'};
  if(mortgage?.asOf&&mortgageAge!==null&&mortgageAge>120)return{kind:'money',score:58,title:'Aktualizovat hypotéku',label:'PENÍZE',reason:`Poslední známý zůstatek je ${mortgageAge} dní starý.`,cta:'Aktualizovat',route:'money'};
  return null;
-}
-
-export function rankOneBestMove673({personal=null,ticket=null,money=null}={}){
- const rows=[];
- if(personal)rows.push({kind:'personal',score:personalScore(personal),title:personal.title,label:'OSOBNÍ',reason:personal.why||personal.next||'',cta:personal.cta||'Vyřešit',source:personal});
- if(ticket)rows.push({...ticket,score:Number(ticket.priority||ticket.score||0),kind:'ticket'});
- if(money)rows.push(money);
- rows.sort((a,b)=>b.score-a.score||String(a.title||'').localeCompare(String(b.title||''),'cs'));
- return{best:rows[0]||null,alternatives:rows.slice(1),all:rows};
 }
 
 export async function oneBestMove673(s){
