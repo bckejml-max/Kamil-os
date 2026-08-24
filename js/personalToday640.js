@@ -21,11 +21,20 @@ const secondaryHtml=(x,i)=>`<article class="ux66-secondary-card ux64-${h(x.level
 const tomorrowPreview=rows=>rows.length?`<section class="card ux65-night-handoff"><div class="eyebrow">ZÍTRA</div>${rows.slice(0,2).map(x=>`<div class="row"><span>${h(titleOf(x))}</span><b>${h(x.sourceKind==='calendar'?'Kalendář':x.sourceKind==='admin'?'Administrativa':'Úkol')}</b></div>`).join('')}<button class="btn" data-tomorrow-open>Otevřít zítřek</button></section>`:'';
 const morningPreview=x=>`<section class="card ux65-morning-launch"><div class="eyebrow">START DNE</div><div class="row"><span>Dnes v kalendáři</span><b>${x.calendar.length}</b></div><div class="row"><span>Follow-up dnes / po termínu</span><b>${x.followups.length}</b></div><button class="btn" data-morning-open>Ranní přehled</button></section>`;
 const healthPill=(tone,label,detail)=>`<span class="os684-pill ${tone}"><i></i><b>${h(label)}</b><small>${h(detail)}</small></span>`;
+function changeTarget686(label=''){
+ const t=String(label).toLowerCase();
+ if(/vstupenk|ticket|viagogo|prodej.*líst|tržní.*cen/.test(t))return'tickets';
+ if(/hypot|finance|peníz|platb|faktur|rozpočet|spořen|invest|xtb/.test(t))return'money';
+ if(/rodin|dcera|dítě|manžel|škol|očkov|víkend/.test(t))return'family';
+ if(/domov|dům|energie|elektř|plyn|servis|údržb|reviz|nemovit/.test(t))return'home';
+ if(/dokument|smlouv|pojist|protokol|doklad|archiv/.test(t))return'more';
+ return null;
+}
 function changesSince685(s){
  let since=Date.now()-864e5;try{const saved=Number(localStorage.getItem(LAST_SEEN_KEY)||0);if(saved)since=saved}catch{}
- const out=[],seen=new Set();for(const x of s.audit||[]){const at=Date.parse(x?.at||'');if(!at||at<=since)continue;const label=String(x?.label||'').trim();if(!label||seen.has(label))continue;seen.add(label);out.push({label,at});if(out.length>=3)break}return out;
+ const out=[],seen=new Set();for(const x of s.audit||[]){const at=Date.parse(x?.at||'');if(!at||at<=since)continue;const label=String(x?.label||'').trim();if(!label||seen.has(label))continue;seen.add(label);out.push({label,at,target:changeTarget686(label)});if(out.length>=3)break}return out;
 }
-function changesHtml685(rows){if(!rows.length)return'';return `<section class="card os685-changes"><div class="eyebrow">CO SE ZMĚNILO OD MINULA</div><div class="os685-change-list">${rows.map(x=>`<div class="row"><span>${h(x.label)}</span><small>${new Date(x.at).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}</small></div>`).join('')}</div></section>`}
+function changesHtml685(rows){if(!rows.length)return'';return `<section class="card os685-changes"><div class="eyebrow">CO SE ZMĚNILO OD MINULA</div><div class="os685-change-list">${rows.map(x=>x.target?`<button class="os685-change-row" data-change-target="${h(x.target)}"><span>${h(x.label)}</span><small>${new Date(x.at).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})} ›</small></button>`:`<div class="row"><span>${h(x.label)}</span><small>${new Date(x.at).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}</small></div>`).join('')}</div></section>`}
 async function appendSystemHealth684(host){
  try{
   const [sess,cloud,vr]=await Promise.all([session(),loadTicketCloud660(),fetch('/api/viagogo-official',{cache:'no-store'}).then(r=>r.json()).catch(()=>({configured:false}))]);
@@ -55,7 +64,8 @@ export function renderPersonalToday640(){
  host.querySelectorAll('[data-daily-close]').forEach(b=>b.addEventListener('click',()=>openDailyClose651()));
  host.querySelectorAll('[data-morning-open]').forEach(b=>b.addEventListener('click',()=>openMorningLaunch655()));
  host.querySelectorAll('[data-ask]').forEach(b=>b.addEventListener('click',()=>{const input=qs('#commandInput');if(input){input.value=b.dataset.ask;input.focus();qs('#commandGo')?.click()}}));
+ host.querySelectorAll('[data-change-target]').forEach(b=>b.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:b.dataset.changeTarget}))));
  host.querySelectorAll('[data-ux65-action]').forEach(b=>b.addEventListener('click',async()=>{const fresh=personalDailyAssistant650(store.get()).top.find(x=>x.id===b.dataset.ux65Action);if(!fresh)return;await openPersonalAction641(fresh);renderPersonalToday640()}));
  if(morning)appendTicketBriefing660(host).catch(()=>null);appendSystemHealth684(host);setTimeout(()=>{try{localStorage.setItem(LAST_SEEN_KEY,String(Date.now()))}catch{}},1200);
- if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_660_LAST__={at:Date.now(),view:'today',primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,next7:d.next7Count,doneToday:rhythm.done,mode:rhythm.mode,lateCalm:late&&!primary,nightHandoff:late,morningLaunch:morning,morningCalendar:morningData.calendar.length,morningFollowups:morningData.followups.length,ticketBriefing:'critical-only',topThree:true,systemHealth:true,changesSinceLastVisit:changes.length};
+ if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_660_LAST__={at:Date.now(),view:'today',primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,next7:d.next7Count,doneToday:rhythm.done,mode:rhythm.mode,lateCalm:late&&!primary,nightHandoff:late,morningLaunch:morning,morningCalendar:morningData.calendar.length,morningFollowups:morningData.followups.length,ticketBriefing:'critical-only',topThree:true,systemHealth:true,changesSinceLastVisit:changes.length,changeDeepLinks:true};
 }
