@@ -1,4 +1,4 @@
-const CACHE='kamil-os-66.6-ticket-filters-r1';
+const CACHE='kamil-os-66.7-money-clarity-r1';
 const SHELL=[
   './','./index.html','./manifest.webmanifest','./styles.css','./theme33.css','./personal64.css','./personal65.css',
   './js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js','./js/state.js','./js/utils.js',
