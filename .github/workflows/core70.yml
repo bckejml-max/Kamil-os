@@ -1,0 +1,48 @@
+name: Core 70 smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Required canonical files
+        run: |
+          test -f js/viewRuntime41.js
+          test -f js/personalToday640.js
+          test -f js/personalInbox690.js
+          test -f js/personalMoney640.js
+          test -f js/ticketPage665.js
+          test -f js/ticketCloud660.js
+          test -f js/command.js
+          test -f core70.css
+          test -f api/core70-health.js
+      - name: Syntax check canonical JavaScript
+        run: |
+          node --check js/viewRuntime41.js
+          node --check js/personalToday640.js
+          node --check js/personalInbox690.js
+          node --check js/personalMoney640.js
+          node --check js/ticketPage665.js
+          node --check js/ticketCloud660.js
+          node --check js/command.js
+          node --check js/personalQuery29.js
+          node --check api/core70-health.js
+      - name: Canonical runtime assertions
+        run: |
+          grep -q "personalInbox690" js/viewRuntime41.js
+          grep -q "renderCommandResults41" js/viewRuntime41.js
+          grep -q "executeCommand41" js/viewRuntime41.js
+          grep -q "viagogo-official" js/ticketCloud660.js
+          grep -q "core70-health" js/personalToday640.js
+      - name: Prevent known dead ticket route regression
+        run: |
+          ! grep -R "ticket-market-watch-v673" js api || (echo "Dead v673 route reintroduced" && exit 1)
