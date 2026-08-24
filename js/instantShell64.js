@@ -1,6 +1,6 @@
 import {APP_VERSION} from './releaseMeta.js';
 
-const SNAPSHOT_KEY='kamil-os-fast-snapshot-65-0';
+const SNAPSHOT_KEY='kamil-os-fast-snapshot-66-0';
 const root=document.documentElement;
 const WORK_RE=/zak[aá]zk|faktur|dodavat|pks|cpi|zbrojov|pracovn|xtb|ticket|vstupenk/i;
 const parse=(raw,fallback=null)=>{try{return JSON.parse(raw)}catch{return fallback}};
@@ -10,5 +10,5 @@ function fallbackHtml(){const s=parse(localStorage.getItem('kamil-os-state')||'n
 function paintInstant(){const host=document.querySelector('#todayView');if(!host)return;let html='';try{const snap=parse(localStorage.getItem(SNAPSHOT_KEY)||'null');if(snap?.version===APP_VERSION&&snap?.html&&Date.now()-Number(snap.at||0)<2*86400000)html=snap.html}catch{}host.innerHTML=html||fallbackHtml();window.__KAMIL_SNAPSHOT_HIT__=!!html}
 function saveSnapshot(){const host=document.querySelector('#todayView');if(!host)return;const html=[...host.children].slice(0,4).map(x=>x.outerHTML).join('');if(html.length>300&&html.length<140000)try{localStorage.setItem(SNAPSHOT_KEY,JSON.stringify({version:APP_VERSION,html,at:Date.now()}))}catch{}}
 function registerSw(){if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})}
-async function load(){try{await import('./app.js');const shell=await import('./personalShell640.js');shell.bindPersonalShell640();const hardening=await import('./personalHardening650.js');hardening.bindPersonalHardening650();setTimeout(saveSnapshot,1000);setTimeout(registerSw,1200)}catch(error){console.error('[instantShell65]',error);document.querySelector('#todayView')?.insertAdjacentHTML('beforeend','<div class="decision-note bad">Kamil OS se nepodařilo plně načíst. Lokální data zůstala beze změn.</div>')}}
+async function load(){try{await import('./app.js');const shell=await import('./personalShell640.js');shell.bindPersonalShell640();const hardening=await import('./personalHardening650.js');hardening.bindPersonalHardening650();setTimeout(saveSnapshot,1000);setTimeout(registerSw,1200)}catch(error){console.error('[instantShell66]',error);document.querySelector('#todayView')?.insertAdjacentHTML('beforeend','<div class="decision-note bad">Kamil OS se nepodařilo plně načíst. Lokální data zůstala beze změn.</div>')}}
 applyTheme();paintInstant();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveSnapshot()});window.addEventListener('beforeunload',saveSnapshot);requestAnimationFrame(()=>requestAnimationFrame(load));
