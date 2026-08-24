@@ -1,8 +1,12 @@
 import {hydrateColdView42} from './coldPartition42.js';
 import {APP_RELEASE} from './releaseMeta.js';
 const modules=new Map(),warmViews=new Map();
+function ensureInboxShell(){if(typeof document==='undefined')return;const main=document.querySelector('main');if(main&&!document.querySelector('#view-inbox')){const section=document.createElement('section');section.id='view-inbox';section.className='view';section.innerHTML='<div id="inboxView"></div>';main.prepend(section)}const nav=document.querySelector('#mainNav');if(nav&&!nav.querySelector('[data-view="inbox"]')){const b=document.createElement('button');b.dataset.view='inbox';b.innerHTML='<span>◎</span><span>Inbox</span>';const today=nav.querySelector('[data-view="today"]');today?.after(b)}const bottom=document.querySelector('#bottomNav');if(bottom&&!bottom.querySelector('[data-view="inbox"]')){const b=document.createElement('button');b.dataset.view='inbox';b.innerHTML='<span>◎</span>Inbox';const today=bottom.querySelector('[data-view="today"]');today?.after(b)}}
+ensureInboxShell();
+window.addEventListener?.('kamil:view-change',e=>{if(e.detail==='inbox'){const p=document.querySelector('#pageTitle');if(p)p.textContent='INBOX'}});
 const viewDefs={
  today:['./personalToday640.js','renderPersonalToday640'],
+ inbox:['./personalInbox690.js','renderPersonalInbox690'],
  money:['./personalMoney640.js','renderPersonalMoney640'],
  tickets:['./ticketPage665.js','renderTicketPage665'],
  family:['./personalFamily640.js','renderPersonalFamily640'],
@@ -23,6 +27,6 @@ export async function renderCommandResults41(){return Promise.resolve(null)}
 export async function executeCommand41(){return Promise.resolve(null)}
 export function renderExtras41(){return Promise.resolve([])}
 export function refreshRiskBadge41(){return Promise.resolve(null)}
-export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}}
+export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE,canonicalViews:[...validViews41]}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}}
 export function scheduleNotifications41(){return Promise.resolve(null)}
 export function warmRuntime41(){return Promise.resolve(null)}
