@@ -1,7 +1,7 @@
 {
   "name": "kamil-os",
   "private": true,
-  "version": "66.9.0",
+  "version": "67.0.0",
   "type": "module",
   "scripts": {
     "test:e2e": "playwright test e2e_personal_ux_64_0.spec.mjs e2e_personal_action_execution_64_1.spec.mjs e2e_personal_followup_64_2.spec.mjs e2e_personal_capture_64_3.spec.mjs e2e_family_home_actions_64_4.spec.mjs e2e_personal_money_actions_64_5.spec.mjs e2e_document_actions_64_6.spec.mjs e2e_personal_settings_data_health_64_7.spec.mjs e2e_release_hardening_64_8.spec.mjs e2e_daily_personal_assistant_65_0.spec.mjs e2e_daily_rhythm_65_1.spec.mjs e2e_zero_friction_today_65_2.spec.mjs e2e_tomorrow_radar_65_3.spec.mjs e2e_night_handoff_65_4.spec.mjs e2e_morning_launch_65_5.spec.mjs e2e_ticket_market_watch_65_6.spec.mjs e2e_ticket_intelligence_66_0.spec.mjs --reporter=line",
