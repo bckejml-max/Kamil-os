@@ -1,10 +1,10 @@
-name: Kamil OS 66 Personal + Ticket Intelligence Release
+name: Kamil OS 67 Personal + Ticket Decision Release
 on:
   pull_request:
   push:
     branches: [main]
 jobs:
-  personal66:
+  personal67:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,11 +18,15 @@ jobs:
           node --check js/personalDailyRhythm651.js
           node --check js/personalTomorrow653.js
           node --check js/personalMorning655.js
-          node --check js/personalTicketBriefing660.js
           node --check js/ticketMarketWatch656.js
           node --check js/ticketCloud660.js
           node --check js/ticketImport660.js
           node --check js/ticketCommander660.js
+          node --check js/ticketDecisionEngine671.js
+          node --check js/ticketDecisionUi671.js
+          node --check js/personalTickets671.js
+          node --check js/personalTicketPriority672.js
+          node --check js/personalOneBestMove673.js
           node --check api/ticket-market-watch.js
           node --check js/personalToday640.js
           node --check js/personalWaiting650.js
@@ -37,10 +41,12 @@ jobs:
           node --check js/personalUsage650.js
           node --check js/personalActionExecution641.js
           node --check js/personalFollowup642.js
-      - name: Personal + Ticket 66 static release assertions
+      - name: Personal + Ticket static release assertions
         run: node personal_65_static_test.mjs
       - name: Ticket Intelligence API parser
         run: node ticket_market_api_65_6_test.mjs
+      - name: Ticket Decision Engine 67.1-67.3
+        run: npm run test:ticket
       - name: Core cloud safety
         run: |
           node core_hardening_31_test.mjs
@@ -50,7 +56,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser E2E 66
+      - name: Browser E2E personal + ticket
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
