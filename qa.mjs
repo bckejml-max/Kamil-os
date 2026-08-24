@@ -45,7 +45,7 @@ assert.ok(!personalToday.includes('ux64-data-health')&&!personalToday.includes('
 assert.ok(personalAssistant.includes('personalDailyAssistant650')&&personalAssistant.includes('personalWaitingCenter650')&&personalAssistant.includes('personalSearch650'),'personal assistant engines missing');
 assert.ok(personalShell.includes('Najít / zeptat se')&&personalShell.includes('openVaultRecord640'),'global search/assistant integration missing');
 assert.ok(hardening.includes('primary<=1')&&hardening.includes('dataHealth===0'),'decision-first preflight missing');
-assert.ok(ticketCommander.includes('TICKET PROFIT COMMANDER 66.0')&&ticketCloud.includes("from('ticket_inventory')")&&!/service[_-]?role/i.test(ticketCloud),'66.0 private Ticket Intelligence missing or unsafe');
+assert.ok(ticketCommander.includes('TICKET PROFIT COMMANDER 66.')&&ticketCloud.includes("from('ticket_inventory')")&&!/service[_-]?role/i.test(ticketCloud),'current private Ticket Intelligence missing or unsafe');
 
 // Core persistence/cloud/render safety
 assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
