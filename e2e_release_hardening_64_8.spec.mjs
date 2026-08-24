@@ -12,7 +12,7 @@ test('current personal shell has no legacy UI leakage',async({page})=>{
   const pf=await runtime.runPreflight41();
   return{version:release.APP_VERSION,release:release.APP_RELEASE,first,pf,body:document.body.innerText,pageTitle:document.querySelector('#pageTitle')?.textContent,sub:document.querySelector('.sidebar-sub')?.textContent};
  });
- expect(out.version).toBe('66.0.0');expect(out.release).toBe('66.0');
+ expect(out.version).toBe('66.1.0');expect(out.release).toBe('66.1');
  expect(out.first.ok).toBe(true);expect(out.pf.ok).toBe(true);expect(out.pf.personalUx).toBe(out.release);
  expect(out.body).not.toContain('VSTUPENKY');expect(out.body).not.toContain('Pohledávka');expect(out.body).not.toContain('Personal Home');
  expect(out.pageTitle).toBe('DNES');expect(out.sub).toBe('Osobní asistent');
