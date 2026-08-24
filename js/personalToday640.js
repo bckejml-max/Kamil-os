@@ -7,7 +7,7 @@ import {openPersonalWaiting650} from './personalWaiting650.js';
 import {personalDailyRhythm651,openDailyClose651} from './personalDailyRhythm651.js';
 import {openPersonalTomorrow653,openPersonalNext7Days653} from './personalTomorrow653.js';
 import {personalMorningLaunch655,openMorningLaunch655} from './personalMorning655.js';
-import {appendTicketBriefing660} from './personalTicketBriefing660.js';
+import {appendOneBestMove673} from './personalOneBestMove673.js';
 
 const hour=()=>new Date().getHours();
 const greeting=()=>hour()<11?'Dobré ráno.':hour()<18?'Dobré odpoledne.':'Dobrý večer.';
@@ -35,6 +35,6 @@ export function renderPersonalToday640(){
  host.querySelectorAll('[data-morning-open]').forEach(b=>b.addEventListener('click',()=>openMorningLaunch655()));
  host.querySelectorAll('[data-ask]').forEach(b=>b.addEventListener('click',()=>{const input=qs('#commandInput');if(input){input.value=b.dataset.ask;input.focus();qs('#commandGo')?.click()}}));
  host.querySelectorAll('[data-ux65-action]').forEach(b=>b.addEventListener('click',async()=>{const fresh=personalDailyAssistant650(store.get()).top.find(x=>x.id===b.dataset.ux65Action);if(!fresh)return;await openPersonalAction641(fresh);renderPersonalToday640()}));
- if(morning)appendTicketBriefing660(host).catch(()=>null);
- if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_660_LAST__={at:Date.now(),view:'today',primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,next7:d.next7Count,doneToday:rhythm.done,mode:rhythm.mode,lateCalm:late&&!primary,nightHandoff:late,morningLaunch:morning,morningCalendar:morningData.calendar.length,morningFollowups:morningData.followups.length,ticketBriefing:'critical-only'};
+ appendOneBestMove673(host,s).then(result=>{if(typeof window!=='undefined'&&window.__KAMIL_PERSONAL_UX_673_LAST__)window.__KAMIL_PERSONAL_UX_673_LAST__.bestMove=result?.best?.title||null}).catch(()=>null);
+ if(typeof window!=='undefined')window.__KAMIL_PERSONAL_UX_673_LAST__={at:Date.now(),view:'today',primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,next7:d.next7Count,doneToday:rhythm.done,mode:rhythm.mode,lateCalm:late&&!primary,nightHandoff:late,morningLaunch:morning,morningCalendar:morningData.calendar.length,morningFollowups:morningData.followups.length,bestMove:'loading'};
 }

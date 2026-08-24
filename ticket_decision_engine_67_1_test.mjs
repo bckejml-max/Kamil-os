@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {sellThroughVelocity671,officialSpread671,ticketRisk671,capitalCommander671,fulfillmentCommander671,profitReality671,opportunityScore671,learningSummary671,oneDailyDecision671} from './js/ticketDecisionEngine671.js';
+const inv=[{id:'a',event_name:'A',event_date:'2026-09-01',qty:4,buy_each_czk:1000,buy_total_czk:4000,ask_each_czk:1600,market_status:'LISTED'},{id:'b',event_name:'B',event_date:'2026-10-01',qty:2,buy_each_czk:1500,buy_total_czk:3000,market_status:'NOT_LISTED'},{id:'c',event_name:'C',qty:2,sell_total_czk:5000,market_status:'SOLD_WAITING_PAYMENT'}];
+const latest=new Map([['a',{market_price_czk:1500,official_price_czk:1000,official_status:'AVAILABLE',competitor_count:12,recommendation_code:'OFFICIAL_COMPETITION',recommendation_label:'POZOR OFICIÁL',recommended_ask_czk:1450,recommendation_reason:'Oficiální prodej stále konkuruje.'}],['b',{market_price_czk:2200,official_status:'SOLD_OUT',competitor_count:3,recommendation_code:'LIST',recommendation_label:'VYSTAVIT',recommended_ask_czk:2150}]]);
+const history=new Map([['a',[latest.get('a'),{market_price_czk:1700,competitor_count:8}]],['b',[latest.get('b'),{market_price_czk:1900,competitor_count:6}]]]);const cloud={inventory:inv,latest,history};
+assert.equal(Math.round(officialSpread671(latest.get('a')).pct*100),50);
+assert.ok(sellThroughVelocity671(cloud,inv[1]).score>sellThroughVelocity671(cloud,inv[0]).score);
+assert.ok(ticketRisk671(cloud,inv[0]).score>=50);
+assert.ok(capitalCommander671(cloud,3000).picks.length>=1);
+assert.equal(fulfillmentCommander671(cloud).payoutCzk,5000);
+assert.equal(Math.round(profitReality671(inv[0],latest.get('a'),{sellerFeePct:10}).net),1220);
+assert.ok(opportunityScore671({officialSoldOut:true,secondarySpreadPct:.4,capacity:5000})>=80);
+assert.equal(oneDailyDecision671(cloud).event,'A');
+const learned=learningSummary671([{market_status:'PAID',buy_total_czk:4000,sell_total_czk:6000},{market_status:'NOT_LISTED',buy_total_czk:3000}]);
+assert.equal(learned.count,1);assert.equal(learned.profit,2000);assert.equal(Math.round(learned.avgRoi*100),50);
+console.log('Ticket Decision Engine 67.1 OK');
