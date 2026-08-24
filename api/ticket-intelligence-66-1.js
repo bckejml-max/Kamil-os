@@ -3,7 +3,7 @@ import {scanOfficialMarket} from './_official-market.js';
 
 async function secondary(req){let status=200,payload=null;const res={status(v){status=v;return this},setHeader(){},json(v){payload=v;return this}};await secondaryHandler(req,res);return{status,payload}}
 const n=x=>Number(x||0);
-function withPrimaryPressure(item,result,official){const base=result?.recommendation||{},market=result?.market||{},ask=n(item.askEachCzk),buy=n(item.buyEachCzk),officialPrice=n(official?.lowestPriceCzk),baseAsk=n(base.recommendedAskCzk),days=base.daysToEvent;
+export function withPrimaryPressure(item,result,official){const base=result?.recommendation||{},market=result?.market||{},ask=n(item.askEachCzk),buy=n(item.buyEachCzk),officialPrice=n(official?.lowestPriceCzk),baseAsk=n(base.recommendedAskCzk),days=base.daysToEvent;
  let recommended=baseAsk||n(market.p25PriceCzk)||n(market.medianPriceCzk)||n(market.marketPriceCzk)||null,code=base.code,label=base.label,reason=base.reason||'';
  const onSale=['AVAILABLE','LIMITED'].includes(official?.status);
  if(onSale&&officialPrice){const primaryCap=Math.max(1,Math.round(officialPrice*.99));if(!recommended||recommended>primaryCap)recommended=primaryCap;
