@@ -1,11 +1,10 @@
 import {cloudClient,session} from './cloud.js';
 import {h,modal,formModal,money} from './utils.js';
-import {opportunityScore671} from './ticketDecisionEngine671.js';
+import {scoreBuyCandidate674} from './buyRadarScore674.js';
+export {scoreBuyCandidate674} from './buyRadarScore674.js';
 
 const TABLE='ticket_buy_candidates';
 const daysTo=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.ceil((t-Date.now())/86400000):999};
-const signal=x=>({officialSoldOut:String(x.official_status||'').toUpperCase()==='SOLD_OUT',lowStock:String(x.official_status||'').toUpperCase()==='LOW_STOCK',capacity:Number(x.capacity||0),secondarySpreadPct:Number(x.secondary_spread_pct||0),extraDates:Number(x.extra_dates||0),daysToSale:daysTo(x.official_sale_start)});
-export const scoreBuyCandidate674=x=>{const score=opportunityScore671(signal(x));return{score,label:score>=80?'PROVĚŘIT NÁKUP':score>=65?'HLÍDAT':'NEBRAT',tone:score>=80?'success':score>=65?'warning':'neutral'}};
 const date=v=>v?new Date(v).toLocaleString('cs-CZ',{dateStyle:'medium',timeStyle:'short'}):'—';
 
 export async function loadBuyRadar674(){const c=await cloudClient(),sess=await session();if(!c||!sess)return{ok:false,reason:'NO_SESSION',items:[]};const q=await c.from(TABLE).select('*').order('official_sale_start',{ascending:true});return q.error?{ok:false,error:q.error,items:q.data||[]}:{ok:true,items:q.data||[],session:sess}}
