@@ -6,8 +6,9 @@ import {enhanceTicketSector103} from './ticketSector103.js';
 import {enhanceTicketRepricing105} from './ticketRepricing105.js';
 import {enhanceTicketVisual132} from './ticketVisual132.js';
 import {enhanceTicketVisual133} from './ticketVisual133.js';
+import {enhanceTicketVisual134} from './ticketVisual134.js';
 let observer=null,pending=false;
-function ensureVisualStyle(){for(const [key,href] of [['ticketvisual132','./ticketVisual132.css'],['ticketvisual133','./ticketVisual133.css']]){if(document.querySelector(`link[data-${key}]`))continue;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute(`data-${key}`,'1');document.head.appendChild(l)}}
-function enhance(){if(pending)return;pending=true;queueMicrotask(async()=>{pending=false;try{await appendTicketIntelligence100();await appendTicketDetails100();await applyTicketPriceFix102();await enhanceTicketSector103();await enhanceTicketRepricing105();await enhanceTicketVisual132();await enhanceTicketVisual133()}catch(e){console.warn('[tickets133]',e)}})}
+function ensureVisualStyle(){for(const [key,href] of [['ticketvisual132','./ticketVisual132.css'],['ticketvisual133','./ticketVisual133.css'],['ticketvisual134','./ticketVisual134.css']]){if(document.querySelector(`link[data-${key}]`))continue;const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute(`data-${key}`,'1');document.head.appendChild(l)}}
+function enhance(){if(pending)return;pending=true;queueMicrotask(async()=>{pending=false;try{await appendTicketIntelligence100();await appendTicketDetails100();await applyTicketPriceFix102();await enhanceTicketSector103();await enhanceTicketRepricing105();await enhanceTicketVisual132();await enhanceTicketVisual133();await enhanceTicketVisual134()}catch(e){console.warn('[tickets134]',e)}})}
 function arm(){const host=document.querySelector('#ticketIntelView');if(!host)return;observer?.disconnect();observer=new MutationObserver(enhance);observer.observe(host,{childList:true,subtree:false});setTimeout(enhance,80);setTimeout(enhance,600);setTimeout(enhance,1400)}
 export function renderTicketPage100(){ensureVisualStyle();renderTicketPage687();arm()}
