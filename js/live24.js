@@ -6,6 +6,7 @@ import {marketQuoteForPosition32} from './marketQuoteIngest32.js';
 import {tuneXtbDecision32} from './xtbTuning32.js';
 import {tuneTicketDecision32} from './ticketTuning32.js';
 import {xtbDecisionSafety148} from './decisionSafety148.js';
+import {ticketDecisionSafety149} from './ticketDecisionSafety149.js';
 
 const n=v=>Number(v||0);
 const upper=v=>String(v||'').toUpperCase();
@@ -48,11 +49,13 @@ export function xtbBoard(s){
 
 export function ticketDecision(x,s={}){
  const auto=ruleTicketDecision(x),intel=s.ticketBook?.intelligence||{},live=intel.positions?.[x.id]||(!intel.positions?intel[x.id]:null),merged=mergeLive(auto,live,ticketIntelligenceAge(s),LIVE_BRAIN_LIMITS_32.ticketHours);
- return tuneTicketDecision32(x,merged,s);
+ const tuned=tuneTicketDecision32(x,merged,s);
+ return ticketDecisionSafety149(x,tuned);
 }
 
 export function ticketOpportunityDecision(x,s={}){
  const auto=ruleTicketOpportunityDecision(x),intel=s.ticketBook?.intelligence||{},live=intel.opportunities?.[x.id];
  const merged=mergeLive(auto,live,ticketIntelligenceAge(s),LIVE_BRAIN_LIMITS_32.ticketHours);
- return applyTicketLearning(x,s,merged);
+ const learned=applyTicketLearning(x,s,merged);
+ return ticketDecisionSafety149(x,tuneTicketDecision32(x,learned,s));
 }
