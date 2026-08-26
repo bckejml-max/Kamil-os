@@ -12,10 +12,10 @@ export function getViewRenderer41(name='today'){return warmView(name)}
 export function prefetchView41(){return Promise.resolve(null)}
 export async function setMoreMode41(){return Promise.resolve(null)}
 export async function openCapture41(type='task'){const m=await load('./personalCapture643.js');return m.openPersonalCapture643(type)}
-export async function renderCommandResults41(q=''){const m=await load('./command.js');return m.renderResults(q)}
-export async function executeCommand41(q=''){const m=await load('./command.js');return m.execute(q)}
+export async function renderCommandResults41(q=''){try{const c=await load('./capitalCommand100.js');if(c.isCapitalQuestion100(q)){const box=document.querySelector('#commandResults');if(box){const amount=c.parseCapitalAmount100(q);box.classList.remove('hidden');box.innerHTML=`<div class="search-row"><div><b>Rozhodnout, co s ${Number(amount||0).toLocaleString('cs-CZ')} Kč</b><div class="muted">Capital Allocation Brain 100 · XTB × vstupenky × hotovost</div></div><button class="btn" data-capital-command100>Vyhodnotit</button></div>`;box.querySelector('[data-capital-command100]')?.addEventListener('click',()=>{box.classList.add('hidden');c.openCapitalDecision100(q)});return}}}catch{}const m=await load('./command.js');return m.renderResults(q)}
+export async function executeCommand41(q=''){try{const c=await load('./capitalCommand100.js');if(c.isCapitalQuestion100(q))return c.openCapitalDecision100(q)}catch(e){console.warn('[capital-command100]',e)}const m=await load('./command.js');return m.execute(q)}
 export async function renderExtras41(view='today'){if(view==='today'){const m=await load('./personalWeekly700.js');return m.appendWeeklyReset700()}return null}
 export function refreshRiskBadge41(){return Promise.resolve(null)}
-export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE,canonicalViews:[...validViews41],commandBar:true,inbox:true,weeklyReset:true,marketIntelligence100:true}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}}
+export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE,canonicalViews:[...validViews41],commandBar:true,inbox:true,weeklyReset:true,marketIntelligence100:true,capitalCommand100:true}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}}
 export function scheduleNotifications41(){return Promise.resolve(null)}
-export function warmRuntime41(){load('./command.js').catch(()=>{});return Promise.resolve(null)}
+export function warmRuntime41(){load('./command.js').catch(()=>{});load('./capitalCommand100.js').catch(()=>{});return Promise.resolve(null)}
