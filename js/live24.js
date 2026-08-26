@@ -5,6 +5,7 @@ import {sourceEvidenceForPosition32} from './sourceIngest32.js';
 import {marketQuoteForPosition32} from './marketQuoteIngest32.js';
 import {tuneXtbDecision32} from './xtbTuning32.js';
 import {tuneTicketDecision32} from './ticketTuning32.js';
+import {xtbDecisionSafety148} from './decisionSafety148.js';
 
 const n=v=>Number(v||0);
 const upper=v=>String(v||'').toUpperCase();
@@ -40,7 +41,8 @@ export function xtbBoard(s){
  return ruleXtbBoard(s).filter(item=>!closedByNewerUserAction(s,item.p.ticker)).map(item=>{
    if(item.d.source==='RUČNĚ')return {...item,d:tuneItem(item,item.d,s)};
    const merged=mergeLive(item.d,positions[item.p.ticker],meta,LIVE_BRAIN_LIMITS_32.xtbHours);
-   return {...item,d:tuneItem(item,merged,s)};
+   const tuned=tuneItem(item,merged,s);
+   return {...item,d:xtbDecisionSafety148(item.p,tuned,s)};
  }).sort((a,b)=>b.d.priority-a.d.priority);
 }
 
