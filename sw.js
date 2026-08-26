@@ -1,4 +1,4 @@
-const CACHE='kamil-os-164.0-core-r1';
+const CACHE='kamil-os-164.1-core-r1';
 const SHELL=[
   './','./index.html','./manifest.webmanifest','./styles.css','./theme33.css','./personal64.css','./personal65.css','./home68.css','./personal69.css','./family70.css','./ticket68.css','./globalFintech137.css','./finalPolish142.css','./moneyVisual138.css','./homeFamilyVisual140.css','./inboxDocumentsVisual141.css','./ticketVisual132.css','./ticketVisual133.css','./ticketVisual134.css','./ticketVisual135.css','./ticketVisual136.css','./ticketSaleDetail151.css','./ticketPayout154.css','./os164.css','./health687.css','./core70.css','./personal80.css','./dashboard110.css','./dashboard1103.css','./os111.css','./os112.css','./os113.css','./os114.css','./os115.css','./os116.css','./os117.css','./os118.css','./os119.css','./os120.css','./os121.css','./os122.css','./os123.css','./os124.css','./os125.css','./os126.css','./os127.css','./os128.css','./os129.css','./os130.css','./os131.css','./os139.css',
   './js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js','./js/state.js','./js/utils.js',
