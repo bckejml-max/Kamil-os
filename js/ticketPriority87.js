@@ -1,0 +1,22 @@
+import {loadTicketCloud660} from './ticketCloud660.js';
+import {h,money} from './utils.js';
+
+const n=x=>Number(x||0);
+const active=r=>['LISTED','NOT_LISTED'].includes(r?.market_status);
+const code=s=>s?.recommendation_code||null;
+const daysTo=date=>{if(!date)return null;const t=Date.parse(`${String(date).slice(0,10)}T12:00:00Z`);return Number.isFinite(t)?Math.ceil((t-Date.now())/86400000):null};
+const conf=s=>{const x=Number(s?.multi_market_confidence);return Number.isFinite(x)?x:null};
+const label=c=>({LOWER:'ZLEVNIT',LIST:'VYSTAVIT',RAISE:'ZDRAŽIT',VERIFY_DATA:'OVĚŘIT DATA',OFFICIAL_COMPETITION:'HLÍDAT OFICIÁL',ASK_MISSING:'DOPLNIT CENU',HOLD:'DRŽET',FETCH_ERROR:'OPRAVIT ZDROJ',SOURCE_MISSING:'DOPLNIT ZDROJ',NO_PRICE:'OVĚŘIT CENU'})[c]||'SLEDOVAT';
+const tone=c=>['LOWER','VERIFY_DATA','FETCH_ERROR','SOURCE_MISSING','OFFICIAL_COMPETITION'].includes(c)?'critical':['LIST','RAISE'].includes(c)?'success':'neutral';
+function scoreOne(r,s){let score=0,reasons=[],c=code(s),d=daysTo(r.event_date),market=n(s?.market_price_czk),ask=n(r.ask_each_czk),buy=n(r.buy_each_czk),confidence=conf(s);
+ if(d!==null){if(d<=3){score+=38;reasons.push(`akce za ${Math.max(0,d)} d`)}else if(d<=7){score+=30;reasons.push(`akce za ${d} d`)}else if(d<=14){score+=20;reasons.push(`akce za ${d} d`)}else if(d<=30){score+=10;reasons.push(`akce za ${d} d`)}}
+ if(c==='LOWER'){score+=38;reasons.push('trh doporučuje zlevnit')}else if(c==='VERIFY_DATA'){score+=34;reasons.push('rozhodnutí blokují data')}else if(c==='FETCH_ERROR'||c==='SOURCE_MISSING'){score+=30;reasons.push('chybí spolehlivý zdroj')}else if(c==='OFFICIAL_COMPETITION'){score+=24;reasons.push('stále běží oficiální prodej')}else if(c==='LIST'){score+=22;reasons.push('je vhodné vystavit')}else if(c==='RAISE'){score+=14;reasons.push('je prostor zdražit')}else if(c==='ASK_MISSING'){score+=18;reasons.push('chybí tvoje prodejní cena')}
+ if(confidence!==null&&confidence<65){score+=15;reasons.push(`confidence ${Math.round(confidence)} %`)}
+ if(market&&ask&&ask>market*1.15){score+=18;reasons.push(`tvoje cena je ${Math.round((ask/market-1)*100)} % nad trhem`)}
+ if(market&&buy){const roi=market/buy-1;if(roi>=1){score+=12;reasons.push(`tržní spread +${Math.round(roi*100)} %`)}else if(roi>=.5){score+=8;reasons.push(`tržní spread +${Math.round(roi*100)} %`)}}
+ if(r.stubhub_url&&!n(s?.stubhub_price_czk)){score+=5;reasons.push('StubHub URL je spárovaná, cena čeká na API')}
+ return{row:r,snap:s,score,c,d,reasons:reasons.slice(0,3),market,ask,buy,confidence};
+}
+function priorityRows(cloud){return cloud.inventory.filter(active).map(r=>scoreOne(r,cloud.latest?.get(r.id)||null)).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||(a.d??999)-(b.d??999)).slice(0,5)}
+function itemHtml(x,i){const rec=n(x.snap?.recommended_ask_czk),c=x.c,why=x.reasons.join(' · ')||'čeká na další tržní kontrolu';return `<div class="card" style="padding:12px;margin:8px 0"><div class="row"><div><b>${i+1}. ${h(x.row.event_name)}</b><div class="muted">${h(x.row.section||'bez sekce')} · ${n(x.row.qty)||1} ks${x.d!==null?` · ${x.d<0?'po akci':x.d===0?'dnes':`za ${x.d} dní`}`:''}</div></div><span class="tmw-rec ${tone(c)}">${h(label(c))}</span></div><div class="row"><span>Proč je nahoře</span><b>${h(why)}</b></div><div class="row"><span>Nákup / moje cena / trh</span><b>${money(x.buy)} · ${x.ask?money(x.ask):'—'} · ${x.market?money(x.market):'—'}</b></div>${rec?`<div class="row"><span>Doporučená cena</span><b>${money(rec)} / ks</b></div>`:''}</div>`}
+export async function enhanceTicketPriority87(){const host=document.querySelector('#ticketIntelView');if(!host||host.querySelector('[data-ticket-priority87]'))return;const cloud=await loadTicketCloud660();if(!cloud?.ok)return;const top=priorityRows(cloud),wrap=document.createElement('section');wrap.dataset.ticketPriority87='1';wrap.className='card';wrap.style.margin='18px 0';wrap.innerHTML=`<div class="row"><div><div class="eyebrow">TICKETS 87 · DNEŠNÍ PRIORITY</div><h2 style="margin:4px 0">Co řešit jako první</h2><p class="muted">Pořadí kombinuje blízkost akce, doporučení trhu, cenový rozdíl, confidence a stav zdrojů.</p></div><span class="tmw-rec ${top.length?'critical':'success'}">${top.length?`${top.length} priorit`:'NIC NEHOŘÍ'}</span></div>${top.map(itemHtml).join('')||'<p class="muted">Aktivní vstupenky teď nemají žádný silný zásahový signál.</p>'}`;const hero=host.querySelector('.ticket-page-hero');if(hero?.parentNode)hero.parentNode.insertBefore(wrap,hero.nextSibling);else host.prepend(wrap)}
