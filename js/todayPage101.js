@@ -1,19 +1,13 @@
 import {renderDashboard1103} from './dashboardFx1103.js';
 import {enhanceXtbReview110} from './xtbReview110.js';
-import {enhanceOS111} from './os111.js';
-import {enhanceOS112} from './os112.js';
-import {enhanceOS113} from './os113.js';
-import {enhanceOS114} from './os114.js';
-import {enhanceOS115} from './os115.js';
-import {enhanceOS116} from './os116.js';
-import {enhanceOS117} from './os117.js';
-import {enhanceOS118} from './os118.js';
-import {enhanceOS119} from './os119.js';
-import {enhanceOS120} from './os120.js';
-import {enhanceOS121} from './os121.js';
-import {enhanceOS122} from './os122.js';
-import {enhanceOS123} from './os123.js';
-import {enhanceOS124} from './os124.js';
 import {renderPersonalToday640} from './personalToday640.js';
+
 function ensureStyle(){const styles=[['dashboard110','./dashboard110.css'],['dashboard1103','./dashboard1103.css'],['os111','./os111.css'],['os112','./os112.css'],['os113','./os113.css'],['os114','./os114.css'],['os115','./os115.css'],['os116','./os116.css'],['os117','./os117.css'],['os118','./os118.css'],['os119','./os119.css'],['os120','./os120.css'],['os121','./os121.css'],['os122','./os122.css'],['os123','./os123.css'],['os124','./os124.css']];for(const [key,href] of styles){if(!document.querySelector(`link[data-${key}]`)){const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute(`data-${key}`,'1');document.head.appendChild(l)}}}
-export function renderTodayPage101(){ensureStyle();renderDashboard1103().then(()=>{enhanceXtbReview110();return enhanceOS111()}).then(()=>enhanceOS112()).then(()=>enhanceOS113()).then(()=>enhanceOS114()).then(()=>enhanceOS115()).then(()=>enhanceOS116()).then(()=>enhanceOS117()).then(()=>enhanceOS118()).then(()=>enhanceOS119()).then(()=>enhanceOS120()).then(()=>enhanceOS121()).then(()=>enhanceOS122()).then(()=>enhanceOS123()).then(()=>enhanceOS124()).catch(e=>{console.error('[dashboard124]',e);renderPersonalToday640()})}
+
+const addons=[
+ ['./os111.js','enhanceOS111'],['./os112.js','enhanceOS112'],['./os113.js','enhanceOS113'],['./os114.js','enhanceOS114'],['./os115.js','enhanceOS115'],['./os116.js','enhanceOS116'],['./os117.js','enhanceOS117'],['./os118.js','enhanceOS118'],['./os119.js','enhanceOS119'],['./os120.js','enhanceOS120'],['./os121.js','enhanceOS121'],['./os122.js','enhanceOS122'],['./os123.js','enhanceOS123'],['./os124.js','enhanceOS124']
+];
+
+async function loadAddons(){for(const [path,fn] of addons){try{const mod=await import(path);if(typeof mod?.[fn]==='function')await mod[fn]()}catch(e){console.error(`[today addon failed] ${path}`,e)}}}
+
+export function renderTodayPage101(){ensureStyle();renderDashboard1103().then(()=>{try{enhanceXtbReview110()}catch(e){console.error('[xtb review]',e)}return loadAddons()}).catch(e=>{console.error('[dashboard core]',e);renderPersonalToday640()})}
