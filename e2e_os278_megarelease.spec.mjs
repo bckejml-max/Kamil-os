@@ -7,28 +7,28 @@ test('OS278 boots all command centers and keeps app usable',async({page})=>{
  await expect.poll(()=>page.evaluate(()=>({ux:window.__KAMIL_UX_FOUNDATION238__?.version,daily:window.__KAMIL_DAILY_COMMANDER248__?.version,fin:window.__KAMIL_FINANCE_COMMAND258__?.version,tic:window.__KAMIL_TICKET_COMMAND268__?.version,auto:window.__KAMIL_AUTOPILOT278__?.version})),{timeout:20000}).toEqual({ux:238,daily:248,fin:258,tic:268,auto:278});
 
  await page.keyboard.press('Control+K');
- await expect(page.getByText('Kamil OS Autopilot')).toBeVisible();
- await expect(page.getByText('Denní briefing')).toBeVisible();
- await expect(page.getByText('Finance Command Center')).toBeVisible();
- await expect(page.getByText('Ticket Intelligence 2.0')).toBeVisible();
+ await expect(page.locator('.ux238-palette-row').filter({hasText:'Kamil OS Autopilot'})).toBeVisible();
+ await expect(page.locator('.ux238-palette-row').filter({hasText:'Denní briefing'})).toBeVisible();
+ await expect(page.locator('.ux238-palette-row').filter({hasText:'Finance Command Center'})).toBeVisible();
+ await expect(page.locator('.ux238-palette-row').filter({hasText:'Ticket Intelligence 2.0'})).toBeVisible();
  await page.keyboard.press('Escape');
 
  await page.keyboard.press('Alt+B');
  await expect(page.locator('.ux238-drawer')).toBeVisible();
- await expect(page.getByText('Denní briefing')).toBeVisible();
+ await expect(page.locator('.ux238-drawer-head').getByText('Denní briefing',{exact:true})).toBeVisible();
  await page.keyboard.press('Escape');
 
  await page.keyboard.press('Alt+F');
- await expect(page.getByText('Finance Command Center')).toBeVisible();
+ await expect(page.locator('.ux238-drawer-head').getByText('Finance Command Center',{exact:true})).toBeVisible();
  await page.keyboard.press('Escape');
 
  await page.keyboard.press('Alt+T');
- await expect(page.getByText('Ticket Intelligence 2.0')).toBeVisible();
+ await expect(page.locator('.ux238-drawer-head').getByText('Ticket Intelligence 2.0',{exact:true})).toBeVisible();
  await page.keyboard.press('Escape');
 
  await page.keyboard.press('Alt+A');
- await expect(page.getByText('Kamil OS Autopilot')).toBeVisible();
- await expect(page.locator('.auto278')).toBeVisible();
+ await expect(page.locator('.ux238-drawer-head').getByText('Kamil OS Autopilot',{exact:true})).toBeVisible();
+ await expect(page.locator('.ux238-drawer .auto278')).toBeVisible();
  await page.keyboard.press('Escape');
 
  const guardrails=await page.evaluate(()=>window.__KAMIL_AUTOPILOT278__.build().guardrails);
