@@ -3,13 +3,22 @@ import {buildTicketRiskBudget202} from './js/ticketRiskBudgetModel202.js';
 
 const now=Date.parse('2026-08-27T12:00:00Z');
 const verified={resaleAllowed:true,transferCompatible:true,officialSaleStatus:'ON_SALE',restrictionsVerifiedAt:'2026-08-27T10:00:00Z'};
-const watchlist=[{id:'w1',name:'Sparta vs Big Match',club:'Sparta',sport:'football',eventDate:'2026-09-20',officialPriceCzk:625,marketPriceCzk:1400,medianPriceCzk:1400,confidenceScore:90,...verified}];
+const payout={learnedPayoutRatio:.875,payoutSamples:4,payoutConfidence:'MEDIUM'};
+const watchlist=[{id:'w1',name:'Sparta vs Big Match',club:'Sparta',sport:'football',eventDate:'2026-09-20',officialPriceCzk:625,marketPriceCzk:1400,medianPriceCzk:1400,confidenceScore:90,...verified,...payout}];
 const ticketBook={capitalBudgetCzk:20000,watchlist};
 const base=buildTicketRiskBudget202({inventory:[],latest:new Map(),watchlist,ticketBook},now);
 const b=base.rows.find(x=>x.id==='w1');
 assert.equal(b.action,'BUY');
 assert.equal(b.riskBudget.verdict,'BUY');
+assert.equal(b.riskBudget.buyPrice,625);
+assert.equal(b.riskBudget.netSafeMaxBuyPrice,810);
 assert.equal(b.riskBudget.maxQty,6);
+
+const noPayout=buildTicketRiskBudget202({inventory:[],latest:new Map(),watchlist:[{...watchlist[0],id:'nopayout',learnedPayoutRatio:undefined,payoutSamples:undefined,payoutConfidence:undefined}],ticketBook},now);
+const np=noPayout.rows.find(x=>x.id==='nopayout');
+assert.equal(np.action,'DATA NEEDED');
+assert.equal(np.riskBudget.verdict,'NO BUY');
+assert.equal(np.riskBudget.buyPrice,null);
 
 const unverified=buildTicketRiskBudget202({inventory:[],latest:new Map(),watchlist:[{...watchlist[0],id:'verify',resaleAllowed:undefined,transferCompatible:undefined,officialSaleStatus:undefined,restrictionsVerifiedAt:undefined}],ticketBook},now);
 const uv=unverified.rows.find(x=>x.id==='verify');
