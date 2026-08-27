@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {buildTicketRecoveryDiff189,TICKET_RECOVERY_DIFF_VERSION_189,ticketRecoveryDiffLabel189} from './js/ticketRecoveryDiff189.js';
+import {buildTicketRecoveryDiff189,TICKET_RECOVERY_DIFF_VERSION_189,ticketRecoveryDiffLabel189} from './js/ticketRecoveryDiffModel189.js';
 
 assert.equal(TICKET_RECOVERY_DIFF_VERSION_189,189);
 const current=[
