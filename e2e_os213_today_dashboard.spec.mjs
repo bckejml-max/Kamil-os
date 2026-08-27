@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-test('OS218 today dashboard is visible, dark and one-screen',async({page})=>{
+test('OS219 today dashboard is balanced, dark and one-screen',async({page})=>{
  await page.setViewportSize({width:1792,height:828});
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  const dashboard=page.locator('[data-today-dashboard213]');
@@ -12,8 +12,14 @@ test('OS218 today dashboard is visible, dark and one-screen',async({page})=>{
  await expect(commander.locator('h2').first()).toBeVisible();
  const actionStyle=await actions.first().evaluate(el=>getComputedStyle(el).backgroundColor);
  expect(actionStyle).not.toBe('rgb(255, 255, 255)');
+ const dashboardBox=await dashboard.boundingBox();
  const commanderBox=await commander.boundingBox();
- expect(commanderBox?.width||0).toBeGreaterThan(600);
+ expect(commanderBox?.width||0).toBeGreaterThan((dashboardBox?.width||0)*.9);
+ const boxes=[];for(let i=0;i<6;i++)boxes.push(await actions.nth(i).boundingBox());
+ const ys=boxes.map(b=>Math.round(b?.y||0));
+ expect(Math.max(...ys)-Math.min(...ys)).toBeLessThanOrEqual(3);
+ const heights=boxes.map(b=>b?.height||0);
+ expect(Math.max(...heights)).toBeLessThanOrEqual(90);
  const fit=await page.locator('#todayView').evaluate(el=>({client:el.clientHeight,scroll:el.scrollHeight}));
  expect(fit.scroll).toBeLessThanOrEqual(fit.client+3);
  const body=await page.evaluate(()=>({client:document.documentElement.clientHeight,scroll:document.documentElement.scrollHeight}));
