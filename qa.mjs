@@ -38,33 +38,28 @@ assert.ok(release&&/^\d+\.\d+$/.test(release)&&release===version.split('.').slic
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 
-// Fail the release before deploy when any canonical runtime file has invalid JavaScript.
 const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage101.js','js/ticketPage100.js','js/moneyPage100.js','js/os181Suite.js','js/executiveCommand164.js','js/dataTrust163.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js'];
 for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 
-// Canonical startup / navigation.
 assert.ok(index.includes('./js/instantShell64.js'),'instant startup shell must remain wired');
 assert.ok(index.includes('./personal65.css'),'personal assistant styles must remain wired');
 for(const label of ['Dnes','Vstupenky','Rodina','Domov','Peníze','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
 assert.ok(!index.includes('Personal Home')&&!index.includes('Pohledávka'),'legacy shell labels must not return');
-assert.ok(instant.includes("import('./app.js')")&&instant.includes('bootAddon'),'bootstrap core/addon isolation missing');
+assert.ok(instant.includes("import('./app.js')")&&instant.includes('async function optionalImport')&&instant.includes("optionalImport('./personalShell640.js'")&&instant.includes("optionalImport('./personalHardening650.js'"),'bootstrap core/addon isolation missing');
 assert.ok(personalAssistant.includes('personalDailyAssistant650')&&personalAssistant.includes('personalWaitingCenter650')&&personalAssistant.includes('personalSearch650'),'personal assistant engines missing');
 assert.ok(personalShell.includes('Najít / zeptat se')&&personalShell.includes('openVaultRecord640'),'global search/assistant integration missing');
 assert.ok(hardening.includes('primary<=1')&&hardening.includes('dataHealth===0'),'personal preflight guard missing');
 
-// Today loader stability: only core is static; addons are isolated dynamic imports.
 assert.ok(todayPage.includes("import {renderDashboard1103}")&&todayPage.includes("import {enhanceXtbReview110}")&&todayPage.includes("import {renderPersonalToday640}"),'Today core imports changed unexpectedly');
 assert.ok(todayPage.includes("['./os181Suite.js','enhanceToday181']"),'OS 181 Today command center missing');
 assert.ok(todayPage.includes('await import(path)')&&todayPage.includes('[today addon failed]'),'Today addon isolation missing');
 assert.ok(!todayPage.includes("import {enhanceToday181} from './os181Suite.js'"),'OS 181 addon must not become a static Today import');
 
-// Current Money / Tickets integration and single-flight rendering.
 assert.ok(ticketPage.includes('enhanceTickets181')&&ticketPage.includes('if(running){rerun=true;return}'),'Ticket OS 181 integration/single-flight guard missing');
 assert.ok(moneyPage.includes('enhanceMoney181')&&moneyPage.includes('if(running){rerun=true;return}'),'Money OS 181 integration/single-flight guard missing');
 assert.ok(os181.includes("from('xtb_transaction_ledger')")&&os181.includes("from('os_action_state')")&&os181.includes('truthfulAccounting:true'),'OS 181 truthful accounting/action layer missing');
 assert.ok(ticketCommander.includes('TICKET PROFIT COMMANDER 66.')&&ticketCloud.includes("from('ticket_inventory')")&&!/service[_-]?role/i.test(ticketCloud),'private Ticket Intelligence missing or unsafe');
 
-// Core persistence/cloud/render safety.
 assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
 assert.ok(/const CACHE='kamil-os-\d+\.\d+-[^']+'/.test(sw)&&sw.includes('./js/instantShell64.js'),'service-worker shell/cache missing');
 assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must never prefer stale cache');
@@ -77,7 +72,6 @@ assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateCold
 assert.ok(runtime.includes("load('./qa143.js').catch"),'optional QA addon isolation missing');
 for(const fn of ['prefetchView41','renderExtras41','refreshRiskBadge41','scheduleNotifications41','warmRuntime41'])assert.ok(runtime.includes(`function ${fn}`),`runtime function missing: ${fn}`);
 
-// Legacy market modules stay click-only/read-only.
 for(const [name,file] of [['Market Decision',marketDecision],['Action Queue',actionQueue]]){
  for(const bad of ['setInterval(','requestIdleCallback','store.subscribe('])assert.ok(!file.includes(bad),`${name} must stay click-only: ${bad}`);
  assert.ok(!file.includes('store.update(')&&!file.includes('store.patch('),`${name} must stay read-only`);
@@ -86,7 +80,6 @@ assert.ok(marketDecision.includes("from './xtbPlanner24.js'")&&marketDecision.in
 assert.ok(!ticketSeed.includes('store.subscribe(')&&!ticketSeed.includes('queueMicrotask(ensure)'),'ticket seed must never mutate on import');
 assert.ok(!investmentSeed.includes('store.subscribe(')&&!investmentSeed.includes('queueMicrotask(ensure)'),'investment seed must never mutate on import');
 
-// Platform/stability infrastructure stays intact.
 assert.ok(platform43.includes('export const ROADMAP43=['),'platform registry missing');
 assert.ok(stability431.includes("entryTypes:['longtask']")&&stability431.includes('setSafeMode43(true)'),'freeze detector/Safe Mode missing');
 assert.ok(lazy.includes("STABILITY_MEMORY_KEY='kamil-os-stability-memory-43-7'")&&lazy.includes('refreshStabilityMemory'),'stability memory missing');
