@@ -1,25 +1,33 @@
-name: Personal Home 53 QA
+name: OS 181 Home + Shell Browser QA
 on:
   pull_request:
   push:
     branches: [main]
 jobs:
-  home53:
+  home-shell:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Home 53.1 static safety
+      - name: Home compatibility static safety
         run: node personal_home_53_1_static_test.mjs
+      - name: Current shell syntax
+        run: |
+          node --check js/instantShell64.js
+          node --check js/app.js
+          node --check js/viewRuntime41.js
+          node --check js/todayPage101.js
+          node --check js/homePage140.js
+          node --check js/familyPage140.js
       - name: Install browser QA
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Home 53 browser/performance gates
+      - name: OS 181 current browser smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_personal_home_53_1.spec.mjs e2e_personal_home_53_2.spec.mjs --reporter=line
+          npx playwright test e2e_os181_current_smoke.spec.mjs --reporter=line
