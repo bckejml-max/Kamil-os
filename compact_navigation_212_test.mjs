@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const css=fs.readFileSync('compactNavigation212.css','utf8');
+const js=fs.readFileSync('js/compactNavigation212.js','utf8');
+const shell=fs.readFileSync('js/instantShell64.js','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+assert.match(css,/--os212-rail:82px/);
+assert.match(css,/grid-template-columns:var\(--os212-rail\)/);
+assert.match(css,/\.app-host211\{padding-top:100px!important\}/);
+assert.match(css,/min-height:40px/,'mobile controls keep touch-sized targets');
+assert.match(js,/aria-label/);
+assert.match(js,/Předchozí panel/);
+assert.match(js,/Další panel/);
+assert.match(shell,/compactNavigation212\.js/);
+assert.match(sw,/kamil-os-212\.0\.0-core-r1/);
+assert.match(sw,/compactNavigation212\.css/);
+assert.match(sw,/compactNavigation212\.js/);
+console.log('OS 212 COMPACT NAVIGATION PASS');
