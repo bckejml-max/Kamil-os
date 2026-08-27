@@ -14,8 +14,8 @@ export function ticketPresaleExecutionPlan200(row={},portfolioCapitalCzk=0,opts=
  const opportunity=row.opportunity||{};
  const action=text(row.action).toUpperCase();
  const official=n(opportunity.officialPrice??row.officialPriceCzk??row.official_price_czk);
- const maxBuy=n(opportunity.maxBuyPrice??row.maxBuyPrice);
- const buyPrice=official>0&&maxBuy>0?Math.min(official,maxBuy):official||maxBuy||0;
+ const maxBuy=n(opportunity.netSafeMaxBuyPrice??opportunity.maxBuyPrice??row.netSafeMaxBuyPrice??row.maxBuyPrice);
+ const buyPrice=official>0&&maxBuy>0?Math.min(official,maxBuy):maxBuy||0;
  const capital=n(portfolioCapitalCzk);
  const eventCapPct=clamp(n(opts.eventCapPct)||20,5,35);
  const hardQtyCap=Math.max(1,Math.floor(n(opts.hardQtyCap)||8));
@@ -25,11 +25,11 @@ export function ticketPresaleExecutionPlan200(row={},portfolioCapitalCzk=0,opts=
  let verdict='WATCH';
  if(action!=='BUY TARGET')verdict='NO BUY';
  else if(!capital)verdict='SET CAPITAL';
- else if(!buyPrice)verdict='DATA NEEDED';
+ else if(!maxBuy||!buyPrice)verdict='DATA NEEDED';
  else if(maxQty<1)verdict='TOO LARGE';
  else verdict='EXECUTE';
  const deploy=maxQty>0?Math.round(maxQty*buyPrice):0;
- return {version:TICKET_PRESALE_EXECUTION_VERSION_200,verdict,buyPrice:buyPrice||null,maxBuyPrice:maxBuy||null,maxQty,eventBudget:eventBudget||null,deployCapital:deploy||null,eventCapPct,hardQtyCap,capital:capital||null,opportunityScore:n(opportunity.score),presaleAction:action||null};
+ return {version:TICKET_PRESALE_EXECUTION_VERSION_200,verdict,buyPrice:buyPrice||null,maxBuyPrice:maxBuy||null,netSafeMaxBuyPrice:maxBuy||null,maxQty,eventBudget:eventBudget||null,deployCapital:deploy||null,eventCapPct,hardQtyCap,capital:capital||null,opportunityScore:n(opportunity.score),presaleAction:action||null};
 }
 
 export function buildTicketPresaleExecution200(radar={},inventory=[],ticketBook={},opts={}){
