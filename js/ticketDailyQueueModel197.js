@@ -11,8 +11,8 @@ export function ticketDailyActionScore197(row={}){
  const marketAction=String(row?.marketAction||'');
  const marketNeed=marketAction.includes('CROSS')?20:marketAction.includes('CHECK')?16:0;
  const qty=Math.max(1,n(row?.qty)||1);
- const buyEach=n(row?.guard?.floors?.breakEven?.buyEach??row?.buyEach);
- const capital=buyEach*qty;
+ const buyEach=n(row?.buyEach??row?.guard?.floors?.breakEven?.buyEach);
+ const capital=n(row?.costTotal)||(buyEach*qty);
  const moneyWeight=clamp(Math.round(capital/1000)*3,0,18);
  const ask=n(row?.currentAsk),target=n(row?.targetAsk);
  const deltaPct=ask>0&&target>0?Math.abs(target/ask-1)*100:0;
