@@ -19,14 +19,14 @@ export function ticketPresaleStage199(saleAt,now=Date.now()){
  return {stage:'UPCOMING',hours,days,urgency:Math.max(12,55-Math.min(40,Math.floor(hours/72)))};
 }
 
-export function ticketPresaleCandidate199(candidate={},now=Date.now()){
+export function ticketPresaleCandidate199(candidate={},now=Date.now(),finance={}){
  const saleAt=saleValue(candidate),stage=ticketPresaleStage199(saleAt,now);
- const opportunity=ticketOpportunityScore198(candidate,now);
+ const opportunity=ticketOpportunityScore198(candidate,now,finance);
  const hasPriceData=!!(opportunity.officialPrice&&opportunity.marketPrice);
  let action='PLAN';
  if(stage.stage==='PAST')action='PAST';
  else if(stage.stage==='NO_DATE')action='SET DATE';
- else if(!hasPriceData&&['LIVE','TODAY','D-1','D-3','D-7'].includes(stage.stage))action='DATA NEEDED';
+ else if((!hasPriceData||opportunity.action==='DATA NEEDED')&&['LIVE','TODAY','D-1','D-3','D-7'].includes(stage.stage))action='DATA NEEDED';
  else if(opportunity.action==='BUY'&&['LIVE','TODAY','D-1','D-3','D-7'].includes(stage.stage))action='BUY TARGET';
  else if(['LIVE','TODAY'].includes(stage.stage))action='READY NOW';
  else if(['D-1','D-3'].includes(stage.stage))action='PREPARE';
@@ -35,8 +35,8 @@ export function ticketPresaleCandidate199(candidate={},now=Date.now()){
  return {...candidate,saleAt:saleAt||null,stage:stage.stage,hoursUntilSale:stage.hours,daysUntilSale:stage.days,urgency:stage.urgency,opportunity,action,priority,hasPriceData};
 }
 
-export function buildTicketPresaleRadar199(watchlist=[],now=Date.now(),limit=8){
- const rows=(watchlist||[]).map(x=>ticketPresaleCandidate199({...x,name:x.name??x.eventName??x.event_name??'Presale event',eventDate:x.eventDate??x.event_date??x.date,officialPriceCzk:n(x.officialPriceCzk??x.official_price_czk??x.faceValueCzk),marketPriceCzk:n(x.marketPriceCzk??x.market_price_czk??x.resalePriceCzk),medianPriceCzk:n(x.medianPriceCzk??x.median_price_czk),confidenceScore:n(x.confidenceScore??x.confidence)},now)).filter(x=>x.stage!=='PAST').sort((a,b)=>b.priority-a.priority||(parseTime(a.saleAt)??Infinity)-(parseTime(b.saleAt)??Infinity));
+export function buildTicketPresaleRadar199(watchlist=[],now=Date.now(),limit=8,finance={}){
+ const rows=(watchlist||[]).map(x=>ticketPresaleCandidate199({...x,name:x.name??x.eventName??x.event_name??'Presale event',eventDate:x.eventDate??x.event_date??x.date,officialPriceCzk:n(x.officialPriceCzk??x.official_price_czk??x.faceValueCzk),marketPriceCzk:n(x.marketPriceCzk??x.market_price_czk??x.resalePriceCzk),medianPriceCzk:n(x.medianPriceCzk??x.median_price_czk),confidenceScore:n(x.confidenceScore??x.confidence)},now,finance)).filter(x=>x.stage!=='PAST').sort((a,b)=>b.priority-a.priority||(parseTime(a.saleAt)??Infinity)-(parseTime(b.saleAt)??Infinity));
  const visible=rows.slice(0,Math.max(1,Math.min(12,limit||8)));
  return {version:TICKET_PRESALE_RADAR_VERSION_199,rows,visible,summary:{tracked:rows.length,buyTargets:rows.filter(x=>x.action==='BUY TARGET').length,today:rows.filter(x=>['LIVE','TODAY'].includes(x.stage)).length,next7d:rows.filter(x=>['LIVE','TODAY','D-1','D-3','D-7'].includes(x.stage)).length,dataNeeded:rows.filter(x=>x.action==='DATA NEEDED').length}};
 }
