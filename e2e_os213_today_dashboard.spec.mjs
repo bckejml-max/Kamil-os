@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-test('OS220 today dashboard reclaims vertical space and keeps one-row actions',async({page})=>{
+test('OS220.0.2 today dashboard reclaims vertical space and keeps stable one-row actions',async({page})=>{
  await page.setViewportSize({width:1792,height:828});
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  const dashboard=page.locator('[data-today-dashboard213]');
@@ -7,6 +7,8 @@ test('OS220 today dashboard reclaims vertical space and keeps one-row actions',a
  await expect(page.locator('#todayView [data-app-workspace211]')).toHaveCount(0);
  const actions=dashboard.locator('[data-action213]');
  expect(await actions.count()).toBe(6);
+ const stable=await page.evaluate(async()=>{const a=[...document.querySelectorAll('[data-today-dashboard213] [data-action213]')];await new Promise(r=>setTimeout(r,500));const b=[...document.querySelectorAll('[data-today-dashboard213] [data-action213]')];return a.length===6&&b.length===6&&a.every((n,i)=>n===b[i]&&n.isConnected)});
+ expect(stable).toBeTruthy();
  const commander=dashboard.locator('.today213-commander');
  await expect(commander).toBeVisible();
  await expect(commander.locator('h2').first()).toBeVisible();
@@ -15,11 +17,12 @@ test('OS220 today dashboard reclaims vertical space and keeps one-row actions',a
  const dashboardBox=await dashboard.boundingBox();
  const commanderBox=await commander.boundingBox();
  expect(commanderBox?.width||0).toBeGreaterThan((dashboardBox?.width||0)*.9);
- const boxes=[];for(let i=0;i<6;i++)boxes.push(await actions.nth(i).boundingBox());
- const ys=boxes.map(b=>Math.round(b?.y||0));
+ const boxes=await page.evaluate(()=>[...document.querySelectorAll('[data-today-dashboard213] [data-action213]')].map(el=>{const r=el.getBoundingClientRect();return {key:el.dataset.action213,connected:el.isConnected,x:r.x,y:r.y,width:r.width,height:r.height,display:getComputedStyle(el).display}}));
+ expect(boxes).toHaveLength(6);
+ expect(boxes.every(b=>b.connected&&b.width>0&&b.height>0)).toBeTruthy();
+ const ys=boxes.map(b=>Math.round(b.y));
  expect(Math.max(...ys)-Math.min(...ys)).toBeLessThanOrEqual(3);
- const heights=boxes.map(b=>b?.height||0);
- expect(Math.max(...heights)).toBeLessThanOrEqual(72);
+ expect(Math.max(...boxes.map(b=>b.height))).toBeLessThanOrEqual(72);
  const topbar=await page.locator('.topbar').boundingBox();
  expect(topbar?.height||999).toBeLessThanOrEqual(50);
  const command=await page.locator('.command-wrap').boundingBox();
