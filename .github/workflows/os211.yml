@@ -1,0 +1,34 @@
+name: Kamil OS 211 No-Scroll QA
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qa211:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Universal workspace regression 211
+        run: node app_workspace_211_test.mjs
+      - name: Syntax
+        run: |
+          node --check js/appWorkspace211.js
+          node --check js/instantShell64.js
+          node --check js/app.js
+          node --check js/ticketWorkspace210.js
+      - name: Existing ticket workspace regression
+        run: node ticket_workspace_210_test.mjs
+      - name: Install browser QA
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: OS 211 browser smoke
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          npx playwright test e2e_os181_current_smoke.spec.mjs --reporter=line
