@@ -11,6 +11,7 @@ assert(js.includes('data-today-dashboard213'),'dashboard marker missing');
 assert(js.includes('fallbackCommander213'),'empty-state fallback missing');
 assert(js.includes('syncDashboard213'),'late-render sync missing');
 assert(js.includes("setTimeout(run,1800)"),'late-render retry missing');
+assert(js.includes('if(actions&&actions.innerHTML!==nextActions)actions.innerHTML=nextActions'),'OS220.0.1 idempotent action render missing');
 assert(workspace.includes("view==='tickets'||view==='today'"),'Today must be excluded from OS211 pager');
 assert(boot.includes("./todayDashboard213.js")&&boot.includes('installTodayDashboard213'),'dashboard not booted');
 assert(css.includes('display:flex!important;flex-direction:row!important')&&css.includes('height:70px!important'),'OS220 forced action flex row missing');
@@ -18,6 +19,6 @@ assert(css.includes('height:calc(100dvh - 108px)'),'OS220 Today vertical reclaim
 assert(nav.includes('--os212-top:48px')&&nav.includes('.command-wrap{height:36px!important'),'OS220 compact top chrome missing');
 assert(css.includes('var(--panel,#101720)'),'dark panel token missing');
 assert(!css.includes('background:var(--surface,#fff)'),'white fallback surface must not be used in dark mode');
-assert(release.includes("220.0.0"),'release metadata not OS220');
-assert(sw.includes('kamil-os-220.0.0-core-r1'),'OS220 cache bump missing');
-console.log('OS220 vertical space/action bar regression OK');
+assert(release.includes("220.0.1"),'release metadata not OS220.0.1');
+assert(sw.includes('kamil-os-220.0.1-core-r2'),'OS220.0.1 cache bump missing');
+console.log('OS220.0.1 vertical space/action bar regression OK');
