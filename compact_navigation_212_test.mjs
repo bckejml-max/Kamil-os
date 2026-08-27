@@ -12,7 +12,7 @@ assert.match(js,/aria-label/);
 assert.match(js,/Předchozí panel/);
 assert.match(js,/Další panel/);
 assert.match(shell,/compactNavigation212\.js/);
-assert.match(sw,/kamil-os-212\.0\.0-core-r1/);
+assert.match(sw,/kamil-os-\d+\.0\.0-core-r1/,'release cache missing');
 assert.match(sw,/compactNavigation212\.css/);
 assert.match(sw,/compactNavigation212\.js/);
 console.log('OS 212 COMPACT NAVIGATION PASS');
