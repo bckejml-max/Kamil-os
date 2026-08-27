@@ -1,19 +1,21 @@
-name: Kamil OS 226 All Clear Wake-Up QA
+name: Kamil OS 227 Authless Single-User QA
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  qa226:
+  qa227:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: All Clear wake-up regression 226
+      - name: Preserve Today wake regression
         run: node today_dashboard_213_test.mjs
+      - name: Authless UI regression 227
+        run: node authless_227_test.mjs
       - name: Syntax
         run: |
           node --check js/todayDashboard213.js
@@ -29,9 +31,9 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 226 browser wake-up smoke
+      - name: OS 227 browser authless smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_os213_today_dashboard.spec.mjs --reporter=line
+          npx playwright test e2e_os227_authless.spec.mjs --reporter=line
