@@ -1,0 +1,16 @@
+import {loadTicketCloud660} from './ticketCloud660.js';
+import {store} from './state.js';
+import {h,money} from './utils.js';
+import {buildTicketProfitConfidencePlanner206} from './ticketProfitConfidenceModel206.js';
+
+const rangeLabel=x=>x?`${money(x.low)} – ${money(x.high)}`:'—';
+
+export async function appendTicketProfitConfidence206(host=document.querySelector('#ticketIntelView')){
+ if(!host||host.querySelector('[data-ticket-profit-confidence206]'))return;
+ const cloud=await loadTicketCloud660();if(!cloud?.ok)return;
+ const state=store.get()||{},ticketBook=state.ticketBook||{},watchlist=ticketBook.watchlist||[];
+ const plan=buildTicketProfitConfidencePlanner206({inventory:cloud.inventory||[],latest:cloud.latest||new Map(),watchlist,ticketBook},Date.now(),{eventCapPct:20,groupCapPct:35,dateCapPct:30,categoryCapPct:60,hardQtyCap:8});
+ const sec=document.createElement('section');sec.dataset.ticketProfitConfidence206='1';sec.className='card';sec.style.margin='18px 0';
+ sec.innerHTML=`<div class="eyebrow">OS 206 · PROFIT CONFIDENCE ENGINE</div><h2>Jak moc věřit modelovanému čistému zisku</h2><p class="muted">Confidence 0–100 hodnotí kvalitu vstupů, ne statistickou pravděpodobnost. Pásmo se odvozuje z payout historie a kvality market dat; při neúplném learned-net coverage ukazujeme pouze známou část.</p><div class="metric-strip">${plan.scenarios.map(s=>`<div class="metric"><span>${h(s.mode)}</span><b>${s.profitConfidence.score==null?'—':`${s.profitConfidence.score}/100`}</b><small>${h(s.profitConfidence.band)} · ${s.profitConfidence.fullRange?rangeLabel(s.profitConfidence.fullRange):s.profitConfidence.knownRange?`known ${rangeLabel(s.profitConfidence.knownRange)}`:'bez net modelu'}</small></div>`).join('')}</div>${plan.scenarios.map(s=>`<div class="card" style="margin-top:12px"><div style="display:flex;justify-content:space-between;gap:14px"><div><b>${h(s.mode)}</b><div class="muted">Net coverage ${s.profitConfidence.modeled}/${s.profitConfidence.funded} · ${s.profitConfidence.coveragePct}%</div></div><b>${s.profitConfidence.score==null?'NO NET MODEL':`${s.profitConfidence.score}/100 · ${h(s.profitConfidence.band)}`}</b></div><div class="metric-strip" style="margin-top:10px"><div class="metric"><span>Model range</span><b>${rangeLabel(s.profitConfidence.fullRange||s.profitConfidence.knownRange)}</b></div><div class="metric"><span>Center</span><b>${s.profitConfidence.fullRange?money(s.profitConfidence.fullRange.center):s.profitConfidence.knownRange?money(s.profitConfidence.knownRange.center):'—'}</b></div><div class="metric"><span>Coverage</span><b>${s.profitConfidence.coveragePct}%</b></div><div class="metric"><span>Mode</span><b>${s.profitConfidence.fullCoverage?'FULL NET':'PARTIAL'}</b></div></div>${s.rows.filter(r=>r.allocation?.qty>0).slice(0,5).map(r=>`<div class="muted" style="margin-top:7px">${h(r.name||'Ticket event')} · ${r.profitConfidence.ok?`${r.profitConfidence.score}/100 ${h(r.profitConfidence.band)} · ${rangeLabel(r.profitConfidence.range)} · payout ${r.profitConfidence.payoutQuality}/100 · market ${r.profitConfidence.marketQuality}/100`:'confidence chybí · learned net není dostupný'}</div>`).join('')}</div>`).join('')}`;
+ host.prepend(sec);window.__KAMIL_TICKET_PROFIT_CONFIDENCE206__=plan;
+}
