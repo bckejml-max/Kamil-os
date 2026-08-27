@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+const js=fs.readFileSync('js/todayDashboard213.js','utf8');
+const css=fs.readFileSync('todayDashboard213.css','utf8');
+const workspace=fs.readFileSync('js/appWorkspace211.js','utf8');
+const boot=fs.readFileSync('js/instantShell64.js','utf8');
+const release=fs.readFileSync('js/releaseMeta.js','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
+assert(js.includes('data-today-dashboard213'),'OS213 dashboard marker missing');
+assert(js.includes("label:'Inbox'")&&js.includes("label:'Čekám'")&&js.includes("label:'Zítra'")&&js.includes("label:'7 dní'"),'OS213 quick actions missing');
+assert(js.includes("label:'Co řešit'")&&js.includes("label:'Den'"),'OS213 focus/day actions missing');
+assert(workspace.includes("view==='tickets'||view==='today'"),'Today must be excluded from OS211 pager');
+assert(boot.includes("./todayDashboard213.js")&&boot.includes('installTodayDashboard213'),'OS213 not booted');
+assert(css.includes('grid-template-columns:minmax(0,1fr) 260px')&&css.includes('grid-template-columns:repeat(6,minmax(0,1fr))'),'OS213 desktop/mobile layout missing');
+assert(release.includes("213.0.0"),'Release metadata not 213');
+assert(sw.includes('kamil-os-213.0.0-core-r1')&&sw.includes('todayDashboard213.css')&&sw.includes('todayDashboard213.js'),'OS213 offline cache missing');
+console.log('OS213 one-screen dashboard regression OK');
