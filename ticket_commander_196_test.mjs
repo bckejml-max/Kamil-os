@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {ticketCommanderRow196,TICKET_COMMANDER_VERSION_196} from './js/ticketCommanderModel196.js';
+assert.equal(TICKET_COMMANDER_VERSION_196,196);
+const row={id:'jab',event_name:'Sparta - Jablonec',section:'C11',event_date:'2026-09-12T18:00:00+02:00',qty:2,buy_each_czk:625,buy_total_czk:1250,ask_each_czk:1999,market_status:'LISTED',viagogo_url:'https://example.test/v'};
+const learning={byMarket:{Viagogo:{count:4,ratio:.875,feeRate:.125,confidence:'MEDIUM'}},knownGlobal:{count:4,ratio:.875,feeRate:.125},global:{count:4,ratio:.875,feeRate:.125}};
+const now=Date.parse('2026-08-27T12:00:00+02:00');
+const x=ticketCommanderRow196(row,learning,{market_price_czk:1700},now);
+assert.ok(x.neverBelow>=1072);
+assert.ok(x.idealPrice>=x.neverBelow);
+assert.ok(x.fastPrice>=x.neverBelow);
+assert.equal(x.marketAction,'KEEP VIAGOGO');
+assert.ok(x.headline.length>0);
+console.log('OS 196 TICKET COMMANDER PASS');
