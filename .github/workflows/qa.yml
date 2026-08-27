@@ -1,4 +1,4 @@
-name: Kamil OS 191 Release QA
+name: Kamil OS 192 Release QA
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: OS 191 static and syntax QA
+      - name: OS 192 static and syntax QA
         run: node qa.mjs
 
       - name: Deployment and core hardening
@@ -63,6 +63,9 @@ jobs:
       - name: Ticket Market Coverage Queue 191
         run: node ticket_market_queue_191_test.mjs
 
+      - name: Ticket Net Payout Learning 192
+        run: node ticket_payout_learning_192_test.mjs
+
       - name: Ticket market API contract
         run: node ticket_market_api_65_6_test.mjs
 
@@ -92,6 +95,8 @@ jobs:
           node --check js/ticketMarketDesk190.js
           node --check js/ticketMarketQueueModel191.js
           node --check js/ticketMarketQueue191.js
+          node --check js/ticketPayoutLearningModel192.js
+          node --check js/ticketPayoutLearning192.js
           node --check js/ticketImport660.js
           node --check js/ticketCloud660.js
           node --check js/ticketSales150.js
@@ -101,7 +106,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 191 browser release smoke
+      - name: OS 192 browser release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
