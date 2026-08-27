@@ -21,7 +21,7 @@ html[data-density238="comfortable"] .card,html[data-density238="comfortable"] .m
 html[data-density238="compact"] .card,html[data-density238="compact"] .metric{padding:10px!important}
 @media(min-width:851px) and (max-width:1180px){.app{grid-template-columns:70px minmax(0,1fr)!important}.main-nav button{height:44px!important}.command-wrap{margin-inline:10px!important}main{padding-inline:10px!important}}
 @media(max-width:850px){
- .bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}.bottom-nav [data-personal-more]{display:none!important}.bottom-nav button{font-size:8.5px!important}
+ #bottomNav.bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}#bottomNav.bottom-nav [data-personal-more]{display:none!important}#bottomNav.bottom-nav button{font-size:8.5px!important}
  .ux238-palette{padding-top:8vh}.ux238-palette-head span{display:none}.ux238-add-grid{grid-template-columns:1fr 1fr}.ux238-add-grid button{min-height:84px}
 }
-@media(max-width:430px){.bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}.bottom-nav [data-view="family"]{display:none!important}.ux238-add-grid{grid-template-columns:1fr}.ux238-add-grid button{min-height:68px}.ux238-palette-card{border-radius:14px}.ux238-palette{padding-top:5vh}}
+@media(max-width:430px){#bottomNav.bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}#bottomNav.bottom-nav [data-view="family"],#bottomNav.bottom-nav [data-personal-more]{display:none!important}.ux238-add-grid{grid-template-columns:1fr}.ux238-add-grid button{min-height:68px}.ux238-palette-card{border-radius:14px}.ux238-palette{padding-top:5vh}}
