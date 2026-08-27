@@ -14,8 +14,13 @@ jobs:
           node-version: 22
       - name: OS229-278 mega regression
         run: node mega_278_test.mjs
+      - name: UX Foundation compatibility regression
+        run: node ux_foundation_238_test.mjs
+      - name: Production chrome regression
+        run: node production_chrome_228_test.mjs
       - name: Syntax
         run: |
+          node --check js/productionChrome228.js
           node --check js/uxFoundation238.js
           node --check js/dailyCommander248.js
           node --check js/financeCommand258.js
@@ -35,4 +40,4 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_os278_megarelease.spec.mjs --reporter=line
+          npx playwright test e2e_os278_megarelease.spec.mjs e2e_os238_ux_foundation.spec.mjs e2e_os228_production_chrome.spec.mjs --reporter=line
