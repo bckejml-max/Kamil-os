@@ -1,18 +1,18 @@
-name: Kamil OS 220 Vertical Space Reclaim QA
+name: Kamil OS 221 Dashboard Density QA
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  qa220:
+  qa221:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Dashboard vertical-space regression 220
+      - name: Dashboard density regression 221
         run: node today_dashboard_213_test.mjs
       - name: Syntax
         run: |
@@ -27,7 +27,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 220 browser vertical-space smoke
+      - name: OS 221 browser density smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
