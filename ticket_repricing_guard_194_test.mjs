@@ -13,16 +13,18 @@ const now=Date.parse('2026-08-27T12:00:00+02:00');
 const highMarket=ticketRepricingGuard194(row,learning,{market_price_czk:2300},now);
 assert.equal(highMarket.action,'RAISE TO');
 assert.ok(highMarket.recommendedAsk>=highMarket.neverBelow);
-assert.equal(highMarket.neverBelow,1072);
+assert.equal(highMarket.hardFloor,1072);
+assert.equal(highMarket.neverBelow,1080);
 
 const lowMarket=ticketRepricingGuard194({...row,ask_each_czk:1999},learning,{market_price_czk:900},now);
 assert.equal(lowMarket.action,'DROP TO');
-assert.equal(lowMarket.recommendedAsk,1070); // rounded display target must be corrected up by hard guard below
-assert.ok(lowMarket.recommendedAsk>=Math.round(lowMarket.neverBelow/10)*10);
+assert.equal(lowMarket.recommendedAsk,1080);
+assert.ok(lowMarket.recommendedAsk>=lowMarket.neverBelow);
 
 const underFloor=ticketRepricingGuard194({...row,ask_each_czk:700},learning,{market_price_czk:900},now);
 assert.equal(underFloor.action,'RAISE TO');
-assert.ok(underFloor.recommendedAsk>=underFloor.neverBelow-5);
+assert.equal(underFloor.recommendedAsk,1080);
+assert.ok(underFloor.recommendedAsk>=underFloor.neverBelow);
 
 const noHistory=ticketRepricingGuard194(row,{byMarket:{},knownGlobal:{count:0},global:{count:0}},{market_price_czk:1500},now);
 assert.equal(noHistory.action,'PAYOUT DATA NEEDED');
