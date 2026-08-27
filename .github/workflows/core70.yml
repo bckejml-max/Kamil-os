@@ -13,15 +13,18 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Required canonical files
         run: |
+          test -f js/instantShell64.js
+          test -f js/app.js
           test -f js/viewRuntime41.js
-          test -f js/personalToday640.js
-          test -f js/personalInbox690.js
-          test -f js/personalMoney640.js
-          test -f js/personalWeekly700.js
-          test -f js/ticketPage665.js
+          test -f js/todayPage101.js
+          test -f js/ticketPage100.js
+          test -f js/moneyPage100.js
+          test -f js/os181Suite.js
+          test -f js/executiveCommand164.js
+          test -f js/dataTrust163.js
           test -f js/ticketCloud660.js
           test -f js/command.js
           test -f js/personalQuery29.js
@@ -30,25 +33,36 @@ jobs:
           test -f CORE70.md
       - name: Syntax check canonical JavaScript
         run: |
+          node --check js/instantShell64.js
+          node --check js/app.js
           node --check js/viewRuntime41.js
-          node --check js/personalToday640.js
-          node --check js/personalInbox690.js
-          node --check js/personalMoney640.js
-          node --check js/personalWeekly700.js
-          node --check js/ticketPage665.js
+          node --check js/todayPage101.js
+          node --check js/ticketPage100.js
+          node --check js/moneyPage100.js
+          node --check js/os181Suite.js
+          node --check js/executiveCommand164.js
+          node --check js/dataTrust163.js
           node --check js/ticketCloud660.js
+          node --check js/ticketSales150.js
+          node --check js/ticketSaleDetail151.js
           node --check js/command.js
           node --check js/personalQuery29.js
           node --check api/core70-health.js
       - name: Canonical runtime assertions
         run: |
-          grep -q "personalInbox690" js/viewRuntime41.js
-          grep -q "personalWeekly700" js/viewRuntime41.js
           grep -q "renderCommandResults41" js/viewRuntime41.js
           grep -q "executeCommand41" js/viewRuntime41.js
+          grep -q "hydrateColdView42" js/viewRuntime41.js
+          grep -q "optionalImport('./personalShell640.js'" js/instantShell64.js
+          grep -q "optionalImport('./personalHardening650.js'" js/instantShell64.js
+          grep -q "./os181Suite.js','enhanceToday181" js/todayPage101.js
+          grep -q "enhanceTickets181" js/ticketPage100.js
+          grep -q "enhanceMoney181" js/moneyPage100.js
+          grep -q "xtb_transaction_ledger" js/os181Suite.js
+          grep -q "os_action_state" js/os181Suite.js
           grep -q "viagogo-official" js/ticketCloud660.js
-          grep -q "core70-health" js/personalToday640.js
       - name: Prevent known routing regressions
         run: |
           ! grep -R "ticket-market-watch-v673" js api || (echo "Dead v673 route reintroduced" && exit 1)
           ! grep -q "ticketMarketWatch656.js" sw.js || (echo "Legacy ticketMarketWatch656 returned to active shell" && exit 1)
+          ! grep -q "import {enhanceToday181} from './os181Suite.js'" js/todayPage101.js || (echo "OS181 addon returned to static Today import" && exit 1)
