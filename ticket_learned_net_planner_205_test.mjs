@@ -4,15 +4,17 @@ import {buildTicketLearnedNetPlanner205} from './js/ticketLearnedNetPlannerModel
 const now=Date.parse('2026-08-27T12:00:00Z');
 const opts={hardQtyCap:8,eventCapPct:20,groupCapPct:35,dateCapPct:30,categoryCapPct:60};
 const verified={resaleAllowed:true,transferCompatible:true,officialSaleStatus:'ON_SALE',restrictionsVerifiedAt:'2026-08-27T10:00:00Z'};
+const buyFinance={learnedPayoutRatio:.875,payoutSamples:2,payoutConfidence:'LOW'};
 const soldViagogo={id:'sold-vg',market_status:'PAID',marketplace:'Viagogo',sell_total_czk:2000,payout_received_czk:1750};
 const base={ticketBook:{capitalBudgetCzk:30000},latest:new Map(),watchlist:[
- {id:'a',name:'Event A',eventDate:'2026-09-20',officialPriceCzk:1000,marketPriceCzk:2000,confidenceScore:90,club:'Club A',category:'football',marketplace:'Viagogo',...verified},
- {id:'b',name:'Event B',eventDate:'2026-10-01',officialPriceCzk:1000,marketPriceCzk:1800,confidenceScore:85,club:'Club B',category:'concert',marketplace:'StubHub',...verified}
+ {id:'a',name:'Event A',eventDate:'2026-09-20',officialPriceCzk:1000,marketPriceCzk:2000,confidenceScore:90,club:'Club A',category:'football',marketplace:'Viagogo',...verified,...buyFinance},
+ {id:'b',name:'Event B',eventDate:'2026-10-01',officialPriceCzk:1000,marketPriceCzk:1800,confidenceScore:85,club:'Club B',category:'concert',marketplace:'StubHub',...verified,...buyFinance}
 ]};
 
 const mixed=buildTicketLearnedNetPlanner205({...base,inventory:[soldViagogo]},now,opts);
 assert.equal(mixed.version,205);
 assert.equal(mixed.learning.byMarket.Viagogo.ratio,.875);
+assert.equal(mixed.learning.byMarket.Viagogo.count,1);
 const mb=mixed.balanced;
 assert.ok(mb.learnedNet.learned>0);
 assert.ok(mb.learnedNet.missing>0);
