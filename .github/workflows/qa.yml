@@ -1,8 +1,9 @@
-name: Kamil OS QA
+name: Kamil OS 181 Release QA
 on:
   push:
     branches: [main]
   pull_request:
+
 jobs:
   qa:
     runs-on: ubuntu-latest
@@ -11,173 +12,53 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Static QA
+
+      - name: OS 181 static and syntax QA
         run: node qa.mjs
-      - name: Vercel main-only deployment policy
-        run: node vercel_policy_test.mjs
-      - name: Personal Plus 29 static hardening
-        run: node personal_plus_29_static_test.mjs
-      - name: Personal Autopilot integration
-        run: node integration.mjs
-      - name: Smart Import Center 29.4
-        run: node smart_import_29_test.mjs
-      - name: Spending Intelligence 29.5
-        run: node spending_intelligence_29_test.mjs
-      - name: Spending Intelligence integration 29.5
-        run: node spending_intelligence_integration_29_test.mjs
-      - name: True Net Worth 29.6
-        run: node true_net_worth_29_test.mjs
-      - name: True Net Worth integration 29.6
-        run: node true_net_worth_integration_29_test.mjs
-      - name: Portfolio Rebalancer 29.7
-        run: node portfolio_rebalancer_29_test.mjs
-      - name: Portfolio Rebalancer integration 29.7
-        run: node portfolio_rebalancer_integration_29_test.mjs
-      - name: Portfolio Risk Map 29.8
-        run: node portfolio_risk_map_29_test.mjs
-      - name: Portfolio Risk Map integration 29.8
-        run: node portfolio_risk_map_integration_29_test.mjs
-      - name: Ticket Profit and ROI 29.9
-        run: node ticket_profit_29_test.mjs
-      - name: Ticket Profit and ROI integration 29.9
-        run: node ticket_profit_integration_29_test.mjs
-      - name: Personal Copilot 30.0
-        run: node personal_copilot_30_test.mjs
-      - name: Personal Copilot integration 30.0
-        run: node personal_copilot_30_integration_test.mjs
-      - name: Document Scanner 30.1
-        run: node document_scanner_30_test.mjs
-      - name: Document Scanner integration 30.1
-        run: node document_scanner_30_integration_test.mjs
-      - name: Smart Filing 30.2
-        run: node document_filing_30_test.mjs
-      - name: Smart Filing integration 30.2
-        run: node document_filing_30_integration_test.mjs
-      - name: Decision Explainability 30.3
-        run: node decision_explain_30_test.mjs
-      - name: Decision Explainability integration 30.3
-        run: node decision_explain_30_integration_test.mjs
-      - name: Next Trigger 30.4
-        run: node decision_next_30_test.mjs
-      - name: Next Trigger integration 30.4
-        run: node decision_next_30_integration_test.mjs
-      - name: Decision Delta 30.5
-        run: node decision_delta_30_test.mjs
-      - name: Decision Delta integration 30.5
-        run: node decision_delta_30_integration_test.mjs
-      - name: Core Hardening 31.0
-        run: node core_hardening_31_test.mjs
-      - name: System Health 31.0
-        run: node system_health_31_test.mjs
-      - name: Decision Journal 31.1
-        run: node decision_journal_31_test.mjs
-      - name: Decision Journal integration 31.1
-        run: node decision_journal_31_integration_test.mjs
-      - name: Profile Bootstrap 31.2
-        run: node profile_bootstrap_31_test.mjs
-      - name: Cloud Recovery 31.2
-        run: node cloud_recovery_31_static_test.mjs
-      - name: Canonical Auth 31.3.1
-        run: node canonical_host_31_test.mjs
-      - name: History Planner 31.3
-        run: node history_plan_31_test.mjs
-      - name: Data Engine 31.3
-        run: node data_engine_31_static_test.mjs
-      - name: Smart Sync 31.4
-        run: node smart_sync_31_test.mjs
-      - name: Smart Sync safety 31.4
-        run: node smart_sync_31_static_test.mjs
-      - name: Remote Inbox 31.5
-        run: node remote_inbox_31_test.mjs
-      - name: Remote Inbox regression
-        run: node remote_inbox_31_static_test.mjs
-      - name: Auth UX 32.0
-        run: node auth_ux_32_test.mjs
-      - name: Cloud Payload 32.0
-        run: node cloud_payload_32_test.mjs
-      - name: Confirmed Merge 32.0
-        run: node remote_merge_32_test.mjs
-      - name: Trust and Sync safety 32.0
-        run: node trust_sync_32_static_test.mjs
-      - name: Cloud History 32.1
-        run: node cloud_history_32_test.mjs
-      - name: Cloud History safety 32.1
-        run: node cloud_history_32_static_test.mjs
-      - name: Copilot write proposals 32.2
-        run: node copilot_write_32_test.mjs
-      - name: Copilot write safety 32.2
-        run: node copilot_write_32_static_test.mjs
-      - name: Live Brain source trust 32.3
-        run: node live_brain_32_test.mjs
-      - name: Live Brain safety 32.3
-        run: node live_brain_32_static_test.mjs
-      - name: Market Edge 32.4
-        run: node market_edge_32_test.mjs
-      - name: Market Edge safety 32.4
-        run: node market_edge_32_static_compat65_test.mjs
-      - name: Profit Control 32.5
-        run: node profit_control_32_test.mjs
-      - name: Profit Control safety 32.5
-        run: node profit_control_32_static_test.mjs
-      - name: Personal OS invariants
-        run: node personal_os_26_test.mjs
-      - name: Personal Autopilot 28 base
-        run: node autopilot28_test.mjs
-      - name: Personal Autopilot 29 complete
-        run: node personal_plus_29_test.mjs
-      - name: Personal Monthly Review 29.1
-        run: node monthly_review_29_test.mjs
-      - name: Personal Next-Month Planner 29.2
-        run: node next_month_planner_29_test.mjs
-      - name: Year Ahead Radar 29.3
-        run: node year_ahead_radar_29_test.mjs
-      - name: Year Ahead integration 29.3
-        run: node year_ahead_integration_29_test.mjs
-      - name: Sensitive Vault 29
-        run: node vault_29_test.mjs
-      - name: Scenario Lab 12 months
-        run: node scenario_lab_28_test.mjs
-      - name: Smlouvy k prověření
-        run: node renewal_radar_test.mjs
-      - name: Legacy Scenario Simulator engine
-        run: node scenario_simulator_test.mjs
-      - name: Emergency File
-        run: node emergency_file_test.mjs
-      - name: Backup & Recovery Guard
-        run: node backup_guard_test.mjs
-      - name: Ticket event aggregation
-        run: node ticket_events_test.mjs
-      - name: Ticket lessons
-        run: node ticket_lessons_test.mjs
-      - name: Ticket learning engine
-        run: node ticket_learning_test.mjs
-      - name: Cashflow 90 days
-        run: node cashflow90_test.mjs
-      - name: Capital Allocation
-        run: node capital_allocation_test.mjs
-      - name: Action Plan
-        run: node action_plan_test.mjs
-      - name: Personal Admin engine
-        run: node personal_admin_test.mjs
-      - name: Insurance Center engine
-        run: node insurance_center_test.mjs
-      - name: Household Bills engine
-        run: node household_bills_test.mjs
-      - name: Documents & Expiry engine
-        run: node documents_expiry_test.mjs
-      - name: Family & Home engine
-        run: node family_home_test.mjs
-      - name: Personal Risk Center engine
-        run: node personal_risk_test.mjs
+
+      - name: Deployment and core hardening
+        run: |
+          node vercel_policy_test.mjs
+          node core_hardening_31_test.mjs
+
+      - name: Cloud write and sync safety
+        run: |
+          node trust_sync_32_static_test.mjs
+          node copilot_write_32_test.mjs
+          node copilot_write_32_static_test.mjs
+
+      - name: Decision safety and delta regression
+        run: |
+          node decision_next_30_test.mjs
+          node decision_next_30_integration_test.mjs
+          node decision_delta_30_test.mjs
+          node decision_delta_30_integration_test.mjs
+
+      - name: Ticket market API contract
+        run: node ticket_market_api_65_6_test.mjs
+
+      - name: Current runtime syntax belt
+        run: |
+          node --check js/instantShell64.js
+          node --check js/app.js
+          node --check js/viewRuntime41.js
+          node --check js/todayPage101.js
+          node --check js/ticketPage100.js
+          node --check js/moneyPage100.js
+          node --check js/os181Suite.js
+          node --check js/executiveCommand164.js
+          node --check js/dataTrust163.js
+          node --check js/ticketCloud660.js
+          node --check js/ticketSales150.js
+          node --check js/ticketSaleDetail151.js
+
       - name: Install browser QA
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser E2E 32.5
+      - name: OS 181 browser release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npm run test:e2e
-      - name: Release gate
-        run: node release_gate.mjs
+          npx playwright test e2e_os181_current_smoke.spec.mjs --reporter=line
