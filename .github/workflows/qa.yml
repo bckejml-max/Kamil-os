@@ -80,6 +80,7 @@ jobs:
           node --check js/ticketRecoveryCloud186.js
           node --check js/ticketRecoveryUx187.js
           node --check js/ticketRecoveryHydration188.js
+          node --check js/ticketRecoveryDiffModel189.js
           node --check js/ticketRecoveryDiff189.js
           node --check js/ticketImport660.js
           node --check js/ticketCloud660.js
