@@ -28,7 +28,7 @@ assert(workspace.includes("view==='tickets'||view==='today'"),'Today must be exc
 assert(css.includes('display:flex!important;flex-direction:row!important')&&css.includes('height:70px!important'),'forced action flex row missing');
 assert(css.includes('height:calc(100dvh - 108px)'),'Today vertical reclaim missing');
 assert(nav.includes('--os212-top:48px')&&nav.includes('.command-wrap{height:36px!important'),'compact top chrome missing');
-assert(release.includes("227.0.0"),'release metadata not OS227');
-assert(sw.includes('kamil-os-227.0.0-core-r1'),'OS227 cache bump missing');
+assert(release.includes("228.0.0"),'release metadata not OS228');
+assert(sw.includes('kamil-os-228.0.0-core-r1'),'OS228 cache bump missing');
 assert(sw.includes('todayWake226.js'),'OS226 wake bridge missing from service-worker cache');
-console.log('OS226 wake regression preserved under OS227 release');
+console.log('OS226 wake regression preserved under OS228 release');
