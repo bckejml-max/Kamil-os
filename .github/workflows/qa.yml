@@ -1,4 +1,4 @@
-name: Kamil OS 186 Release QA
+name: Kamil OS 187 Release QA
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: OS 186 static and syntax QA
+      - name: OS 187 static and syntax QA
         run: node qa.mjs
 
       - name: Deployment and core hardening
@@ -48,6 +48,9 @@ jobs:
       - name: Ticket Cloud Recovery Vault 186
         run: node ticket_recovery_cloud_186_test.mjs
 
+      - name: Ticket Recovery Cloud UX 187
+        run: node ticket_recovery_ux_187_test.mjs
+
       - name: Ticket market API contract
         run: node ticket_market_api_65_6_test.mjs
 
@@ -69,6 +72,7 @@ jobs:
           node --check js/ticketRecovery185.js
           node --check js/ticketRecoveryCloudModel186.js
           node --check js/ticketRecoveryCloud186.js
+          node --check js/ticketRecoveryUx187.js
           node --check js/ticketImport660.js
           node --check js/ticketCloud660.js
           node --check js/ticketSales150.js
@@ -78,7 +82,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 186 browser release smoke
+      - name: OS 187 browser release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
