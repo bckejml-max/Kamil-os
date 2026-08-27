@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+const html=fs.readFileSync('index.html','utf8');
+const release=fs.readFileSync('js/releaseMeta.js','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
+assert(html.includes('.sync.local{pointer-events:none!important;cursor:default!important}'),'OS227 local sync must not be clickable');
+assert(html.includes('.auth-legacy227{display:none!important}'),'OS227 legacy auth compatibility shell missing');
+assert(html.includes('Cloudové přihlášení je skryté.'),'OS227 neutral auth fallback missing');
+assert(html.includes('Obnova hesla není v osobním režimu potřeba.'),'OS227 neutral recovery fallback missing');
+assert(!html.includes('<label>Heslo'),'Visible password label must be removed');
+assert(!html.includes('Připojit heslem'),'Visible password login action must be removed');
+assert(!html.includes('Obnovit cloudové heslo'),'Visible password reset action must be removed');
+assert(html.includes('id="loginPassword"')&&html.includes('id="resetPassword1"'),'Legacy auth nodes must remain for app.js compatibility');
+assert(release.includes("227.0.0"),'release metadata not OS227');
+assert(sw.includes('kamil-os-227.0.0-core-r1'),'OS227 cache bump missing');
+console.log('OS227 authless single-user UI regression OK');
