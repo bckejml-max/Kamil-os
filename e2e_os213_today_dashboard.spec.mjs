@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-test('OS220.0.2 today dashboard reclaims vertical space and keeps stable one-row actions',async({page})=>{
+test('OS221 today dashboard adds glance context without losing no-scroll layout',async({page})=>{
  await page.setViewportSize({width:1792,height:828});
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  const dashboard=page.locator('[data-today-dashboard213]');
@@ -9,6 +9,13 @@ test('OS220.0.2 today dashboard reclaims vertical space and keeps stable one-row
  expect(await actions.count()).toBe(6);
  const stable=await page.evaluate(async()=>{const a=[...document.querySelectorAll('[data-today-dashboard213] [data-action213]')];await new Promise(r=>setTimeout(r,500));const b=[...document.querySelectorAll('[data-today-dashboard213] [data-action213]')];return a.length===6&&b.length===6&&a.every((n,i)=>n===b[i]&&n.isConnected)});
  expect(stable).toBeTruthy();
+ const glance=dashboard.locator('[data-glance221]');
+ await expect(glance).toBeVisible();
+ const glanceButtons=glance.locator('[data-glance-key221]');
+ await expect(glanceButtons).toHaveCount(3);
+ await expect(glance.locator('[data-glance-key221="waiting"]')).toContainText('Čekám');
+ await expect(glance.locator('[data-glance-key221="tomorrow"]')).toContainText('Zítra');
+ await expect(glance.locator('[data-glance-key221="week"]')).toContainText('7 dní');
  const commander=dashboard.locator('.today213-commander');
  await expect(commander).toBeVisible();
  await expect(commander.locator('h2').first()).toBeVisible();
@@ -17,6 +24,10 @@ test('OS220.0.2 today dashboard reclaims vertical space and keeps stable one-row
  const dashboardBox=await dashboard.boundingBox();
  const commanderBox=await commander.boundingBox();
  expect(commanderBox?.width||0).toBeGreaterThan((dashboardBox?.width||0)*.9);
+ const heroBox=await dashboard.locator('.today213-hero-slot').boundingBox();
+ const glanceBox=await glance.boundingBox();
+ expect(Math.abs((heroBox?.y||0)-(glanceBox?.y||0))).toBeLessThanOrEqual(2);
+ expect(glanceBox?.height||999).toBeLessThanOrEqual((heroBox?.height||0)+2);
  const boxes=await page.evaluate(()=>[...document.querySelectorAll('[data-today-dashboard213] [data-action213]')].map(el=>{const r=el.getBoundingClientRect();return {key:el.dataset.action213,connected:el.isConnected,x:r.x,y:r.y,width:r.width,height:r.height,display:getComputedStyle(el).display}}));
  expect(boxes).toHaveLength(6);
  expect(boxes.every(b=>b.connected&&b.width>0&&b.height>0)).toBeTruthy();
