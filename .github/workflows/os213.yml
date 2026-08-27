@@ -1,22 +1,23 @@
-name: Kamil OS 225 Smart Focus All Clear QA
+name: Kamil OS 226 All Clear Wake-Up QA
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  qa225:
+  qa226:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Smart Focus all-clear regression 225
+      - name: All Clear wake-up regression 226
         run: node today_dashboard_213_test.mjs
       - name: Syntax
         run: |
           node --check js/todayDashboard213.js
+          node --check js/todayWake226.js
           node --check js/personalActionExecution641.js
           node --check js/appWorkspace211.js
           node --check js/instantShell64.js
@@ -28,7 +29,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 225 browser all-clear smoke
+      - name: OS 226 browser wake-up smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
