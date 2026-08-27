@@ -19,11 +19,11 @@ export function createTicketRecoverySnapshot185(inventory=[],options={}){
  return{version:185,id:options.id||idAt(createdAt,fileName||kind),createdAt,fileName,kind,note:String(options.note||''),stats,delta,rows};
 }
 
-export function ticketRecoverySummary185(snapshot){const rows=rowsOf(snapshot),stats=snapshot?.stats&&Number(snapshot.stats.rows)===rows.length?{...snapshot.stats}:summaryRows(rows);return{id:snapshot?.id||'',createdAt:snapshot?.createdAt||null,fileName:snapshot?.fileName||'',kind:snapshot?.kind||'import',note:snapshot?.note||'',...stats,delta:{added:safeInt(snapshot?.delta?.added),changed:safeInt(snapshot?.delta?.changed),removed:safeInt(snapshot?.delta?.removed),statusChanged:safeInt(snapshot?.delta?.statusChanged)}}}
+export function ticketRecoverySummary185(snapshot){const rows=rowsOf(snapshot),stats=snapshot?.stats&&Number(snapshot.stats.rows)===rows.length?{...summaryRows(rows),...snapshot.stats}:summaryRows(rows);return{id:snapshot?.id||'',createdAt:snapshot?.createdAt||null,fileName:snapshot?.fileName||'',kind:snapshot?.kind||'import',note:snapshot?.note||'',rows:safeInt(stats.rows),qty:safeInt(stats.qty),active:safeInt(stats.active),closed:safeInt(stats.closed),buyTotalCzk:safeInt(stats.buyTotalCzk),payoutReceivedCzk:safeInt(stats.payoutReceivedCzk),delta:{added:safeInt(snapshot?.delta?.added),changed:safeInt(snapshot?.delta?.changed),removed:safeInt(snapshot?.delta?.removed),statusChanged:safeInt(snapshot?.delta?.statusChanged)}}}
 
-function normalizeHistory(value){const source=Array.isArray(value)?value:Array.isArray(value?.snapshots)?value.snapshots:[];return source.filter(x=>x&&Array.isArray(x.rows)).map(x=>({version:185,...x,stats:ticketRecoverySummary185(x)})).slice(0,TICKET_RECOVERY_LIMIT_185)}
+function normalizeHistory(value){const source=Array.isArray(value)?value:Array.isArray(value?.snapshots)?value.snapshots:[];return source.filter(x=>x&&Array.isArray(x.rows)).map(x=>({version:185,...x,stats:summaryRows(x.rows),delta:deltaOf(x.delta||{})})).slice(0,TICKET_RECOVERY_LIMIT_185)}
 function readJson(storage,key){try{return JSON.parse(storage?.getItem?.(key)||'null')}catch{return null}}
-function legacy184(storage){const old=readJson(storage,TICKET_IMPORT_BACKUP_KEY_184);if(Number(old?.version)!==184||!Array.isArray(old?.rows))return null;return createTicketRecoverySnapshot185(old.rows,{createdAt:old.createdAt,fileName:old.fileName,kind:'legacy-184',note:'Migrováno z OS 184'} )}
+function legacy184(storage){const old=readJson(storage,TICKET_IMPORT_BACKUP_KEY_184);if(Number(old?.version)!==184||!Array.isArray(old?.rows))return null;return createTicketRecoverySnapshot185(old.rows,{createdAt:old.createdAt,fileName:old.fileName,kind:'legacy-184',note:'Migrováno z OS 184'})}
 
 export function loadTicketRecoveryHistory185({storage=globalThis.localStorage,migrateLegacy=true}={}){
  if(!storage?.getItem)return{ok:false,reason:'NO_STORAGE',snapshots:[],summaries:[]};
