@@ -18,10 +18,11 @@ assert.ok(mixed.profitConfidence.knownRange);
 assert.equal(mixed.profitConfidence.coveragePct,50);
 
 const now=Date.parse('2026-08-27T12:00:00Z');
+const verified={resaleAllowed:true,transferCompatible:true,officialSaleStatus:'ON_SALE',restrictionsVerifiedAt:'2026-08-27T10:00:00Z'};
 const sold=[];
 for(let i=0;i<8;i++)sold.push({id:`sold${i}`,market_status:'PAID',marketplace:'Viagogo',sell_total_czk:2000,payout_received_czk:1750});
 const input={inventory:sold,latest:new Map(),ticketBook:{capitalBudgetCzk:20000},watchlist:[
- {id:'a',name:'Event A',eventDate:'2026-09-20',officialPriceCzk:1000,marketPriceCzk:2000,confidenceScore:90,marketplace:'Viagogo',club:'Club A',category:'football'}
+ {id:'a',name:'Event A',eventDate:'2026-09-20',officialPriceCzk:1000,marketPriceCzk:2000,confidenceScore:90,marketplace:'Viagogo',club:'Club A',category:'football',...verified}
 ]};
 const plan=buildTicketProfitConfidencePlanner206(input,now,{hardQtyCap:8,eventCapPct:20,groupCapPct:35,dateCapPct:30,categoryCapPct:60});
 assert.equal(plan.version,206);
