@@ -1,4 +1,4 @@
-name: Kamil OS 210 Release QA
+name: Kamil OS 214 Ticket Buy Safety 2.0 QA
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: OS 210 static and syntax QA
+      - name: OS 214 static and syntax QA
         run: node qa.mjs
 
       - name: Deployment and core hardening
@@ -91,6 +91,13 @@ jobs:
         run: node ticket_action_priority_209_test.mjs
       - name: Ticket no-scroll workspace 210
         run: node ticket_workspace_210_test.mjs
+      - name: OS 214 Ticket Buy Safety 2.0 gate
+        run: |
+          node ticket_opportunity_198_test.mjs
+          node ticket_presale_radar_199_test.mjs
+          node ticket_presale_execution_200_test.mjs
+          node ticket_risk_budget_202_test.mjs
+          node ticket_capital_allocator_203_test.mjs
       - name: Ticket market API contract
         run: node ticket_market_api_65_6_test.mjs
 
@@ -166,7 +173,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 210 browser release smoke
+      - name: OS 214 browser release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
