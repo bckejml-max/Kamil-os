@@ -5,6 +5,7 @@ const boot=fs.readFileSync('js/instantShell64.js','utf8');
 const release=fs.readFileSync('js/releaseMeta.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
+const version=Number(release.match(/APP_VERSION='(\d+)\./)?.[1]||0);
 assert(js.includes('Command Palette'),'OS230 palette missing');
 assert(js.includes('openQuickAdd'),'OS231 universal quick add missing');
 assert(js.includes('kamil-os-last-view-232'),'OS232 nav memory missing');
@@ -15,6 +16,7 @@ assert(js.includes('kamil-os-density-236')&&css.includes('data-density238'),'OS2
 assert(js.includes("kamil:detail-drawer")&&css.includes('.ux238-drawer'),'OS237 detail drawer missing');
 assert(css.includes('.main-nav button:hover')&&css.includes('.main-nav button.on'),'OS229/238 visual polish missing');
 assert(boot.includes("./uxFoundation238.js")&&boot.includes('installUxFoundation238'),'OS238 boot wiring missing');
-assert(release.includes("238.0.0"),'release metadata not OS238');
-assert(sw.includes('kamil-os-238.0.0-core-r2')&&sw.includes('uxFoundation238.js')&&sw.includes('uxFoundation238.css'),'OS238 cache wiring missing');
-console.log('OS229-238 UX Foundation regression OK');
+assert(version>=238,'release must not regress below OS238');
+assert(sw.includes('uxFoundation238.js')&&sw.includes('uxFoundation238.css'),'UX238 missing from current service-worker cache');
+assert(js.includes("closest?.('#quickAddBtn')")&&js.includes('stopImmediatePropagation'),'UX238 quick-add capture guard missing');
+console.log(`OS229-238 UX Foundation regression OK on OS${version}`);
