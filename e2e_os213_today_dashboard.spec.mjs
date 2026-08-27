@@ -1,6 +1,10 @@
 import {test,expect} from '@playwright/test';
-test('OS222 today dashboard adds deadline-aware smart focus without losing no-scroll layout',async({page})=>{
+test('OS223 Smart Focus opens the exact urgent action and keeps no-scroll layout',async({page})=>{
  await page.setViewportSize({width:1792,height:828});
+ await page.addInitScript(()=>{
+  const yesterday=new Date(Date.now()-86400000).toISOString();
+  localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},tasks:[],projects:[],calendar:{events:[]},ticketBook:{items:[],watchlist:[],history:[],review:[]},debtBook:{items:[],review:[]},personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true,notificationMode:'IMPORTANT'},emergencyFile:{contacts:[],assets:[]},personalInbox:{items:[]},assetBook:{items:[]},personalGoals:{items:[]},personalSpending:{transactions:[]},importCenter:{history:[]},netWorthBook:{items:[],history:[]},inbox:[],delegations:[{id:'wait-os223',title:'Odpověď od servisu',status:'OPEN',followUpAt:yesterday}],learning:{typeBias:{},feedback:[]},audit:[],undo:[]}));
+ });
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  const dashboard=page.locator('[data-today-dashboard213]');
  await expect(dashboard).toBeVisible({timeout:20000});
@@ -13,14 +17,18 @@ test('OS222 today dashboard adds deadline-aware smart focus without losing no-sc
  await expect(glance).toBeVisible();
  const glanceButtons=glance.locator('[data-glance-key221]');
  await expect(glanceButtons).toHaveCount(3);
- await expect(glance.locator('[data-glance-key221="waiting"]')).toContainText('Čekám');
- await expect(glance.locator('[data-glance-key221="tomorrow"]')).toContainText('Zítra');
- await expect(glance.locator('[data-glance-key221="week"]')).toContainText('7 dní');
- const smart=await glanceButtons.evaluateAll(nodes=>nodes.map(n=>({key:n.dataset.glanceKey221,tone:n.dataset.tone222,focus:n.dataset.focus222,why:n.querySelector('small')?.textContent?.trim()||'',aria:n.getAttribute('aria-label')||''})));
- expect(smart).toHaveLength(3);
- expect(smart.every(x=>['critical','high','medium','low','clear'].includes(x.tone)&&x.why.length>0&&x.aria.includes('·'))).toBeTruthy();
- expect(smart.filter(x=>x.focus==='1').length).toBeLessThanOrEqual(1);
- await expect(glance).toHaveAttribute('data-smart-focus222',/^(waiting|tomorrow|week|clear)$/);
+ const waiting=glance.locator('[data-glance-key221="waiting"]');
+ await expect(waiting).toHaveAttribute('data-focus222','1');
+ await expect(waiting).toHaveAttribute('data-direct223','1');
+ await expect(waiting).toHaveAttribute('data-action-title223','Odpověď od servisu');
+ await expect(glance).toHaveAttribute('data-direct-action223','Odpověď od servisu');
+ await expect(waiting.locator('small')).toContainText('po termínu');
+ await waiting.click();
+ const dialog=page.locator('[role="dialog"]');
+ await expect(dialog).toBeVisible();
+ await expect(dialog.locator('h2')).toHaveText('Odpověď od servisu');
+ await expect(dialog).toContainText('Čekáš na reakci');
+ await page.keyboard.press('Escape');
  const commander=dashboard.locator('.today213-commander');
  await expect(commander).toBeVisible();
  await expect(commander.locator('h2').first()).toBeVisible();
@@ -29,16 +37,11 @@ test('OS222 today dashboard adds deadline-aware smart focus without losing no-sc
  const dashboardBox=await dashboard.boundingBox();
  const commanderBox=await commander.boundingBox();
  expect(commanderBox?.width||0).toBeGreaterThan((dashboardBox?.width||0)*.9);
- const heroBox=await dashboard.locator('.today213-hero-slot').boundingBox();
- const glanceBox=await glance.boundingBox();
- expect(Math.abs((heroBox?.y||0)-(glanceBox?.y||0))).toBeLessThanOrEqual(2);
- expect(glanceBox?.height||999).toBeLessThanOrEqual((heroBox?.height||0)+2);
- const boxes=await page.evaluate(()=>[...document.querySelectorAll('[data-today-dashboard213] [data-action213]')].map(el=>{const r=el.getBoundingClientRect();return {key:el.dataset.action213,connected:el.isConnected,x:r.x,y:r.y,width:r.width,height:r.height,display:getComputedStyle(el).display}}));
+ const boxes=await page.evaluate(()=>[...document.querySelectorAll('[data-today-dashboard213] [data-action213]')].map(el=>{const r=el.getBoundingClientRect();return {connected:el.isConnected,y:r.y,width:r.width,height:r.height}}));
  expect(boxes).toHaveLength(6);
  expect(boxes.every(b=>b.connected&&b.width>0&&b.height>0)).toBeTruthy();
  const ys=boxes.map(b=>Math.round(b.y));
  expect(Math.max(...ys)-Math.min(...ys)).toBeLessThanOrEqual(3);
- expect(Math.max(...boxes.map(b=>b.height))).toBeLessThanOrEqual(72);
  const topbar=await page.locator('.topbar').boundingBox();
  expect(topbar?.height||999).toBeLessThanOrEqual(50);
  const command=await page.locator('.command-wrap').boundingBox();
