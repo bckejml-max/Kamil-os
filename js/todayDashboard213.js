@@ -22,13 +22,16 @@ function syncDashboard213(host,root,shell){if(!host||!root||!shell)return;
  if(commander){commanderSlot.querySelector('[data-today213-fallback]')?.remove();if(commander.parentElement!==commanderSlot)commanderSlot.appendChild(commander)}
  else if(!commanderSlot.firstElementChild)commanderSlot.appendChild(fallbackCommander213());
  if(health&&health.parentElement!==status)status.appendChild(health);
- shell.querySelector('.today213-actions').innerHTML=ACTIONS213.map(x=>actionButton213(host,x)).join('');wireActions213(shell,host);
+ const actions=shell.querySelector('.today213-actions');
+ const nextActions=ACTIONS213.map(x=>actionButton213(host,x)).join('');
+ if(actions&&actions.innerHTML!==nextActions)actions.innerHTML=nextActions;
+ wireActions213(shell,host);
 }
 function decorate213(){
  const host=document.querySelector('#todayView'),root=root213(host);if(!root)return false;
  let shell=root.querySelector(':scope > [data-today-dashboard213]');
  if(!shell){shell=document.createElement('section');shell.className='today-dashboard213';shell.dataset.todayDashboard213='1';shell.innerHTML='<div class="today213-head"></div><div class="today213-body"><div class="today213-commander"></div><aside class="today213-actions"></aside></div><div class="today213-status"></div>';root.prepend(shell)}
  root.dataset.dashboard213='1';root.classList.add('today213-root');host.classList.add('today213-host');syncDashboard213(host,root,shell);
- window.__KAMIL_TODAY_DASHBOARD213__={version:218,at:Date.now(),actions:shell.querySelectorAll('[data-action213]').length,commander:!!shell.querySelector('.today213-commander>.ux66-priority,.today213-commander>.ux64-clear'),fallback:!!shell.querySelector('[data-today213-fallback]')};return true;
+ window.__KAMIL_TODAY_DASHBOARD213__={version:220,at:Date.now(),actions:shell.querySelectorAll('[data-action213]').length,commander:!!shell.querySelector('.today213-commander>.ux66-priority,.today213-commander>.ux64-clear'),fallback:!!shell.querySelector('[data-today213-fallback]')};return true;
 }
 export function installTodayDashboard213(){ensureStyle213();let timer=0;const run=()=>{clearTimeout(timer);timer=setTimeout(()=>decorate213(),30)};const host=document.querySelector('#todayView');if(host)new MutationObserver(run).observe(host,{childList:true,subtree:true});window.addEventListener('kamil:view-change',e=>{if(e.detail==='today')run()});run();setTimeout(run,120);setTimeout(run,350);setTimeout(run,900);setTimeout(run,1800);}
