@@ -13,11 +13,11 @@ let cloudSyncQueued=false;
 function queueCloudSync186(storage){
  if(cloudSyncQueued||!globalThis.window||!storage)return;
  cloudSyncQueued=true;
- setTimeout(()=>{import('./ticketRecoveryCloud186.js').then(m=>m.syncTicketRecoveryVault186({storage})).then(result=>{if(result?.ok)globalThis.dispatchEvent?.(new CustomEvent('ticket-recovery-cloud-synced',{detail:{count:result.snapshots?.length||0}}))}).catch(()=>{}).finally(()=>{cloudSyncQueued=false})},0);
+ setTimeout(()=>{import('./ticketRecoveryCloud186.js').then(m=>m.syncTicketRecoveryVault186({storage})).then(result=>{if(result?.ok)globalThis.dispatchEvent?.(new CustomEvent('ticket-recovery-cloud-synced',{detail:{ok:true,count:result.snapshots?.length||0,localCount:result.localCount||0,cloudCount:result.cloudCount||0,pruned:result.pruned||0,syncedAt:new Date().toISOString()}}));else globalThis.dispatchEvent?.(new CustomEvent('ticket-recovery-cloud-sync-error',{detail:{ok:false,reason:result?.reason||'SYNC_FAILED',message:result?.error?.message||''}}))}).catch(error=>{globalThis.dispatchEvent?.(new CustomEvent('ticket-recovery-cloud-sync-error',{detail:{ok:false,reason:'SYNC_FAILED',message:error?.message||String(error||'')}}))}).finally(()=>{cloudSyncQueued=false})},0);
 }
 function queueCloudSave186(snapshot){
  if(!globalThis.window||!snapshot)return;
- import('./ticketRecoveryCloud186.js').then(m=>m.saveTicketRecoveryCloudSnapshot186(snapshot)).then(result=>{if(result?.ok)globalThis.dispatchEvent?.(new CustomEvent('ticket-recovery-cloud-saved',{detail:{id:snapshot.id}}))}).catch(()=>{});
+ import('./ticketRecoveryCloud186.js').then(m=>m.saveTicketRecoveryCloudSnapshot186(snapshot)).then(result=>{if(result?.ok)globalThis.dispatchEvent?.(new CustomEvent('ticket-recovery-cloud-saved',{detail:{ok:true,id:snapshot.id,syncedAt:new Date().toISOString()}}));else globalThis.dispatchEvent?.(new CustomEvent('ticket-recovery-cloud-sync-error',{detail:{ok:false,reason:result?.reason||'SAVE_FAILED',message:result?.error?.message||''}}))}).catch(error=>{globalThis.dispatchEvent?.(new CustomEvent('ticket-recovery-cloud-sync-error',{detail:{ok:false,reason:'SAVE_FAILED',message:error?.message||String(error||'')}}))});
 }
 
 function summaryRows(rows=[]){let qty=0,active=0,closed=0,buy=0,payout=0;for(const row of rows){qty+=safeInt(row?.qty);buy+=safeInt(row?.buy_total_czk??row?.buyTotalCzk);payout+=safeInt(row?.payout_received_czk??row?.payoutReceivedCzk);if(CLOSED.has(statusOf(row)))closed++;else active++}return{rows:rows.length,qty,active,closed,buyTotalCzk:buy,payoutReceivedCzk:payout}}
