@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {ticketWorkspaceCategory210} from './js/ticketWorkspace210.js';
+assert.equal(ticketWorkspaceCategory210(['ticketActionPriority209']),'action');
+assert.equal(ticketWorkspaceCategory210(['ticketDailyQueue197']),'action');
+assert.equal(ticketWorkspaceCategory210(['ticketPresaleRadar199']),'presale');
+assert.equal(ticketWorkspaceCategory210(['ticketOpportunity198']),'presale');
+assert.equal(ticketWorkspaceCategory210(['ticketMarketDesk190']),'active');
+assert.equal(ticketWorkspaceCategory210(['ticketProfitConfidence206']),'analysis');
+assert.equal(ticketWorkspaceCategory210(['ticketRiskAdjusted207']),'analysis');
+assert.equal(ticketWorkspaceCategory210(['unknownWidget']),'active');
+console.log('ticket workspace 210 ok');
