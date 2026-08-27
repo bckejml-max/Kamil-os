@@ -1,16 +1,15 @@
 const TAB_ORDER=['action','active','presale','analysis'];
 const TAB_LABELS={action:'K akci',active:'Aktivní',presale:'Presale',analysis:'Analýza'};
 
-function datasetText(el){return Object.keys(el?.dataset||{}).join(' ').toLowerCase()}
-function category210(el){
- const d=datasetText(el);
+export function ticketWorkspaceCategory210(datasetKeys=[]){
+ const d=(Array.isArray(datasetKeys)?datasetKeys:[datasetKeys]).join(' ').toLowerCase();
  if(/actionpriority209|dailyqueue197|marketqueue191|repricingguard194/.test(d))return'action';
  if(/opportunity198|presaleradar199|presaleexecution200/.test(d))return'presale';
  if(/marketdesk190|ticketdetails|ticketintel|ticketsales|sale|settlement|accounting/.test(d))return'active';
  if(/payoutlearning192|profitfloor193|sellladder195|commander196|exposure201|riskbudget202|capitalallocator203|portfolioplanner204|learnednet205|profitconfidence206|riskadjusted207/.test(d))return'analysis';
  return'active';
 }
-
+function category210(el){return ticketWorkspaceCategory210(Object.keys(el?.dataset||{}))}
 function panels210(host){return [...host.children].filter(el=>el.nodeType===1&&!el.matches('[data-ticket-workspace210]')).map(el=>({el,tab:category210(el)}));}
 
 export function installTicketWorkspace210(host=document.querySelector('#ticketIntelView')){
