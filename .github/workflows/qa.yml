@@ -1,4 +1,4 @@
-name: Kamil OS 195 Release QA
+name: Kamil OS 196 Release QA
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: OS 195 static and syntax QA
+      - name: OS 196 static and syntax QA
         run: node qa.mjs
 
       - name: Deployment and core hardening
@@ -35,46 +35,34 @@ jobs:
 
       - name: Ticket data integrity 182
         run: node ticket_import_integrity_182_test.mjs
-
       - name: Ticket import report 183
         run: node ticket_import_report_183_test.mjs
-
       - name: Ticket import rollback 184
         run: node ticket_import_rollback_184_test.mjs
-
       - name: Ticket Recovery Center 185
         run: node ticket_recovery_185_test.mjs
-
       - name: Ticket Cloud Recovery Vault 186
         run: node ticket_recovery_cloud_186_test.mjs
-
       - name: Ticket Recovery Cloud UX 187
         run: node ticket_recovery_ux_187_test.mjs
-
       - name: Ticket First-open Cloud Hydration 188
         run: node ticket_recovery_hydration_188_test.mjs
-
       - name: Ticket Recovery Snapshot Diff 189
         run: node ticket_recovery_diff_189_test.mjs
-
       - name: Ticket Multi-market Desk 190
         run: node ticket_market_desk_190_test.mjs
-
       - name: Ticket Market Coverage Queue 191
         run: node ticket_market_queue_191_test.mjs
-
       - name: Ticket Net Payout Learning 192
         run: node ticket_payout_learning_192_test.mjs
-
       - name: Ticket Minimum Profit Floor 193
         run: node ticket_profit_floor_193_test.mjs
-
       - name: Ticket Dynamic Repricing Guard 194
         run: node ticket_repricing_guard_194_test.mjs
-
       - name: Ticket Sell Probability Ladder 195
         run: node ticket_sell_ladder_195_test.mjs
-
+      - name: Ticket Commander 196
+        run: node ticket_commander_196_test.mjs
       - name: Ticket market API contract
         run: node ticket_market_api_65_6_test.mjs
 
@@ -112,6 +100,8 @@ jobs:
           node --check js/ticketRepricingGuard194.js
           node --check js/ticketSellLadderModel195.js
           node --check js/ticketSellLadder195.js
+          node --check js/ticketCommanderModel196.js
+          node --check js/ticketCommander196.js
           node --check js/ticketImport660.js
           node --check js/ticketCloud660.js
           node --check js/ticketSales150.js
@@ -121,7 +111,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 195 browser release smoke
+      - name: OS 196 browser release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
