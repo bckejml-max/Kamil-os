@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-test('OS221 today dashboard adds glance context without losing no-scroll layout',async({page})=>{
+test('OS222 today dashboard adds deadline-aware smart focus without losing no-scroll layout',async({page})=>{
  await page.setViewportSize({width:1792,height:828});
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  const dashboard=page.locator('[data-today-dashboard213]');
@@ -16,6 +16,11 @@ test('OS221 today dashboard adds glance context without losing no-scroll layout'
  await expect(glance.locator('[data-glance-key221="waiting"]')).toContainText('Čekám');
  await expect(glance.locator('[data-glance-key221="tomorrow"]')).toContainText('Zítra');
  await expect(glance.locator('[data-glance-key221="week"]')).toContainText('7 dní');
+ const smart=await glanceButtons.evaluateAll(nodes=>nodes.map(n=>({key:n.dataset.glanceKey221,tone:n.dataset.tone222,focus:n.dataset.focus222,why:n.querySelector('small')?.textContent?.trim()||'',aria:n.getAttribute('aria-label')||''})));
+ expect(smart).toHaveLength(3);
+ expect(smart.every(x=>['critical','high','medium','low','clear'].includes(x.tone)&&x.why.length>0&&x.aria.includes('·'))).toBeTruthy();
+ expect(smart.filter(x=>x.focus==='1').length).toBeLessThanOrEqual(1);
+ await expect(glance).toHaveAttribute('data-smart-focus222',/^(waiting|tomorrow|week|clear)$/);
  const commander=dashboard.locator('.today213-commander');
  await expect(commander).toBeVisible();
  await expect(commander.locator('h2').first()).toBeVisible();
