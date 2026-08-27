@@ -1,27 +1,26 @@
-name: Kamil OS 238 UX Foundation QA
+name: Kamil OS 278 Mega Release QA
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  qa238:
+  qa278:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: UX Foundation regression 238
-        run: node ux_foundation_238_test.mjs
-      - name: Production chrome regression
-        run: node production_chrome_228_test.mjs
+      - name: OS229-278 mega regression
+        run: node mega_278_test.mjs
       - name: Syntax
         run: |
           node --check js/uxFoundation238.js
-          node --check js/productionChrome228.js
-          node --check js/todayDashboard213.js
-          node --check js/todayWake226.js
+          node --check js/dailyCommander248.js
+          node --check js/financeCommand258.js
+          node --check js/ticketCommand268.js
+          node --check js/managerAutopilot278.js
           node --check js/instantShell64.js
       - name: Existing workspace regressions
         run: |
@@ -31,9 +30,9 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 238 browser UX Foundation smoke
+      - name: OS278 browser mega-release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_os238_ux_foundation.spec.mjs e2e_os228_production_chrome.spec.mjs --reporter=line
+          npx playwright test e2e_os278_megarelease.spec.mjs --reporter=line
