@@ -1,0 +1,14 @@
+import {loadTicketCloud660} from './ticketCloud660.js';
+import {store} from './state.js';
+import {h,money} from './utils.js';
+import {buildTicketRiskBudget202} from './ticketRiskBudgetModel202.js';
+
+export async function appendTicketRiskBudget202(host=document.querySelector('#ticketIntelView')){
+ if(!host||host.querySelector('[data-ticket-risk202]'))return;
+ const cloud=await loadTicketCloud660();if(!cloud?.ok)return;
+ const state=store.get()||{},ticketBook=state.ticketBook||{},watchlist=ticketBook.watchlist||[];
+ const desk=buildTicketRiskBudget202({inventory:cloud.inventory||[],latest:cloud.latest||new Map(),watchlist,ticketBook},Date.now(),{eventCapPct:20,groupCapPct:35,dateCapPct:30,categoryCapPct:60,hardQtyCap:8});
+ const sec=document.createElement('section');sec.dataset.ticketRisk202='1';sec.className='card';sec.style.margin='18px 0';
+ sec.innerHTML=`<div class="eyebrow">OS 202 · PORTFOLIO RISK BUDGET 2.0</div><h2>Kolik můžu koupit bez přestřelení portfolia</h2><p class="muted">BUY signály z Opportunity Scanneru jsou po novém vždy upravené o koncentraci event / klub / den / kategorii. Nejnižší zbývající limit vyhrává.</p><div class="metric-strip"><div class="metric"><span>Ticket kapitál</span><b>${desk.capital.total?money(desk.capital.total):'NEZNÁMÝ'}</b></div><div class="metric"><span>BUY</span><b>${desk.summary.buy}</b></div><div class="metric"><span>BLOCKED</span><b>${desk.summary.blocked}</b></div><div class="metric"><span>SET CAPITAL</span><b>${desk.summary.setCapital}</b></div></div>${desk.rows.filter(v=>v.action==='BUY'||['BUY','CONCENTRATED','TOO LARGE','SET CAPITAL'].includes(v.riskBudget.verdict)).slice(0,10).map(v=>`<div class="card" style="margin-top:12px"><div style="display:flex;justify-content:space-between;gap:14px"><div><b>${h(v.name||'Ticket opportunity')}</b><div class="muted">${h(v.kind||'')} · Opportunity ${v.score||0}/100</div></div><b>${h(v.riskBudget.verdict)}</b></div><div class="metric-strip" style="margin-top:10px"><div class="metric"><span>Max cena / ks</span><b>${v.riskBudget.buyPrice?money(v.riskBudget.buyPrice):'—'}</b></div><div class="metric"><span>Max kusů</span><b>${v.riskBudget.maxQty||'—'}</b></div><div class="metric"><span>Risk budget</span><b>${v.riskBudget.allowedBudget?money(v.riskBudget.allowedBudget):'—'}</b></div><div class="metric"><span>Nasadit max.</span><b>${v.riskBudget.deployCapital?money(v.riskBudget.deployCapital):'—'}</b></div></div><div class="muted" style="margin-top:8px">${v.riskBudget.binding?`Binding limit: ${h(v.riskBudget.binding.dimension)} · ${money(v.riskBudget.binding.current)} / ${money(v.riskBudget.binding.cap)} · zbývá ${money(v.riskBudget.binding.remaining)}`:'Bez aktivního exposure limitu.'}</div></div>`).join('')||'<p class="muted">Aktuálně není žádný BUY signál k risk-adjusted exekuci.</p>'}`;
+ host.prepend(sec);window.__KAMIL_TICKET_RISK_BUDGET202__=desk;
+}
