@@ -1,18 +1,18 @@
-name: Kamil OS 223 Smart Focus One-Click QA
+name: Kamil OS 224 Smart Focus Completion QA
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  qa223:
+  qa224:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Smart Focus direct action regression 223
+      - name: Smart Focus completion regression 224
         run: node today_dashboard_213_test.mjs
       - name: Syntax
         run: |
@@ -28,7 +28,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 223 browser exact-action smoke
+      - name: OS 224 browser completion-loop smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
