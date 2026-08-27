@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {buildTicketDailyQueue197,TICKET_DAILY_QUEUE_VERSION_197,ticketDailyActionScore197} from './js/ticketDailyQueueModel197.js';
+
+assert.equal(TICKET_DAILY_QUEUE_VERSION_197,197);
+const now=Date.parse('2026-08-27T12:00:00Z');
+const inventory=[];
+for(let i=0;i<7;i++)inventory.push({id:`t${i}`,event_name:`Ticket ${i}`,qty:2,event_date:i===6?'2026-08-28':'2026-10-20',market_status:'LISTED',buy_each_czk:500,buy_total_czk:1000,ask_each_czk:i===6?700:1500,viagogo_url:'https://example.com',sell_total_czk:2000,payout_received_czk:1750});
+const latest=new Map(inventory.map((r,i)=>[r.id,{consensus:{viagogo_price_czk:i===6?1000:1500}}]));
+const desk=buildTicketDailyQueue197(inventory,latest,now,5);
+assert.equal(desk.version,197);
+assert.equal(desk.visible.length,5);
+assert.equal(desk.queue.length,7);
+assert.equal(desk.visible[0].id,'t6');
+assert.ok(desk.visible[0].dailyScore>=desk.visible[1].dailyScore);
+assert.ok(ticketDailyActionScore197({guard:{days:1,action:'DROP TO'},marketAction:'CROSS-CHECK STUBHUB',qty:2,currentAsk:1500,targetAsk:1200})>ticketDailyActionScore197({guard:{days:30,action:'HOLD'},marketAction:'KEEP VIAGOGO',qty:1,currentAsk:1500,targetAsk:1500}));
+console.log('OS 197 DAILY TICKET QUEUE PASS');
