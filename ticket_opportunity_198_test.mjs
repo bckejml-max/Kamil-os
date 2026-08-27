@@ -3,17 +3,28 @@ import {ticketOpportunityScore198,ticketComplianceGate198,buildTicketOpportunity
 
 const now=Date.parse('2026-08-27T12:00:00Z');
 const verified={resaleAllowed:true,transferCompatible:true,officialSaleStatus:'ON_SALE',restrictionsVerifiedAt:'2026-08-27T10:00:00Z'};
-const strong={id:'a',name:'Derby',eventDate:'2026-09-20',officialPriceCzk:1000,marketPriceCzk:1900,confidenceScore:90,competitorCount:6,sameSectionCount:3,...verified};
+const payout={learnedPayoutRatio:.875,payoutSamples:4,payoutConfidence:'MEDIUM'};
+const strong={id:'a',name:'Derby',eventDate:'2026-09-20',officialPriceCzk:1000,marketPriceCzk:1900,confidenceScore:90,competitorCount:6,sameSectionCount:3,...verified,...payout};
 const s=ticketOpportunityScore198(strong,now);
 assert.equal(TICKET_OPPORTUNITY_VERSION_198,198);
 assert.equal(s.action,'BUY');
 assert.equal(s.rawAction,'BUY');
 assert.equal(s.compliance.verified,true);
+assert.equal(s.buyFinance.ready,true);
 assert.ok(s.score>=68);
 assert.equal(s.upsidePct,90);
-assert.ok(s.maxBuyPrice<=Math.floor(1900/1.5));
+assert.equal(s.grossSpreadCeiling,1260);
+assert.equal(s.netSafeMaxBuyPrice,1100);
+assert.equal(s.maxBuyPrice,1100);
+assert.ok(s.netSafeMaxBuyPrice<s.grossSpreadCeiling);
 
-const unknownCompliance=ticketOpportunityScore198(({...strong,resaleAllowed:undefined,transferCompatible:undefined,officialSaleStatus:undefined,restrictionsVerifiedAt:undefined}),now);
+const noPayout=ticketOpportunityScore198({...strong,learnedPayoutRatio:undefined,payoutSamples:undefined,payoutConfidence:undefined},now);
+assert.equal(noPayout.rawAction,'BUY');
+assert.equal(noPayout.action,'DATA NEEDED');
+assert.equal(noPayout.maxBuyPrice,null);
+assert.equal(noPayout.grossSpreadCeiling,1260);
+
+const unknownCompliance=ticketOpportunityScore198({...strong,resaleAllowed:undefined,transferCompatible:undefined,officialSaleStatus:undefined,restrictionsVerifiedAt:undefined},now);
 assert.equal(unknownCompliance.rawAction,'BUY');
 assert.equal(unknownCompliance.action,'VERIFY');
 assert.equal(unknownCompliance.compliance.verified,false);
@@ -40,6 +51,7 @@ assert.ok(scan.buy.length>=1);
 assert.equal(scan.verify.length,0);
 assert.ok(scan.rows.some(x=>x.kind==='BUY_MORE'));
 assert.ok(scan.rows.some(x=>x.kind==='WATCHLIST'));
+assert.ok(scan.summary.dataNeeded>=1);
 
 const verifyScan=buildTicketOpportunityScanner198({inventory:[],latest:new Map(),watchlist:[{...strong,id:'verify',resaleAllowed:undefined,transferCompatible:undefined,officialSaleStatus:undefined,restrictionsVerifiedAt:undefined}]},now);
 assert.equal(verifyScan.summary.buy,0);
