@@ -7,6 +7,7 @@ const ts=x=>{const raw=x?.dueAt||x?.dueDate||x?.date||x?.deadline||x?.followUpAt
 const title=x=>x?.title||x?.name||x?.person||x?.reason||'Položka';
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const days=(n,now)=>Math.floor((n-now)/DAY);
+function ensureCss(){if(document.querySelector('link[data-daily248]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='./dailyCommander248.css';l.dataset.daily248='1';document.head.appendChild(l)}
 
 function flatten(s){
  const out=[];
@@ -34,16 +35,7 @@ export function buildDailyCommander248(s=store.get(),now=Date.now()){
  const weekStart=now-7*DAY;const doneWeek=(s.tasks||[]).filter(x=>['DONE','HOTOVO','CLOSED'].includes(upper(x.status))&&Date.parse(x.updatedAt||x.doneAt||0)>=weekStart).length;
  return {mode,items,top3,overdue,today,waiting,radar:{d1:due(1).length,d3:due(3).length,d7:due(7).length,d14:due(14).length,d30:due(30).length},dailyScore,weekly:{done:doneWeek,open},generatedAt:new Date(now).toISOString()};
 }
-
 function row(x){return `<div class="daily248-row"><div><b>${esc(x.title)}</b><small>${esc(x.reason)}</small></div><strong>${x.score}</strong></div>`}
-function body(model){
- const mode=model.mode==='morning'?'Ranní start':model.mode==='evening'?'Večerní uzávěrka':'Denní fokus';
- const top=model.top3.length?model.top3.map(row).join(''):'<div class="daily248-clear"><b>Žádná naléhavá věc.</b><span>Můžeš se věnovat plánovaným úkolům nebo skončit dřív.</span></div>';
- return `<div class="daily248"><div class="daily248-hero"><div><small>${mode}</small><h2>${model.top3.length?'Tři věci, které mají největší smysl řešit':'Dnes je čisto'}</h2></div><div class="daily248-score"><b>${model.dailyScore}</b><span>denní skóre</span></div></div><div class="daily248-top">${top}</div><div class="daily248-radar"><span><b>${model.overdue.length}</b> po termínu</span><span><b>${model.radar.d1}</b> 1 den</span><span><b>${model.radar.d3}</b> 3 dny</span><span><b>${model.radar.d7}</b> 7 dní</span><span><b>${model.radar.d30}</b> 30 dní</span></div><div class="daily248-review"><b>Týden:</b> ${model.weekly.done} dokončeno · ${model.weekly.open} otevřeno · ${model.waiting.length} čekání</div></div>`;
-}
+function body(model){const mode=model.mode==='morning'?'Ranní start':model.mode==='evening'?'Večerní uzávěrka':'Denní fokus';const top=model.top3.length?model.top3.map(row).join(''):'<div class="daily248-clear"><b>Žádná naléhavá věc.</b><span>Můžeš se věnovat plánovaným úkolům nebo skončit dřív.</span></div>';return `<div class="daily248"><div class="daily248-hero"><div><small>${mode}</small><h2>${model.top3.length?'Tři věci, které mají největší smysl řešit':'Dnes je čisto'}</h2></div><div class="daily248-score"><b>${model.dailyScore}</b><span>denní skóre</span></div></div><div class="daily248-top">${top}</div><div class="daily248-radar"><span><b>${model.overdue.length}</b> po termínu</span><span><b>${model.radar.d1}</b> 1 den</span><span><b>${model.radar.d3}</b> 3 dny</span><span><b>${model.radar.d7}</b> 7 dní</span><span><b>${model.radar.d30}</b> 30 dní</span></div><div class="daily248-review"><b>Týden:</b> ${model.weekly.done} dokončeno · ${model.weekly.open} otevřeno · ${model.waiting.length} čekání</div></div>`}
 export function openDailyCommander248(){const model=buildDailyCommander248();window.dispatchEvent(new CustomEvent('kamil:detail-drawer',{detail:{title:'Denní briefing',html:body(model)}}));return model}
-export function installDailyCommander248(){
- window.addEventListener('kamil:open-daily-briefing',openDailyCommander248);
- document.addEventListener('keydown',e=>{if(e.altKey&&!e.ctrlKey&&!e.metaKey&&e.key.toLowerCase()==='b'){e.preventDefault();openDailyCommander248()}},true);
- window.__KAMIL_DAILY_COMMANDER248__={version:248,build:buildDailyCommander248,open:openDailyCommander248};
-}
+export function installDailyCommander248(){ensureCss();window.addEventListener('kamil:open-daily-briefing',openDailyCommander248);document.addEventListener('keydown',e=>{if(e.altKey&&!e.ctrlKey&&!e.metaKey&&e.key.toLowerCase()==='b'){e.preventDefault();openDailyCommander248()}},true);window.__KAMIL_DAILY_COMMANDER248__={version:248,build:buildDailyCommander248,open:openDailyCommander248};}
