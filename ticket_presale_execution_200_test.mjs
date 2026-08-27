@@ -11,7 +11,7 @@ const configured=ticketPortfolioCapital200(inventory,{capitalBudgetCzk:50000});
 assert.equal(configured.total,50000);
 assert.equal(configured.source,'CONFIGURED');
 
-const buyTarget={action:'BUY TARGET',priority:90,opportunity:{officialPrice:1000,maxBuyPrice:1200,score:80}};
+const buyTarget={action:'BUY TARGET',priority:90,opportunity:{officialPrice:1000,netSafeMaxBuyPrice:1200,maxBuyPrice:1200,score:80}};
 const plan=ticketPresaleExecutionPlan200(buyTarget,20000,{eventCapPct:20,hardQtyCap:8});
 assert.equal(plan.verdict,'EXECUTE');
 assert.equal(plan.eventBudget,4000);
@@ -20,13 +20,17 @@ assert.equal(plan.maxQty,4);
 assert.equal(plan.deployCapital,4000);
 assert.ok(plan.deployCapital<=plan.eventBudget);
 
+const missingCeiling=ticketPresaleExecutionPlan200({action:'BUY TARGET',priority:90,opportunity:{officialPrice:1000,score:80}},20000,{});
+assert.equal(missingCeiling.verdict,'DATA NEEDED');
+assert.equal(missingCeiling.buyPrice,null);
+
 const noCapital=ticketPresaleExecutionPlan200(buyTarget,0,{eventCapPct:20});
 assert.equal(noCapital.verdict,'SET CAPITAL');
 assert.equal(noCapital.maxQty,0);
 const noBuy=ticketPresaleExecutionPlan200({...buyTarget,action:'PREPARE'},20000,{});
 assert.equal(noBuy.verdict,'NO BUY');
 
-const radar={rows:[buyTarget,{action:'PREPARE',priority:70,opportunity:{officialPrice:500,maxBuyPrice:700,score:60}}]};
+const radar={rows:[buyTarget,{action:'PREPARE',priority:70,opportunity:{officialPrice:500,netSafeMaxBuyPrice:700,maxBuyPrice:700,score:60}}]};
 const built=buildTicketPresaleExecution200(radar,inventory,{},{});
 assert.equal(built.version,200);
 assert.equal(built.summary.execute,1);
