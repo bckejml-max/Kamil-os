@@ -1,4 +1,4 @@
-name: Kamil OS 196 Release QA
+name: Kamil OS 197 Release QA
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: OS 196 static and syntax QA
+      - name: OS 197 static and syntax QA
         run: node qa.mjs
 
       - name: Deployment and core hardening
@@ -63,6 +63,8 @@ jobs:
         run: node ticket_sell_ladder_195_test.mjs
       - name: Ticket Commander 196
         run: node ticket_commander_196_test.mjs
+      - name: Daily Ticket Action Queue 197
+        run: node ticket_daily_queue_197_test.mjs
       - name: Ticket market API contract
         run: node ticket_market_api_65_6_test.mjs
 
@@ -102,6 +104,8 @@ jobs:
           node --check js/ticketSellLadder195.js
           node --check js/ticketCommanderModel196.js
           node --check js/ticketCommander196.js
+          node --check js/ticketDailyQueueModel197.js
+          node --check js/ticketDailyQueue197.js
           node --check js/ticketImport660.js
           node --check js/ticketCloud660.js
           node --check js/ticketSales150.js
@@ -111,7 +115,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 196 browser release smoke
+      - name: OS 197 browser release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
