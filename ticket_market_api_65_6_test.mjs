@@ -17,8 +17,8 @@ const req={method:'POST',url:'https://kamil-os.test/api/ticket-market-watch',jso
 ]})};
 let status=0,payload=null,headers={};const res={setHeader:(k,v)=>headers[k]=v,status:n=>(status=n,{json:j=>payload=j})};
 await handler(req,res);globalThis.fetch=realFetch;
-assert.equal(status,200);assert.equal(payload.ok,true);assert.equal(payload.version,'66.1');assert.equal(payload.results.length,2);
+assert.equal(status,200);assert.equal(payload.ok,true);assert.match(String(payload.version||''),/^\d+\.\d+$/,'API must expose a numeric major.minor contract version');assert.ok(Number(String(payload.version).split('.')[0])>=66,'ticket market API must not regress below v66');assert.equal(payload.results.length,2);
 const x=payload.results.find(r=>r.id==='x');assert.equal(x.market.confidence,'section');assert.equal(x.market.marketPriceCzk,3870);assert.equal(x.market.medianPriceCzk,4085);assert.deepEqual(x.market.topPricesCzk,[3870,4085,4730]);assert.equal(x.market.competitorCount,25);assert.equal(x.market.sameSectionCount,3);assert.equal(x.market.supplyPct,2);assert.equal(x.official.status,'AVAILABLE');assert.equal(x.official.lowestPriceCzk,1900);assert.equal(x.official.sourceName,'Ticketmaster');assert.match(x.official.sourceUrl,/ticketmaster\.cz/);assert.equal(x.recommendation.label,'POZOR OFICIÁL');assert.equal(x.recommendation.code,'OFFICIAL_COMPETITION');
 const y=payload.results.find(r=>r.id==='y');assert.equal(y.market.discovered,true);assert.match(y.market.resolvedUrl,/E-2/);assert.equal(y.source.status,'ok');assert.equal(y.official.status,'MISSING');
 assert.equal(payload.summary.officialAvailable,1);assert.equal(headers['Cache-Control'],'no-store');
-console.log('KAMIL OS 66.1 OFFICIAL AVAILABILITY API PASS');
+console.log(`TICKET MARKET API CONTRACT PASS · ${payload.version}`);
