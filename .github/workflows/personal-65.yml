@@ -38,7 +38,7 @@ jobs:
           grep -q "optionalImport('./personalShell640.js'" js/instantShell64.js
           grep -q "optionalImport('./personalHardening650.js'" js/instantShell64.js
           grep -q "from('ticket_inventory')" js/ticketCloud660.js
-          grep -q "PAYOUT_RECEIVED" js/ticketCloud660.js
+          grep -q "PAYOUT_RECEIVED" js/ticketSales150.js
           grep -q "enhanceTicketSales150" js/ticketPage100.js
           grep -q "enhanceTicketSettlement153" js/ticketPage100.js
           grep -q "enhanceTicketAccounting155" js/ticketPage100.js
