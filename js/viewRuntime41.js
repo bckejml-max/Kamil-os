@@ -1,6 +1,5 @@
 import {hydrateColdView42} from './coldPartition42.js';
 import {APP_RELEASE} from './releaseMeta.js';
-import './qa143.js';
 const modules=new Map(),warmViews=new Map();
 const titles={today:'DNES',inbox:'INBOX',money:'PENÍZE',tickets:'VSTUPENKY',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
 const quick={today:'Osobní úkol',inbox:'Úkol',money:'Finanční úkol',tickets:'Úkol k ticketům',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
@@ -29,6 +28,6 @@ export async function renderCommandResults41(q=''){try{const c=await load('./cap
 export async function executeCommand41(q=''){try{const c=await load('./capitalCommand100.js');if(c.isCapitalQuestion100(q))return c.openCapitalDecision100(q)}catch(e){console.warn('[capital-command100]',e)}const m=await load('./command.js');return m.execute(q)}
 export async function renderExtras41(view='today'){syncChrome142(view);if(view==='today'){const m=await load('./personalWeekly700.js');return m.appendWeeklyReset700()}return null}
 export function refreshRiskBadge41(){return Promise.resolve(null)}
-export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE,canonicalViews:[...validViews41],commandBar:true,inbox:true,weeklyReset:true,marketIntelligence100:true,capitalCommand100:true,marketAction101:true,finalPolish142:true,qa143:true}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}
+export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE,canonicalViews:[...validViews41],commandBar:true,inbox:true,weeklyReset:true,marketIntelligence100:true,capitalCommand100:true,marketAction101:true,finalPolish142:true,qa143:!!window.__KAMIL_QA143__}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}
 export function scheduleNotifications41(){return Promise.resolve(null)}
-export function warmRuntime41(){ensurePolish142();load('./command.js').catch(()=>{});load('./capitalCommand100.js').catch(()=>{});load('./marketAction101.js').catch(()=>{});return Promise.resolve(null)}
+export function warmRuntime41(){ensurePolish142();load('./qa143.js').catch(e=>console.warn('[qa143 optional]',e));load('./command.js').catch(()=>{});load('./capitalCommand100.js').catch(()=>{});load('./marketAction101.js').catch(()=>{});return Promise.resolve(null)}
