@@ -2,13 +2,19 @@ import assert from 'node:assert/strict';
 import {buildTicketRiskBudget202} from './js/ticketRiskBudgetModel202.js';
 
 const now=Date.parse('2026-08-27T12:00:00Z');
-const watchlist=[{id:'w1',name:'Sparta vs Big Match',club:'Sparta',sport:'football',eventDate:'2026-09-20',officialPriceCzk:625,marketPriceCzk:1400,medianPriceCzk:1400,confidenceScore:90}];
+const verified={resaleAllowed:true,transferCompatible:true,officialSaleStatus:'ON_SALE',restrictionsVerifiedAt:'2026-08-27T10:00:00Z'};
+const watchlist=[{id:'w1',name:'Sparta vs Big Match',club:'Sparta',sport:'football',eventDate:'2026-09-20',officialPriceCzk:625,marketPriceCzk:1400,medianPriceCzk:1400,confidenceScore:90,...verified}];
 const ticketBook={capitalBudgetCzk:20000,watchlist};
 const base=buildTicketRiskBudget202({inventory:[],latest:new Map(),watchlist,ticketBook},now);
 const b=base.rows.find(x=>x.id==='w1');
 assert.equal(b.action,'BUY');
 assert.equal(b.riskBudget.verdict,'BUY');
-assert.equal(b.riskBudget.maxQty,6); // 20% event cap = 4000 / 625
+assert.equal(b.riskBudget.maxQty,6);
+
+const unverified=buildTicketRiskBudget202({inventory:[],latest:new Map(),watchlist:[{...watchlist[0],id:'verify',resaleAllowed:undefined,transferCompatible:undefined,officialSaleStatus:undefined,restrictionsVerifiedAt:undefined}],ticketBook},now);
+const uv=unverified.rows.find(x=>x.id==='verify');
+assert.equal(uv.action,'VERIFY');
+assert.equal(uv.riskBudget.verdict,'NO BUY');
 
 const concentratedInventory=[{id:'s1',event_name:'Sparta vs A',club:'Sparta',sport:'football',event_date:'2026-09-10',market_status:'LISTED',qty:1,buy_total_czk:5500}];
 const c=buildTicketRiskBudget202({inventory:concentratedInventory,latest:new Map(),watchlist,ticketBook},now);
