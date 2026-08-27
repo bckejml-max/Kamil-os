@@ -1,18 +1,18 @@
-name: Kamil OS 218 Dashboard Layout Repair QA
+name: Kamil OS 219 Dashboard Proportion Polish QA
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  qa218:
+  qa219:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Dashboard repair regression 218
+      - name: Dashboard proportion regression 219
         run: node today_dashboard_213_test.mjs
       - name: Syntax
         run: |
@@ -27,7 +27,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 218 browser dashboard repair smoke
+      - name: OS 219 browser dashboard proportion smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
