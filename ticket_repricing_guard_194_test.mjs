@@ -26,6 +26,15 @@ assert.equal(underFloor.action,'RAISE TO');
 assert.equal(underFloor.recommendedAsk,1080);
 assert.ok(underFloor.recommendedAsk>=underFloor.neverBelow);
 
+const underFloorNoMarket=ticketRepricingGuard194({...row,ask_each_czk:700},learning,{},now);
+assert.equal(underFloorNoMarket.action,'RAISE TO');
+assert.equal(underFloorNoMarket.recommendedAsk,1080);
+assert.ok(underFloorNoMarket.reason.includes('porušuje chráněný'));
+
+const safeNoMarket=ticketRepricingGuard194({...row,ask_each_czk:1500},learning,{},now);
+assert.equal(safeNoMarket.action,'HOLD');
+assert.equal(safeNoMarket.recommendedAsk,1500);
+
 const noHistory=ticketRepricingGuard194(row,{byMarket:{},knownGlobal:{count:0},global:{count:0}},{market_price_czk:1500},now);
 assert.equal(noHistory.action,'PAYOUT DATA NEEDED');
 assert.equal(noHistory.recommendedAsk,null);
