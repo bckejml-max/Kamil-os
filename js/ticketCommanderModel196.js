@@ -6,6 +6,7 @@ import {ticketSellLadder195} from './ticketSellLadderModel195.js';
 export const TICKET_COMMANDER_VERSION_196=196;
 const arr=v=>Array.isArray(v)?v:[];
 const status=r=>String(r?.market_status||r?.marketStatus||'').toUpperCase();
+const n=v=>Number(v||0)||0;
 
 export function ticketCommanderRow196(row={},learning,source={},now=Date.now()){
  const market=buildTicketMarketDeskRow190(row,source);
@@ -15,11 +16,16 @@ export function ticketCommanderRow196(row={},learning,source={},now=Date.now()){
  const fast=safe.at(0)||null;
  const ideal=ladder.best||null;
  const current=Number(row.ask_each_czk??row.askEachCzk)||null;
+ const qty=Math.max(1,n(market.qty??row.qty)||1);
+ const buyEach=n(row.buy_each_czk??row.buyEachCzk??row.buyEach)||null;
+ const explicitTotal=n(row.buy_total_czk??row.buyTotalCzk??row.costTotal);
+ const costTotal=explicitTotal||((buyEach||0)*qty)||null;
  let action=guard.action;
  if(action==='PAYOUT DATA NEEDED')action='CHECK DATA';
  const headline=action==='HOLD'&&current?`HOLD ${Math.round(current)} Kč`:guard.recommendedAsk?`${action} ${Math.round(guard.recommendedAsk)} Kč`:action;
  return {
-  id:row.id||'',name:market.name,section:market.section,qty:market.qty,status:market.status,
+  id:row.id||'',name:market.name,section:market.section,qty,status:market.status,
+  buyEach,costTotal,
   headline,currentAsk:current,targetAsk:guard.recommendedAsk||ideal?.price||null,
   idealPrice:ideal?.price||null,fastPrice:fast?.price||null,neverBelow:guard.neverBelow||null,
   sellScore:ideal?.score??null,sellBand:ideal?.band||'NEZNÁMÁ',
