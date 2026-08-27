@@ -1,4 +1,7 @@
 :root{--os212-rail:82px;--os212-top:48px;--os212-radius:10px}
+#syncStatus{display:none!important}
+#undoBtn:disabled{display:none!important}
+.page-kicker{font-size:0!important;letter-spacing:0!important}.page-kicker #pageTitle{font-size:9px!important;letter-spacing:.1em}
 @media(min-width:851px){
  .app{grid-template-columns:var(--os212-rail) minmax(0,1fr)!important}
  .sidebar{padding:8px 8px!important;gap:8px!important;align-items:center;overflow:hidden!important}
@@ -8,8 +11,8 @@
  .main-nav button.on{background:var(--surface-2,#eef2f7)!important;box-shadow:inset 3px 0 0 var(--accent,#111827)}
  .sidebar-account{width:100%;justify-content:center!important}.sidebar-account>div:not(.account-avatar),.sidebar-account .icon-btn{display:none!important}.account-avatar{width:32px!important;height:32px!important}
  .workspace{height:100vh!important}.topbar{min-height:var(--os212-top)!important;height:var(--os212-top)!important;padding:5px 14px!important;gap:8px!important}
- .page-kicker{font-size:8px!important;letter-spacing:.1em}.topbar-title{font-size:12px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38vw}
- .top-actions{gap:5px!important}.top-actions .btn,.top-actions .icon-btn{min-height:34px!important;height:34px!important;padding:5px 9px!important;border-radius:8px!important}.quick-add-btn b{display:none!important}.quick-add-btn{width:36px!important;justify-content:center!important;padding:0!important}.quick-add-btn span{font-size:17px}
+ .topbar-title{font-size:12px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:48vw}
+ .top-actions{gap:5px!important;margin-left:auto!important}.top-actions .btn,.top-actions .icon-btn{min-height:34px!important;height:34px!important;padding:5px 9px!important;border-radius:8px!important}.quick-add-btn b{display:none!important}.quick-add-btn{width:36px!important;justify-content:center!important;padding:0!important}.quick-add-btn span{font-size:17px}
  .sync{max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px!important;padding-block:5px!important}
  .command-wrap{height:36px!important;margin:4px 14px 0!important;gap:5px!important;padding:0!important}.command-field{height:36px!important;padding:4px 8px!important;border-radius:9px!important}.command-input{padding-block:7px!important}.command-wrap>.btn{height:36px!important;padding:4px 10px!important;border-radius:9px!important;font-size:11px!important}.command-symbol{width:34px!important}.shortcut{margin-right:6px!important}
  main{padding:6px 14px 10px!important}
@@ -18,7 +21,7 @@
  .card,.metric{border-radius:11px!important}.app-root211 .app-panel211-on.card,.app-root211 .app-panel211-on.metric-strip,.app-root211 .app-panel211-on.home-action-summary,.app-root211 .app-panel211-on.money-action-summary,.app-root211 .app-panel211-on.document-action-summary{padding:9px!important}
 }
 @media(max-width:850px){
- .topbar{min-height:52px!important;height:52px!important;padding:7px 10px!important}.topbar-title{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38vw}.page-kicker{font-size:9px!important}.top-actions{gap:4px!important}.top-actions .btn,.top-actions .icon-btn{min-width:40px;min-height:40px;padding:6px 8px!important}.quick-add-btn b,.sync{display:none!important}
+ .topbar{min-height:52px!important;height:52px!important;padding:7px 10px!important}.topbar-title{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52vw}.top-actions{gap:4px!important;margin-left:auto!important}.top-actions .btn,.top-actions .icon-btn{min-width:40px;min-height:40px;padding:6px 8px!important}.quick-add-btn b,.sync{display:none!important}
  main{height:calc(100dvh - 52px - 58px)!important;padding:7px 8px!important}.bottom-nav{height:58px!important;grid-template-columns:repeat(7,minmax(0,1fr))!important}.bottom-nav button{min-height:48px!important;font-size:9px!important;gap:1px!important;padding:3px 1px!important}.bottom-nav button span{font-size:15px!important}
  .app-host211{padding-top:118px!important}.app-workspace211{padding:7px!important}.app-workspace211-top .eyebrow{display:none!important}.app-workspace211-top h1{font-size:16px!important;margin:0!important}.app-workspace211-buttons{gap:4px!important;margin-top:5px!important}.app-workspace211-buttons button{min-height:38px!important;padding:5px 6px!important}.app-workspace211-pager{margin-top:4px!important}.app-workspace211-pager button{min-width:42px!important;min-height:40px!important}
  #ticketIntelView{padding-top:122px!important}.ticket-workspace210{padding:7px!important}.ticket-workspace210-head .eyebrow{display:none!important}.ticket-workspace210-tabs{gap:4px!important;margin-top:5px!important}.ticket-workspace210-tabs button{min-height:40px!important;padding:5px!important}.ticket-workspace210-pager{margin-top:4px!important}.ticket-workspace210-pager button{min-height:40px!important;min-width:42px!important}
