@@ -1,4 +1,4 @@
-name: Kamil OS 205 Release QA
+name: Kamil OS 206 Release QA
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: OS 205 static and syntax QA
+      - name: OS 206 static and syntax QA
         run: node qa.mjs
 
       - name: Deployment and core hardening
@@ -81,6 +81,8 @@ jobs:
         run: node ticket_portfolio_planner_204_test.mjs
       - name: Ticket Learned Net Profit Planner 205
         run: node ticket_learned_net_planner_205_test.mjs
+      - name: Ticket Profit Confidence Engine 206
+        run: node ticket_profit_confidence_206_test.mjs
       - name: Ticket market API contract
         run: node ticket_market_api_65_6_test.mjs
 
@@ -138,6 +140,8 @@ jobs:
           node --check js/ticketPortfolioPlanner204.js
           node --check js/ticketLearnedNetPlannerModel205.js
           node --check js/ticketLearnedNetPlanner205.js
+          node --check js/ticketProfitConfidenceModel206.js
+          node --check js/ticketProfitConfidence206.js
           node --check js/ticketImport660.js
           node --check js/ticketCloud660.js
           node --check js/ticketSales150.js
@@ -147,7 +151,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 205 browser release smoke
+      - name: OS 206 browser release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
