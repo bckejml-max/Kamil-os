@@ -30,7 +30,7 @@ function reset211(root){
 function hideChrome211(root){root.querySelectorAll(':scope > .view-head,:scope > nav,:scope > .money-filters,:scope > .home-filters,:scope > .document-filters,:scope > .ux65-footnote').forEach(x=>x.classList.add('app-workspace211-hide'))}
 
 export function installViewWorkspace211(view){
- if(view==='tickets')return null;const meta=VIEW_META[view];if(!meta)return null;ensureStyle211();
+ if(view==='tickets'||view==='today')return null;const meta=VIEW_META[view];if(!meta)return null;ensureStyle211();
  const host=document.querySelector(meta.host);if(!host)return null;const root=root211(host);if(!root||root===host&&host.children.length<2)return null;
  reset211(root);hideChrome211(root);const entries=entries211(root);if(!entries.length)return null;
  let shell=host.querySelector(':scope > [data-app-workspace211]');if(!shell){shell=document.createElement('section');shell.dataset.appWorkspace211='1';shell.className='app-workspace211';host.prepend(shell)}
@@ -57,6 +57,6 @@ export function installAppWorkspaces211(){
  ensureStyle211();
  const run=()=>{const active=document.querySelector('.view.on')?.id?.replace('view-','')||'today';installViewWorkspace211(active)};
  window.addEventListener('kamil:view-change',e=>setTimeout(()=>installViewWorkspace211(e.detail),80));
- ['today','money','home','more'].forEach(view=>{const host=document.querySelector(VIEW_META[view].host);if(!host||host.dataset.workspaceObserver211)return;host.dataset.workspaceObserver211='1';new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(()=>{const active=document.querySelector('.view.on')?.id?.replace('view-','');if(active===view)installViewWorkspace211(view)},120)}).observe(host,{childList:true,subtree:true})});
+ ['money','home','more'].forEach(view=>{const host=document.querySelector(VIEW_META[view].host);if(!host||host.dataset.workspaceObserver211)return;host.dataset.workspaceObserver211='1';new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(()=>{const active=document.querySelector('.view.on')?.id?.replace('view-','');if(active===view)installViewWorkspace211(view)},120)}).observe(host,{childList:true,subtree:true})});
  setTimeout(run,120);setTimeout(run,900);window.__KAMIL_APP_WORKSPACE211__={install:installViewWorkspace211};
 }
