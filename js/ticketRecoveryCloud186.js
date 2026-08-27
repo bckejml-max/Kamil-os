@@ -40,7 +40,7 @@ export async function loadTicketRecoveryCloudHistory186(){
 }
 
 export async function syncTicketRecoveryVault186({storage=globalThis.localStorage}={}){
- const local=loadTicketRecoveryHistory185({storage});
+ const local=loadTicketRecoveryHistory185({storage,syncCloud:false});
  try{
   const ctx=await context186();if(!ctx.ok)return{ok:false,reason:ctx.reason,local,snapshots:local.snapshots||[],summaries:local.summaries||[]};
   const localSnapshots=(local.ok?local.snapshots:[]).slice(0,TICKET_RECOVERY_LIMIT_185);
