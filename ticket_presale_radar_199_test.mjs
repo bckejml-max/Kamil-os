@@ -8,10 +8,15 @@ assert.equal(ticketPresaleStage199('2026-08-29T06:00:00Z',now).stage,'D-1');
 assert.equal(ticketPresaleStage199('2026-08-30T12:00:00Z',now).stage,'D-3');
 assert.equal(ticketPresaleStage199('2026-09-03T12:00:00Z',now).stage,'D-7');
 
-const strong={id:'derby',name:'Derby',eventDate:'2026-09-20',presaleAt:'2026-08-29T06:00:00Z',officialPriceCzk:1000,marketPriceCzk:1900,confidenceScore:90,competitorCount:5,sameSectionCount:3};
+const verified={resaleAllowed:true,transferCompatible:true,officialSaleStatus:'ON_SALE',restrictionsVerifiedAt:'2026-08-27T10:00:00Z'};
+const strong={id:'derby',name:'Derby',eventDate:'2026-09-20',presaleAt:'2026-08-29T06:00:00Z',officialPriceCzk:1000,marketPriceCzk:1900,confidenceScore:90,competitorCount:5,sameSectionCount:3,...verified};
 const target=ticketPresaleCandidate199(strong,now);
 assert.equal(target.action,'BUY TARGET');
 assert.ok(target.priority>=70);
+
+const unverified=ticketPresaleCandidate199({...strong,id:'verify',resaleAllowed:undefined,transferCompatible:undefined,officialSaleStatus:undefined,restrictionsVerifiedAt:undefined},now);
+assert.equal(unverified.opportunity.action,'VERIFY');
+assert.notEqual(unverified.action,'BUY TARGET');
 
 const noData=ticketPresaleCandidate199({...strong,id:'nodata',officialPriceCzk:0,marketPriceCzk:0,presaleAt:'2026-08-27T20:00:00Z'},now);
 assert.equal(noData.action,'DATA NEEDED');
