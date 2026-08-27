@@ -36,7 +36,8 @@ export function ticketRepricingGuard194(row={},learning,source={},now=Date.now()
  const emergencyFloor=breakEven.ok?breakEven.askEachFloor:null;
  if(!hardFloor)return{id:row?.id||'',name:name(row),section:String(row?.section||'—'),qty:q,askEach:ask,marketEach:market,days,action:'PAYOUT DATA NEEDED',recommendedAsk:null,neverBelow:null,emergencyFloor,hardFloor:null,marketFactor:null,reason:'Bez payout historie nelze bezpečně řídit repricing.',floors:{breakEven,roi20,roi50}};
  if(!market){
-  const rec=ask&&ask>=guardedFloor?ask:guardedFloor;
+  if(ask&&ask<guardedFloor)return{id:row?.id||'',name:name(row),section:String(row?.section||'—'),qty:q,askEach:ask,marketEach:null,days,action:'RAISE TO',recommendedAsk:guardedFloor,neverBelow:guardedFloor,emergencyFloor,hardFloor,marketFactor:null,reason:'Chybí čerstvá market cena, ale současný ask porušuje chráněný +50 % ROI floor; cenu vracím na guard.',floors:{breakEven,roi20,roi50}};
+  const rec=ask||guardedFloor;
   return{id:row?.id||'',name:name(row),section:String(row?.section||'—'),qty:q,askEach:ask,marketEach:null,days,action:ask?'HOLD':'LIST AT',recommendedAsk:Math.max(guardedFloor,round10(rec)),neverBelow:guardedFloor,emergencyFloor,hardFloor,marketFactor:null,reason:ask?'Chybí čerstvá market cena; držím současný ask nad +50 % ROI floorem.':'Chybí market cena; první bezpečný listing dávám na +50 % ROI floor.',floors:{breakEven,roi20,roi50}};
  }
  const factor=timeMarketFactor194(days);
