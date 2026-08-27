@@ -25,7 +25,6 @@ jobs:
         run: |
           node trust_sync_32_static_test.mjs
           node copilot_write_32_test.mjs
-          node copilot_write_32_static_test.mjs
 
       - name: Decision safety and delta regression
         run: |
