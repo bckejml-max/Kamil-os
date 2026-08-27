@@ -1,4 +1,4 @@
-name: Kamil OS 214 Ticket Buy Safety 2.0 QA
+name: Kamil OS 215 Buy Blocker Explainer QA
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: OS 214 static and syntax QA
+      - name: OS 215 static and syntax QA
         run: node qa.mjs
 
       - name: Deployment and core hardening
@@ -98,6 +98,8 @@ jobs:
           node ticket_presale_execution_200_test.mjs
           node ticket_risk_budget_202_test.mjs
           node ticket_capital_allocator_203_test.mjs
+      - name: OS 215 Buy Blocker Explainer
+        run: node ticket_buy_blocker_215_test.mjs
       - name: Ticket market API contract
         run: node ticket_market_api_65_6_test.mjs
 
@@ -164,6 +166,8 @@ jobs:
           node --check js/ticketActionPriorityModel209.js
           node --check js/ticketActionPriority209.js
           node --check js/ticketWorkspace210.js
+          node --check js/ticketBuyBlockerModel215.js
+          node --check js/ticketBuyBlocker215.js
           node --check js/ticketImport660.js
           node --check js/ticketCloud660.js
           node --check js/ticketSales150.js
@@ -173,7 +177,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 214 browser release smoke
+      - name: OS 215 browser release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
