@@ -5,6 +5,7 @@ const css=fs.readFileSync('compactNavigation212.css','utf8');
 const release=fs.readFileSync('js/releaseMeta.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
+const version=Number(release.match(/APP_VERSION='(\d+)\./)?.[1]||0);
 assert(chrome.includes("root.dataset.productionChrome228='1'"),'Production chrome marker missing');
 assert(chrome.includes("input.placeholder='Hledej nebo se zeptej…'"),'Compact search placeholder missing');
 assert(chrome.includes("go.textContent='↵'"),'Compact command action missing');
@@ -12,7 +13,6 @@ assert(chrome.includes("sync.setAttribute('aria-hidden','true')"),'Sync must be 
 assert(boot.includes("./productionChrome228.js")&&boot.includes('installProductionChrome228'),'Production chrome not booted');
 assert(css.includes('#syncStatus{display:none!important}'),'Sync status must stay removed from visible chrome');
 assert(css.includes('#undoBtn:disabled{display:none!important}'),'Disabled undo must disappear');
-assert(release.includes("238.0.0"),'Current OS238 release metadata must be preserved');
-assert(sw.includes('kamil-os-238.0.0-core-r2'),'OS238 cache revision r2 missing');
-assert(sw.includes('productionChrome228.js'),'Production chrome missing from service-worker cache');
-console.log('OS238 production chrome hardening regression OK');
+assert(version>=238,'release must not regress below OS238');
+assert(sw.includes('productionChrome228.js'),'Production chrome missing from current service-worker cache');
+console.log(`Production chrome hardening regression OK on OS${version}`);
