@@ -1,4 +1,4 @@
-name: Kamil OS 183 Release QA
+name: Kamil OS 184 Release QA
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: OS 183 static and syntax QA
+      - name: OS 184 static and syntax QA
         run: node qa.mjs
 
       - name: Deployment and core hardening
@@ -39,6 +39,9 @@ jobs:
       - name: Ticket import report 183
         run: node ticket_import_report_183_test.mjs
 
+      - name: Ticket import rollback 184
+        run: node ticket_import_rollback_184_test.mjs
+
       - name: Ticket market API contract
         run: node ticket_market_api_65_6_test.mjs
 
@@ -55,6 +58,7 @@ jobs:
           node --check js/dataTrust163.js
           node --check js/ticketImportIntegrity182.js
           node --check js/ticketImportReport183.js
+          node --check js/ticketImportRollback184.js
           node --check js/ticketImport660.js
           node --check js/ticketCloud660.js
           node --check js/ticketSales150.js
@@ -64,7 +68,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 183 browser release smoke
+      - name: OS 184 browser release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
