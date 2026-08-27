@@ -1,22 +1,23 @@
-name: Kamil OS 222 Today Smart Focus QA
+name: Kamil OS 223 Smart Focus One-Click QA
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  qa222:
+  qa223:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Today Smart Focus regression 222
+      - name: Smart Focus direct action regression 223
         run: node today_dashboard_213_test.mjs
       - name: Syntax
         run: |
           node --check js/todayDashboard213.js
+          node --check js/personalActionExecution641.js
           node --check js/appWorkspace211.js
           node --check js/instantShell64.js
       - name: Existing workspace regressions
@@ -27,7 +28,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 222 browser Smart Focus smoke
+      - name: OS 223 browser exact-action smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
