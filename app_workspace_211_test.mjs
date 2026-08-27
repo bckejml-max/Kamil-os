@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const js=fs.readFileSync('./js/appWorkspace211.js','utf8');
+const css=fs.readFileSync('./appWorkspace211.css','utf8');
+const shell=fs.readFileSync('./js/instantShell64.js','utf8');
+for(const view of ['today','money','home','more'])assert.ok(js.includes(`${view}:`),`workspace missing ${view}`);
+assert.ok(js.includes("view==='tickets'"),'ticket workspace must stay owned by OS210');
+assert.ok(js.includes('data-prev211')&&js.includes('data-next211'),'button pager missing');
+assert.ok(js.includes('.ux64-doc-list,.ux64-contract-grid'),'long document/home lists must become button pages');
+assert.ok(css.includes('overflow:hidden'),'page must stay no-scroll');
+assert.ok(css.includes('.app-panel211-on'),'single active panel rule missing');
+assert.ok(shell.includes("optionalImport('./appWorkspace211.js','installAppWorkspaces211')"),'workspace not boot-wired');
+console.log('OS 211 UNIVERSAL NO-SCROLL WORKSPACE PASS');
