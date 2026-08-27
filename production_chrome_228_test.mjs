@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+const css=fs.readFileSync('compactNavigation212.css','utf8');
+const release=fs.readFileSync('js/releaseMeta.js','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
+assert(css.includes('#syncStatus{display:none!important}'),'OS228 sync status must be removed from visible chrome');
+assert(css.includes('#undoBtn:disabled{display:none!important}'),'OS228 disabled undo must disappear');
+assert(css.includes('.page-kicker{font-size:0!important')&&css.includes('.page-kicker #pageTitle{font-size:9px!important'),'OS228 compact page label missing');
+assert(css.includes('.top-actions{gap:5px!important;margin-left:auto!important}'),'OS228 top actions alignment missing');
+assert(release.includes("228.0.0"),'OS228 release metadata missing');
+assert(sw.includes('kamil-os-228.0.0-core-r1'),'OS228 service worker cache missing');
+console.log('OS228 production chrome regression OK');
