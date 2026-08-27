@@ -49,9 +49,14 @@ function drawerHtml(title,body){return `<aside class="ux238-drawer" role="dialog
 function closeDrawer(){q('.ux238-drawer')?.remove();q('.ux238-drawer-backdrop')?.remove()}
 function openDrawer(detail={}){closeDrawer();document.body.insertAdjacentHTML('beforeend',drawerHtml(detail.title,detail.html||`<p>${esc(detail.text||'')}</p>`));q('.ux238-drawer [data-close]')?.addEventListener('click',closeDrawer);q('.ux238-drawer-backdrop')?.addEventListener('click',closeDrawer)}
 
+function ownQuickAdd238(){
+ const old=q('#quickAddBtn');if(!old||old.dataset.ux238Owned==='1')return old;
+ const add=old.cloneNode(true);add.dataset.ux238Owned='1';add.setAttribute('aria-label','Rychle přidat');add.title='Rychle přidat · Ctrl N';old.replaceWith(add);
+ add.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openQuickAdd()});return add;
+}
 function bindChrome(){
- document.addEventListener('click',e=>{const add=e.target.closest('#quickAddBtn');if(add){e.preventDefault();e.stopImmediatePropagation();openQuickAdd()}},true);
- window.addEventListener('kamil:view-change',e=>saveView(e.detail));
+ ownQuickAdd238();
+ window.addEventListener('kamil:view-change',e=>{saveView(e.detail);ownQuickAdd238()});
  window.addEventListener('kamil:detail-drawer',e=>openDrawer(e.detail||{}));
  document.addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
