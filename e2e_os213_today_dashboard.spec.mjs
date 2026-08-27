@@ -1,32 +1,40 @@
 import {test,expect} from '@playwright/test';
-test('OS225 clears Smart Focus after the last urgent action without reload',async({page})=>{
+test('OS226 wakes Today from All Clear when a new urgent item appears without reload',async({page})=>{
  await page.setViewportSize({width:1792,height:828});
  await page.addInitScript(()=>{
-  const yesterday=new Date(Date.now()-86400000).toISOString();
-  localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},tasks:[],projects:[],calendar:{events:[]},ticketBook:{items:[],watchlist:[],history:[],review:[]},debtBook:{items:[],review:[]},personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true,notificationMode:'IMPORTANT'},emergencyFile:{contacts:[],assets:[]},personalInbox:{items:[]},assetBook:{items:[]},personalGoals:{items:[]},personalSpending:{transactions:[]},importCenter:{history:[]},netWorthBook:{items:[],history:[]},inbox:[],delegations:[{id:'wait-os225',title:'Poslední urgentní follow-up',status:'OPEN',followUpAt:yesterday}],learning:{typeBias:{},feedback:[]},audit:[],undo:[]}));
+  localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80},tasks:[],projects:[],calendar:{events:[]},ticketBook:{items:[],watchlist:[],history:[],review:[]},debtBook:{items:[],review:[]},personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true,notificationMode:'IMPORTANT'},emergencyFile:{contacts:[],assets:[]},personalInbox:{items:[]},assetBook:{items:[]},personalGoals:{items:[]},personalSpending:{transactions:[]},importCenter:{history:[]},netWorthBook:{items:[],history:[]},inbox:[],delegations:[],learning:{typeBias:{},feedback:[]},audit:[],undo:[]}));
  });
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  const dashboard=page.locator('[data-today-dashboard213]');
  await expect(dashboard).toBeVisible({timeout:20000});
  const glance=dashboard.locator('[data-glance221]');
- const waiting=glance.locator('[data-glance-key221="waiting"]');
- await expect(waiting).toHaveAttribute('data-focus222','1');
- await expect(waiting).toHaveAttribute('data-action-title223','Poslední urgentní follow-up');
- await waiting.click();
- const dialog=page.locator('[role="dialog"]');
- await expect(dialog.locator('h2')).toHaveText('Poslední urgentní follow-up');
- await dialog.getByRole('button',{name:'Hotovo'}).click();
- await expect(dialog).toHaveCount(0);
- await expect(glance).toHaveAttribute('data-completion224','done',{timeout:5000});
  await expect(glance).toHaveAttribute('data-smart-focus222','clear',{timeout:5000});
  await expect(dashboard).toHaveAttribute('data-all-clear225','1',{timeout:5000});
- await expect(dashboard.locator('[data-glance-key221][data-focus222="1"]')).toHaveCount(0);
  const allClear=dashboard.locator('[data-all-clear225]');
  await expect(allClear).toBeVisible();
  await expect(allClear.locator('h2')).toContainText('Žádná urgentní věc nezbývá');
- const debug=await page.evaluate(()=>window.__KAMIL_TODAY_DASHBOARD213__);
- expect(debug?.allClear).toBe(true);
- expect(debug?.lastCompletion?.result).toBe('done');
+ const beforeUrl=page.url();
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const yesterday=new Date(Date.now()-86400000).toISOString();
+  store.mutate('OS226 wake test',s=>{s.delegations.push({id:'wait-os226',title:'Nový urgentní follow-up',status:'OPEN',followUpAt:yesterday})},{undo:false,cloud:false,audit:false});
+ });
+ await expect(glance).toHaveAttribute('data-smart-focus222','waiting',{timeout:5000});
+ await expect(dashboard).toHaveAttribute('data-all-clear225','0',{timeout:5000});
+ const waiting=glance.locator('[data-glance-key221="waiting"]');
+ await expect(waiting).toHaveAttribute('data-focus222','1');
+ await expect(waiting).toHaveAttribute('data-direct223','1');
+ await expect(waiting).toHaveAttribute('data-action-title223','Nový urgentní follow-up');
+ await expect(allClear).toBeHidden();
+ expect(page.url()).toBe(beforeUrl);
+ const wake=await page.evaluate(()=>window.__KAMIL_TODAY_WAKE226__);
+ expect(wake?.version).toBe(226);
+ expect(wake?.wakeCount).toBeGreaterThanOrEqual(1);
+ await waiting.click();
+ const dialog=page.locator('[role="dialog"]');
+ await expect(dialog).toBeVisible();
+ await expect(dialog.locator('h2')).toHaveText('Nový urgentní follow-up');
+ await page.keyboard.press('Escape');
  const fit=await page.locator('#todayView').evaluate(el=>({client:el.clientHeight,scroll:el.scrollHeight}));
  expect(fit.scroll).toBeLessThanOrEqual(fit.client+3);
  const body=await page.evaluate(()=>({client:document.documentElement.clientHeight,scroll:document.documentElement.scrollHeight}));
