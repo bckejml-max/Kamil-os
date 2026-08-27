@@ -1,0 +1,36 @@
+name: Kamil OS 212 Compact Navigation QA
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qa212:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Compact navigation regression 212
+        run: node compact_navigation_212_test.mjs
+      - name: Syntax
+        run: |
+          node --check js/compactNavigation212.js
+          node --check js/appWorkspace211.js
+          node --check js/ticketWorkspace210.js
+          node --check js/instantShell64.js
+      - name: Existing no-scroll regressions
+        run: |
+          node app_workspace_211_test.mjs
+          node ticket_workspace_210_test.mjs
+      - name: Install browser QA
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: OS 212 browser compact-navigation smoke
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          npx playwright test e2e_os212_compact_navigation.spec.mjs e2e_os181_current_smoke.spec.mjs --reporter=line
