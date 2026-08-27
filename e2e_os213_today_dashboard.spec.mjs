@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-test('OS219 today dashboard is balanced, dark and one-screen',async({page})=>{
+test('OS220 today dashboard reclaims vertical space and keeps one-row actions',async({page})=>{
  await page.setViewportSize({width:1792,height:828});
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  const dashboard=page.locator('[data-today-dashboard213]');
@@ -19,7 +19,11 @@ test('OS219 today dashboard is balanced, dark and one-screen',async({page})=>{
  const ys=boxes.map(b=>Math.round(b?.y||0));
  expect(Math.max(...ys)-Math.min(...ys)).toBeLessThanOrEqual(3);
  const heights=boxes.map(b=>b?.height||0);
- expect(Math.max(...heights)).toBeLessThanOrEqual(90);
+ expect(Math.max(...heights)).toBeLessThanOrEqual(72);
+ const topbar=await page.locator('.topbar').boundingBox();
+ expect(topbar?.height||999).toBeLessThanOrEqual(50);
+ const command=await page.locator('.command-wrap').boundingBox();
+ expect(command?.height||999).toBeLessThanOrEqual(38);
  const fit=await page.locator('#todayView').evaluate(el=>({client:el.clientHeight,scroll:el.scrollHeight}));
  expect(fit.scroll).toBeLessThanOrEqual(fit.client+3);
  const body=await page.evaluate(()=>({client:document.documentElement.clientHeight,scroll:document.documentElement.scrollHeight}));
