@@ -1,4 +1,4 @@
-name: Kamil OS 216 Payout-Aware Execution Wiring QA
+name: Kamil OS 217 Ticket Data Readiness Center QA
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: OS 216 static and syntax QA
+      - name: OS 217 static and syntax QA
         run: node qa.mjs
 
       - name: Deployment and core hardening
@@ -102,6 +102,8 @@ jobs:
         run: node ticket_buy_blocker_215_test.mjs
       - name: OS 216 Payout-Aware Execution Wiring
         run: node ticket_presale_execution_wiring_216_test.mjs
+      - name: OS 217 Ticket Data Readiness Center
+        run: node ticket_data_readiness_217_test.mjs
       - name: Ticket market API contract
         run: node ticket_market_api_65_6_test.mjs
 
@@ -170,6 +172,8 @@ jobs:
           node --check js/ticketWorkspace210.js
           node --check js/ticketBuyBlockerModel215.js
           node --check js/ticketBuyBlocker215.js
+          node --check js/ticketDataReadinessModel217.js
+          node --check js/ticketDataReadiness217.js
           node --check js/ticketImport660.js
           node --check js/ticketCloud660.js
           node --check js/ticketSales150.js
@@ -179,7 +183,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 216 browser release smoke
+      - name: OS 217 browser release smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
