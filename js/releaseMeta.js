@@ -1,3 +1,3 @@
-export const APP_VERSION='332.0.0';
-export const APP_RELEASE='332.0';
-// production trigger 332-final-2
+export const APP_VERSION='340.0.0';
+export const APP_RELEASE='340.0';
+// Kamil OS 4.0 production release
