@@ -2,33 +2,6 @@ import {test,expect} from '@playwright/test';
 const BASE='http://127.0.0.1:4173';
 const fakeSdk=`(()=>{function q(){const api={select(){return api},order(){return api},limit(){return api},is(){return api},eq(){return api},in(){return api},update(){return api},upsert(){return api},delete(){return api},maybeSingle:async()=>({data:null,error:null}),then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject)}};return api}window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{user:{id:'os342-test'}}}})},from:q})}})();`;
 
-async function installTrace(page){
- await page.addInitScript(()=>{
-  window.__viewClassTrace342=[];
-  const owners=new WeakMap();
-  const classDesc=Object.getOwnPropertyDescriptor(Element.prototype,'classList');
-  if(classDesc?.get){
-   Object.defineProperty(Element.prototype,'classList',{configurable:true,enumerable:classDesc.enumerable,get(){const list=classDesc.get.call(this);if(this.id?.startsWith('view-'))owners.set(list,this);return list}});
-  }
-  const push=(kind,el,args,before,after)=>{
-   if(!el?.id?.startsWith('view-')||before===after)return;
-   window.__viewClassTrace342.push({kind,id:el.id,args:[...args].map(String),before,after,at:Math.round(performance.now()),stack:String(new Error().stack||'').split('\n').slice(2,8).join('\n')});
-   if(window.__viewClassTrace342.length>80)window.__viewClassTrace342.shift();
-  };
-  for(const method of ['add','remove','toggle','replace']){
-   const original=DOMTokenList.prototype[method];
-   if(typeof original!=='function')continue;
-   DOMTokenList.prototype[method]=function(...args){const el=owners.get(this),before=el?.getAttribute('class')??null,result=original.apply(this,args),after=el?.getAttribute('class')??null;if(el)push(`classList.${method}`,el,args,before,after);return result};
-  }
-  const originalSet=Element.prototype.setAttribute;
-  Element.prototype.setAttribute=function(name,...rest){const before=name==='class'&&this.id?.startsWith('view-')?this.getAttribute('class'):null;const result=originalSet.call(this,name,...rest);if(name==='class'&&this.id?.startsWith('view-'))push('setAttribute',this,rest,before,this.getAttribute('class'));return result};
-  const classNameDesc=Object.getOwnPropertyDescriptor(Element.prototype,'className');
-  if(classNameDesc?.set&&classNameDesc?.get){
-   Object.defineProperty(Element.prototype,'className',{configurable:true,enumerable:classNameDesc.enumerable,get:classNameDesc.get,set(value){const before=this.id?.startsWith('view-')?this.getAttribute('class'):null;classNameDesc.set.call(this,value);if(this.id?.startsWith('view-'))push('className=',this,[value],before,this.getAttribute('class'))}});
-  }
- });
-}
-
 async function boot(page){
  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',r=>r.fulfill({status:200,contentType:'application/javascript',body:fakeSdk}));
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
@@ -40,13 +13,33 @@ async function boot(page){
 async function record(page){await page.evaluate(()=>{window.__nav342Events=[];window.addEventListener('kamil:view-change',e=>window.__nav342Events.push(e.detail))})}
 function canonicalCount(page,view){return page.evaluate(v=>window.__nav342Events.filter(x=>x===v).length,view)}
 
+async function installMutationDiagnostics(page){
+ await page.evaluate(()=>{
+  window.__viewMutation342=[];
+  const remember=(entry)=>{window.__viewMutation342.push({...entry,at:Math.round(performance.now())});if(window.__viewMutation342.length>80)window.__viewMutation342.shift()};
+  const observer=new MutationObserver(records=>{
+   for(const r of records){
+    if(r.type==='attributes'&&r.target?.id?.startsWith('view-'))remember({type:'class',id:r.target.id,old:r.oldValue,current:r.target.getAttribute('class')});
+    if(r.type==='childList'){
+     for(const n of r.removedNodes)if(n?.nodeType===1&&(/^view-/.test(n.id||'')||n.querySelector?.('[id^="view-"]')))remember({type:'removed',id:n.id||null,html:(n.outerHTML||'').slice(0,220)});
+     for(const n of r.addedNodes)if(n?.nodeType===1&&(/^view-/.test(n.id||'')||n.querySelector?.('[id^="view-"]')))remember({type:'added',id:n.id||null,html:(n.outerHTML||'').slice(0,220)});
+    }
+   }
+  });
+  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class'],attributeOldValue:true});
+  window.__viewMutationObserver342=observer;
+ });
+}
+
 test('OS342 emits exactly one canonical transition and does not bounce back',async({page})=>{
- await installTrace(page);await boot(page);await record(page);
+ await boot(page);await record(page);await installMutationDiagnostics(page);
+ const originalHandle=await page.locator('#view-money').evaluateHandle(el=>el);
  await page.locator('#mainNav [data-view="money"]').click();
  await expect(page.locator('#view-money')).toHaveClass(/on/);
  await expect.poll(()=>canonicalCount(page,'money')).toBe(1);
  await page.waitForTimeout(700);
- const diag=await page.evaluate(()=>({money:document.querySelector('#view-money')?.getAttribute('class')??null,current:window.__KAMIL_NAVIGATION342__?.current(),corrections:window.__KAMIL_NAVIGATION342__?.corrections,events:window.__nav342Events,trace:window.__viewClassTrace342?.filter(x=>x.id==='view-money').slice(-30)}));
+ const diag=await page.evaluate(el=>({money:document.querySelector('#view-money')?.getAttribute('class')??null,sameNode:document.querySelector('#view-money')===el,current:window.__KAMIL_NAVIGATION342__?.current(),corrections:window.__KAMIL_NAVIGATION342__?.corrections,events:window.__nav342Events,mutations:window.__viewMutation342?.slice(-40)}),originalHandle);
+ await originalHandle.dispose();
  if(!String(diag.money||'').split(/\s+/).includes('on'))throw new Error(`OS342 Money lost ownership: ${JSON.stringify(diag,null,2)}`);
  expect(await canonicalCount(page,'money')).toBe(1);
  const state=await page.evaluate(()=>({version:window.__KAMIL_NAVIGATION342__.version,current:window.__KAMIL_NAVIGATION342__.current(),healthy:window.__KAMIL_NAVIGATION342__.healthy,observed:window.__KAMIL_NAVIGATION342__.observed}));
