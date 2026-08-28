@@ -1,11 +1,11 @@
-name: Kamil OS 299 Operator Home + Safety QA
+name: Kamil OS 300 Operator Cleanup + Safety QA
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  qa299:
+  qa300:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,7 +14,7 @@ jobs:
           node-version: 22
       - name: OS229-278 preserved regression
         run: node mega_278_test.mjs
-      - name: OS279-299 operator regression
+      - name: OS279-300 operator regression
         run: node mega_298_test.mjs
       - name: Settled-only payout learning regression
         run: node ticket_payout_learning_192_test.mjs
@@ -46,7 +46,7 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS299 browser operator smoke
+      - name: OS300 browser operator smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
