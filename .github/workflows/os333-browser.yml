@@ -2,7 +2,7 @@ name: OS333 Chromium Smoke
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/os344-boot-critical-path]
   workflow_dispatch:
 
 jobs:
