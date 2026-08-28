@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const brain=fs.readFileSync(new URL('./js/kamilBrain301.js',import.meta.url),'utf8');
+const memory=fs.readFileSync(new URL('./js/brainMemory301.js',import.meta.url),'utf8');
+const follow=fs.readFileSync(new URL('./js/followUp301.js',import.meta.url),'utf8');
+const shell=fs.readFileSync(new URL('./js/instantShell64.js',import.meta.url),'utf8');
+const css=fs.readFileSync(new URL('./kamilBrain300.css',import.meta.url),'utf8');
+assert.match(brain,/installKamilBrain301/);
+assert.match(brain,/confidence301/);
+assert.match(brain,/rememberBrain301/);
+assert.match(memory,/kamil-os-brain-memory-301/);
+assert.match(memory,/brainMemoryStats301/);
+assert.match(follow,/followUpSummary301/);
+assert.match(shell,/kamilBrain301\.js/);
+assert.doesNotMatch(shell,/kamilBrain300\.js','boot must use v301 overlay');
+assert.match(css,/brain300-confidence/);
+console.log('Kamil Brain 301 static guard OK');
