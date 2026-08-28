@@ -5,23 +5,26 @@ const fakeSdk=`(()=>{function q(){const api={select(){return api},order(){return
 async function installTrace(page){
  await page.addInitScript(()=>{
   window.__viewClassTrace342=[];
+  const owners=new WeakMap();
+  const classDesc=Object.getOwnPropertyDescriptor(Element.prototype,'classList');
+  if(classDesc?.get){
+   Object.defineProperty(Element.prototype,'classList',{configurable:true,enumerable:classDesc.enumerable,get(){const list=classDesc.get.call(this);if(this.id?.startsWith('view-'))owners.set(list,this);return list}});
+  }
   const push=(kind,el,args,before,after)=>{
-   if(!el?.id?.startsWith('view-'))return;
+   if(!el?.id?.startsWith('view-')||before===after)return;
    window.__viewClassTrace342.push({kind,id:el.id,args:[...args].map(String),before,after,at:Math.round(performance.now()),stack:String(new Error().stack||'').split('\n').slice(2,8).join('\n')});
-   if(window.__viewClassTrace342.length>120)window.__viewClassTrace342.shift();
+   if(window.__viewClassTrace342.length>80)window.__viewClassTrace342.shift();
   };
-  const findOwner=list=>[...document.querySelectorAll('[id^="view-"]')].find(el=>el.classList===list);
   for(const method of ['add','remove','toggle','replace']){
    const original=DOMTokenList.prototype[method];
    if(typeof original!=='function')continue;
-   DOMTokenList.prototype[method]=function(...args){const el=findOwner(this),before=el?.getAttribute('class')??null,result=original.apply(this,args),after=el?.getAttribute('class')??null;if(el&&before!==after)push(`classList.${method}`,el,args,before,after);return result};
+   DOMTokenList.prototype[method]=function(...args){const el=owners.get(this),before=el?.getAttribute('class')??null,result=original.apply(this,args),after=el?.getAttribute('class')??null;if(el)push(`classList.${method}`,el,args,before,after);return result};
   }
   const originalSet=Element.prototype.setAttribute;
-  Element.prototype.setAttribute=function(name,...rest){const before=this.getAttribute?.('class');const result=originalSet.call(this,name,...rest);if(name==='class'&&this.id?.startsWith('view-'))push('setAttribute',this,rest,before,this.getAttribute('class'));return result};
-  let proto=Element.prototype,desc=null;
-  while(proto&&!desc){desc=Object.getOwnPropertyDescriptor(proto,'className');proto=Object.getPrototypeOf(proto)}
-  if(desc?.set&&desc?.get){
-   Object.defineProperty(Element.prototype,'className',{configurable:true,enumerable:desc.enumerable,get:desc.get,set(value){const before=this.getAttribute?.('class');desc.set.call(this,value);if(this.id?.startsWith('view-'))push('className=',this,[value],before,this.getAttribute('class'))}});
+  Element.prototype.setAttribute=function(name,...rest){const before=name==='class'&&this.id?.startsWith('view-')?this.getAttribute('class'):null;const result=originalSet.call(this,name,...rest);if(name==='class'&&this.id?.startsWith('view-'))push('setAttribute',this,rest,before,this.getAttribute('class'));return result};
+  const classNameDesc=Object.getOwnPropertyDescriptor(Element.prototype,'className');
+  if(classNameDesc?.set&&classNameDesc?.get){
+   Object.defineProperty(Element.prototype,'className',{configurable:true,enumerable:classNameDesc.enumerable,get:classNameDesc.get,set(value){const before=this.id?.startsWith('view-')?this.getAttribute('class'):null;classNameDesc.set.call(this,value);if(this.id?.startsWith('view-'))push('className=',this,[value],before,this.getAttribute('class'))}});
   }
  });
 }
