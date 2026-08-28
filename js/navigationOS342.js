@@ -70,7 +70,7 @@ function mutationTouchesView(records){
   if(r.type==='childList'){
    for(const n of [...r.addedNodes,...r.removedNodes]){
     if(n?.nodeType!==1)continue;
-    if(/^view-/.test(n.id||'')||n.querySelector?.('[id^="view-"]'))return true;
+    if(/^view-/.test(n.id||'')||n.querySelector?.('[id^="view-"]')||n.matches?.('main'))return true;
    }
   }
  }
@@ -85,7 +85,7 @@ export function installNavigation342(){
  document.documentElement.dataset.navigation342='1';
  document.addEventListener('click',captureViewClick,true);
  window.addEventListener('kamil:view-change',e=>sync(e.detail));
- const root=document.querySelector('main')||document.body;
+ const root=document.body;
  if(root){
   guard=new MutationObserver(records=>{if(mutationTouchesView(records))queueMicrotask(enforceDom)});
   guard.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
