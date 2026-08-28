@@ -1,0 +1,39 @@
+name: Kamil OS 340 release gate
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  os340:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: OS340 architecture gate
+        run: node os340_static_test.mjs
+      - name: OS340 syntax belt
+        run: |
+          node --check js/instantShell64.js
+          node --check js/platformBus340.js
+          node --check js/ticketDesk340.js
+          node --check js/moneyDesk340.js
+          node --check js/executive340.js
+          node --check js/health340.js
+          node --check js/hardening329.js
+          node --check js/performance330.js
+          node --check js/unified307.js
+          node --check sw.js
+      - name: Install browser QA
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser smoke
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-os340-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          npm run test:os340:e2e
