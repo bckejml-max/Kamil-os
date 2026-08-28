@@ -6,6 +6,7 @@ async function boot(page){
  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',r=>r.fulfill({status:200,contentType:'application/javascript',body:fakeSdk}));
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_NAVIGATION342__?.version),{timeout:10000}).toBe(342);
+ await expect.poll(()=>page.evaluate(()=>window.__KAMIL_NAVIGATION342__?.observed||0)).toBeGreaterThan(1);
  await expect(page.locator('#view-today')).toHaveClass(/on/);
 }
 
@@ -21,8 +22,8 @@ test('OS342 emits exactly one canonical transition and does not bounce back',asy
  await page.waitForTimeout(700);
  await expect(page.locator('#view-money')).toHaveClass(/on/);
  expect(await canonicalCount(page,'money')).toBe(1);
- const state=await page.evaluate(()=>({version:window.__KAMIL_NAVIGATION342__.version,current:window.__KAMIL_NAVIGATION342__.current(),healthy:window.__KAMIL_NAVIGATION342__.healthy}));
- expect(state).toEqual({version:342,current:'money',healthy:true});
+ const state=await page.evaluate(()=>({version:window.__KAMIL_NAVIGATION342__.version,current:window.__KAMIL_NAVIGATION342__.current(),healthy:window.__KAMIL_NAVIGATION342__.healthy,observed:window.__KAMIL_NAVIGATION342__.observed}));
+ expect(state.version).toBe(342);expect(state.current).toBe('money');expect(state.healthy).toBe(true);expect(state.observed).toBeGreaterThan(1);
 });
 
 test('OS342 same-view API call is idempotent',async({page})=>{
