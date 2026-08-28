@@ -12,8 +12,9 @@ const viewDefs={today:['./todayPage101.js','renderTodayPage101'],inbox:['./inbox
 export const validViews41=new Set(Object.keys(viewDefs));
 function load(path){if(modules.has(path))return modules.get(path);const p=import(path).catch(err=>{modules.delete(path);throw err});modules.set(path,p);return p}
 function warmView(name='today'){const key=validViews41.has(name)?name:'today';if(warmViews.has(key))return warmViews.get(key);const def=viewDefs[key],p=Promise.resolve().then(()=>hydrateColdView42(key)).then(()=>load(def[0])).then(m=>m[def[1]]).catch(err=>{warmViews.delete(key);throw err});warmViews.set(key,p);return p}
-export function getViewRenderer41(name='today'){return warmView(name)}
-export function prefetchView41(){return Promise.resolve(null)}
+async function canonical340(name){if(name==='tickets'){const m=await load('./ticketDesk340.js');return m.render340}if(name==='money'){const m=await load('./moneyDesk340.js');return m.renderMoney340}return null}
+export async function getViewRenderer41(name='today'){const canonical=await canonical340(name);return canonical||warmView(name)}
+export function prefetchView41(name='today'){if(name==='tickets')return load('./ticketDesk340.js').then(()=>null);if(name==='money')return load('./moneyDesk340.js').then(()=>null);return Promise.resolve(null)}
 export async function setMoreMode41(){return Promise.resolve(null)}
 export async function openCapture41(type='task'){
  if(type==='money-task'){const m=await load('./personalMoneyActions645.js');return m.createMoneyTask645()}

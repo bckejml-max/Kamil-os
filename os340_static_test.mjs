@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(p,'utf8');
+const shell=read('js/instantShell64.js'),hard=read('js/hardening329.js'),perf=read('js/performance330.js'),sw=read('sw.js'),rel=read('js/releaseMeta.js'),pkg=JSON.parse(read('package.json'));
+for(const p of ['js/platformBus340.js','js/ticketDesk340.js','js/moneyDesk340.js','js/executive340.js','js/health340.js','ticketDesk340.css','os340.css'])if(!fs.existsSync(p))throw new Error(`OS340 missing ${p}`);
+for(const mod of ['./platformBus340.js','./ticketDesk340.js','./moneyDesk340.js','./executive340.js','./health340.js'])if(!shell.includes(mod))throw new Error(`OS340 boot missing ${mod}`);
+for(const legacy of ['./workspaces305.js','./ticketDesk331.js','./ticketQa332.js'])if(shell.includes(`optionalImport('${legacy}'`))throw new Error(`Legacy production boot returned: ${legacy}`);
+if(!hard.includes('__KAMIL_DOMAIN328__')||hard.includes('__KAMIL_DOMAIN_OS328__'))throw new Error('Hardening domain global is stale');
+if(!perf.includes('__KAMIL_DOMAIN328__')||perf.includes('__KAMIL_DOMAIN_OS328__'))throw new Error('Performance domain global is stale');
+if(!sw.includes("kamil-os-340.0.0")||!sw.includes('ticketDesk340.js')||sw.includes('ticketCommanderModel196.js'))throw new Error('Service worker is not slim OS340 shell');
+if(!rel.includes("340.0.0")||pkg.version!=='340.0.0')throw new Error('OS340 version mismatch');
+console.log('OS340 static architecture gate OK');
