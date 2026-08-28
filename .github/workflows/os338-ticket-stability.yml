@@ -1,0 +1,32 @@
+name: OS338 Ticket Stability QA
+
+on:
+  push:
+    branches: [fix/ticket-flicker-338]
+  workflow_dispatch:
+
+jobs:
+  ticket-stability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm install
+      - name: Syntax
+        run: |
+          node --check js/ticketPage100.js
+          node --check js/ticketPage338.js
+          node --check js/ticketDesk331.js
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start static app
+        run: |
+          python3 -m http.server 4173 > /tmp/kamil-os-http.log 2>&1 &
+          for i in {1..20}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/kamil-os-http.log
+          exit 1
+      - name: Ticket stability browser regression
+        run: npx playwright test e2e_os338_ticket_stability.spec.mjs --reporter=line
