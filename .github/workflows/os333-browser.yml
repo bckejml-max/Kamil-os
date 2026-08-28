@@ -26,8 +26,10 @@ jobs:
           node --check js/navigationOS342.js
           node --check js/navigation302.js
           node --check js/ticketPage100.js
+          node --check js/personalShell640.js
           node --check js/instantShell64.js
           node --check e2e_os343_boot_budget.spec.mjs
+          node --check e2e_os344_lazy_shell.spec.mjs
       - name: OS338 ticket renderer ownership
         run: node ticket_flicker_338_test.mjs
       - name: Install Chromium
@@ -39,5 +41,5 @@ jobs:
           for i in {1..20}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/kamil-os-http.log
           exit 1
-      - name: OS333 through OS343 browser smoke
-        run: npx playwright test e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs --reporter=line
+      - name: OS333 through OS344 browser smoke
+        run: npx playwright test e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs --reporter=line
