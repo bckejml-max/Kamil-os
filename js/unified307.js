@@ -1,0 +1,4 @@
+function ensureCss(){if(document.querySelector('link[data-unified307]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='./unified307.css';l.dataset.unified307='1';document.head.appendChild(l)}
+function normalize(){document.documentElement.dataset.unified307='1';document.querySelectorAll('.card,.metric,.decision-note,.brain300-item,.brain300-zone,.os303-card,.os303-row,.ws305,.fin258-row,.tic268-row').forEach(x=>x.dataset.u307='1');window.__KAMIL_UNIFIED307__={version:307,components:document.querySelectorAll('[data-u307="1"]').length,at:Date.now()}}
+let timer=0;const schedule=()=>{clearTimeout(timer);timer=setTimeout(normalize,90)};
+export function installUnified307(){ensureCss();normalize();window.addEventListener('kamil:view-change',schedule);new MutationObserver(schedule).observe(document.querySelector('#appView')||document.body,{childList:true,subtree:true});setTimeout(schedule,500)}
