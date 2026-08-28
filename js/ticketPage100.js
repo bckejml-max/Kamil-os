@@ -16,10 +16,13 @@ async function desk(){
 }
 
 export function renderTicketPage100(){
+  // Ticket Desk 331 owns its view-change scheduling. Do not call refresh here:
+  // doing so would race the desk's own view-change listener and produce two
+  // overlapping cloud loads / DOM replacements on every navigation.
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
     console.error('[tickets338] canonical desk boot failed',error);
     throw error;
   });
-  return bootPromise.then(api=>api?.refresh?.());
+  return bootPromise;
 }
