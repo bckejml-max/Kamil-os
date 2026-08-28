@@ -30,6 +30,8 @@ jobs:
           node --check js/instantShell64.js
           node --check e2e_os343_boot_budget.spec.mjs
           node --check e2e_os344_lazy_shell.spec.mjs
+      - name: OS344 release guard
+        run: npm run test:release
       - name: OS338 ticket renderer ownership
         run: node ticket_flicker_338_test.mjs
       - name: Install Chromium
