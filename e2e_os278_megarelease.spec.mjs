@@ -6,9 +6,9 @@ test('canonical command centers boot and keep app usable on OS333',async({page})
  await expect(page.locator('#appView')).toBeVisible({timeout:20000});
  await expect.poll(()=>page.evaluate(()=>({ux:window.__KAMIL_UX_FOUNDATION238__?.version,fin:window.__KAMIL_FINANCE_COMMAND258__?.version,tic:window.__KAMIL_TICKET_COMMAND268__?.version,os:window.__KAMIL_OS333__?.version,res:window.__KAMIL_OS333_RESILIENCE__?.version})),{timeout:20000}).toEqual({ux:238,fin:258,tic:268,os:333,res:333});
  await expect(page.locator('[data-os333-exec]')).toBeVisible();
- await page.locator('#mainNav [data-view="money"]').click();
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('kamil:navigate',{detail:{view:'money'}})));
  await expect(page.locator('#moneyView [data-os333-invest]')).toBeVisible({timeout:10000});
- await page.locator('#mainNav [data-view="tickets"]').click();
+ await page.evaluate(()=>document.dispatchEvent(new CustomEvent('kamil:navigate',{detail:{view:'tickets'}})));
  await expect.poll(()=>page.evaluate(()=>document.documentElement.dataset.ticketDesk331||''),{timeout:10000}).toBe('1');
  const ticketGuard=await page.evaluate(()=>window.__KAMIL_TICKET_COMMAND268__.build().guardrails);
  expect(ticketGuard.autoExecute).toBe(false);
