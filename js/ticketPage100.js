@@ -47,6 +47,11 @@ function ensureVisualStyle(){for(const [key,href] of [['ticketvisual132','./tick
 function enhance(){if(running){rerun=true;return}running=true;queueMicrotask(async()=>{try{await appendTicketBuyBlocker215();await appendTicketDataReadiness217();await appendTicketProfitConfidence206();await appendTicketLearnedNetPlanner205();await appendTicketPortfolioPlanner204();await appendTicketCapitalAllocator203();await appendTicketRiskBudget202();await appendTicketExposure201();await appendTicketPresaleExecution200();await appendTicketPresaleRadar199();await appendTicketOpportunity198();await appendTicketDailyQueue197();await appendTicketCommander196();await appendTicketIntelligence100();await appendTicketDetails100();await appendTicketMarketDesk190();await appendTicketMarketQueue191();await appendTicketPayoutLearning192();await appendTicketProfitFloor193();await appendTicketRepricingGuard194();await appendTicketSellLadder195();await applyTicketPriceFix102();await enhanceTicketSector103();await enhanceTicketRepricing105();await enhanceTicketVisual132();await enhanceTicketVisual133();await enhanceTicketVisual134();await enhanceTicketVisual135();await enhanceTicketVisual136();await applyTicketDataQa144();applyTicketSafetyUi149();enhanceTicketSales150();await enhanceTicketSaleDetail151();await enhanceTicketSettlement153();await enhanceTicketAccounting155();await enhanceTickets181();await enhanceTickets181Final();await appendTicketRiskAdjustedRanking207();await appendTicketActionPriority209();workspace210?.render?.()}catch(e){console.warn('[tickets181]',e)}finally{running=false;if(rerun){rerun=false;enhance()}}})}
 function arm(){const host=document.querySelector('#ticketIntelView');if(!host)return;workspace210=installTicketWorkspace210(host);observer?.disconnect();observer=new MutationObserver(enhance);observer.observe(host,{childList:true,subtree:false});setTimeout(enhance,80);setTimeout(enhance,600);setTimeout(enhance,1400)}
 export function renderTicketPage100(){
+ if(window.__KAMIL_TICKET_DESK338__?.refresh){
+  observer?.disconnect();observer=null;running=false;rerun=false;workspace210=null;
+  window.__KAMIL_TICKET_DESK338__.refresh();
+  return;
+ }
  if(window.__KAMIL_TICKET_DESK331__?.refresh){
   observer?.disconnect();observer=null;running=false;rerun=false;workspace210=null;
   return;
