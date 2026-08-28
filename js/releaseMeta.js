@@ -1,3 +1,3 @@
-export const APP_VERSION='343.0.0';
-export const APP_RELEASE='343.0';
-// boot performance budget release 343
+export const APP_VERSION='344.0.0';
+export const APP_RELEASE='344.0';
+// lazy personal shell boot release 344
