@@ -49,7 +49,6 @@ function arm(){const host=document.querySelector('#ticketIntelView');if(!host)re
 export function renderTicketPage100(){
  if(window.__KAMIL_TICKET_DESK331__?.refresh){
   observer?.disconnect();observer=null;running=false;rerun=false;workspace210=null;
-  document.querySelector('#ticketIntelView')?.setAttribute('data-ticket-render-owner','ticketDesk331');
   return;
  }
  ensureVisualStyle();installTicketRecoveryUx187();installTicketRecoveryHydration188();installTicketRecoveryDiff189();renderTicketPage687();arm()
