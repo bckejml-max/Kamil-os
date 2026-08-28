@@ -1,0 +1,10 @@
+import {test,expect} from '@playwright/test';
+const BASE='http://127.0.0.1:4173';
+const fakeSdk=`(()=>{function q(){const api={select(){return api},order(){return api},limit(){return api},is(){return api},eq(){return api},in(){return api},update(){return api},upsert(){return api},delete(){return api},maybeSingle:async()=>({data:null,error:null}),then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject)}};return api}window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{user:{id:'os333-test'}}}})},from:q})}})();`;
+async function boot(page){await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',r=>r.fulfill({status:200,contentType:'application/javascript',body:fakeSdk}));await page.goto(BASE,{waitUntil:'domcontentloaded'});await expect.poll(()=>page.evaluate(()=>window.__KAMIL_OS333__?.version),{timeout:10000}).toBe(333)}
+
+test('OS333 boots unified command and executive surface',async({page})=>{await boot(page);await expect(page.locator('html')).toHaveAttribute('data-os333','1');await expect(page.locator('#todayView [data-os333-exec]')).toBeVisible();await expect(page.locator('#todayView')).toContainText('EXECUTIVE OS');});
+
+test('OS333 emits one canonical view event from navigation',async({page})=>{await boot(page);await page.evaluate(()=>{window.__views333=[];window.addEventListener('kamil:view-change',e=>window.__views333.push(e.detail?.view))});await page.locator('#mainNav [data-view="money"]').click();await expect.poll(()=>page.evaluate(()=>window.__views333.includes('money'))).toBe(true);await expect(page.locator('#moneyView [data-os333-invest]')).toBeVisible();});
+
+test('OS333 exposes runtime health diagnostics',async({page})=>{await boot(page);const health=await page.evaluate(()=>window.__KAMIL_OS333__.health());expect(Array.isArray(health.checks)).toBe(true);expect(health.checks.map(x=>x[0])).toContain('Tickets');});
