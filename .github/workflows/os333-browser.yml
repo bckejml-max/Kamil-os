@@ -1,0 +1,28 @@
+name: OS333 Chromium Smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install test dependency
+        run: npm install
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start static app
+        run: |
+          python3 -m http.server 4173 > /tmp/kamil-os-http.log 2>&1 &
+          echo $! > /tmp/kamil-os-http.pid
+          for i in {1..20}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/kamil-os-http.log
+          exit 1
+      - name: OS333 browser smoke
+        run: npx playwright test e2e_os333_unified_command.spec.mjs --reporter=line
