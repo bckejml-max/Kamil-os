@@ -1,13 +1,14 @@
 import fs from 'node:fs';
 const read=p=>fs.readFileSync(p,'utf8');const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
-const life=read('js/lifeOperator298.js'),payout=read('js/ticketPayoutLearningModel192.js'),opp=read('js/ticketOpportunityModel198.js'),boot=read('js/instantShell64.js'),ux=read('js/uxFoundation238.js'),shell=read('js/personalShell640.js'),rel=read('js/releaseMeta.js'),sw=read('sw.js');
+const life=read('js/lifeOperator298.js'),home=read('js/operatorHome299.js'),payout=read('js/ticketPayoutLearningModel192.js'),opp=read('js/ticketOpportunityModel198.js'),boot=read('js/instantShell64.js'),ux=read('js/uxFoundation238.js'),shell=read('js/personalShell640.js'),rel=read('js/releaseMeta.js'),sw=read('sw.js');
 for(const marker of ['unifiedInbox','deadlineGuardian','lifeTimeline','contacts','documentIntel','investmentMemory','weeklyReview','notificationBrain','capital','answerLifeOperator298','guardrails'])assert(life.includes(marker),`OS298 operator marker missing: ${marker}`);
 assert(life.includes('autoFinancialExecution:false')&&life.includes('autoTicketExecution:false')&&life.includes('explicitConfirmationForWrites:true'),'OS298 execution guardrails missing');
+for(const marker of ['data-operator-home299','buildLifeOperator298','openLifeOperator298','data-os80-command','deployable'])assert(home.includes(marker),`OS299 operator home marker missing: ${marker}`);
 assert(payout.includes('ticketPayoutSettlementGate192')&&payout.includes('SETTLED')&&payout.includes('settledOnly:true'),'settled-only payout learning missing');
 assert(payout.includes('SOLD_WAITING_PAYMENT')&&payout.includes('UNSETTLED_STATUS'),'unsettled payout rejection missing');
 assert(opp.includes('TICKET_COMPLIANCE_TTL_DAYS_280=14')&&opp.includes('restrictionsVerificationFreshness'),'compliance freshness TTL missing');
-assert(boot.includes("./lifeOperator298.js"),'OS298 boot missing');
+assert(boot.includes("./lifeOperator298.js")&&boot.includes("./operatorHome299.js"),'operator boot missing');
 assert(ux.includes('Kamil AI Operator')&&ux.includes("kamil:open-life-operator"),'AI Operator palette entry missing');
 assert(shell.includes('answerLifeOperator298')&&shell.includes('co dnes řešit'),'natural-language operator wiring missing');
-assert(rel.includes("298.0.0"),'release not OS298');assert(sw.includes('kamil-os-298.0.0-core-r1'),'OS298 cache missing');assert(sw.includes('lifeOperator298.css')&&sw.includes('lifeOperator298.js'),'OS298 offline cache missing');
-console.log('OS279-298 mega regression OK');
+assert(rel.includes("299.0.0"),'release not OS299');assert(sw.includes('kamil-os-299.0.0-core-r1'),'OS299 cache missing');assert(sw.includes('lifeOperator298.css')&&sw.includes('lifeOperator298.js')&&sw.includes('operatorHome299.css')&&sw.includes('operatorHome299.js'),'operator offline cache missing');
+console.log('OS279-299 operator regression OK');
