@@ -23,6 +23,7 @@ jobs:
           node --check js/moneyDesk340.js
           node --check js/executive340.js
           node --check js/health340.js
+          node --check js/domainOS328.js
           node --check js/hardening329.js
           node --check js/performance330.js
           node --check js/unified307.js
