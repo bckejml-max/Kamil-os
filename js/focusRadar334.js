@@ -57,13 +57,14 @@ function ensureMounted(){
  if(!host.querySelector('[data-focus-radar334]'))renderSafe();
 }
 function watchToday(){
- const host=document.querySelector('#todayView');if(!host)return;
- if(observer)observer.disconnect();
- observer=new MutationObserver(()=>{if(!host.querySelector('[data-focus-radar334]'))schedule(40)});
- observer.observe(host,{childList:true,subtree:true});
- if(!integrityTimer)integrityTimer=window.setInterval(()=>{
-  if(document.visibilityState!=='hidden')ensureMounted();
- },350);
+ if(observer)return;
+ const root=document.body||document.documentElement;if(!root)return;
+ observer=new MutationObserver(()=>{
+  const host=document.querySelector('#todayView');
+  if(host&&!host.querySelector('[data-focus-radar334]'))schedule(20);
+ });
+ observer.observe(root,{childList:true,subtree:true});
+ if(!integrityTimer)integrityTimer=window.setInterval(ensureMounted,200);
 }
 export function installFocusRadar334(){
  injectCss();document.documentElement.dataset.focusRadar334='1';
