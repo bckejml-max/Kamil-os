@@ -21,6 +21,7 @@ jobs:
           node --check js/focusRadar334.js
           node --check js/focusQueue335.js
           node --check js/actionExecution336.js
+          node --check js/executionFeedback337.js
           node --check js/instantShell64.js
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -31,5 +32,5 @@ jobs:
           for i in {1..20}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/kamil-os-http.log
           exit 1
-      - name: OS333 through OS336 browser smoke
-        run: npx playwright test e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs --reporter=line
+      - name: OS333 through OS337 browser smoke
+        run: npx playwright test e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os337_execution_feedback.spec.mjs --reporter=line
