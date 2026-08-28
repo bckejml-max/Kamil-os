@@ -41,11 +41,29 @@ function render(){
  const host=document.querySelector('#todayView');if(!host)return false;
  const m=model();host.querySelector('[data-focus-radar334]')?.remove();
  const core=host.querySelector('[data-kamil-core312]'),markup=html(m);if(core)core.insertAdjacentHTML('beforebegin',markup);else host.insertAdjacentHTML('afterbegin',markup);
- window.__KAMIL_FOCUS_RADAR334__={version:334,model:m,refresh:render,open,at:Date.now()};return true;
+ window.__KAMIL_FOCUS_RADAR334__={version:334,model:m,refresh:render,open,healthy:true,at:Date.now()};return true;
 }
-let timer=0,bound=false;const schedule=()=>{clearTimeout(timer);timer=setTimeout(render,120)};
+function renderSafe(){
+ try{return render()}catch(error){
+  console.error('[focusRadar334]',error);
+  window.__KAMIL_FOCUS_RADAR334__={version:334,healthy:false,error:String(error?.message||error),refresh:renderSafe,open,at:Date.now()};
+  return false;
+ }
+}
+let timer=0,bound=false,observer=null;
+const schedule=(delay=120)=>{clearTimeout(timer);timer=setTimeout(renderSafe,delay)};
+function watchToday(){
+ const host=document.querySelector('#todayView');if(!host||observer)return;
+ observer=new MutationObserver(()=>{if(!host.querySelector('[data-focus-radar334]'))schedule(80)});
+ observer.observe(host,{childList:true,subtree:false});
+}
 export function installFocusRadar334(){
  injectCss();document.documentElement.dataset.focusRadar334='1';
- if(!bound){bound=true;document.addEventListener('click',e=>{const b=e.target.closest?.('[data-focus334-open]');if(!b)return;e.preventDefault();open(b.dataset.focus334Open)});window.addEventListener('kamil:view-change',e=>{if(!e.detail||e.detail==='today')schedule()});store.subscribe?.(schedule)}
- schedule();setTimeout(schedule,500);
+ if(!bound){
+  bound=true;
+  document.addEventListener('click',e=>{const b=e.target.closest?.('[data-focus334-open]');if(!b)return;e.preventDefault();open(b.dataset.focus334Open)});
+  window.addEventListener('kamil:view-change',e=>{if(!e.detail||e.detail==='today')schedule()});
+  store.subscribe?.(()=>schedule());
+ }
+ watchToday();schedule();setTimeout(()=>{watchToday();schedule()},500);setTimeout(()=>schedule(),1600);setTimeout(()=>schedule(),3200);
 }
