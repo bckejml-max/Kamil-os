@@ -1,3 +1,3 @@
-export const APP_VERSION='336.0.0';
-export const APP_RELEASE='336.0';
-// safe action execution release 336
+export const APP_VERSION='337.0.0';
+export const APP_RELEASE='337.0';
+// execution feedback release 337
