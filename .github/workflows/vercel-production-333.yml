@@ -1,0 +1,37 @@
+name: Vercel Production Guard
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production-main
+  cancel-in-progress: true
+
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_cHEU3IXsEXwuTTWbe0l2eIhj
+      VERCEL_PROJECT_ID: prj_eKQcHMPKD00dztpWujOlvWI5PkHQ
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Validate release
+        run: npm run test:release
+      - name: Explain missing deploy credential
+        if: env.VERCEL_TOKEN == ''
+        run: echo 'VERCEL_TOKEN is not configured. Release validation passed, but production deploy is skipped.'
+      - name: Pull production configuration
+        if: env.VERCEL_TOKEN != ''
+        run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: Build production output
+        if: env.VERCEL_TOKEN != ''
+        run: npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
+      - name: Deploy production output
+        if: env.VERCEL_TOKEN != ''
+        run: npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"
