@@ -1,19 +1,25 @@
-name: Kamil OS 278 Mega Release QA
+name: Kamil OS 298 Operator + Safety QA
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  qa278:
+  qa298:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: OS229-278 mega regression
+      - name: OS229-278 preserved regression
         run: node mega_278_test.mjs
+      - name: OS279-298 operator regression
+        run: node mega_298_test.mjs
+      - name: Settled-only payout learning regression
+        run: node ticket_payout_learning_192_test.mjs
+      - name: Compliance freshness regression
+        run: node ticket_opportunity_198_test.mjs
       - name: UX Foundation compatibility regression
         run: node ux_foundation_238_test.mjs
       - name: Production chrome regression
@@ -26,6 +32,10 @@ jobs:
           node --check js/financeCommand258.js
           node --check js/ticketCommand268.js
           node --check js/managerAutopilot278.js
+          node --check js/lifeOperator298.js
+          node --check js/ticketPayoutLearningModel192.js
+          node --check js/ticketOpportunityModel198.js
+          node --check js/personalShell640.js
           node --check js/instantShell64.js
       - name: Existing workspace regressions
         run: |
@@ -35,9 +45,9 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS278 browser mega-release smoke
+      - name: OS298 browser operator smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_os278_megarelease.spec.mjs e2e_os238_ux_foundation.spec.mjs e2e_os228_production_chrome.spec.mjs --reporter=line
+          npx playwright test e2e_os298_operator.spec.mjs e2e_os278_megarelease.spec.mjs e2e_os238_ux_foundation.spec.mjs e2e_os228_production_chrome.spec.mjs --reporter=line
