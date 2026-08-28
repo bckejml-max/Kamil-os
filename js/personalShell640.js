@@ -3,10 +3,12 @@ import {markPersonalUsage650} from './personalUsage650.js';
 
 const TITLES={today:'DNES',tickets:'VSTUPENKY',family:'RODINA',home:'DOMOV',money:'PENÍZE',more:'DOKUMENTY'};
 const OS80_RE=/command center|centrum|ředitel|reditel/i;
+const SHELL344={version:344,lazyLoaded:[],idleMarketStarted:false,healthy:true,at:Date.now()};
 let bound=false,currentView='today';
 const captureType=()=>currentView==='home'?'contract':currentView==='more'?'insurance':'task';
 const nav=v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v}));
-const lazy=(path,name)=>import(path).then(m=>m[name]);
+const publish344=()=>{window.__KAMIL_PERSONAL_SHELL344__={...SHELL344,lazyLoaded:[...SHELL344.lazyLoaded]}};
+const lazy=async(path,name)=>{const m=await import(path);if(!SHELL344.lazyLoaded.includes(path))SHELL344.lazyLoaded.push(path);publish344();return m[name]};
 function apply(view='today',track=true){
  currentView=view;const page=qs('#pageTitle');if(page)page.textContent=TITLES[view]||'DNES';document.title='Kamil OS';if(track)markPersonalUsage650('view',TITLES[view]||'DNES');
  qsa('.version').forEach(x=>x.classList.add('hidden'));
@@ -21,20 +23,20 @@ async function openResult(result){
 async function askGlobal(){
  const input=qs('#commandInput'),q=input?.value.trim();if(!q){input?.focus();return null}markPersonalUsage650('action','ask-or-search');
  if(OS80_RE.test(q)){if(input)input.value='';const open=await lazy('./personalCommand800.js','openCommandCenter800');return open()}
- const [{answerLifeOperator298},{answerPersonalQuestion640}]=await Promise.all([import('./lifeOperator298.js'),import('./personalAsk640.js')]);
+ const [answerLifeOperator298,answerPersonalQuestion640]=await Promise.all([lazy('./lifeOperator298.js','answerLifeOperator298'),lazy('./personalAsk640.js','answerPersonalQuestion640')]);
  const operator=answerLifeOperator298(q);const a=operator||answerPersonalQuestion640(q);if(input)input.value='';
  const body=`<div class="card"><div class="eyebrow">${operator?'KAMIL AI OPERATOR':'KAMIL OS'}</div><h2>${h(a.title)}</h2>${a.body?`<p>${h(a.body)}</p>`:''}${a.lines?.length?`<div>${a.lines.map(x=>`<div class="row"><span>${h(x)}</span></div>`).join('')}</div>`:''}${a.note?`<p class="muted">${h(a.note)}</p>`:''}</div>`;
  const buttons=(a.results||[]).slice(0,6).map((r,i)=>({label:`Otevřít · ${r.title}`,value:`result:${i}`,primary:i===0}));buttons.push({label:'Zavřít',value:null,primary:!buttons.length});const choice=await modal(operator?'Kamil AI Operator':'Kamil OS',body,buttons);if(String(choice||'').startsWith('result:'))return openResult(a.results[Number(choice.split(':')[1])]);return choice;
 }
 function startMarketDeferred(){
- const run=async()=>{try{const start=await lazy('./ticketMarketWatch656.js','startTicketMarketAuto656');start()}catch(error){console.warn('[personalShell640:ticket-market]',error)}};
+ const run=async()=>{try{SHELL344.idleMarketStarted=true;publish344();const start=await lazy('./ticketMarketWatch656.js','startTicketMarketAuto656');start()}catch(error){SHELL344.healthy=false;publish344();console.warn('[personalShell640:ticket-market]',error)}};
  if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:2500});else setTimeout(run,1200)
 }
 export function bindPersonalShell640(){
- if(bound)return;bound=true;
+ if(bound)return;bound=true;publish344();
  qsa('[data-personal-more]').forEach(b=>b.addEventListener('click',async()=>{markPersonalUsage650('action','more');const open=await lazy('./personalMore640.js','openPersonalMore640');open()}));
  window.addEventListener('kamil:view-change',e=>apply(e.detail,true));window.addEventListener('kamil:release-stamp',()=>apply(currentView,false));
  const input=qs('#commandInput'),go=qs('#commandGo');if(input){input.placeholder='Zeptej se: co dnes řešit, co stojí, volné peníze, které vstupenky…';input.oninput=null;input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();askGlobal()}if(e.key==='Escape'){input.value='';input.blur()}}}if(go){go.textContent='Najít / zeptat se';go.onclick=askGlobal}
  const add=qs('#quickAddBtn');if(add)add.addEventListener('click',async e=>{e.preventDefault();e.stopImmediatePropagation();markPersonalUsage650('action','capture');const open=await lazy('./personalCapture643.js','openPersonalCapture643');open(captureType())},true);
- apply('today',true);startMarketDeferred();window.__KAMIL_PERSONAL_SHELL_BOUND__=true;window.__KAMIL_OS80_AUTO_MOUNT__=false;
+ apply('today',true);startMarketDeferred();window.__KAMIL_PERSONAL_SHELL_BOUND__=true;window.__KAMIL_OS80_AUTO_MOUNT__=false;publish344();
 }
