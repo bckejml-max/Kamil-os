@@ -7,6 +7,7 @@ async function boot(page){
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
   await expect.poll(()=>page.evaluate(()=>window.__KAMIL_OS333__?.version),{timeout:10000}).toBe(333);
 }
+const nodeLabel=n=>n?.nodeType===1?`${n.tagName.toLowerCase()}.${String(n.className||'').replace(/\s+/g,'.').slice(0,90)}`:`#${n?.nodeName||'node'}`;
 
 test('Tickets settle without continuous DOM replacement',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(String(e?.message||e)));
@@ -20,26 +21,24 @@ test('Tickets settle without continuous DOM replacement',async({page})=>{
   const result=await page.evaluate(async()=>{
     const host=document.querySelector('#ticketIntelView');
     if(!host)return {missing:true};
-    let childMutations=0,htmlChanges=0,last=host.innerHTML;
+    let childMutations=0,htmlChanges=0,last=host.innerHTML;const samples=[];
+    const label=n=>n?.nodeType===1?`${n.tagName.toLowerCase()}.${String(n.className||'').replace(/\s+/g,'.').slice(0,90)}`:`#${n?.nodeName||'node'}`;
     const observer=new MutationObserver(records=>{
-      childMutations+=records.filter(r=>r.type==='childList').length;
+      for(const r of records){
+        if(r.type!=='childList')continue;
+        childMutations++;
+        if(samples.length<12)samples.push({added:[...r.addedNodes].map(label),removed:[...r.removedNodes].map(label),html:host.innerHTML.slice(0,120)});
+      }
       if(host.innerHTML!==last){htmlChanges++;last=host.innerHTML}
     });
     observer.observe(host,{childList:true,subtree:false});
     await new Promise(r=>setTimeout(r,1800));
     observer.disconnect();
-    return {
-      missing:false,
-      childMutations,
-      htmlChanges,
-      desk:!!host.querySelector('.td331'),
-      legacy:!!host.querySelector('[data-ticket-workspace210],.ticket-page-687,.ticket-workspace210')
-    };
+    return {missing:false,childMutations,htmlChanges,samples,desk:!!host.querySelector('.td331'),legacy:!!host.querySelector('[data-ticket-workspace210],.ticket-page-687,.ticket-workspace210')};
   });
   expect(result.missing).toBe(false);
   expect(result.desk).toBe(true);
   expect(result.legacy).toBe(false);
-  expect(result.childMutations).toBeLessThanOrEqual(1);
-  expect(result.htmlChanges).toBeLessThanOrEqual(1);
+  if(result.childMutations>1||result.htmlChanges>1)throw new Error(`Ticket root unstable: ${JSON.stringify(result)}`);
   expect(errors.filter(x=>/SyntaxError|Unexpected token/i.test(x))).toEqual([]);
 });
