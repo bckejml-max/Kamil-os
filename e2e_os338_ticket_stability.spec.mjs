@@ -27,30 +27,43 @@ test('tickets have one render owner and do not blink',async({page})=>{
     if(!el)return null;
     window.__ticket338Mutations=0;
     window.__ticket338LoadingFlashes=0;
-    const observer=new MutationObserver(()=>{
-      window.__ticket338Mutations++;
+    window.__ticket338Trace={};
+    const keyFor=node=>{
+      const el=node?.nodeType===1?node:node?.parentElement;
+      if(!el)return String(node?.nodeName||'unknown');
+      const cls=String(el.className||'').trim().split(/\s+/).slice(0,2).join('.');
+      return `${el.tagName.toLowerCase()}${el.id?'#'+el.id:''}${cls?'.'+cls:''}`;
+    };
+    const observer=new MutationObserver(records=>{
+      window.__ticket338Mutations+=records.length;
+      for(const r of records){
+        const k=`${r.type}:${keyFor(r.target)}`;
+        window.__ticket338Trace[k]=(window.__ticket338Trace[k]||0)+1;
+      }
       if(/Načítám Ticket Trading Desk/i.test(el.textContent||''))window.__ticket338LoadingFlashes++;
     });
-    observer.observe(el,{childList:true,subtree:true,characterData:true});
+    observer.observe(el,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class','style']});
     window.__ticket338Observer=observer;
     return {hasDesk:!!el.querySelector('.td331')};
   });
   expect(probe?.hasDesk).toBe(true);
 
-  // Covers the 12 s OS333 ticket self-heal interval plus margin.
   await page.waitForTimeout(13000);
   const result=await page.evaluate(()=>{
     window.__ticket338Observer?.disconnect();
     const el=document.querySelector('#ticketIntelView');
+    const trace=Object.entries(window.__ticket338Trace||{}).sort((a,b)=>b[1]-a[1]).slice(0,20);
     return {
       mutations:Number(window.__ticket338Mutations||0),
       loadingFlashes:Number(window.__ticket338LoadingFlashes||0),
       owner:el?.getAttribute('data-ticket-render-owner')||'',
       hasDesk:!!el?.querySelector('.td331'),
-      hasLegacyWorkspace:!!el?.querySelector('[data-ticket-workspace210],.ticket-workspace210')
+      hasLegacyWorkspace:!!el?.querySelector('[data-ticket-workspace210],.ticket-workspace210'),
+      trace
     };
   });
 
+  console.log('OS338 mutation trace',JSON.stringify(result));
   expect(result.owner).toBe('ticketDesk331');
   expect(result.hasDesk).toBe(true);
   expect(result.hasLegacyWorkspace).toBe(false);
