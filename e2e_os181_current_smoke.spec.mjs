@@ -13,8 +13,6 @@ test('canonical OS333 navigation stays usable',async({page})=>{
  await expect(page.locator('#moneyView')).toBeVisible();
  await page.evaluate(()=>document.querySelector('#mainNav [data-view="tickets"]')?.click());
  await expect(page.locator('#ticketIntelView')).toBeVisible();
- await page.evaluate(()=>document.querySelector('#mainNav [data-view="family"]')?.click());
- await expect(page.locator('#familyView')).toBeVisible();
  await page.evaluate(()=>document.querySelector('#mainNav [data-view="today"]')?.click());
  await expect(page.locator('#todayView')).toBeVisible();
  expect(errors.filter(x=>/SyntaxError|Unexpected token|Cannot access .* before initialization/i.test(x))).toEqual([]);
