@@ -1,9 +1,13 @@
-export const TICKET_PAYOUT_LEARNING_VERSION_192=192;
+export const TICKET_PAYOUT_LEARNING_VERSION_192=279;
 
 const n=v=>Number(v||0);
 const arr=v=>Array.isArray(v)?v:[];
 const median=values=>{const a=arr(values).filter(Number.isFinite).sort((x,y)=>x-y);if(!a.length)return null;const m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2};
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const status=row=>String(row?.market_status??row?.marketStatus??row?.workflow??row?.status??'').trim().toUpperCase().replace(/[ -]+/g,'_');
+const SETTLED=new Set(['PAYOUT_RECEIVED','PAID','SETTLED','COMPLETED','SOLD_PAID']);
+const ACTIVE_OR_PROJECTED=new Set(['LISTED','ACTIVE','NOT_LISTED','HOLD','SOLD','SOLD_UNDELIVERED','SOLD_WAITING_PAYMENT','PAYOUT_WAIT','PENDING']);
+export function ticketPayoutSettlementGate192(row={}){const st=status(row),recorded=Date.parse(row.payout_recorded_at??row.payoutRecordedAt??row.settled_at??row.settledAt??'');const explicit=SETTLED.has(st),blocked=ACTIVE_OR_PROJECTED.has(st);return{settled:explicit&&!blocked,status:st||null,recordedAt:Number.isFinite(recorded)?new Date(recorded).toISOString():null,reason:blocked?'UNSETTLED_STATUS':explicit?'SETTLED_STATUS':'UNKNOWN_STATUS'}}
 
 export function inferTicketMarketplace192(row={}){
  const explicit=String(row.marketplace||row.sale_marketplace||row.saleMarketplace||row.market||'').trim().toLowerCase();
@@ -21,8 +25,9 @@ export function inferTicketMarketplace192(row={}){
 }
 
 function payoutSample(row={}){
+ const gate=ticketPayoutSettlementGate192(row);if(!gate.settled)return null;
  const gross=n(row.sell_total_czk??row.sellTotalCzk??row.sell_total??row.sellTotal);
- const payout=n(row.payout_received_czk??row.payoutReceivedCzk);
+ const payout=n(row.payout_received_czk??row.payoutReceivedCzk??row.actualPayoutCzk);
  const fee=n(row.marketplace_fee_czk??row.marketplaceFeeCzk);
  if(!(gross>0))return null;
  let net=0,source='';
@@ -31,7 +36,7 @@ function payoutSample(row={}){
  if(!(net>0))return null;
  const ratio=net/gross;
  if(!(ratio>0&&ratio<=1.05))return null;
- return{market:inferTicketMarketplace192(row),gross,net,ratio:clamp(ratio,0,1),feeRate:clamp(1-ratio,0,1),source,id:row.id||null};
+ return{market:inferTicketMarketplace192(row),gross,net,ratio:clamp(ratio,0,1),feeRate:clamp(1-ratio,0,1),source,id:row.id||null,settlement:gate};
 }
 
 function summarize(samples=[]){
@@ -42,14 +47,14 @@ function summarize(samples=[]){
 }
 
 export function buildTicketPayoutLearning192(inventory=[]){
- const samples=arr(inventory).map(payoutSample).filter(Boolean);
+ const source=arr(inventory),samples=source.map(payoutSample).filter(Boolean),rejected=source.length-samples.length;
  const byMarket={};
  for(const market of ['Viagogo','StubHub','TicketSwap','Unknown']){
   const group=samples.filter(x=>x.market===market);
   if(group.length)byMarket[market]=summarize(group);
  }
  const known=samples.filter(x=>x.market!=='Unknown');
- return{version:TICKET_PAYOUT_LEARNING_VERSION_192,totalSamples:samples.length,knownMarketSamples:known.length,global:summarize(samples),knownGlobal:summarize(known),byMarket,samples};
+ return{version:TICKET_PAYOUT_LEARNING_VERSION_192,totalSamples:samples.length,rejectedSamples:rejected,knownMarketSamples:known.length,global:summarize(samples),knownGlobal:summarize(known),byMarket,samples,settledOnly:true};
 }
 
 export function estimateTicketNet192(row={},learning,market='Viagogo'){
@@ -66,7 +71,7 @@ export function estimateTicketNet192(row={},learning,market='Viagogo'){
 
 export function buildTicketNetDesk192(inventory=[]){
  const learning=buildTicketPayoutLearning192(inventory);
- const active=arr(inventory).filter(x=>['LISTED','NOT_LISTED'].includes(x.market_status||x.marketStatus));
+ const active=arr(inventory).filter(x=>['LISTED','NOT_LISTED'].includes(status(x)));
  const rows=active.map(row=>({
   id:row.id,name:row.event_name||row.eventName||row.name||'Vstupenka',section:row.section||'',qty:Math.max(1,n(row.qty)||1),askEach:n(row.ask_each_czk??row.askEachCzk??row.listPrice)||null,
   viagogo:estimateTicketNet192(row,learning,'Viagogo'),stubhub:estimateTicketNet192(row,learning,'StubHub')
