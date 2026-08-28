@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+const fail=m=>{console.error(`OS333 release guard: ${m}`);process.exitCode=1};
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
+const release=read('./js/releaseMeta.js'),boot=read('./js/instantShell64.js'),mod=read('./js/unifiedCommand333.js'),css=read('./os333.css'),pkg=JSON.parse(read('./package.json'));
+if(!release.includes("APP_VERSION='333.0.0'"))fail('releaseMeta is not 333.0.0');
+if(pkg.version!=='333.0.0')fail('package version mismatch');
+if(!boot.includes("./unifiedCommand333.js"))fail('OS333 is not booted');
+for(const symbol of ['installUnifiedCommand333','Ticket Action Center','RUNTIME HEALTH','INVESTMENT ACTION CENTER'])if(!mod.includes(symbol))fail(`missing ${symbol}`);
+if(!css.includes('.os333-drawer'))fail('ticket detail drawer CSS missing');
+for(const p of ['./js/ticketDesk331.js','./js/ticketQa332.js','./js/ticketCloud660.js','./js/financeCommand258.js'])if(!fs.existsSync(new URL(p,import.meta.url)))fail(`missing critical file ${p}`);
+if(!process.exitCode)console.log('OS333 release guard OK');
