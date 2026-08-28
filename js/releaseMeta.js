@@ -1,3 +1,3 @@
-export const APP_VERSION='342.0.0';
-export const APP_RELEASE='342.0';
-// canonical navigation ownership release 342
+export const APP_VERSION='343.0.0';
+export const APP_RELEASE='343.0';
+// boot performance budget release 343
