@@ -11,6 +11,7 @@ async function boot(page){
 test('OS343 publishes complete boot timing data',async({page})=>{
  await boot(page);
  const b=await page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__);
+ console.log('OS343_BOOT_PROFILE',JSON.stringify({totalMs:b.totalMs,moduleCount:b.modules.length,slowest:b.slowest,failures:b.failures}));
  expect(b.version).toBe(343);
  expect(b.complete).toBe(true);
  expect(b.totalMs).toBeGreaterThan(0);
