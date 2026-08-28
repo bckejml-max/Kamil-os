@@ -14,7 +14,7 @@ assert.match(brain,/Proč právě tohle/,'Explain drawer missing');
 assert.match(inbox,/buildUniversalInbox302/,'Universal Inbox missing');
 assert.match(inbox,/urgent/,'Urgent inbox slice missing');
 assert.match(nav,/Život/,'Simplified Life navigation missing');
-assert.match(nav,/data-view=\\"home\\"/,'Home hiding rule missing');
+assert.match(nav,/data-view="home"/,'Home hiding rule missing');
 assert.match(shell,/navigation302\.js/,'OS302 navigation is not booted');
 assert.match(shell,/kamilBrain302\.js/,'OS302 brain is not booted');
 assert.doesNotMatch(shell,/optionalImport\('\.\/kamilBrain301\.js'/,'Old brain must not boot directly');
