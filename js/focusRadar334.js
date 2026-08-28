@@ -3,7 +3,7 @@ import {buildDomainOS328} from './domainOS328.js';
 import {openFinanceCommand258} from './financeCommand258.js';
 import {openTicketCommander660} from './ticketCommander660.js';
 
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=x=>Number.isFinite(Number(x))?Number(x):0;
 const money=x=>`${Math.round(num(x)).toLocaleString('cs-CZ')} Kč`;
 const isTicketAction=x=>['BUY','SELL/REPRICE','REVIEW'].includes(String(x?.signal||''));
