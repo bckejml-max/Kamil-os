@@ -15,6 +15,11 @@ jobs:
           node-version: 24
       - name: Install test dependency
         run: npm install
+      - name: Canonical domain syntax
+        run: |
+          node --check js/domainOS328.js
+          node --check js/focusRadar334.js
+          node --check js/instantShell64.js
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Start static app
