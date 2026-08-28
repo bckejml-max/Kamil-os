@@ -1,0 +1,6 @@
+const qs=(s,r=document)=>r.querySelector(s);
+const qsa=(s,r=document)=>[...r.querySelectorAll(s)];
+const HIDE=['[data-operator-home299]','.today213-commander','.today213-actions','.today213-status','[data-glance221]'];
+function apply(){const host=qs('#todayView'),brain=qs('[data-kamil-brain300]',host||document);if(!host||!brain)return false;host.dataset.todayCleanup306='1';HIDE.forEach(sel=>qsa(sel,host).forEach(x=>x.dataset.os306Hidden='1'));const dash=qs('[data-today-dashboard213]',host);if(dash)dash.dataset.os306Shell='1';const root=brain.closest('.ux65-today,.ux64-page')||host;root.dataset.os306CommandCenter='1';window.__KAMIL_TODAY_CLEANUP306__={version:306,hidden:qsa('[data-os306-hidden]',host).length,at:Date.now()};return true}
+let timer=0;const schedule=()=>{clearTimeout(timer);timer=setTimeout(apply,80)};
+export function installTodayCleanup306(){if(!document.querySelector('link[data-todaycleanup306]')){const l=document.createElement('link');l.rel='stylesheet';l.href='./todayCleanup306.css';l.dataset.todaycleanup306='1';document.head.appendChild(l)}schedule();setTimeout(schedule,300);setTimeout(schedule,900);window.addEventListener('kamil:view-change',schedule);new MutationObserver(schedule).observe(qs('#todayView')||document.body,{childList:true,subtree:true})}
