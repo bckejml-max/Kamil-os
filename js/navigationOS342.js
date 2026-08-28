@@ -1,7 +1,8 @@
 const VERSION=342;
-let current='today',transitions=0,bound=false,lastSource='boot',corrections=0,guard=null,repairing=false,observed=0;
+let current='today',transitions=0,bound=false,lastSource='boot',corrections=0,guard=null,repairing=false,observed=0,owned=[];
 
-const viewNodes=()=>[...document.querySelectorAll('.view[id^="view-"]')];
+const discoverViews=()=>[...document.querySelectorAll('[id^="view-"]')].filter(el=>/^view-[a-z0-9-]+$/i.test(el.id));
+const viewNodes=()=>owned.length?owned:discoverViews();
 const viewFromDom=()=>viewNodes().find(x=>x.classList.contains('on'))?.id?.replace(/^view-/,'')||current||'today';
 const valid=view=>typeof view==='string'&&!!document.querySelector(`#view-${CSS.escape(view)}`);
 const normalize=view=>valid(view)?view:'today';
@@ -18,12 +19,15 @@ function enforceDom(){
  let dirty=false;
  for(const el of nodes){
   const shouldOn=el.id===target;
-  if(!el.classList.contains('on')!==!shouldOn){dirty=true;break}
+  if(!el.classList.contains('view')||el.classList.contains('on')!==shouldOn){dirty=true;break}
  }
  if(!dirty)return;
  repairing=true;
  corrections++;
- for(const el of nodes)el.classList.toggle('on',el.id===target);
+ for(const el of nodes){
+  el.classList.add('view');
+  el.classList.toggle('on',el.id===target);
+ }
  repairing=false;
  publish();
 }
@@ -59,15 +63,15 @@ function captureViewClick(e){
 export function installNavigation342(){
  if(bound)return;
  bound=true;
+ owned=discoverViews();
+ observed=owned.length;
  current=viewFromDom();
  document.documentElement.dataset.navigation342='1';
  document.addEventListener('click',captureViewClick,true);
  window.addEventListener('kamil:view-change',e=>sync(e.detail));
- const nodes=viewNodes();
- observed=nodes.length;
  if(observed){
   guard=new MutationObserver(()=>queueMicrotask(enforceDom));
-  nodes.forEach(el=>guard.observe(el,{attributes:true,attributeFilter:['class']}));
+  owned.forEach(el=>guard.observe(el,{attributes:true,attributeFilter:['class']}));
  }
  enforceDom();
  publish();
