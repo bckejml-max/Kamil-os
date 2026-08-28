@@ -10,5 +10,7 @@ assert(opp.includes('TICKET_COMPLIANCE_TTL_DAYS_280=14')&&opp.includes('restrict
 assert(boot.includes("./lifeOperator298.js")&&boot.includes("./operatorHome299.js"),'operator boot missing');
 assert(ux.includes('Kamil AI Operator')&&ux.includes("kamil:open-life-operator"),'AI Operator palette entry missing');
 assert(shell.includes('answerLifeOperator298')&&shell.includes('co dnes řešit'),'natural-language operator wiring missing');
-assert(rel.includes("299.0.0"),'release not OS299');assert(sw.includes('kamil-os-299.0.0-core-r1'),'OS299 cache missing');assert(sw.includes('lifeOperator298.css')&&sw.includes('lifeOperator298.js')&&sw.includes('operatorHome299.css')&&sw.includes('operatorHome299.js'),'operator offline cache missing');
-console.log('OS279-299 operator regression OK');
+assert(shell.includes('window.__KAMIL_OS80_AUTO_MOUNT__=false'),'OS300 legacy auto-mount cleanup missing');
+assert(!shell.includes('appendCommandCenter800')&&!shell.includes('MutationObserver'),'legacy OS80 auto-render still wired');
+assert(rel.includes("300.0.0"),'release not OS300');assert(sw.includes('kamil-os-300.0.0-core-r1'),'OS300 cache missing');assert(sw.includes('lifeOperator298.css')&&sw.includes('lifeOperator298.js')&&sw.includes('operatorHome299.css')&&sw.includes('operatorHome299.js'),'operator offline cache missing');
+console.log('OS279-300 operator regression OK');
