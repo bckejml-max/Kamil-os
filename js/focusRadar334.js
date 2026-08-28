@@ -3,7 +3,7 @@ import {buildDomainOS328} from './domainOS328.js';
 import {openFinanceCommand258} from './financeCommand258.js';
 import {openTicketCommander660} from './ticketCommander660.js';
 
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 const num=x=>Number.isFinite(Number(x))?Number(x):0;
 const money=x=>`${Math.round(num(x)).toLocaleString('cs-CZ')} Kč`;
 const isTicketAction=x=>['BUY','SELL/REPRICE','REVIEW'].includes(String(x?.signal||''));
@@ -41,7 +41,7 @@ function render(){
  const host=document.querySelector('#todayView');if(!host)return false;
  const m=model();host.querySelector('[data-focus-radar334]')?.remove();
  const core=host.querySelector('[data-kamil-core312]'),markup=html(m);if(core)core.insertAdjacentHTML('beforebegin',markup);else host.insertAdjacentHTML('afterbegin',markup);
- window.__KAMIL_FOCUS_RADAR334__={version:334,model:m,refresh:render,open,healthy:true,at:Date.now()};return true;
+ window.__KAMIL_FOCUS_RADAR334__={version:334,model:m,refresh:renderSafe,open,healthy:true,mounted:!!host.querySelector('[data-focus-radar334]'),at:Date.now()};return true;
 }
 function renderSafe(){
  try{return render()}catch(error){
@@ -50,12 +50,20 @@ function renderSafe(){
   return false;
  }
 }
-let timer=0,bound=false,observer=null;
+let timer=0,bound=false,observer=null,integrityTimer=0;
 const schedule=(delay=120)=>{clearTimeout(timer);timer=setTimeout(renderSafe,delay)};
+function ensureMounted(){
+ const host=document.querySelector('#todayView');if(!host)return;
+ if(!host.querySelector('[data-focus-radar334]'))renderSafe();
+}
 function watchToday(){
- const host=document.querySelector('#todayView');if(!host||observer)return;
- observer=new MutationObserver(()=>{if(!host.querySelector('[data-focus-radar334]'))schedule(80)});
- observer.observe(host,{childList:true,subtree:false});
+ const host=document.querySelector('#todayView');if(!host)return;
+ if(observer)observer.disconnect();
+ observer=new MutationObserver(()=>{if(!host.querySelector('[data-focus-radar334]'))schedule(40)});
+ observer.observe(host,{childList:true,subtree:true});
+ if(!integrityTimer)integrityTimer=window.setInterval(()=>{
+  if(document.visibilityState!=='hidden')ensureMounted();
+ },350);
 }
 export function installFocusRadar334(){
  injectCss();document.documentElement.dataset.focusRadar334='1';
@@ -65,5 +73,5 @@ export function installFocusRadar334(){
   window.addEventListener('kamil:view-change',e=>{if(!e.detail||e.detail==='today')schedule()});
   store.subscribe?.(()=>schedule());
  }
- watchToday();schedule();setTimeout(()=>{watchToday();schedule()},500);setTimeout(()=>schedule(),1600);setTimeout(()=>schedule(),3200);
+ watchToday();schedule(20);setTimeout(()=>{watchToday();ensureMounted()},500);setTimeout(ensureMounted,1600);setTimeout(ensureMounted,3200);
 }
