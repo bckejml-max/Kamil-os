@@ -13,34 +13,13 @@ async function boot(page){
 async function record(page){await page.evaluate(()=>{window.__nav342Events=[];window.addEventListener('kamil:view-change',e=>window.__nav342Events.push(e.detail))})}
 function canonicalCount(page,view){return page.evaluate(v=>window.__nav342Events.filter(x=>x===v).length,view)}
 
-async function installMutationDiagnostics(page){
- await page.evaluate(()=>{
-  window.__viewMutation342=[];
-  const remember=(entry)=>{window.__viewMutation342.push({...entry,at:Math.round(performance.now())});if(window.__viewMutation342.length>80)window.__viewMutation342.shift()};
-  const observer=new MutationObserver(records=>{
-   for(const r of records){
-    if(r.type==='attributes'&&r.target?.id?.startsWith('view-'))remember({type:'class',id:r.target.id,old:r.oldValue,current:r.target.getAttribute('class')});
-    if(r.type==='childList'){
-     for(const n of r.removedNodes)if(n?.nodeType===1&&(/^view-/.test(n.id||'')||n.querySelector?.('[id^="view-"]')))remember({type:'removed',id:n.id||null,html:(n.outerHTML||'').slice(0,220)});
-     for(const n of r.addedNodes)if(n?.nodeType===1&&(/^view-/.test(n.id||'')||n.querySelector?.('[id^="view-"]')))remember({type:'added',id:n.id||null,html:(n.outerHTML||'').slice(0,220)});
-    }
-   }
-  });
-  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class'],attributeOldValue:true});
-  window.__viewMutationObserver342=observer;
- });
-}
-
 test('OS342 emits exactly one canonical transition and does not bounce back',async({page})=>{
- await boot(page);await record(page);await installMutationDiagnostics(page);
- const originalHandle=await page.locator('#view-money').evaluateHandle(el=>el);
+ await boot(page);await record(page);
  await page.locator('#mainNav [data-view="money"]').click();
  await expect(page.locator('#view-money')).toHaveClass(/on/);
  await expect.poll(()=>canonicalCount(page,'money')).toBe(1);
  await page.waitForTimeout(700);
- const diag=await page.evaluate(el=>({money:document.querySelector('#view-money')?.getAttribute('class')??null,sameNode:document.querySelector('#view-money')===el,current:window.__KAMIL_NAVIGATION342__?.current(),corrections:window.__KAMIL_NAVIGATION342__?.corrections,events:window.__nav342Events,mutations:window.__viewMutation342?.slice(-40)}),originalHandle);
- await originalHandle.dispose();
- if(!String(diag.money||'').split(/\s+/).includes('on'))throw new Error(`OS342 Money lost ownership: ${JSON.stringify(diag,null,2)}`);
+ await expect(page.locator('#view-money')).toHaveClass(/on/);
  expect(await canonicalCount(page,'money')).toBe(1);
  const state=await page.evaluate(()=>({version:window.__KAMIL_NAVIGATION342__.version,current:window.__KAMIL_NAVIGATION342__.current(),healthy:window.__KAMIL_NAVIGATION342__.healthy,observed:window.__KAMIL_NAVIGATION342__.observed}));
  expect(state.version).toBe(342);expect(state.current).toBe('money');expect(state.healthy).toBe(true);expect(state.observed).toBeGreaterThan(1);
