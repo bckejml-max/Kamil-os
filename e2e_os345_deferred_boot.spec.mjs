@@ -9,13 +9,13 @@ async function boot(page){
 
 test('OS345 keeps diagnostics out of interactive boot and Today stays usable',async({page})=>{
  await boot(page);
- const s=await page.evaluate(()=>({boot:window.__KAMIL_BOOT_BUDGET343__,deferred:window.__KAMIL_DEFERRED345__,today:!!document.querySelector('#todayView')}));
+ const s=await page.evaluate(()=>({boot:window.__KAMIL_BOOT_BUDGET343__,deferred:window.__KAMIL_DEFERRED345__,today:!!document.querySelector('#view-today')}));
  expect(s.deferred.version).toBe(345);
  expect(s.boot.modules.some(x=>x.path==='./performance330.js')).toBe(false);
  expect(s.boot.modules.some(x=>x.path==='./ticketQa332.js')).toBe(false);
  expect(s.today).toBe(true);
  await page.evaluate(()=>window.__KAMIL_NAVIGATION342__.navigate('today',{source:'os345-test'}));
- await expect(page.locator('#todayView')).toHaveClass(/on|active|current/);
+ await expect(page.locator('#view-today')).toHaveClass(/on/);
  console.log('OS345_INTERACTIVE_PROFILE',JSON.stringify({totalMs:s.boot.totalMs,moduleCount:s.boot.modules.length,slowest:s.boot.slowest}));
 });
 
