@@ -21,7 +21,10 @@ jobs:
           node --check js/focusRadar334.js
           node --check js/focusQueue335.js
           node --check js/actionExecution336.js
+          node --check js/ticketPage100.js
           node --check js/instantShell64.js
+      - name: OS338 ticket renderer ownership
+        run: node ticket_flicker_338_test.mjs
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Start static app
