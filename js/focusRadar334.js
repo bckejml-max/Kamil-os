@@ -37,11 +37,17 @@ function html(m){
  const b=m.best,domains=m.candidates.map(x=>`<button type="button" class="os334-domain ${x.key===b.key?'active':''}" data-focus334-open="${x.key}"><span>${esc(x.label)}</span><b>${x.count||0}</b></button>`).join('');
  return `<section class="os334-radar" data-focus-radar334><div class="os334-head"><div><small>KAMIL OS · 334</small><h2>Focus Radar</h2></div><span class="os334-score">Priorita ${Math.min(100,b.score)}</span></div><div class="os334-main"><div><span class="os334-kicker">UDĚLEJ TEĎ · ${esc(b.label).toUpperCase()}</span><h3>${esc(b.title)}</h3><p>${esc(b.reason)}</p></div><button type="button" class="os334-primary" data-focus334-open="${b.key}">Otevřít akci</button></div><div class="os334-domains">${domains}</div></section>`;
 }
+function anchor(){
+ const section=document.querySelector('#view-today'),today=document.querySelector('#todayView');
+ if(!section||!today)return null;
+ let host=section.querySelector('[data-focus-anchor334]');
+ if(!host){host=document.createElement('div');host.dataset.focusAnchor334='1';section.insertBefore(host,today)}
+ return host;
+}
 function render(){
- const host=document.querySelector('#todayView');if(!host)return false;
- const m=model();host.querySelector('[data-focus-radar334]')?.remove();
- const core=host.querySelector('[data-kamil-core312]'),markup=html(m);if(core)core.insertAdjacentHTML('beforebegin',markup);else host.insertAdjacentHTML('afterbegin',markup);
- window.__KAMIL_FOCUS_RADAR334__={version:334,model:m,refresh:renderSafe,open,healthy:true,mounted:!!host.querySelector('[data-focus-radar334]'),at:Date.now()};return true;
+ const host=anchor();if(!host)return false;
+ const m=model();host.innerHTML=html(m);
+ window.__KAMIL_FOCUS_RADAR334__={version:334,model:m,refresh:renderSafe,open,healthy:true,mounted:!!host.querySelector('[data-focus-radar334]'),anchor:'view-today',at:Date.now()};return true;
 }
 function renderSafe(){
  try{return render()}catch(error){
@@ -50,29 +56,15 @@ function renderSafe(){
   return false;
  }
 }
-let timer=0,bound=false,observer=null,integrityTimer=0;
+let timer=0,bound=false;
 const schedule=(delay=120)=>{clearTimeout(timer);timer=setTimeout(renderSafe,delay)};
-function ensureMounted(){
- const host=document.querySelector('#todayView');if(!host)return;
- if(!host.querySelector('[data-focus-radar334]'))renderSafe();
-}
-function watchToday(){
- if(observer)return;
- const root=document.body||document.documentElement;if(!root)return;
- observer=new MutationObserver(()=>{
-  const host=document.querySelector('#todayView');
-  if(host&&!host.querySelector('[data-focus-radar334]'))schedule(20);
- });
- observer.observe(root,{childList:true,subtree:true});
- if(!integrityTimer)integrityTimer=window.setInterval(ensureMounted,200);
-}
 export function installFocusRadar334(){
  injectCss();document.documentElement.dataset.focusRadar334='1';
  if(!bound){
   bound=true;
   document.addEventListener('click',e=>{const b=e.target.closest?.('[data-focus334-open]');if(!b)return;e.preventDefault();open(b.dataset.focus334Open)});
-  window.addEventListener('kamil:view-change',e=>{if(!e.detail||e.detail==='today')schedule()});
+  window.addEventListener('kamil:view-change',e=>{if(!e.detail||e.detail==='today')schedule(40)});
   store.subscribe?.(()=>schedule());
  }
- watchToday();schedule(20);setTimeout(()=>{watchToday();ensureMounted()},500);setTimeout(ensureMounted,1600);setTimeout(ensureMounted,3200);
+ schedule(20);setTimeout(()=>schedule(20),500);setTimeout(()=>schedule(20),1600);
 }
