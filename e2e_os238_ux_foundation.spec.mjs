@@ -33,10 +33,7 @@ test('OS238 UX Foundation works on desktop and mobile',async({page})=>{
 
  await page.setViewportSize({width:390,height:844});
  await page.waitForTimeout(180);
- const mobileState=await page.locator('#bottomNav button').evaluateAll(btns=>btns.map(b=>({view:b.dataset.view||null,personalMore:b.hasAttribute('data-personal-more'),display:getComputedStyle(b).display,hidden:b.hidden,style:b.getAttribute('style'),ariaHidden:b.getAttribute('aria-hidden'),classes:b.className,text:b.textContent.trim().replace(/\s+/g,' ')})));
- const viewportState=await page.evaluate(()=>({innerWidth:window.innerWidth,clientWidth:document.documentElement.clientWidth,mq850:matchMedia('(max-width:850px)').matches,mq430:matchMedia('(max-width:430px)').matches,debug:window.__KAMIL_MOBILE_NAV238__||null,bottomDisplay:getComputedStyle(document.querySelector('#bottomNav')).display,bottomColumns:getComputedStyle(document.querySelector('#bottomNav')).gridTemplateColumns}));
- console.log('MOBILE_NAV_DIAG',JSON.stringify({mobileState,viewportState}));
- const visibleBottom=mobileState.filter(b=>b.display!=='none').length;
+ const visibleBottom=await page.locator('#bottomNav button').evaluateAll(btns=>btns.filter(b=>getComputedStyle(b).display!=='none').length);
  expect(visibleBottom).toBeLessThanOrEqual(5);
  await expect(page.locator('#bottomNav')).toBeVisible();
 });
