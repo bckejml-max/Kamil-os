@@ -1,6 +1,7 @@
 import {buildTicketPayoutLearning192,inferTicketMarketplace192} from './ticketPayoutLearningModel192.js';
 
-export const TICKET_OPPORTUNITY_VERSION_198=198;
+export const TICKET_OPPORTUNITY_VERSION_198=280;
+export const TICKET_COMPLIANCE_TTL_DAYS_280=14;
 const n=v=>Number(v||0)||0;
 const text=v=>String(v??'').trim();
 const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
@@ -11,21 +12,22 @@ const saleStatus=v=>text(v).toUpperCase().replace(/[ -]+/g,'_');
 const SALE_OK=new Set(['LIVE','ON_SALE','OPEN','AVAILABLE','VERIFIED','ACTIVE']);
 const SALE_BLOCKED=new Set(['CLOSED','CANCELLED','CANCELED','SUSPENDED','BLOCKED','OFF_SALE']);
 
-export function ticketComplianceGate198(candidate={}){
+export function ticketComplianceGate198(candidate={},now=Date.now()){
  const resaleRaw=candidate.resaleAllowed??candidate.resale_allowed;
  const transferRaw=candidate.transferCompatible??candidate.transfer_compatible;
  const officialStatus=saleStatus(candidate.officialSaleStatus??candidate.official_sale_status);
  const verifiedAt=text(candidate.restrictionsVerifiedAt??candidate.restrictions_verified_at);
  const verifiedTime=Date.parse(verifiedAt||'');
  const resaleAllowed=bool(resaleRaw),transferCompatible=bool(transferRaw),saleVerified=SALE_OK.has(officialStatus),hasVerifiedAt=Number.isFinite(verifiedTime);
+ const ageDays=hasVerifiedAt?Math.max(0,(now-verifiedTime)/86400000):null,fresh=hasVerifiedAt&&ageDays<=TICKET_COMPLIANCE_TTL_DAYS_280;
  const blocked=explicitFalse(resaleRaw)||explicitFalse(transferRaw)||SALE_BLOCKED.has(officialStatus);
- const verified=!blocked&&resaleAllowed&&transferCompatible&&saleVerified&&hasVerifiedAt;
+ const verified=!blocked&&resaleAllowed&&transferCompatible&&saleVerified&&fresh;
  const missing=[];
  if(resaleRaw==null||(!resaleAllowed&&!explicitFalse(resaleRaw)))missing.push('resaleAllowed');
  if(transferRaw==null||(!transferCompatible&&!explicitFalse(transferRaw)))missing.push('transferCompatible');
  if(!officialStatus)missing.push('officialSaleStatus');else if(!saleVerified&&!SALE_BLOCKED.has(officialStatus))missing.push('officialSaleStatus');
- if(!hasVerifiedAt)missing.push('restrictionsVerifiedAt');
- return {verified,blocked,resaleAllowed,transferCompatible,officialSaleStatus:officialStatus||null,restrictionsVerifiedAt:hasVerifiedAt?new Date(verifiedTime).toISOString():null,missing};
+ if(!hasVerifiedAt)missing.push('restrictionsVerifiedAt');else if(!fresh)missing.push('restrictionsVerificationFreshness');
+ return {verified,blocked,resaleAllowed,transferCompatible,officialSaleStatus:officialStatus||null,restrictionsVerifiedAt:hasVerifiedAt?new Date(verifiedTime).toISOString():null,verificationAgeDays:ageDays==null?null:Math.round(ageDays*10)/10,fresh,ttlDays:TICKET_COMPLIANCE_TTL_DAYS_280,missing};
 }
 
 export function ticketBuyFinance198(candidate={},marketRef=0,finance={}){
@@ -64,7 +66,7 @@ export function ticketOpportunityScore198(candidate={},now=Date.now(),finance={}
  if(!official)score-=25;if(!marketRef)score-=30;
  score=clamp(Math.round(score));
  const rawAction=score>=68&&upside!=null&&upside>=.45?'BUY':score>=45?'WATCH':'SKIP';
- const compliance=ticketComplianceGate198(candidate);
+ const compliance=ticketComplianceGate198(candidate,now);
  const buyFinance=ticketBuyFinance198(candidate,marketRef,finance);
  let action=rawAction;
  if(rawAction==='BUY'&&compliance.blocked)action='BLOCK';
