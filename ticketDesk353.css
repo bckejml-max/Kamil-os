@@ -1,8 +1,137 @@
-/* OS353 visual-only safety overrides for Ticket Desk */
-html[data-ticket-desk331="1"] #ticketIntelView .td331-hero{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:none;align-items:center}
+/* OS354 — Ticket Desk visual rebuild. Layout only; no ticket logic/data changes. */
+html[data-ticket-desk331="1"] #ticketIntelView{
+  --td-bg:#07111b;--td-panel:#0e1a25;--td-panel-2:#122231;--td-line:#203345;--td-line-strong:#2d455c;
+  --td-text:#f4f8fc;--td-muted:#91a4b7;--td-dim:#647a8f;--td-blue:#4ba3ff;--td-green:#46dd72;--td-orange:#ffb21a;--td-red:#ff565d;
+  color:var(--td-text);background:radial-gradient(circle at 50% -25%,rgba(42,111,165,.14),transparent 46%),#07111b;
+  min-height:100%;padding:0 14px 34px;box-sizing:border-box
+}
+html[data-ticket-desk331="1"] #ticketIntelView .td331{display:grid;gap:14px;max-width:1680px;margin:0 auto;padding:18px 0 34px;font-variant-numeric:tabular-nums}
+
+/* clean title bar */
+html[data-ticket-desk331="1"] #ticketIntelView .td331-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:none;align-items:center;gap:22px;padding:6px 4px 2px;border:0;border-radius:0;background:transparent;box-shadow:none}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-hero:after{display:none}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-kicker,html[data-ticket-desk331="1"] #ticketIntelView .td331-hero h1,html[data-ticket-desk331="1"] #ticketIntelView .td331-hero p{grid-column:1;min-width:0}
-html[data-ticket-desk331="1"] #ticketIntelView .td331-kicker{grid-row:1}
-html[data-ticket-desk331="1"] #ticketIntelView .td331-hero h1{grid-row:2}
-html[data-ticket-desk331="1"] #ticketIntelView .td331-hero p{grid-row:3}
-html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar{grid-column:2;grid-row:1/4;align-self:center}
-@media(max-width:980px){html[data-ticket-desk331="1"] #ticketIntelView .td331-hero{grid-template-columns:1fr}html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar{grid-column:1;grid-row:4;justify-content:flex-start;margin-top:4px}}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-kicker{grid-row:1;color:#5ea9ef;font-size:10px;font-weight:900;letter-spacing:.09em;text-transform:uppercase}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-hero h1{grid-row:2;margin:2px 0 0;font-size:25px;line-height:1.08;letter-spacing:-.035em;color:#fff}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-hero p{grid-row:3;margin:0;color:var(--td-muted);font-size:12px;line-height:1.45;max-width:760px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar{grid-column:2;grid-row:1/4;align-self:center;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 14px;border:1px solid #274158;border-radius:8px;background:#101f2c;color:#dbe8f4;font-size:11px;font-weight:800;cursor:pointer;text-decoration:none;transition:.14s ease}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-btn:hover{border-color:#3d6788;background:#162a3a;transform:translateY(-1px)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-btn.primary{background:linear-gradient(180deg,#348dff,#1f6ed8);border-color:#438ff0;color:#fff;box-shadow:0 8px 22px rgba(24,108,223,.2)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-btn:focus-visible,html[data-ticket-desk331="1"] #ticketIntelView .td331-mode:focus-visible,html[data-ticket-desk331="1"] #ticketIntelView .td331-filter:focus-visible{outline:2px solid #4ba3ff;outline-offset:2px}
+
+/* KPI cards */
+html[data-ticket-desk331="1"] #ticketIntelView .td331-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat{position:relative;min-width:0;padding:16px 17px 15px;border:1px solid var(--td-line);border-radius:12px;background:linear-gradient(145deg,#12202c,#0d1822);box-shadow:inset 0 1px 0 rgba(255,255,255,.018)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat:after{content:"";position:absolute;right:16px;top:16px;width:34px;height:34px;border-radius:9px;background:rgba(75,163,255,.09);border:1px solid rgba(75,163,255,.1)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat.accent:after{background:rgba(70,221,114,.09);border-color:rgba(70,221,114,.12)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat span{display:block;color:#9aafc3;font-size:10px;font-weight:700;text-transform:none;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:42px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat b{display:block;font-size:23px;line-height:1.08;letter-spacing:-.025em;margin-top:7px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat small{display:block;color:#71879a;font-size:9px;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat.accent b{color:var(--td-green)}
+
+/* tabs */
+html[data-ticket-desk331="1"] #ticketIntelView .td331-modes{display:flex;gap:0;padding:0;border:1px solid var(--td-line);border-radius:10px;background:#0b1721;width:100%;max-width:100%;overflow:hidden}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-mode{min-height:42px;padding:0 22px;border:0;border-right:1px solid #192c3d;border-radius:0;background:transparent;color:#a2b2c2;font-size:11px;font-weight:800;cursor:pointer;position:relative}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-mode:last-child{border-right:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-mode b{display:inline-flex;min-width:19px;height:19px;align-items:center;justify-content:center;margin-left:6px;border-radius:999px;background:#183149;font-size:9px;color:#cde5fb}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-mode.on{background:#112638;color:#62b4ff}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-mode.on:after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;border-radius:2px;background:#4ba3ff}
+
+/* section and filters */
+html[data-ticket-desk331="1"] #ticketIntelView .td331-section{display:grid;gap:0;border:1px solid var(--td-line);border-radius:12px;background:#0b1721;overflow:hidden}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-section.hidden{display:none!important}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border-bottom:1px solid var(--td-line);background:#0d1b27}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head h2{margin:0;font-size:13px;line-height:1.2;letter-spacing:-.01em}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head p{margin:2px 0 0;color:#6f8497;font-size:9px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-filters{display:flex;gap:6px;flex-wrap:wrap}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-filter{border:1px solid #263d52;background:#0c1822;color:#91a5b6;padding:7px 12px;border-radius:7px;font-size:10px;font-weight:800;cursor:pointer}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-filter.on{color:#dff1ff;background:#15314a;border-color:#285b82}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-sold-summary{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-sold-summary span{padding:7px 10px;border:1px solid #263d52;border-radius:7px;color:#91a5b6;font-size:10px;background:#0c1822}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-sold-summary b{color:#fff;margin-left:4px}
+
+/* table-like ticket rows */
+html[data-ticket-desk331="1"] #ticketIntelView .td331-grid{display:grid;grid-template-columns:1fr;gap:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{display:grid;grid-template-columns:minmax(245px,1.35fr) minmax(420px,2.2fr) minmax(245px,1fr) minmax(104px,auto);grid-template-areas:"top prices signal actions" "reason prices signal actions";column-gap:14px;row-gap:2px;align-items:center;padding:12px 14px;border:0;border-bottom:1px solid #1b2d3d;border-radius:0;background:#0d1923;transition:background .12s ease;min-width:0;box-shadow:none}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket:last-child{border-bottom:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-grid .td331-ticket:nth-child(even){background:#0b1721}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket:hover{background:#122231}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket[data-tone="success"],html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket[data-tone="warning"],html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket[data-tone="critical"]{border-left:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-top{grid-area:top;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-top>div{min-width:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket h3{margin:0;font-size:12px;line-height:1.25;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f7fbff}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-meta{color:#71879a;font-size:9px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-badge{flex:0 0 auto;padding:5px 7px;border:1px solid transparent;border-radius:999px;font-size:8px;line-height:1;font-weight:900;letter-spacing:.02em;text-transform:uppercase}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-badge.success{color:#4ee27b;background:rgba(70,221,114,.1);border-color:rgba(70,221,114,.16)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-badge.warning{color:#ffb51f;background:rgba(255,178,26,.1);border-color:rgba(255,178,26,.15)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-badge.critical{color:#ff6269;background:rgba(255,86,93,.1);border-color:rgba(255,86,93,.16)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-priceflow{grid-area:prices;display:grid;grid-template-columns:repeat(4,minmax(86px,1fr));gap:0;border:0;border-radius:0;overflow:visible;background:transparent}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price{padding:2px 12px;border:0;border-left:1px solid #1d3142;border-radius:0;background:transparent;min-width:0;text-align:right}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price:first-child{border-left:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price span{display:block;color:#698094;font-size:8px;font-weight:700;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price b{display:block;margin-top:3px;font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f5f9fd}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price.recommended{background:transparent}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price.recommended b{color:#5eb1ff}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price.positive b{color:var(--td-green)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price.negative b{color:var(--td-red)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-signal{grid-area:signal;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0 4px 12px;border-left:1px solid #1d3142;background:transparent;min-width:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-signal-main{display:flex;align-items:center;gap:7px;min-width:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-signal-main>div{min-width:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-dot{width:7px;height:7px;flex:0 0 auto;border-radius:50%;background:#77899a}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-dot.live{background:#45df72;box-shadow:0 0 0 4px rgba(69,223,114,.08)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-dot.warn{background:#ffb21a;box-shadow:0 0 0 4px rgba(255,178,26,.08)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-signal strong{display:block;font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c8d7e5}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-signal small{display:block;color:#61778b;font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-signal>b{font-size:11px;line-height:1.2;white-space:nowrap;color:#46dd72}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-reason{grid-area:reason;margin:0;color:#61778b;line-height:1.2;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions{grid-area:actions;display:flex;gap:5px;flex-direction:column;min-width:100px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions .td331-btn{min-height:29px;padding:0 9px;font-size:9px;white-space:nowrap;background:#122231;border-color:#223a4f;border-radius:6px;box-shadow:none}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-empty{padding:30px;border:0;border-radius:0;text-align:center;color:#7890a5;background:#0d1923}
+
+/* bottom system strip */
+html[data-ticket-desk331="1"] #ticketIntelView .td331-tech{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--td-line);border-radius:10px;background:#0d1b27;color:#6f8497}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-tech .left{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-chip{font-size:8px;font-weight:800;padding:4px 7px;border-radius:999px;background:#142637;color:#7f94a8}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-chip.ok{color:#4dde78;background:rgba(70,221,114,.08)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-chip.bad{color:#ff646b;background:rgba(255,86,93,.08)}
+html[data-ticket-desk331="1"] #ticketIntelView [data-inventory-card].hidden{display:none!important}
+
+@media(max-width:1280px){
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{grid-template-columns:minmax(220px,1.1fr) minmax(360px,1.7fr) minmax(100px,auto);grid-template-areas:"top prices actions" "reason prices actions" "signal signal actions"}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-signal{border-left:0;border-top:1px solid #1d3142;padding:7px 0 0}
+}
+@media(max-width:980px){
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-hero{grid-template-columns:1fr;align-items:start}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar{grid-column:1;grid-row:4;justify-content:flex-start;margin-top:5px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{grid-template-columns:1fr;grid-template-areas:"top" "prices" "signal" "reason" "actions";gap:8px;padding:12px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions{flex-direction:row;min-width:0}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions .td331-btn{flex:1}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-signal{border-top:1px solid #1d3142;padding-top:8px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head{align-items:flex-start;flex-direction:column}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-sold-summary{justify-content:flex-start}
+}
+@media(max-width:620px){
+ html[data-ticket-desk331="1"] #ticketIntelView{padding:0 8px 24px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331{gap:10px;padding-top:12px;padding-bottom:90px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-hero h1{font-size:21px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-hero p{font-size:10px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar{display:grid;grid-template-columns:1fr 1fr;width:100%}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-overview{grid-template-columns:1fr 1fr;gap:6px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-stat{padding:12px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-stat b{font-size:18px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-modes{position:sticky;top:6px;z-index:5;background:rgba(11,23,33,.96);backdrop-filter:blur(12px)}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-mode{flex:1;min-height:40px;padding:0 10px}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-priceflow{grid-template-columns:1fr 1fr}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-price{padding:6px 8px;text-align:left;border-left:0;border-top:1px solid #1d3142}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-price:nth-child(odd){border-right:1px solid #1d3142}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-top{align-items:flex-start}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-signal{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:420px){
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar{grid-template-columns:1fr}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-filters{display:grid;grid-template-columns:1fr 1fr;width:100%}
+ html[data-ticket-desk331="1"] #ticketIntelView .td331-filter:first-child{grid-column:1/-1}
+}
+@media(prefers-reduced-motion:reduce){html[data-ticket-desk331="1"] #ticketIntelView .td331-btn,html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{transition:none!important}}
