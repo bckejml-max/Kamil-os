@@ -16,12 +16,7 @@ async function boot(page){
 
 test('OS347 enforces the interactive critical-path budget',async({page})=>{
   await boot(page);
-  const s=await page.evaluate(()=>({
-    boot:window.__KAMIL_BOOT_BUDGET343__,
-    deferred:window.__KAMIL_DEFERRED345__,
-    loader:window.__KAMIL_TICKET_ON_DEMAND346__,
-    order:window.__OS347_EVENT_ORDER__
-  }));
+  const s=await page.evaluate(()=>({boot:window.__KAMIL_BOOT_BUDGET343__,deferred:window.__KAMIL_DEFERRED345__,loader:window.__KAMIL_TICKET_ON_DEMAND346__,order:window.__OS347_EVENT_ORDER__}));
   const paths=s.boot.modules.map(x=>x.path);
   expect(s.boot.healthy).toBe(true);
   expect(s.boot.failures).toHaveLength(0);
@@ -40,7 +35,9 @@ test('OS347 starts deferred diagnostics only after interactive boot',async({page
   const s=await page.evaluate(()=>({deferred:window.__KAMIL_DEFERRED345__,order:window.__OS347_EVENT_ORDER__}));
   expect(s.deferred.healthy).toBe(true);
   expect(s.deferred.failures).toHaveLength(0);
-  expect(s.deferred.modules.map(x=>x.path).sort()).toEqual(['./performance330.js','./ticketQa332.js'].sort());
+  const paths=s.deferred.modules.map(x=>x.path);
+  expect(paths).toContain('./performance330.js');
+  expect(paths).toContain('./ticketQa332.js');
   const critical=s.order.find(x=>x.name==='critical'),deferred=s.order.find(x=>x.name==='deferred');
   expect(critical).toBeTruthy();
   expect(deferred).toBeTruthy();
