@@ -1,3 +1,3 @@
-export const APP_VERSION='361.0.0';
-export const APP_RELEASE='361.0';
-// Ticket Desk long-list stability release 361
+export const APP_VERSION='362.0.0';
+export const APP_RELEASE='362.0';
+// Release identity and runtime deployment self-check 362
