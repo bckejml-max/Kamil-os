@@ -1,3 +1,3 @@
-export const APP_VERSION='374.0.0';
-export const APP_RELEASE='374.0';
-// Ticket Desk reliable market pricing, break-even floor and net P/L 374
+export const APP_VERSION='375.0.0';
+export const APP_RELEASE='375.0';
+// Ticket market refresh now scans real inventory and updates pricing 375
