@@ -1,0 +1,22 @@
+/* OS356 — Ticket Desk scanability polish. Visual only. */
+html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head{position:sticky;top:0;z-index:3;backdrop-filter:blur(12px);background:rgba(13,27,39,.96)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{position:relative;grid-template-columns:minmax(230px,1.25fr) minmax(430px,2.35fr) minmax(220px,.95fr) minmax(100px,auto)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket:before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:2px;border-radius:2px;background:#294156;opacity:.45}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket[data-tone="success"]:before{background:var(--td-green);opacity:.85}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket[data-tone="warning"]:before{background:var(--td-orange);opacity:.85}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket[data-tone="critical"]:before{background:var(--td-red);opacity:.9}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket:hover{background:#142839}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket h3{font-size:13px;font-weight:820}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-meta{font-size:9px;color:#7e94a7}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price{padding-left:14px;padding-right:14px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price span{text-transform:uppercase;letter-spacing:.045em;font-size:7.5px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price b{font-size:12px;font-weight:850}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price.recommended{position:relative}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price.recommended:after{content:"TIP";position:absolute;right:7px;top:-7px;padding:2px 4px;border-radius:4px;background:#153d61;color:#76bdff;font-size:6px;font-weight:950;letter-spacing:.05em}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-signal{padding-left:14px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-signal>b{font-size:12px;font-weight:900}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions .td331-btn{opacity:.72;transition:opacity .12s ease,background .12s ease,border-color .12s ease}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket:hover .td331-ticket-actions .td331-btn,html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions .td331-btn:focus-visible{opacity:1}
+@media(max-width:1280px){html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{grid-template-columns:minmax(210px,1.1fr) minmax(350px,1.7fr) minmax(100px,auto)}}
+@media(max-width:980px){html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head{position:static}html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{grid-template-columns:1fr}html[data-ticket-desk331="1"] #ticketIntelView .td331-price.recommended:after{top:3px}}
+@media(max-width:620px){html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket:before{top:8px;bottom:8px}html[data-ticket-desk331="1"] #ticketIntelView .td331-price{padding:7px 9px}}
