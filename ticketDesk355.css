@@ -1,0 +1,56 @@
+/* OS355 — Ticket Desk shell harmonization. Visual only. */
+@supports selector(body:has(#view-tickets.on)){
+  body:has(#view-tickets.on){background:#07111b;color:#f4f8fc}
+  body:has(#view-tickets.on) .app{grid-template-columns:168px minmax(0,1fr);background:#07111b}
+  body:has(#view-tickets.on) .sidebar{background:#09131e;border-right:1px solid #1c2b3a;padding:16px 10px;gap:16px;color:#b9c9d8}
+  body:has(#view-tickets.on) .sidebar-brand{padding:0 6px 10px;border-bottom:1px solid #172839}
+  body:has(#view-tickets.on) .brand-mark,body:has(#view-tickets.on) .account-avatar{background:#132334;border:1px solid #263b50;color:#fff;box-shadow:none}
+  body:has(#view-tickets.on) .brand{color:#fff;font-size:13px}
+  body:has(#view-tickets.on) .sidebar-sub,body:has(#view-tickets.on) .sidebar .muted{color:#60768b;font-size:9px}
+  body:has(#view-tickets.on) .main-nav{gap:4px}
+  body:has(#view-tickets.on) .main-nav button{min-height:38px;padding:8px 9px;border-radius:8px;color:#879bae;font-size:11px;border:1px solid transparent;transition:.14s ease}
+  body:has(#view-tickets.on) .main-nav button:hover{background:#0f1e2b;color:#c9d8e6}
+  body:has(#view-tickets.on) .main-nav button.on{background:#10283b;border-color:#1d4260;color:#eaf6ff;font-weight:800;box-shadow:inset 3px 0 0 #4ba3ff}
+  body:has(#view-tickets.on) .main-nav button span:first-child{width:20px;text-align:center;color:#6aaee9}
+  body:has(#view-tickets.on) .sidebar-account{padding:10px 5px 0;border-top:1px solid #172839}
+  body:has(#view-tickets.on) .workspace{background:#07111b;min-height:100vh}
+  body:has(#view-tickets.on) .topbar{min-height:58px;padding:9px 18px;border-bottom:1px solid #1a2b3b;background:rgba(8,19,29,.97);color:#eaf3fb;backdrop-filter:blur(16px)}
+  body:has(#view-tickets.on) .page-kicker{color:#5d7488;font-size:9px;letter-spacing:.08em}
+  body:has(#view-tickets.on) .topbar-title{color:#f7fbff;font-size:12px;font-weight:700;margin-top:2px}
+  body:has(#view-tickets.on) .top-actions .btn,body:has(#view-tickets.on) .top-actions .icon-btn{background:#10202d;border-color:#23384a;color:#b9ccdc;box-shadow:none}
+  body:has(#view-tickets.on) .top-actions .btn:hover,body:has(#view-tickets.on) .top-actions .icon-btn:hover{background:#162b3c;border-color:#35546c;color:#fff}
+  body:has(#view-tickets.on) .sync{color:#657b8f}
+  body:has(#view-tickets.on) .command-wrap{margin:10px 18px 0;gap:7px}
+  body:has(#view-tickets.on) .command-field{min-height:38px;padding:7px 11px;background:#0b1823;border-color:#203447;border-radius:8px;color:#8fa5b7}
+  body:has(#view-tickets.on) .command-input{color:#dce9f4;font-size:11px}
+  body:has(#view-tickets.on) .command-input::placeholder{color:#5c7184}
+  body:has(#view-tickets.on) .shortcut{color:#53697c;border:1px solid #24384a;border-radius:5px;padding:2px 5px}
+  body:has(#view-tickets.on) #commandGo{min-height:38px;padding:0 13px;background:#10202d;border-color:#24394c;color:#d2e1ed;font-size:10px;border-radius:8px}
+  body:has(#view-tickets.on) main{padding:10px 18px 34px;background:#07111b}
+  body:has(#view-tickets.on) #view-tickets{width:100%;max-width:none;margin:0}
+  body:has(#view-tickets.on) #ticketIntelView{width:100%;max-width:none;padding-left:0;padding-right:0}
+  body:has(#view-tickets.on) #ticketIntelView .td331{max-width:none;width:100%;padding-top:8px}
+}
+
+/* stronger dashboard hierarchy */
+html[data-ticket-desk331="1"] #ticketIntelView .td331-hero{padding:10px 2px 4px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-hero h1{font-size:27px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-overview{grid-template-columns:repeat(4,minmax(190px,1fr));gap:12px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat{min-height:94px;padding:17px 18px;border-color:#21384b;background:linear-gradient(145deg,#112231,#0b1823)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat b{font-size:24px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-section{box-shadow:0 14px 40px rgba(0,0,0,.12)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head{min-height:54px;padding:12px 15px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{min-height:64px;padding-top:10px;padding-bottom:10px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket h3{font-size:12.5px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price b{font-size:11.5px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions .td331-btn{opacity:.82}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket:hover .td331-ticket-actions .td331-btn{opacity:1}
+
+@media(max-width:1180px){
+  @supports selector(body:has(#view-tickets.on)){body:has(#view-tickets.on) .app{grid-template-columns:136px minmax(0,1fr)}body:has(#view-tickets.on) .sidebar{padding-left:8px;padding-right:8px}}
+  html[data-ticket-desk331="1"] #ticketIntelView .td331-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:850px){
+  @supports selector(body:has(#view-tickets.on)){body:has(#view-tickets.on) .app{display:block}body:has(#view-tickets.on) .topbar{padding:9px 12px}body:has(#view-tickets.on) .command-wrap{margin:8px 12px 0}body:has(#view-tickets.on) main{padding:8px 10px 76px}}
+}
+@media(max-width:620px){html[data-ticket-desk331="1"] #ticketIntelView .td331-overview{grid-template-columns:1fr 1fr;gap:7px}html[data-ticket-desk331="1"] #ticketIntelView .td331-stat{min-height:86px}}
