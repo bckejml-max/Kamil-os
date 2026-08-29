@@ -1,0 +1,8 @@
+/* OS353 visual-only safety overrides for Ticket Desk */
+html[data-ticket-desk331="1"] #ticketIntelView .td331-hero{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:none;align-items:center}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-kicker,html[data-ticket-desk331="1"] #ticketIntelView .td331-hero h1,html[data-ticket-desk331="1"] #ticketIntelView .td331-hero p{grid-column:1;min-width:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-kicker{grid-row:1}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-hero h1{grid-row:2}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-hero p{grid-row:3}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar{grid-column:2;grid-row:1/4;align-self:center}
+@media(max-width:980px){html[data-ticket-desk331="1"] #ticketIntelView .td331-hero{grid-template-columns:1fr}html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar{grid-column:1;grid-row:4;justify-content:flex-start;margin-top:4px}}
