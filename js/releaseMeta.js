@@ -1,3 +1,3 @@
-export const APP_VERSION='378.0.0';
-export const APP_RELEASE='378.0';
-// Ticket market normalized sector matching and safe event-floor fallback 378
+export const APP_VERSION='379.0.0';
+export const APP_RELEASE='379.0';
+// Ticket pricing now accounts for row and multi-ticket adjacency evidence 379
