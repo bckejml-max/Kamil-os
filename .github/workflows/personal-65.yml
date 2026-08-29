@@ -24,6 +24,7 @@ jobs:
           node --check js/ticketImport660.js
           node --check js/ticketCommander660.js
           node --check js/ticketPage100.js
+          node --check js/ticketOnDemand346.js
           node --check js/ticketSales150.js
           node --check js/ticketSaleDetail151.js
           node --check js/ticketSettlement153.js
@@ -33,18 +34,15 @@ jobs:
           node --check js/ticketSafetyUi149.js
           node --check js/os181Suite.js
           node --check api/ticket-market-watch.js
-      - name: Current Personal + Ticket architecture assertions
+          node --check ci_current_350_test.mjs
+      - name: Current architecture guard
+        run: node ci_current_350_test.mjs
+      - name: Current Personal + Ticket domain assertions
         run: |
-          grep -q "optionalImport('./personalShell640.js'" js/instantShell64.js
-          grep -q "optionalImport('./personalHardening650.js'" js/instantShell64.js
-          grep -q "from('ticket_inventory')" js/ticketCloud660.js
           grep -q "PAYOUT_RECEIVED" js/ticketSales150.js
-          grep -q "enhanceTicketSales150" js/ticketPage100.js
-          grep -q "enhanceTicketSettlement153" js/ticketPage100.js
-          grep -q "enhanceTicketAccounting155" js/ticketPage100.js
-          grep -q "enhanceTickets181" js/ticketPage100.js
           grep -q "ticket_price_journal" js/os181Suite.js
           grep -q "payout_received_czk" js/ticketSettlement153.js
+          grep -q "from('ticket_inventory')" js/ticketCloud660.js
           ! grep -Eiq "service[_-]?role" js/ticketCloud660.js
       - name: Ticket Intelligence API parser
         run: node ticket_market_api_65_6_test.mjs
