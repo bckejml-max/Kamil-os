@@ -1,3 +1,3 @@
-export const APP_VERSION='371.0.0';
-export const APP_RELEASE='371.0';
-// XTB target buy wait reduce sell price bands 371
+export const APP_VERSION='372.0.0';
+export const APP_RELEASE='372.0';
+// Ticket max buy target sell floor net profit engine 372
