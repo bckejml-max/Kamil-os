@@ -10,6 +10,6 @@ assert.ok(a.includes('openSuite530')&&a.includes('openAssistant530')&&a.includes
 assert.ok(a.includes('WORK_RE')&&a.includes('filter(personal)'),'Work-domain exclusion missing');
 assert.ok(a.includes("store.mutate('Quick Capture'")&&a.includes("store.mutate('Úkol hotovo'")&&a.includes("store.mutate('Odložit úkol o 7 dní'"),'Explicit mutation actions missing');
 assert.ok(a.includes('automaticky neprovede')&&a.includes('Pouze návrh'),'Financial proposal-only safeguards missing');
-assert.ok(shell.includes("from './personalAsk640.js'")&&shell.includes('Najít / zeptat se'),'Current 65.0 assistant must own the canonical personal shell');
+assert.ok(shell.includes("lazy('./personalAsk640.js','answerPersonalQuestion640')")&&shell.includes("go.textContent='Najít / zeptat se'"),'Current personal shell must lazy-load the canonical question engine');
 assert.ok(!shell.includes("from './personalAssistant530.js'"),'Legacy Assistant 53 must not return as a startup dependency');
-console.log('PERSONAL ASSISTANT 53 LEGACY SAFETY + 65.0 CANONICAL SHELL PASS');
+console.log('PERSONAL ASSISTANT 53 LEGACY SAFETY + CURRENT CANONICAL SHELL PASS');
