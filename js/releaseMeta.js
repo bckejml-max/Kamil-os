@@ -1,3 +1,3 @@
-export const APP_VERSION='366.0.0';
-export const APP_RELEASE='366.0';
-// Waiting-person aware Today cockpit 366
+export const APP_VERSION='367.0.0';
+export const APP_RELEASE='367.0';
+// Restored boot contracts + urgency draft engine 367
