@@ -1,0 +1,12 @@
+#ticketIntelView .td374-priceflow{grid-template-columns:repeat(6,minmax(88px,1fr))!important;background:#0b141d;border:0!important;border-radius:0!important;overflow:visible!important}
+#ticketIntelView .td374-priceflow .td331-price{padding:6px 8px!important;min-height:48px;display:flex;flex-direction:column;justify-content:center}
+#ticketIntelView .td374-priceflow .td331-price span{font-size:7px!important;letter-spacing:.04em}
+#ticketIntelView .td374-priceflow .td331-price b{font-size:11px!important}
+#ticketIntelView .td374-priceflow .td331-price small{display:block;margin-top:2px;color:#667d93;font-size:7px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ticketIntelView .td374-priceflow .td331-price.floor b{color:#d7e6f6}
+#ticketIntelView .td374-priceflow .td331-price.low-confidence b{color:#e3b45f}
+#ticketIntelView [data-price-quality="CONFLICT"] .td331-price.recommended b,#ticketIntelView [data-price-quality="MISSING"] .td331-price.recommended b{color:#77889a}
+#ticketIntelView [data-price-quality="HIGH"] .td331-signal{box-shadow:inset 2px 0 0 rgba(101,213,155,.28)}
+#ticketIntelView [data-price-quality="CONFLICT"] .td331-signal{box-shadow:inset 2px 0 0 rgba(255,120,133,.28)}
+@media(max-width:1280px){#ticketIntelView .td374-priceflow{grid-template-columns:repeat(3,minmax(94px,1fr))!important}#ticketIntelView .td374-priceflow .td331-price:nth-child(3){border-right:0}#ticketIntelView .td374-priceflow .td331-price:nth-child(-n+3){border-bottom:1px solid #263747}}
+@media(max-width:720px){#ticketIntelView .td374-priceflow{grid-template-columns:repeat(2,minmax(0,1fr))!important}#ticketIntelView .td374-priceflow .td331-price:nth-child(3){border-right:1px solid #263747}#ticketIntelView .td374-priceflow .td331-price:nth-child(even){border-right:0}#ticketIntelView .td374-priceflow .td331-price:nth-child(-n+4){border-bottom:1px solid #263747}}
