@@ -28,7 +28,7 @@ test('OS345 keeps ticket desk and QA out of the critical boot',async({page})=>{
 test('OS345 loads Tickets once on demand and remains flicker safe',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(String(e?.message||e)));
   await boot(page);
-  await page.evaluate(()=>window.__KAMIL_NAV342__.navigate('tickets','os345-test'));
+  await page.evaluate(()=>window.__KAMIL_NAVIGATION342__.navigate('tickets',{source:'os345-test'}));
   await expect.poll(()=>page.evaluate(()=>window.__KAMIL_TICKET_LAZY345__?.loaded),{timeout:10000}).toBe(true);
   await expect.poll(()=>page.evaluate(()=>!!window.__KAMIL_TICKET_DESK331__),{timeout:5000}).toBe(true);
   await expect.poll(()=>page.evaluate(()=>!!window.__KAMIL_TICKET_QA332__),{timeout:5000}).toBe(true);
