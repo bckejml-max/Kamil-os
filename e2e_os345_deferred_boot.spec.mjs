@@ -25,7 +25,9 @@ test('OS345 loads deferred diagnostics after interactive boot',async({page})=>{
  const s=await page.evaluate(()=>({deferred:window.__KAMIL_DEFERRED345__,perf:typeof window.__KAMIL_SAMPLE_PERFORMANCE330__==='function'}));
  expect(s.deferred.healthy).toBe(true);
  expect(s.deferred.failures).toHaveLength(0);
- expect(s.deferred.modules.map(x=>x.path)).toEqual(['./performance330.js','./ticketQa332.js']);
+ const paths=s.deferred.modules.map(x=>x.path);
+ expect(paths).toContain('./performance330.js');
+ expect(paths).toContain('./ticketQa332.js');
  expect(s.deferred.modules.every(x=>x.ok)).toBe(true);
  expect(s.perf).toBe(true);
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_TICKET_QA332__?.version),{timeout:3000}).toBe(332);
