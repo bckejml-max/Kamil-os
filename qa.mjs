@@ -18,6 +18,7 @@ const personalAssistant=read('js/personalAssistant650.js');
 const hardening=read('js/personalHardening650.js');
 const todayPage=read('js/todayPage101.js');
 const ticketPage=read('js/ticketPage100.js');
+const ticketLoader=read('js/ticketOnDemand346.js');
 const moneyPage=read('js/moneyPage100.js');
 const os181=read('js/os181Suite.js');
 const ticketCommander=read('js/ticketCommander660.js');
@@ -38,7 +39,7 @@ assert.ok(release&&/^\d+\.\d+$/.test(release)&&release===version.split('.').slic
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 
-const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage101.js','js/ticketPage100.js','js/moneyPage100.js','js/os181Suite.js','js/executiveCommand164.js','js/dataTrust163.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js'];
+const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage101.js','js/ticketPage100.js','js/ticketOnDemand346.js','js/moneyPage100.js','js/os181Suite.js','js/executiveCommand164.js','js/dataTrust163.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js'];
 for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 
 assert.ok(index.includes('./js/instantShell64.js'),'instant startup shell must remain wired');
@@ -55,7 +56,9 @@ assert.ok(todayPage.includes("['./os181Suite.js','enhanceToday181']"),'OS 181 To
 assert.ok(todayPage.includes('await import(path)')&&todayPage.includes('[today addon failed]'),'Today addon isolation missing');
 assert.ok(!todayPage.includes("import {enhanceToday181} from './os181Suite.js'"),'OS 181 addon must not become a static Today import');
 
-assert.ok(ticketPage.includes('enhanceTickets181')&&ticketPage.includes('if(running){rerun=true;return}'),'Ticket OS 181 integration/single-flight guard missing');
+assert.ok(ticketPage.includes("import('./ticketDesk331.js')")&&ticketPage.includes('bootPromise')&&ticketPage.includes('one owner'),'Ticket canonical adapter/single-owner guard missing');
+assert.ok(ticketLoader.includes("import('./ticketDesk331.js')")&&ticketLoader.includes('if(promise)return promise')&&ticketLoader.includes('kamil:view-change'),'Ticket Desk on-demand single-flight integration missing');
+assert.ok(!instant.includes("optionalImport('./ticketDesk331.js'"),'Ticket Desk must not return to eager startup');
 assert.ok(moneyPage.includes('enhanceMoney181')&&moneyPage.includes('if(running){rerun=true;return}'),'Money OS 181 integration/single-flight guard missing');
 assert.ok(os181.includes("from('xtb_transaction_ledger')")&&os181.includes("from('os_action_state')")&&os181.includes('truthfulAccounting:true'),'OS 181 truthful accounting/action layer missing');
 assert.ok(ticketCommander.includes('TICKET PROFIT COMMANDER 66.')&&ticketCloud.includes("from('ticket_inventory')")&&!/service[_-]?role/i.test(ticketCloud),'private Ticket Intelligence missing or unsafe');
@@ -85,4 +88,4 @@ assert.ok(stability431.includes("entryTypes:['longtask']")&&stability431.include
 assert.ok(lazy.includes("STABILITY_MEMORY_KEY='kamil-os-stability-memory-43-7'")&&lazy.includes('refreshStabilityMemory'),'stability memory missing');
 assert.ok(diagnostics.includes('43.7 STABILITY MEMORY'),'stability diagnostics missing');
 
-console.log(`KAMIL OS RELEASE QA PASS · ${version} · OS 181`);
+console.log(`KAMIL OS RELEASE QA PASS · ${version} · CURRENT ARCHITECTURE`);
