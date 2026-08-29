@@ -1,3 +1,3 @@
-export const APP_VERSION='346.0.0';
-export const APP_RELEASE='346.0';
-// ticket view on-demand release 346
+export const APP_VERSION='347.0.0';
+export const APP_RELEASE='347.0';
+// deferred unified layer release 347
