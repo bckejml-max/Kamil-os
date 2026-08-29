@@ -8,7 +8,6 @@ html[data-ticket-desk331="1"] #ticketIntelView .td331-hero p{font-size:0;line-he
 html[data-ticket-desk331="1"] #ticketIntelView .td331-hero p:after{content:"Přehled a správa vstupenek";font-size:11px;line-height:1.4;color:#8ca0b3}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar{gap:7px}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar .td331-btn{min-height:36px;border-radius:7px}
-
 html[data-ticket-desk331="1"] #ticketIntelView .td331-overview{gap:9px}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-stat{min-height:88px;padding:14px 15px 13px;border-radius:10px;background:linear-gradient(145deg,#10202d,#0b1721)}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-stat:after{display:grid;place-items:center;width:32px;height:32px;right:14px;top:14px;font-size:15px;font-weight:900;color:#58aaff}
@@ -19,17 +18,14 @@ html[data-ticket-desk331="1"] #ticketIntelView .td331-stat:nth-child(4):after{co
 html[data-ticket-desk331="1"] #ticketIntelView .td331-stat span{font-size:9px;color:#90a5b8}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-stat b{font-size:21px;margin-top:6px}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-stat small{margin-top:5px;color:#61798e}
-
 html[data-ticket-desk331="1"] #ticketIntelView .td331-modes{min-height:42px;border-radius:9px;background:#0a1620}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-mode{min-width:126px;padding:0 18px}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-mode.on{background:#10283b;color:#62b6ff}
-
 html[data-ticket-desk331="1"] #ticketIntelView .td331-section{border-radius:10px;background:#0a1620}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head{min-height:48px;padding:9px 12px;background:#0c1a25}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head h2{font-size:12px}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head p{font-size:8px}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-filter{padding:6px 10px;border-radius:6px;font-size:9px}
-
 html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{min-height:60px;padding:9px 12px;column-gap:12px;background:#0c1923}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-grid .td331-ticket:nth-child(even){background:#0a1620}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket:hover{background:#102332}
@@ -48,11 +44,40 @@ html[data-ticket-desk331="1"] #ticketIntelView .td331-reason{font-size:7.5px;col
 html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions{min-width:92px}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions .td331-btn{min-height:27px;font-size:8.5px;border-radius:5px}
 html[data-ticket-desk331="1"] #ticketIntelView .td331-tech{padding:8px 10px;border-radius:8px;background:#0b1822}
-
-@supports selector(body:has(#view-tickets.on)){
- body:has(#view-tickets.on) .topbar{min-height:54px}
- body:has(#view-tickets.on) .command-wrap{margin-top:8px}
- body:has(#view-tickets.on) main{padding-top:8px}
-}
+@supports selector(body:has(#view-tickets.on)){body:has(#view-tickets.on) .topbar{min-height:54px}body:has(#view-tickets.on) .command-wrap{margin-top:8px}body:has(#view-tickets.on) main{padding-top:8px}}
 @media(max-width:980px){html[data-ticket-desk331="1"] #ticketIntelView .td331-hero h1:after{font-size:23px}}
 @media(max-width:620px){html[data-ticket-desk331="1"] #ticketIntelView .td331-stat{min-height:82px;padding:11px}html[data-ticket-desk331="1"] #ticketIntelView .td331-stat b{font-size:18px}html[data-ticket-desk331="1"] #ticketIntelView .td331-stat:after{width:28px;height:28px;right:10px;top:10px;font-size:13px}}
+
+/* OS358 — final visual hierarchy pass; presentation only. */
+@supports selector(body:has(#view-tickets.on)){
+ body:has(#view-tickets.on) .sidebar{box-shadow:12px 0 34px rgba(0,0,0,.12)}
+ body:has(#view-tickets.on) .main-nav button.on{background:linear-gradient(90deg,#12314a,#0f2334);border-color:#214766;box-shadow:inset 3px 0 0 #55adff}
+ body:has(#view-tickets.on) .topbar{box-shadow:0 1px 0 rgba(255,255,255,.015)}
+ body:has(#view-tickets.on) .command-field:focus-within{border-color:#35658d;box-shadow:0 0 0 3px rgba(75,163,255,.08)}
+}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-hero{border-bottom:1px solid rgba(39,64,85,.55);padding-bottom:11px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar .td331-btn:not(.primary){background:#0d1c28;border-color:#21384d;color:#a9bccd}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-toolbar .td331-btn:not(.primary):hover{background:#13283a;color:#eaf5ff;border-color:#31536f}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat{overflow:hidden}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat:before{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:#31516c;opacity:.55}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat:nth-child(2):before{background:#42d875;opacity:.8}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat:nth-child(3):before{background:#45c7d9;opacity:.75}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-stat:nth-child(4):before{background:#9b75ef;opacity:.75}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-modes{box-shadow:inset 0 1px 0 rgba(255,255,255,.015)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head{box-shadow:0 6px 18px rgba(0,0,0,.08)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{grid-template-columns:minmax(240px,1.3fr) minmax(440px,2.35fr) minmax(230px,1fr) minmax(94px,auto)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-top{padding-left:3px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket h3{letter-spacing:-.01em}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-priceflow{align-items:stretch}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price{display:flex;min-height:36px;flex-direction:column;justify-content:center}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-price.recommended{background:linear-gradient(90deg,transparent,rgba(75,163,255,.035))}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-signal{min-height:38px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-signal>b{padding:4px 7px;border-radius:6px;background:rgba(70,221,114,.065)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket[data-tone="critical"] .td331-signal>b{color:#ff7279;background:rgba(255,86,93,.065)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-reason{padding-left:3px;opacity:.72}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket:hover .td331-reason{opacity:1;color:#8298ab}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions{justify-self:end}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions .td331-btn{min-width:88px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-tech{border-color:#1b3042;color:#5e7488}
+@media(max-width:1280px){html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{grid-template-columns:minmax(215px,1.1fr) minmax(350px,1.7fr) minmax(94px,auto)}}
+@media(max-width:980px){html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{grid-template-columns:1fr}html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket-actions{justify-self:stretch}}
