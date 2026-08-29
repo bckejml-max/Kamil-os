@@ -88,3 +88,17 @@ html[data-ticket-desk331="1"] #ticketIntelView .td331-tech{border-color:#1b3042;
  body:has(#view-tickets.on) .app,body:has(#view-tickets.on) .workspace,body:has(#view-tickets.on) main,body:has(#view-tickets.on) #view-tickets,body:has(#view-tickets.on) #ticketIntelView{height:auto!important;max-height:none!important;overflow-y:visible!important}
  body:has(#view-tickets.on) #ticketIntelView .td331{height:auto!important;max-height:none!important;overflow:visible!important;padding-bottom:56px}
 }
+
+/* OS360 — long-list usability polish; visual only. */
+@supports selector(body:has(#view-tickets.on)){
+ body:has(#view-tickets.on) .topbar{position:sticky;top:0;z-index:30}
+ body:has(#view-tickets.on) .command-wrap{position:sticky;top:54px;z-index:29;padding-bottom:8px;background:linear-gradient(180deg,#07111b 75%,rgba(7,17,27,0))}
+}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-modes{position:sticky;top:102px;z-index:15;background:rgba(10,22,32,.97);backdrop-filter:blur(12px)}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head{top:144px;z-index:14}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{scroll-margin-top:198px}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-grid{min-width:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket>*{min-width:0}
+html[data-ticket-desk331="1"] #ticketIntelView .td331-tech{margin-bottom:20px}
+@media(max-width:980px){html[data-ticket-desk331="1"] #ticketIntelView .td331-modes{top:98px}html[data-ticket-desk331="1"] #ticketIntelView .td331-section-head{position:static}html[data-ticket-desk331="1"] #ticketIntelView .td331-ticket{scroll-margin-top:150px}}
+@media(max-width:850px){@supports selector(body:has(#view-tickets.on)){body:has(#view-tickets.on) .command-wrap{position:static}}html[data-ticket-desk331="1"] #ticketIntelView .td331-modes{top:54px}}
