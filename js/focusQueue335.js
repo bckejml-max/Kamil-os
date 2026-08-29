@@ -28,7 +28,7 @@ function model(){
 function open(key,m=window.__KAMIL_FOCUS_QUEUE335__?.model||model()){
  if(key==='money')return openFinanceCommand258();
  if(key==='tickets')return openTicketCommander660();
- if(key==='manager')return window.__KAMIL_MANAGER_OS341__?.open?.()||window.__KAMIL_FOCUS_RADAR334__?.open?.('manager');
+ if(key==='manager'){if(typeof window.__KAMIL_MANAGER_OS341__?.open==='function'){window.__KAMIL_MANAGER_OS341__.open();return true}return window.__KAMIL_FOCUS_RADAR334__?.open?.('manager')}
  if(key==='property')return window.__KAMIL_FOCUS_RADAR334__?.open?.('property');
  if(key==='personal')return drawer('Osobní Focus',`<div class="os303-list">${m.queue.filter(x=>x.key==='personal').map(x=>`<div class="os303-row"><span><b>${esc(x.title)}</b><small>${esc(x.reason)}</small></span></div>`).join('')||'<div class="os335-empty">Nic urgentního.</div>'}</div>`);
 }
