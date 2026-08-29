@@ -2,7 +2,7 @@ name: OS333 Chromium Smoke
 
 on:
   push:
-    branches: [main, feat/os344-boot-critical-path]
+    branches: [main, feat/os345-ticket-lazy]
   workflow_dispatch:
 
 jobs:
@@ -22,6 +22,7 @@ jobs:
           node --check js/focusQueue335.js
           node --check js/actionExecution336.js
           node --check js/ticketDesk331.js
+          node --check js/ticketLazy345.js
           node --check js/managerOS341.js
           node --check js/navigationOS342.js
           node --check js/navigation302.js
@@ -30,7 +31,8 @@ jobs:
           node --check js/instantShell64.js
           node --check e2e_os343_boot_budget.spec.mjs
           node --check e2e_os344_lazy_shell.spec.mjs
-      - name: OS344 release guard
+          node --check e2e_os345_ticket_lazy.spec.mjs
+      - name: OS345 release guard
         run: npm run test:release
       - name: OS338 ticket renderer ownership
         run: node ticket_flicker_338_test.mjs
@@ -43,5 +45,5 @@ jobs:
           for i in {1..20}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/kamil-os-http.log
           exit 1
-      - name: OS333 through OS344 browser smoke
-        run: npx playwright test e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs --reporter=line
+      - name: OS333 through OS345 browser smoke
+        run: npx playwright test e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs e2e_os345_ticket_lazy.spec.mjs --reporter=line
