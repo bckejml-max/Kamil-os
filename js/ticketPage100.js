@@ -1,6 +1,6 @@
 // Canonical ticket view adapter.
-// Ticket Desk 331 owns the ticket DOM. OS374 adds one scoped price layer
-// after the canonical desk is installed; it does not replace the desk DOM.
+// Ticket Desk 331 owns the ticket DOM. OS374 adds scoped pricing and OS375
+// replaces the broken empty-inventory refresh with a real inventory scan.
 
 let bootPromise=null;
 
@@ -11,13 +11,15 @@ async function desk(){
   }
   const pricing=await import('./ticketPriceIntelligence374.js');
   pricing.installTicketPriceIntelligence374();
+  const refresh=await import('./ticketRefreshFix375.js');
+  refresh.installTicketRefreshFix375();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets374] canonical desk boot failed',error);
+    console.error('[tickets375] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
