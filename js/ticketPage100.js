@@ -4,7 +4,7 @@
 // fallback, readiness/repair guidance, last-known price memory, clipboard
 // market import, the OS407 decision/autopilot layer, OS408 sale workflow,
 // OS409 price-history analytics, OS410 action queue, OS411 settlement ledger,
-// OS412 payout reconciliation/cashflow and OS413 alert center.
+// OS412 payout reconciliation/cashflow, OS413 alert center and OS414 trading performance.
 
 let bootPromise=null;
 
@@ -47,13 +47,15 @@ async function desk(){
   reconcile.installTicketReconcile412();
   const alerts=await import('./ticketAlerts413.js');
   alerts.installTicketAlerts413();
+  const performance=await import('./ticketPerformance414.js');
+  performance.installTicketPerformance414();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets413] canonical desk boot failed',error);
+    console.error('[tickets414] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
