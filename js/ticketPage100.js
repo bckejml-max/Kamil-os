@@ -2,7 +2,8 @@
 // Ticket Desk 331 owns the ticket DOM. Scoped modules add pricing, unified
 // multi-source refresh, source/row editing, row repair, market health, manual
 // fallback, readiness/repair guidance, last-known price memory, clipboard
-// market import, the OS407 decision/autopilot layer and OS408 sale workflow.
+// market import, the OS407 decision/autopilot layer, OS408 sale workflow and
+// OS409 price-history analytics.
 
 let bootPromise=null;
 
@@ -35,13 +36,15 @@ async function desk(){
   saleSync.installTicketSaleSync408();
   const soldGuard=await import('./ticketSoldGuard408.js');
   soldGuard.installTicketSoldGuard408();
+  const history=await import('./ticketPriceHistory409.js');
+  history.installTicketPriceHistory409();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets408] canonical desk boot failed',error);
+    console.error('[tickets409] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
