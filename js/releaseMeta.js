@@ -1,3 +1,3 @@
-export const APP_VERSION='419.0.1';
-export const APP_RELEASE='419.0.1';
-// Tickets: unified daily decision brief across pricing, repair, delivery, payout and concentration; consolidated deploy 419.0.1
+export const APP_VERSION='420.0.0';
+export const APP_RELEASE='420.0';
+// Tickets: clean three-zone cards, four primary prices, collapsed technical detail and unified actions 420
