@@ -1,3 +1,3 @@
-export const APP_VERSION='443.0.1';
-export const APP_RELEASE='443.0.1';
-// Tickets: consolidated calibration readiness cockpit, n=8 learning gate, n=16 drift guard and guarded OS442 feedback integration 443.0.1
+export const APP_VERSION='448.0.0';
+export const APP_RELEASE='448.0.0';
+// Tickets: decision quality gate, source consensus/anomaly filter, risk ops, portfolio optimizer, true cash guards and Commander 4.0 448
