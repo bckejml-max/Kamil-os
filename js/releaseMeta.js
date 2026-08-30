@@ -1,3 +1,3 @@
-export const APP_VERSION='425.0.0';
-export const APP_RELEASE='425.0';
-// Tickets: responsive metadata chips, cleaner card density and tablet/mobile layout 425
+export const APP_VERSION='426.0.0';
+export const APP_RELEASE='426.0';
+// Tickets: canonical market price engine, confidence/freshness, outlier filtering, sell pressure, dynamic pricing, price curve, cashflow and Commander 2.0 426
