@@ -1,3 +1,3 @@
-export const APP_VERSION='383.0.0';
-export const APP_RELEASE='383.0';
-// Visible XTB command center with targets, sizing and cash guardrail 383
+export const APP_VERSION='384.0.0';
+export const APP_RELEASE='384.0';
+// XTB action queue ranks allocation by opportunity, confidence and freshness 384
