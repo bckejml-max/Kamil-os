@@ -1,3 +1,3 @@
-export const APP_VERSION='428.0.0';
-export const APP_RELEASE='428.0';
-// Tickets: event-level portfolio exposure, cashflow forecast, known-event buy watch and canonical engine-driven cards 428
+export const APP_VERSION='429.0.0';
+export const APP_RELEASE='429.0';
+// Tickets: Gmail reconciliation backend/client, exact-order safe updates, canonical market engine, Commander 2.0, portfolio and cashflow 429
