@@ -1,3 +1,3 @@
-export const APP_VERSION='391.0.0';
-export const APP_RELEASE='391.0';
-// XTB plan-vs-actual execution reconciliation with fill and slippage tracking 391
+export const APP_VERSION='392.0.0';
+export const APP_RELEASE='392.0';
+// XTB execution-aware order advisor learns from slippage/fill and recommends limit discipline 392
