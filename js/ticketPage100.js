@@ -10,7 +10,7 @@
 // OS440 persistent decision journal, OS441 outcome calibration,
 // OS442 guarded feedback, OS443 calibration readiness cockpit,
 // OS444 decision quality, OS445 source consensus, OS446 risk ops,
-// OS447 portfolio optimizer and OS448 Commander 4.0.
+// OS447 portfolio optimizer, OS448 Commander 4.0 and OS449 action execution tracking.
 
 let bootPromise=null;
 
@@ -66,6 +66,7 @@ async function desk(){
   const riskOps=await import('./ticketRiskOps446.js');riskOps.installTicketRiskOps446();
   const optimizer=await import('./ticketPortfolioOptimizer447.js');optimizer.installTicketPortfolioOptimizer447();
   const commander4=await import('./ticketCommander448.js');commander4.installTicketCommander448();
+  const execution=await import('./ticketActionExecution449.js');execution.installTicketActionExecution449();
   document.documentElement.dataset.ticketCanonical430='1';
   return window.__KAMIL_TICKET_DESK331__;
 }
@@ -73,7 +74,7 @@ async function desk(){
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets448] canonical desk boot failed',error);
+    console.error('[tickets449] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
