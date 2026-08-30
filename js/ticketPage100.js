@@ -7,7 +7,8 @@
 // OS412 payout reconciliation/cashflow, OS413 alert center, OS415 capital allocation,
 // OS416 verified trading performance, OS417 automatic source discovery,
 // OS418 capital-weighted data repair, OS419 daily decision brief,
-// OS420 clean three-zone ticket card UI and OS421 compact analytics hub.
+// OS420 clean three-zone ticket card UI, OS421 compact analytics hub and
+// OS422 unified Sold cards + compact toolbar.
 
 let bootPromise=null;
 
@@ -62,13 +63,15 @@ async function desk(){
   ui.installTicketUi420();
   const compact=await import('./ticketUi421.js');
   compact.installTicketUi421();
+  const soldUi=await import('./ticketUi422.js');
+  soldUi.installTicketUi422();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets421] canonical desk boot failed',error);
+    console.error('[tickets422] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
