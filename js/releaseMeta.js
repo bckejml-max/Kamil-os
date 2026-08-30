@@ -1,3 +1,3 @@
-export const APP_VERSION='386.0.0';
-export const APP_RELEASE='386.0';
-// XTB guarded deployment plan, data coverage and cash ladder 386
+export const APP_VERSION='387.0.0';
+export const APP_RELEASE='387.0';
+// XTB dynamic risk reserve, confidence gate and decision health 387
