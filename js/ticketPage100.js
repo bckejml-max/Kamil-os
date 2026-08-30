@@ -10,7 +10,8 @@
 // OS420 clean three-zone ticket card UI, OS421 compact analytics hub,
 // OS422 unified Sold cards + compact toolbar, OS423 visual polish,
 // OS424 simplified copy + semantic badges, OS425 responsive metadata cleanup,
-// OS426 canonical market engine + Commander 2.0 and OS427 engine-driven primary cards.
+// OS426 canonical market engine + Commander 2.0, OS427 engine-driven primary cards and
+// OS428 event portfolio + cashflow forecast + buy watch.
 
 let bootPromise=null;
 
@@ -77,13 +78,15 @@ async function desk(){
   engine.installTicketMarketEngine426();
   const engineUi=await import('./ticketEngineUi427.js');
   engineUi.installTicketEngineUi427();
+  const portfolio=await import('./ticketPortfolio428.js');
+  portfolio.installTicketPortfolio428();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets427] canonical desk boot failed',error);
+    console.error('[tickets428] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
