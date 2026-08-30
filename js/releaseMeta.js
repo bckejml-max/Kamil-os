@@ -1,3 +1,3 @@
-export const APP_VERSION='398.0.0';
-export const APP_RELEASE='398.0';
-// Tickets: manual confirmed market snapshots keep pricing usable when resale sites block server-side reads 398
+export const APP_VERSION='399.0.0';
+export const APP_RELEASE='399.0';
+// Tickets: unified useful-only market snapshots, 403 pollution cleanup and source health 399
