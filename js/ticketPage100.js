@@ -6,7 +6,8 @@
 // capital/performance analytics, UI cleanup, canonical market engine,
 // event portfolio/cashflow, Gmail reconciliation, OS430 consolidation,
 // OS431 engine health, OS432 auto repair, OS433–436 predictive trading stack,
-// OS437 comparable events, OS438 portfolio stress and OS439 Commander 3.1.
+// OS437 comparable events, OS438 portfolio stress, OS439 Commander 3.1 and
+// OS440 persistent decision journal.
 
 let bootPromise=null;
 
@@ -53,6 +54,7 @@ async function desk(){
   const comparable=await import('./ticketComparable437.js');comparable.installTicketComparable437();
   const risk=await import('./ticketRisk438.js');risk.installTicketRisk438();
   const portfolioCommander=await import('./ticketCommander439.js');portfolioCommander.installTicketCommander439();
+  const journal=await import('./ticketDecisionJournal440.js');journal.installTicketDecisionJournal440();
   document.documentElement.dataset.ticketCanonical430='1';
   return window.__KAMIL_TICKET_DESK331__;
 }
@@ -60,7 +62,7 @@ async function desk(){
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets439] canonical desk boot failed',error);
+    console.error('[tickets440] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
