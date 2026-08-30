@@ -34,7 +34,7 @@ async function desk(){
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets403] canonical desk boot failed',error);
+    console.error('[tickets404] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
