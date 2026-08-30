@@ -1,6 +1,6 @@
 // Canonical ticket view adapter.
 // Ticket Desk 331 owns the ticket DOM. Scoped modules add pricing, reliable
-// refresh, source/row editing, row repair and visible market diagnostics.
+// refresh, source/row editing, row repair, market diagnostics and manual fallback.
 
 let bootPromise=null;
 
@@ -19,13 +19,15 @@ async function desk(){
   rowAuto.installTicketRowAuto396();
   const health=await import('./ticketMarketHealth397.js');
   health.installTicketMarketHealth397();
+  const manual=await import('./ticketManualMarket398.js');
+  manual.installTicketManualMarket398();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets397] canonical desk boot failed',error);
+    console.error('[tickets398] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
