@@ -8,7 +8,9 @@
 // OS431 engine health, OS432 auto repair, OS433–436 predictive trading stack,
 // OS437 comparable events, OS438 portfolio stress, OS439 Commander 3.1,
 // OS440 persistent decision journal, OS441 outcome calibration,
-// OS442 guarded feedback and OS443 calibration readiness cockpit.
+// OS442 guarded feedback, OS443 calibration readiness cockpit,
+// OS444 decision quality, OS445 source consensus, OS446 risk ops,
+// OS447 portfolio optimizer and OS448 Commander 4.0.
 
 let bootPromise=null;
 
@@ -59,6 +61,11 @@ async function desk(){
   const outcome=await import('./ticketOutcomeCalibration441.js');outcome.installTicketOutcomeCalibration441();
   const feedback=await import('./ticketCalibrationFeedback442.js');feedback.installTicketCalibrationFeedback442();
   const calibrationReadiness=await import('./ticketCalibrationReadiness443.js');calibrationReadiness.installTicketCalibrationReadiness443();
+  const quality=await import('./ticketDecisionQuality444.js');quality.installTicketDecisionQuality444();
+  const consensus=await import('./ticketConsensus445.js');consensus.installTicketConsensus445();
+  const riskOps=await import('./ticketRiskOps446.js');riskOps.installTicketRiskOps446();
+  const optimizer=await import('./ticketPortfolioOptimizer447.js');optimizer.installTicketPortfolioOptimizer447();
+  const commander4=await import('./ticketCommander448.js');commander4.installTicketCommander448();
   document.documentElement.dataset.ticketCanonical430='1';
   return window.__KAMIL_TICKET_DESK331__;
 }
@@ -66,7 +73,7 @@ async function desk(){
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets443] canonical desk boot failed',error);
+    console.error('[tickets448] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
