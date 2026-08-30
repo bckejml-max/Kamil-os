@@ -6,7 +6,8 @@
 // OS409 price-history analytics, OS410 action queue, OS411 settlement ledger,
 // OS412 payout reconciliation/cashflow, OS413 alert center, OS415 capital allocation,
 // OS416 verified trading performance, OS417 automatic source discovery,
-// OS418 capital-weighted data repair and OS419 daily decision brief.
+// OS418 capital-weighted data repair, OS419 daily decision brief and
+// OS420 clean three-zone ticket card UI.
 
 let bootPromise=null;
 
@@ -57,13 +58,15 @@ async function desk(){
   repair.installTicketRepair418();
   const brief=await import('./ticketDailyBrief419.js');
   brief.installTicketDailyBrief419();
+  const ui=await import('./ticketUi420.js');
+  ui.installTicketUi420();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets419] canonical desk boot failed',error);
+    console.error('[tickets420] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
