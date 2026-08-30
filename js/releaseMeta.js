@@ -1,3 +1,3 @@
-export const APP_VERSION='436.0.0';
-export const APP_RELEASE='436.0';
-// Tickets: predictive sell probability, price elasticity, EV/optimal exit, risk-adjusted ROI, capital efficiency, strategy backtest/calibration, re-entry, buy budget allocator and Commander 3.0 436
+export const APP_VERSION='439.0.0';
+export const APP_RELEASE='439.0.0';
+// Tickets: comparable event engine, demand curves, portfolio VaR/stress, cash rotation forecast and portfolio-aware Commander 3.1 439
