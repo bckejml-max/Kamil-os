@@ -1,3 +1,3 @@
-export const APP_VERSION='387.0.0';
-export const APP_RELEASE='387.0';
-// XTB dynamic risk reserve, confidence gate and decision health 387
+export const APP_VERSION='388.0.0';
+export const APP_RELEASE='388.0';
+// XTB signal stability guard requires confirmation before actionable cash plan 388
