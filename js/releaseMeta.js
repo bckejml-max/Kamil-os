@@ -1,3 +1,3 @@
-export const APP_VERSION='422.0.0';
-export const APP_RELEASE='422.0';
-// Tickets: unified Inventory/Sold visual system, compact toolbar and normalized portfolio summary 422
+export const APP_VERSION='423.0.0';
+export const APP_RELEASE='423.0';
+// Tickets: polished typography, spacing, pricing hierarchy, buttons and dashboard visual rhythm 423
