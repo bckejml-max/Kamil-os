@@ -1,3 +1,3 @@
-export const APP_VERSION='388.0.0';
-export const APP_RELEASE='388.0';
-// XTB signal stability guard requires confirmation before actionable cash plan 388
+export const APP_VERSION='389.0.0';
+export const APP_RELEASE='389.0';
+// XTB conviction calibration adds edge filters, historical hit-rate checks and 24h overtrade cooldown 389
