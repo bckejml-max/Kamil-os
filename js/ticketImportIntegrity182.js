@@ -16,14 +16,17 @@ function settlementFields(row,previous){
  if(recorded!==undefined&&recorded!==null)out.payoutRecordedAt=recorded;
  return out;
 }
-
+function closedSaleFields(previous,closed){
+ if(!closed)return{};
+ const sellEach=first(previous,'sell_each_czk','sellEachCzk'),sellTotal=first(previous,'sell_total_czk','sellTotalCzk');
+ const out={};if(sellEach!==undefined)out.sellEachCzk=sellEach;if(sellTotal!==undefined)out.sellTotalCzk=sellTotal;return out;
+}
 function soldChildren(current=[]){
  const byParent=new Map();
  for(const x of current){
   const parent=String(x?.parent_inventory_id||'').trim();
   if(!parent||!CLOSED_TICKET_STATUSES_182.has(statusOf(x)))continue;
-  const item=byParent.get(parent)||{qty:0,rows:[]};
-  item.qty+=Math.max(0,n(x.qty));item.rows.push(x);byParent.set(parent,item);
+  const item=byParent.get(parent)||{qty:0,rows:[]};item.qty+=Math.max(0,n(x.qty));item.rows.push(x);byParent.set(parent,item);
  }
  return byParent;
 }
@@ -32,16 +35,16 @@ export function prepareTicketReplace182(rows=[],current=[]){
  const cur=Array.isArray(current)?current:[],old=new Map(cur.map(x=>[x.id,x])),children=soldChildren(cur),incoming=Array.isArray(rows)?rows:[];
  const merged=[];
  for(const row of incoming){
-  const prev=old.get(row.id)||{},previousStatus=statusOf(prev),incomingStatus=statusOf(row)||'NOT_LISTED';
+  const prev=old.get(row.id)||{},previousStatus=statusOf(prev),incomingStatus=statusOf(row)||'NOT_LISTED',closed=CLOSED_TICKET_STATUSES_182.has(previousStatus);
   const child=children.get(String(row.id)),incomingQty=Math.max(0,n(row.qty)||0),remainingQty=child?Math.max(0,incomingQty-child.qty):incomingQty;
   if(child&&remainingQty<=0)continue;
-  const lockedStatus=CLOSED_TICKET_STATUSES_182.has(previousStatus)?previousStatus:incomingStatus;
-  const buyEach=n(row.buyEachCzk??row.buy_each_czk??prev.buy_each_czk),buyTotal=child?buyEach*remainingQty:n(row.buyTotalCzk??row.buy_total_czk??prev.buy_total_czk);
+  const lockedStatus=closed?previousStatus:incomingStatus,buyEach=n(row.buyEachCzk??row.buy_each_czk??prev.buy_each_czk),buyTotal=child?buyEach*remainingQty:n(row.buyTotalCzk??row.buy_total_czk??prev.buy_total_czk);
   merged.push({
    ...row,
    qty:remainingQty||row.qty,
    buyEachCzk:buyEach||row.buyEachCzk,
    buyTotalCzk:buyTotal||row.buyTotalCzk,
+   ...closedSaleFields(prev,closed),
    marketStatus:lockedStatus,
    viagogoUrl:row.viagogoUrl||row.viagogo_url||prev.viagogo_url||null,
    stubhubUrl:row.stubhubUrl||row.stubhub_url||prev.stubhub_url||null,
@@ -59,6 +62,7 @@ export function prepareTicketReplace182(rows=[],current=[]){
 export const ticketImportIntegrity182Info={
  closedRowsSurviveReplace:true,
  closedWorkflowCannotRegressFromImport:true,
+ closedSaleValuesPreferCloud:true,
  settlementFieldsPreferCloud:true,
  partialSalesSurviveReplace:true,
  activeQuantitySubtractsSoldChildren:true,
