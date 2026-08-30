@@ -1,3 +1,3 @@
-export const APP_VERSION='397.0.0';
-export const APP_RELEASE='397.0';
-// Tickets: resilient v2+fallback market pipeline, discovered-source persistence and visible market health 397
+export const APP_VERSION='398.0.0';
+export const APP_RELEASE='398.0';
+// Tickets: manual confirmed market snapshots keep pricing usable when resale sites block server-side reads 398
