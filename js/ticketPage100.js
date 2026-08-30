@@ -15,13 +15,15 @@ async function desk(){
   refresh.installTicketRefresh395();
   const source=await import('./ticketSourceEditor382.js');
   source.installTicketSourceEditor382();
+  const rowAuto=await import('./ticketRowAuto396.js');
+  rowAuto.installTicketRowAuto396();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets395] canonical desk boot failed',error);
+    console.error('[tickets396] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
