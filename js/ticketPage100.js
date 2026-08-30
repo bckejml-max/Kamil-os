@@ -5,7 +5,8 @@
 // market import, sale workflow, history, settlement, reconciliation, alerts,
 // capital/performance analytics, UI cleanup, canonical market engine,
 // event portfolio/cashflow, Gmail reconciliation, OS430 consolidation,
-// OS431 engine health, OS432 auto repair and OS433–436 predictive trading stack.
+// OS431 engine health, OS432 auto repair, OS433–436 predictive trading stack,
+// OS437 comparable events, OS438 portfolio stress and OS439 Commander 3.1.
 
 let bootPromise=null;
 
@@ -49,6 +50,9 @@ async function desk(){
   const backtest=await import('./ticketBacktest434.js');backtest.installTicketBacktest434();
   const commander=await import('./ticketCommander435.js');commander.installTicketCommander435();
   const predictUi=await import('./ticketPredictUi436.js');predictUi.installTicketPredictUi436();
+  const comparable=await import('./ticketComparable437.js');comparable.installTicketComparable437();
+  const risk=await import('./ticketRisk438.js');risk.installTicketRisk438();
+  const portfolioCommander=await import('./ticketCommander439.js');portfolioCommander.installTicketCommander439();
   document.documentElement.dataset.ticketCanonical430='1';
   return window.__KAMIL_TICKET_DESK331__;
 }
@@ -56,7 +60,7 @@ async function desk(){
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets436] canonical desk boot failed',error);
+    console.error('[tickets439] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
