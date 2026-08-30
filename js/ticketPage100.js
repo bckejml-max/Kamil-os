@@ -4,7 +4,8 @@
 // fallback, readiness/repair guidance, last-known price memory, clipboard
 // market import, sale workflow, history, settlement, reconciliation, alerts,
 // capital/performance analytics, UI cleanup, canonical market engine,
-// event portfolio/cashflow, Gmail reconciliation and OS430 consolidation.
+// event portfolio/cashflow, Gmail reconciliation, OS430 consolidation and
+// OS431 canonical engine health monitoring.
 
 let bootPromise=null;
 
@@ -42,6 +43,7 @@ async function desk(){
   const engineUi=await import('./ticketEngineUi427.js');engineUi.installTicketEngineUi427();
   const portfolio=await import('./ticketPortfolio428.js');portfolio.installTicketPortfolio428();
   const gmail=await import('./ticketGmailSync429.js');gmail.installTicketGmailSync429();
+  const engineHealth=await import('./ticketEngineHealth431.js');engineHealth.installTicketEngineHealth431();
   document.documentElement.dataset.ticketCanonical430='1';
   return window.__KAMIL_TICKET_DESK331__;
 }
@@ -49,7 +51,7 @@ async function desk(){
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets430] canonical desk boot failed',error);
+    console.error('[tickets431] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
