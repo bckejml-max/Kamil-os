@@ -5,7 +5,8 @@
 // market import, the OS407 decision/autopilot layer, OS408 sale workflow,
 // OS409 price-history analytics, OS410 action queue, OS411 settlement ledger,
 // OS412 payout reconciliation/cashflow, OS413 alert center, OS415 capital allocation,
-// OS416 verified trading performance and OS417 automatic source discovery.
+// OS416 verified trading performance, OS417 automatic source discovery and
+// OS418 capital-weighted data repair.
 
 let bootPromise=null;
 
@@ -52,13 +53,15 @@ async function desk(){
   performance.installTicketPerformance414();
   const capital=await import('./ticketCapital415.js');
   capital.installTicketCapital415();
+  const repair=await import('./ticketRepair418.js');
+  repair.installTicketRepair418();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets417] canonical desk boot failed',error);
+    console.error('[tickets418] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
