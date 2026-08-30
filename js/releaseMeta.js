@@ -1,3 +1,3 @@
-export const APP_VERSION='413.0.0';
-export const APP_RELEASE='413.0';
-// Tickets: price/action alerts, unread alert center, proportional payout reconciliation and cashflow 413
+export const APP_VERSION='414.0.0';
+export const APP_RELEASE='414.0';
+// Tickets: trading performance, win rate, profit factor, event P/L, alerts and payout reconciliation 414
