@@ -1,3 +1,3 @@
-export const APP_VERSION='411.0.0';
-export const APP_RELEASE='411.0';
-// Tickets: settlement ledger, payout calendar, delivery/payout actions and Gmail-backed order reconciliation 411
+export const APP_VERSION='412.0.0';
+export const APP_RELEASE='412.0';
+// Tickets: proportional payout-email reconciliation, settlement data repair and cashflow forecast 412
