@@ -3,7 +3,8 @@
 // multi-source refresh, source/row editing, row repair, market health, manual
 // fallback, readiness/repair guidance, last-known price memory, clipboard
 // market import, the OS407 decision/autopilot layer, OS408 sale workflow,
-// OS409 price-history analytics, OS410 action queue and OS411 settlement ledger.
+// OS409 price-history analytics, OS410 action queue, OS411 settlement ledger
+// and OS412 payout reconciliation/cashflow.
 
 let bootPromise=null;
 
@@ -42,13 +43,15 @@ async function desk(){
   actions.installTicketActionQueue410();
   const settlement=await import('./ticketSettlement411.js');
   settlement.installTicketSettlement411();
+  const reconcile=await import('./ticketReconcile412.js');
+  reconcile.installTicketReconcile412();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets411] canonical desk boot failed',error);
+    console.error('[tickets412] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
