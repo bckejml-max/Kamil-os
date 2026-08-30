@@ -8,8 +8,8 @@
 // OS416 verified trading performance, OS417 automatic source discovery,
 // OS418 capital-weighted data repair, OS419 daily decision brief,
 // OS420 clean three-zone ticket card UI, OS421 compact analytics hub,
-// OS422 unified Sold cards + compact toolbar, OS423 visual polish and
-// OS424 simplified copy, semantic badges and cleaner expanded detail.
+// OS422 unified Sold cards + compact toolbar, OS423 visual polish,
+// OS424 simplified copy + semantic badges and OS425 responsive metadata cleanup.
 
 let bootPromise=null;
 
@@ -70,13 +70,15 @@ async function desk(){
   polish.installTicketUi423();
   const detailPolish=await import('./ticketUi424.js');
   detailPolish.installTicketUi424();
+  const responsive=await import('./ticketUi425.js');
+  responsive.installTicketUi425();
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets424] canonical desk boot failed',error);
+    console.error('[tickets425] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
