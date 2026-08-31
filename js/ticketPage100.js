@@ -2,8 +2,8 @@
 // Critical ticket UX boots first. Historical analytics are best-effort and must
 // never block or take DOM ownership away from the visible Commander 6 workflow.
 
-let bootPromise=null;
-const BOOT_VERSION='466.0.7';
+let bootPromise=null,legacyPromise=null;
+const BOOT_VERSION='466.0.8';
 
 const CRITICAL=[
   ['./ticketUi421.js','installTicketUi421','CANONICAL UI 421/466'],
@@ -77,9 +77,6 @@ const MODULES=[
   ['./ticketEventStrategy464.js','installTicketEventStrategy464','EVENT STRATEGY 464']
 ];
 
-// OS466 owns the visible Ticket Desk. These historical modules are pure visual
-// decorators/renderers and would otherwise mutate the same cards/toolbar after
-// canonical boot. Their data engines remain installed through the MODULES list.
 const RETIRED_CANONICAL_UI=new Set([
   './ticketUi420.js','./ticketUi422.js','./ticketUi423.js','./ticketUi424.js',
   './ticketUi425.js','./ticketEngineUi427.js','./ticketPredictUi436.js','./ticketUi457.js'
@@ -92,14 +89,14 @@ function publishBoot(state){
   state.status=state.failed.length?'PARTIAL':state.legacyDone?'OK':state.criticalDone?'READY':'STARTING';
   window.__KAMIL_TICKET_BOOT466__=state;
   document.documentElement.dataset.ticketBoot466=state.status.toLowerCase();
-  window.dispatchEvent(new CustomEvent('kamil:ticket-boot466-updated',{detail:{status:state.status,failed:state.failed.map(x=>x.label),ok:state.ok,total:state.modules.length,criticalDone:!!state.criticalDone,legacyDone:!!state.legacyDone}}));
+  window.dispatchEvent(new CustomEvent('kamil:ticket-boot466-updated',{detail:{status:state.status,failed:state.failed.map(x=>x.label),ok:state.ok,total:state.modules.length,criticalDone:!!state.criticalDone,legacyStarted:!!state.legacyStarted,legacyDone:!!state.legacyDone}}));
 }
 function kick(source='boot466'){window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:{view:'tickets',source}}))}
+const yieldMain=()=>new Promise(resolve=>setTimeout(resolve,16));
 async function installSafe(path,fn,label,state){
   if(RETIRED_CANONICAL_UI.has(path)){
     state.modules.push({label,path,status:'RETIRED',ms:0,owner:'canonical-466'});
-    publishBoot(state);
-    return true;
+    publishBoot(state);return true;
   }
   const started=performance.now();
   try{
@@ -114,22 +111,33 @@ async function installSafe(path,fn,label,state){
     console.error(`[tickets466] ${label} failed`,error);publishBoot(state);return false;
   }
 }
+async function loadLegacy(state){
+  if(state.legacyDone)return;
+  state.legacyStarted=true;publishBoot(state);
+  for(const [path,fn,label] of MODULES){await installSafe(path,fn,label,state);await yieldMain()}
+  state.legacyDone=true;document.documentElement.dataset.ticketCanonical430='1';publishBoot(state);
+  kick('boot466-full');setTimeout(()=>kick('boot466-full-settle'),700);
+}
+function scheduleLegacy(state){
+  if(legacyPromise)return legacyPromise;
+  legacyPromise=new Promise(resolve=>setTimeout(resolve,5500)).then(()=>loadLegacy(state)).catch(error=>{console.error('[tickets466] deferred analytics failed',error);state.legacyError=String(error?.message||error);publishBoot(state)});
+  return legacyPromise;
+}
 
 async function desk(){
-  const state={version:BOOT_VERSION,startedAt:Date.now(),finishedAt:null,status:'STARTING',modules:[],failed:[],ok:0,criticalDone:false,legacyDone:false};
+  const state={version:BOOT_VERSION,startedAt:Date.now(),finishedAt:null,status:'STARTING',modules:[],failed:[],ok:0,criticalDone:false,legacyStarted:false,legacyDone:false};
   window.__KAMIL_TICKET_BOOT466__=state;document.documentElement.dataset.ticketBoot466='starting';
   const base=await import('./ticketDesk331.js');
   if(document.documentElement.dataset.ticketDesk331!=='1')base.installTicketDesk331();
 
-  // Visible workflow first: canonical DOM -> market model -> Commander -> actions.
   for(const [path,fn,label] of CRITICAL)await installSafe(path,fn,label,state);
   state.criticalDone=true;publishBoot(state);kick('boot466-critical');
   setTimeout(()=>kick('boot466-critical-settle'),650);
 
-  // Data, analytics and diagnostics may enrich canonical UI, but never replace it.
-  for(const [path,fn,label] of MODULES)await installSafe(path,fn,label,state);
-  state.legacyDone=true;document.documentElement.dataset.ticketCanonical430='1';publishBoot(state);
-  kick('boot466-full');setTimeout(()=>kick('boot466-full-settle'),900);setTimeout(()=>kick('boot466-final'),2600);
+  // Return the interactive desk immediately. Heavy historical analytics are
+  // intentionally delayed and yielded one module at a time so they cannot
+  // starve Ticket controls, Today, or other browser workers.
+  scheduleLegacy(state);
   return window.__KAMIL_TICKET_DESK331__;
 }
 
