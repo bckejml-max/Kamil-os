@@ -38,8 +38,11 @@ for(const token of ['__KAMIL_TICKET_COMMANDER454__','__KAMIL_TICKET_COMMANDER439
 if(commander.includes('if(!c?.rows?.length)return null'))fail('Commander 6 must not disappear when OS454 has no rows');
 
 for(const token of ['normalizeHero','moveDiagnostics','data-bridge-system466','data-analytics466','canonical-466'])if(!ui.includes(token))fail(`canonical UI bridge missing ${token}`);
-if(!ui.includes("kicker.textContent='Kamil OS · Ticket Portfolio'"))fail('canonical hero title normalization missing');
-if(!ui.includes("h1.textContent='Ticket Trading Desk'"))fail('canonical hero H1 normalization missing');
+const canonicalKicker=ui.includes("kicker.textContent='Kamil OS · Ticket Portfolio'")||ui.includes("setText(kicker,'Kamil OS · Ticket Portfolio')");
+const canonicalHeading=ui.includes("h1.textContent='Ticket Trading Desk'")||ui.includes("setText(h1,'Ticket Trading Desk')");
+if(!canonicalKicker)fail('canonical hero title normalization missing');
+if(!canonicalHeading)fail('canonical hero H1 normalization missing');
+if(ui.includes('function setText')&&!ui.includes('if(el&&el.textContent!==next)'))fail('idempotent hero normalization guard missing');
 
 for(const forbidden of ['function reorder(','function moveAnalytics(','host.appendChild(drawer)'])if(consolidation.includes(forbidden))fail(`logic-only consolidation must not own page DOM: ${forbidden}`);
 for(const token of ['logicOnly:true','decorateCommander','data-c466-more'])if(!consolidation.includes(token))fail(`execution consolidation missing ${token}`);
