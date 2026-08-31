@@ -15,6 +15,7 @@ async function boot(page){
  await expect(page.locator('#view-tickets')).toHaveClass(/on/,{timeout:5000});
  await expect(page.locator('[data-os340-ticket-portfolio]')).toBeVisible({timeout:10000});
  await expect(page.locator('[data-inventory-card]')).toHaveCount(45);
+ await expect.poll(()=>page.evaluate(()=>window.__KAMIL_TICKET_BOOT466__?.criticalDone===true),{timeout:10000}).toBe(true);
 }
 async function scrollState(page){return page.locator('#ticketIntelView').evaluate(host=>{const candidates=[host,...Array.from(host.parentElement?function*(){let x=host.parentElement;while(x){yield x;x=x.parentElement}}():[])];let owner=candidates.find(x=>{const s=getComputedStyle(x);return /(auto|scroll)/.test(s.overflowY)&&x.scrollHeight>x.clientHeight+20});if(!owner)owner=document.scrollingElement;return{ownerId:owner?.id||owner?.tagName||'document',scrollHeight:owner?.scrollHeight||0,clientHeight:owner?.clientHeight||0,scrollTop:owner?.scrollTop||0}})}
 
