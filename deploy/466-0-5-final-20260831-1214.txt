@@ -1,0 +1,5 @@
+Complete OS466.0.5 state
+Includes canonical bridge 466.0.5
+Includes Commander 465.1 fallback chain
+Includes logic-only consolidation 466.0.5
+Includes releaseMeta 466.0.5
