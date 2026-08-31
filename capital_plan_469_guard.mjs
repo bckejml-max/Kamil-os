@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import {spawnSync} from 'node:child_process';
+const fail=message=>{console.error(`OS469 guard: ${message}`);process.exitCode=1};
+const read=path=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
+const boot=read('./js/instantShell64.js'),mod=read('./js/capitalPlan469.js'),css=read('./capitalPlan469.css'),release=read('./js/releaseMeta.js'),sw=read('./sw.js'),pkg=read('./package.json');
+const syntax=spawnSync(process.execPath,['--check','js/capitalPlan469.js'],{encoding:'utf8'});if(syntax.status!==0)fail(`capitalPlan469 syntax failed: ${syntax.stderr||syntax.stdout}`);
+for(const token of ["'./capitalPlan469.js','installCapitalPlan469'",'optionalImport'])if(!boot.includes(token))fail(`boot missing ${token}`);
+for(const token of ['__KAMIL_CAPITAL_PLAN469__','buildCapitalPlan469','cashflowGate:true','reserveUntouched:true','unsafeTicketsExcluded:true','totalWithinSafeCapital','explicitConfirmation:true','autoExecute:false','partialTicketPurchase:false'])if(!mod.includes(token))fail(`module missing ${token}`);
+for(const token of ['.os469-summary','.os469-steps','.os469-step','@media(max-width:760px)','@media(max-width:420px)'])if(!css.includes(token))fail(`responsive CSS missing ${token}`);
+if(!release.includes("APP_VERSION='469.0.0'")||!release.includes("APP_RELEASE='469.0.0'"))fail('release metadata is not canonical 469.0.0');
+for(const token of ["const CACHE='kamil-os-469.0.0-core-r1'",'capitalPlan469.css','capitalPlan469.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
+if(!pkg.includes('capital_plan_469_guard.mjs')||!pkg.includes('e2e_os469_capital_plan.spec.mjs'))fail('package scripts do not include OS469 guard/E2E');
+if(!process.exitCode)console.log('OS469 30-day capital plan guard OK');
