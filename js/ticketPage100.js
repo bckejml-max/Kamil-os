@@ -3,7 +3,7 @@
 // legacy/analytics module must never prevent Commander 6 + OS466 consolidation.
 
 let bootPromise=null;
-const BOOT_VERSION='466.0.2';
+const BOOT_VERSION='466.0.3';
 
 const MODULES=[
   ['./ticketPriceIntelligence374.js','installTicketPriceIntelligence374','PRICE 374'],
@@ -85,6 +85,10 @@ function publishBoot(state){
   window.dispatchEvent(new CustomEvent('kamil:ticket-boot466-updated',{detail:{status:state.status,failed:state.failed.map(x=>x.label),ok:state.ok,total:state.modules.length}}));
 }
 
+function kick(source='boot466'){
+  window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:{view:'tickets',source}}));
+}
+
 async function installSafe(path,fn,label,state){
   const started=performance.now();
   try{
@@ -116,6 +120,14 @@ async function desk(){
 
   document.documentElement.dataset.ticketCanonical430='1';
   publishBoot(state);
+
+  // Installers are registered after the original page view event already fired.
+  // Re-emit it so the whole decision chain converges immediately instead of
+  // waiting for each module's long cold-start timer.
+  kick('boot466-fast');
+  setTimeout(()=>kick('boot466-settle'),1200);
+  setTimeout(()=>kick('boot466-final'),3200);
+
   return window.__KAMIL_TICKET_DESK331__;
 }
 
