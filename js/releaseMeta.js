@@ -1,3 +1,3 @@
-export const APP_VERSION='465.0.0';
-export const APP_RELEASE='465.0.0';
-// Tickets: SLA/snooze workflow, decision analytics, smart repricing cadence, event quantity/seat/liquidity strategy and Commander 6.0 465
+export const APP_VERSION='466.0.0';
+export const APP_RELEASE='466.0.0';
+// Tickets: Commander 6 canonical surface, persistent SLA/next-check, unified actions, KPI cleanup and analytics/diagnostics consolidation 466
