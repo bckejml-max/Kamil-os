@@ -1,3 +1,3 @@
-export const APP_VERSION='466.0.0';
-export const APP_RELEASE='466.0.0';
-// Tickets: Commander 6 canonical surface, persistent SLA/next-check, unified actions, KPI cleanup and analytics/diagnostics consolidation 466
+export const APP_VERSION='466.0.1';
+export const APP_RELEASE='466.0.1';
+// Tickets: canonical Commander 6 UI, persistent SLA/next-check, unified analytics, robust event keys and data-driven seat premium proxy 466.0.1
