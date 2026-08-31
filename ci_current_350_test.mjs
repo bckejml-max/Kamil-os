@@ -5,6 +5,8 @@ const read=p=>fs.readFileSync(p,'utf8');
 const boot=read('js/instantShell64.js');
 const shell=read('js/personalShell640.js');
 const ticketPage=read('js/ticketPage100.js');
+const ticketUi=read('js/ticketUi421.js');
+const ticketConsolidation=read('js/ticketConsolidation466.js');
 const ticketLoader=read('js/ticketOnDemand346.js');
 const ticketCloud=read('js/ticketCloud660.js');
 const workspaces=read('js/workspaces305.js');
@@ -19,9 +21,10 @@ assert.ok(shell.includes("lazy('./personalAsk640.js','answerPersonalQuestion640'
 assert.ok(shell.includes("go.textContent='Najít / zeptat se'"),'canonical personal command CTA missing');
 assert.ok(!shell.includes("from './personalAssistant530.js'"),'legacy Assistant 53 must not return to startup');
 
-// Current ticket ownership: ticketPage is only an adapter and Ticket Desk loads on demand.
+// Current ticket ownership: Ticket Desk is on-demand; canonical UI owns page DOM and consolidation is logic-only.
 assert.ok(ticketPage.includes("import('./ticketDesk331.js')"),'ticketPage100 must delegate to Ticket Desk 331');
-assert.ok(ticketPage.includes('one owner')||ticketPage.includes('owns'),'ticketPage100 must document single DOM ownership');
+assert.ok(ticketPage.includes("'./ticketUi421.js','installTicketUi421','CANONICAL UI 421/466'")&&ticketUi.includes('canonical-466'),'ticketPage100 must boot the canonical Ticket DOM owner first');
+assert.ok(ticketConsolidation.includes('logicOnly:true')&&!ticketConsolidation.includes('function reorder('),'ticket consolidation must remain logic-only and must not own page ordering');
 assert.ok(boot.includes("optionalImport('./ticketOnDemand346.js'"),'ticket on-demand loader must stay on the critical path');
 assert.ok(!boot.includes("optionalImport('./ticketDesk331.js'"),'Ticket Desk 331 must not eager-load during boot');
 assert.ok(ticketLoader.includes("import('./ticketDesk331.js')")&&ticketLoader.includes('kamil:view-change'),'ticket on-demand loader contract missing');
