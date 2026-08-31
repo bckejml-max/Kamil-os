@@ -30,7 +30,8 @@ if(essentialStart>=0&&legacyStart>=0&&essentialStart>legacyStart)fail('essential
 
 const criticalBlock=criticalStart>=0&&essentialStart>criticalStart?page.slice(criticalStart,essentialStart):'';
 for(const path of ['./ticketUi421.js','./ticketMarketEngine426.js','./ticketCommander465.js','./ticketConsolidation466.js']){if(!criticalBlock.includes(path))fail(`critical boot missing ${path}`);if(count(page,path)!==1)fail(`${path} must appear exactly once in ticketPage100`)}
-for(const token of ['state.criticalDone=true','state.legacyDone=true','BACKGROUND_MODULES','loadBackground','LEGACY_DELAY_MS=12000','healthMounted','alertsReady','__KAMIL_TICKET_UI421__?.refresh?.()'])if(!page.includes(token))fail(`critical-first boot missing ${token}`);
+for(const token of ['state.criticalDone=true','state.legacyDone=true','BACKGROUND_MODULES','loadBackground','LEGACY_DELAY_MS=12000','settleAnalytics','healthMounted','alertsReady'])if(!page.includes(token))fail(`critical-first boot missing ${token}`);
+if(/\.refresh\?\.\(/.test(page))fail('canonical adapter must not call renderer refresh methods directly');
 const essentialBlock=essentialStart>=0&&legacyStart>essentialStart?page.slice(essentialStart,legacyStart):'';
 for(const path of ['./ticketMarketHealth397.js','./ticketAlerts413.js'])if(!essentialBlock.includes(path))fail(`essential analytics missing ${path}`);
 if(page.includes("kick('boot466-critical')"))fail('canonical critical boot must not schedule a delayed view rerender');
