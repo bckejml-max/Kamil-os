@@ -1,3 +1,3 @@
-export const APP_VERSION='466.0.1';
-export const APP_RELEASE='466.0.1';
-// Tickets: canonical Commander 6 UI, persistent SLA/next-check, unified analytics, robust event keys and data-driven seat premium proxy 466.0.1
+export const APP_VERSION='466.0.2';
+export const APP_RELEASE='466.0.2';
+// Tickets: resilient per-module bootstrap, Commander 6 always-reachable consolidation, persistent workflow and diagnostics 466.0.2
