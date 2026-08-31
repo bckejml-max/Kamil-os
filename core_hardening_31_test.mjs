@@ -3,7 +3,7 @@ const assert=(x,m)=>{if(!x)throw new Error(m)};
 const read=p=>fs.readFileSync(p,'utf8');
 const release=read('js/releaseMeta.js'),config=read('js/config.js'),index=read('index.html'),cloud=read('js/cloud.js'),command=read('js/command.js'),sw=read('sw.js'),vercel=read('vercel.json'),query=read('js/personalQuery29.js'),lazy=read('js/lazyBoot41.js'),runtime=read('js/viewRuntime41.js'),instant=read('js/instantShell64.js'),hardening=read('js/personalHardening650.js');
 const version=release.match(/APP_VERSION='([^']+)'/)?.[1],releaseLine=release.match(/APP_RELEASE='([^']+)'/)?.[1],major=Number(version?.split('.')[0]||0);
-assert(/^\d+\.\d+\.\d+$/.test(version||'')&&major>=31&&releaseLine===version.split('.').slice(0,2).join('.'),'releaseMeta must provide one internally consistent Core version');
+assert(/^\d+\.\d+\.\d+$/.test(version||'')&&major>=31&&/^\d+\.\d+\.\d+$/.test(releaseLine||'')&&releaseLine===version,'releaseMeta must provide one internally consistent Core version');
 assert(config.includes("from './releaseMeta.js'")&&!/APP_VERSION\s*=\s*['"]/m.test(config.replace("import {APP_VERSION} from './releaseMeta.js';",'')),'config must use canonical release metadata');
 assert(index.includes('<title>Kamil OS</title>')&&index.includes('./js/instantShell64.js'),'current personal shell / instant boot wiring missing');
 assert(lazy.includes('./systemHealthUi31.js')||runtime.includes('./systemHealthUi31.js')||fs.existsSync('js/systemHealthUi31.js'),'System Health compatibility module must remain available');
@@ -13,6 +13,6 @@ assert(command.includes("modal('Náhled změny'")&&command.includes('Vytvořit o
 assert(query.includes('decisionDelta30')&&query.includes('Co se změnilo od minule'),'legacy Copilot Decision Delta compatibility missing');
 assert(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('networkFirst'),'current service-worker runtime shell missing');
 assert(!sw.includes('staleWhileRevalidate'),'runtime code must never serve stale-first');
-assert(instant.includes("optionalImport('./personalHardening650.js'")&&hardening.includes('personalReleasePreflight650'),'personal optional boot/preflight contract missing');
+assert(instant.includes("['./personalHardening650.js','bindPersonalHardening650']")&&hardening.includes('personalReleasePreflight650'),'personal module-table boot/preflight contract missing');
 assert(vercel.includes('Content-Security-Policy')&&vercel.includes('X-Content-Type-Options'),'security headers missing');
 console.log(`CORE HARDENING ${releaseLine} REGRESSION TEST PASS`);
