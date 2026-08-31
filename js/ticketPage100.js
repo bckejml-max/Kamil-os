@@ -14,7 +14,9 @@
 // OS450 execution outcomes, OS451 action governance, OS452 market regime,
 // OS453 capital planner, OS454 Commander 5.0 / Executive Brief 2.0,
 // OS455 runtime stabilization, OS456 client recovery boundary, OS457 UI consolidation,
-// OS458 canonical layout guard / visual QA, OS459 operational focus and OS460 action inbox.
+// OS458 canonical layout guard / visual QA, OS459 operational focus, OS460 action inbox,
+// OS461 workflow SLA, OS462 decision analytics, OS463 repricing cadence,
+// OS464 event strategy and OS465 Commander 6.0.
 
 let bootPromise=null;
 
@@ -82,6 +84,11 @@ async function desk(){
   const layout458=await import('./ticketLayoutGuard458.js');layout458.installTicketLayoutGuard458();
   const focus459=await import('./ticketOperationalFocus459.js');focus459.installTicketOperationalFocus459();
   const inbox460=await import('./ticketActionInbox460.js');inbox460.installTicketActionInbox460();
+  const workflow461=await import('./ticketWorkflow461.js');workflow461.installTicketWorkflow461();
+  const analytics462=await import('./ticketDecisionAnalytics462.js');analytics462.installTicketDecisionAnalytics462();
+  const cadence463=await import('./ticketCadence463.js');cadence463.installTicketCadence463();
+  const event464=await import('./ticketEventStrategy464.js');event464.installTicketEventStrategy464();
+  const commander6=await import('./ticketCommander465.js');commander6.installTicketCommander465();
   document.documentElement.dataset.ticketCanonical430='1';
   return window.__KAMIL_TICKET_DESK331__;
 }
@@ -89,7 +96,7 @@ async function desk(){
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets460] canonical desk boot failed',error);
+    console.error('[tickets465] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
