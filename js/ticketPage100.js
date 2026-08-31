@@ -1,22 +1,7 @@
 // Canonical ticket view adapter.
-// Ticket Desk 331 owns the ticket DOM. Scoped modules add pricing, unified
-// multi-source refresh, source/row editing, row repair, market health, manual
-// fallback, readiness/repair guidance, last-known price memory, clipboard
-// market import, sale workflow, history, settlement, reconciliation, alerts,
-// capital/performance analytics, UI cleanup, canonical market engine,
-// event portfolio/cashflow, Gmail reconciliation, OS430 consolidation,
-// OS431 engine health, OS432 auto repair, OS433–436 predictive trading stack,
-// OS437 comparable events, OS438 portfolio stress, OS439 Commander 3.1,
-// OS440 persistent decision journal, OS441 outcome calibration,
-// OS442 guarded feedback, OS443 calibration readiness cockpit,
-// OS444 decision quality, OS445 source consensus, OS446 risk ops,
-// OS447 portfolio optimizer, OS448 Commander 4.0, OS449 action execution tracking,
-// OS450 execution outcomes, OS451 action governance, OS452 market regime,
-// OS453 capital planner, OS454 Commander 5.0 / Executive Brief 2.0,
-// OS455 runtime stabilization, OS456 client recovery boundary, OS457 UI consolidation,
-// OS458 canonical layout guard / visual QA, OS459 operational focus, OS460 action inbox,
-// OS461 workflow SLA, OS462 decision analytics, OS463 repricing cadence,
-// OS464 event strategy and OS465 Commander 6.0.
+// Ticket Desk 331 owns the ticket DOM. Scoped modules provide the internal
+// data, market, risk, calibration and execution engines. OS466 consolidates
+// their visible output into one Commander-first operating surface.
 
 let bootPromise=null;
 
@@ -89,6 +74,7 @@ async function desk(){
   const cadence463=await import('./ticketCadence463.js');cadence463.installTicketCadence463();
   const event464=await import('./ticketEventStrategy464.js');event464.installTicketEventStrategy464();
   const commander6=await import('./ticketCommander465.js');commander6.installTicketCommander465();
+  const consolidation=await import('./ticketConsolidation466.js');consolidation.installTicketConsolidation466();
   document.documentElement.dataset.ticketCanonical430='1';
   return window.__KAMIL_TICKET_DESK331__;
 }
@@ -96,7 +82,7 @@ async function desk(){
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets465] canonical desk boot failed',error);
+    console.error('[tickets466] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
