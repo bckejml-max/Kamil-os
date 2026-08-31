@@ -1,88 +1,134 @@
 // Canonical ticket view adapter.
-// Ticket Desk 331 owns the ticket DOM. Scoped modules provide the internal
-// data, market, risk, calibration and execution engines. OS466 consolidates
-// their visible output into one Commander-first operating surface.
+// Ticket Desk 331 owns the base DOM. Every extension is isolated: one broken
+// legacy/analytics module must never prevent Commander 6 + OS466 consolidation.
 
 let bootPromise=null;
+const BOOT_VERSION='466.0.2';
+
+const MODULES=[
+  ['./ticketPriceIntelligence374.js','installTicketPriceIntelligence374','PRICE 374'],
+  ['./ticketRefresh395.js','installTicketRefresh395','REFRESH 395'],
+  ['./ticketSourceEditor382.js','installTicketSourceEditor382','SOURCE 382'],
+  ['./ticketRowAuto396.js','installTicketRowAuto396','ROW AUTO 396'],
+  ['./ticketMarketHealth397.js','installTicketMarketHealth397','MARKET HEALTH 397'],
+  ['./ticketManualMarket398.js','installTicketManualMarket398','MANUAL MARKET 398'],
+  ['./ticketReadiness400.js','installTicketReadiness400','READINESS 400'],
+  ['./ticketPriceMemory402.js','installTicketPriceMemory402','PRICE MEMORY 402'],
+  ['./ticketClipboardMarket403.js','installTicketClipboardMarket403','CLIPBOARD 403'],
+  ['./ticketAutopilot407.js','installTicketAutopilot407','AUTOPILOT 407'],
+  ['./ticketSaleSync408.js','installTicketSaleSync408','SALE SYNC 408'],
+  ['./ticketSoldGuard408.js','installTicketSoldGuard408','SOLD GUARD 408'],
+  ['./ticketPriceHistory409.js','installTicketPriceHistory409','HISTORY 409'],
+  ['./ticketActionQueue410.js','installTicketActionQueue410','ACTION QUEUE 410'],
+  ['./ticketSettlement411.js','installTicketSettlement411','SETTLEMENT 411'],
+  ['./ticketReconcile412.js','installTicketReconcile412','RECONCILE 412'],
+  ['./ticketAlerts413.js','installTicketAlerts413','ALERTS 413'],
+  ['./ticketPerformance414.js','installTicketPerformance414','PERFORMANCE 414'],
+  ['./ticketCapital415.js','installTicketCapital415','CAPITAL 415'],
+  ['./ticketRepair418.js','installTicketRepair418','REPAIR 418'],
+  ['./ticketDailyBrief419.js','installTicketDailyBrief419','DAILY BRIEF 419'],
+  ['./ticketUi420.js','installTicketUi420','UI 420'],
+  ['./ticketUi421.js','installTicketUi421','UI COMPACT 421'],
+  ['./ticketUi422.js','installTicketUi422','SOLD UI 422'],
+  ['./ticketUi423.js','installTicketUi423','UI POLISH 423'],
+  ['./ticketUi424.js','installTicketUi424','DETAIL UI 424'],
+  ['./ticketUi425.js','installTicketUi425','RESPONSIVE 425'],
+  ['./ticketMarketEngine426.js','installTicketMarketEngine426','ENGINE 426'],
+  ['./ticketEngineUi427.js','installTicketEngineUi427','ENGINE UI 427'],
+  ['./ticketPortfolio428.js','installTicketPortfolio428','PORTFOLIO 428'],
+  ['./ticketGmailSync429.js','installTicketGmailSync429','GMAIL 429'],
+  ['./ticketEngineHealth431.js','installTicketEngineHealth431','ENGINE HEALTH 431'],
+  ['./ticketAutoRepair432.js','installTicketAutoRepair432','AUTO REPAIR 432'],
+  ['./ticketPredictive433.js','installTicketPredictive433','PREDICTIVE 433'],
+  ['./ticketBacktest434.js','installTicketBacktest434','BACKTEST 434'],
+  ['./ticketCommander435.js','installTicketCommander435','COMMANDER 435'],
+  ['./ticketPredictUi436.js','installTicketPredictUi436','PREDICT UI 436'],
+  ['./ticketComparable437.js','installTicketComparable437','COMPARABLE 437'],
+  ['./ticketRisk438.js','installTicketRisk438','RISK 438'],
+  ['./ticketCommander439.js','installTicketCommander439','COMMANDER 439'],
+  ['./ticketDecisionJournal440.js','installTicketDecisionJournal440','JOURNAL 440'],
+  ['./ticketOutcomeCalibration441.js','installTicketOutcomeCalibration441','CALIBRATION 441'],
+  ['./ticketCalibrationFeedback442.js','installTicketCalibrationFeedback442','FEEDBACK 442'],
+  ['./ticketCalibrationReadiness443.js','installTicketCalibrationReadiness443','READINESS 443'],
+  ['./ticketDecisionQuality444.js','installTicketDecisionQuality444','QUALITY 444'],
+  ['./ticketConsensus445.js','installTicketConsensus445','CONSENSUS 445'],
+  ['./ticketRiskOps446.js','installTicketRiskOps446','RISK OPS 446'],
+  ['./ticketPortfolioOptimizer447.js','installTicketPortfolioOptimizer447','OPTIMIZER 447'],
+  ['./ticketCommander448.js','installTicketCommander448','COMMANDER 448'],
+  ['./ticketActionExecution449.js','installTicketActionExecution449','EXECUTION 449'],
+  ['./ticketExecutionOutcomes450.js','installTicketExecutionOutcomes450','OUTCOMES 450'],
+  ['./ticketActionGovernance451.js','installTicketActionGovernance451','GOVERNANCE 451'],
+  ['./ticketMarketRegime452.js','installTicketMarketRegime452','REGIME 452'],
+  ['./ticketCapitalPlanner453.js','installTicketCapitalPlanner453','CAPITAL PLANNER 453'],
+  ['./ticketCommander454.js','installTicketCommander454','COMMANDER 454'],
+  ['./ticketRuntimeHealth455.js','installTicketRuntimeHealth455','RUNTIME 455'],
+  ['./ticketRecovery456.js','installTicketRecovery456','RECOVERY 456'],
+  ['./ticketUi457.js','installTicketUi457','UI 457'],
+  ['./ticketLayoutGuard458.js','installTicketLayoutGuard458','LAYOUT 458'],
+  ['./ticketOperationalFocus459.js','installTicketOperationalFocus459','FOCUS 459'],
+  ['./ticketActionInbox460.js','installTicketActionInbox460','INBOX 460'],
+  ['./ticketWorkflow461.js','installTicketWorkflow461','WORKFLOW 461'],
+  ['./ticketDecisionAnalytics462.js','installTicketDecisionAnalytics462','ANALYTICS 462'],
+  ['./ticketCadence463.js','installTicketCadence463','CADENCE 463'],
+  ['./ticketEventStrategy464.js','installTicketEventStrategy464','EVENT STRATEGY 464'],
+  ['./ticketCommander465.js','installTicketCommander465','COMMANDER 465'],
+  ['./ticketConsolidation466.js','installTicketConsolidation466','CONSOLIDATION 466']
+];
+
+function publishBoot(state){
+  state.finishedAt=Date.now();
+  state.failed=state.modules.filter(x=>x.status==='ERROR');
+  state.ok=state.modules.filter(x=>x.status==='OK').length;
+  state.status=state.failed.length?'PARTIAL':'OK';
+  window.__KAMIL_TICKET_BOOT466__=state;
+  document.documentElement.dataset.ticketBoot466=state.status.toLowerCase();
+  window.dispatchEvent(new CustomEvent('kamil:ticket-boot466-updated',{detail:{status:state.status,failed:state.failed.map(x=>x.label),ok:state.ok,total:state.modules.length}}));
+}
+
+async function installSafe(path,fn,label,state){
+  const started=performance.now();
+  try{
+    const mod=await import(path);
+    if(typeof mod?.[fn]!=='function')throw new Error(`Chybí export ${fn}`);
+    await mod[fn]();
+    state.modules.push({label,path,status:'OK',ms:Math.round(performance.now()-started)});
+    publishBoot(state);
+    return true;
+  }catch(error){
+    const message=String(error?.message||error||'Neznámá chyba');
+    state.modules.push({label,path,status:'ERROR',error:message,ms:Math.round(performance.now()-started)});
+    console.error(`[tickets466] ${label} failed`,error);
+    publishBoot(state);
+    return false;
+  }
+}
 
 async function desk(){
-  const mod=await import('./ticketDesk331.js');
-  if(document.documentElement.dataset.ticketDesk331!=='1')mod.installTicketDesk331();
-  const pricing=await import('./ticketPriceIntelligence374.js');pricing.installTicketPriceIntelligence374();
-  const refresh=await import('./ticketRefresh395.js');refresh.installTicketRefresh395();
-  const source=await import('./ticketSourceEditor382.js');source.installTicketSourceEditor382();
-  const rowAuto=await import('./ticketRowAuto396.js');rowAuto.installTicketRowAuto396();
-  const health=await import('./ticketMarketHealth397.js');health.installTicketMarketHealth397();
-  const manual=await import('./ticketManualMarket398.js');manual.installTicketManualMarket398();
-  const readiness=await import('./ticketReadiness400.js');readiness.installTicketReadiness400();
-  const memory=await import('./ticketPriceMemory402.js');memory.installTicketPriceMemory402();
-  const clipboard=await import('./ticketClipboardMarket403.js');clipboard.installTicketClipboardMarket403();
-  const autopilot=await import('./ticketAutopilot407.js');autopilot.installTicketAutopilot407();
-  const saleSync=await import('./ticketSaleSync408.js');saleSync.installTicketSaleSync408();
-  const soldGuard=await import('./ticketSoldGuard408.js');soldGuard.installTicketSoldGuard408();
-  const history=await import('./ticketPriceHistory409.js');history.installTicketPriceHistory409();
-  const actions=await import('./ticketActionQueue410.js');actions.installTicketActionQueue410();
-  const settlement=await import('./ticketSettlement411.js');settlement.installTicketSettlement411();
-  const reconcile=await import('./ticketReconcile412.js');reconcile.installTicketReconcile412();
-  const alerts=await import('./ticketAlerts413.js');alerts.installTicketAlerts413();
-  const performance=await import('./ticketPerformance414.js');performance.installTicketPerformance414();
-  const capital=await import('./ticketCapital415.js');capital.installTicketCapital415();
-  const repair=await import('./ticketRepair418.js');repair.installTicketRepair418();
-  const brief=await import('./ticketDailyBrief419.js');brief.installTicketDailyBrief419();
-  const ui=await import('./ticketUi420.js');ui.installTicketUi420();
-  const compact=await import('./ticketUi421.js');compact.installTicketUi421();
-  const soldUi=await import('./ticketUi422.js');soldUi.installTicketUi422();
-  const polish=await import('./ticketUi423.js');polish.installTicketUi423();
-  const detailPolish=await import('./ticketUi424.js');detailPolish.installTicketUi424();
-  const responsive=await import('./ticketUi425.js');responsive.installTicketUi425();
-  const engine=await import('./ticketMarketEngine426.js');engine.installTicketMarketEngine426();
-  const engineUi=await import('./ticketEngineUi427.js');engineUi.installTicketEngineUi427();
-  const portfolio=await import('./ticketPortfolio428.js');portfolio.installTicketPortfolio428();
-  const gmail=await import('./ticketGmailSync429.js');gmail.installTicketGmailSync429();
-  const engineHealth=await import('./ticketEngineHealth431.js');engineHealth.installTicketEngineHealth431();
-  const autoRepair=await import('./ticketAutoRepair432.js');autoRepair.installTicketAutoRepair432();
-  const predictive=await import('./ticketPredictive433.js');predictive.installTicketPredictive433();
-  const backtest=await import('./ticketBacktest434.js');backtest.installTicketBacktest434();
-  const commander=await import('./ticketCommander435.js');commander.installTicketCommander435();
-  const predictUi=await import('./ticketPredictUi436.js');predictUi.installTicketPredictUi436();
-  const comparable=await import('./ticketComparable437.js');comparable.installTicketComparable437();
-  const risk=await import('./ticketRisk438.js');risk.installTicketRisk438();
-  const portfolioCommander=await import('./ticketCommander439.js');portfolioCommander.installTicketCommander439();
-  const journal=await import('./ticketDecisionJournal440.js');journal.installTicketDecisionJournal440();
-  const outcome=await import('./ticketOutcomeCalibration441.js');outcome.installTicketOutcomeCalibration441();
-  const feedback=await import('./ticketCalibrationFeedback442.js');feedback.installTicketCalibrationFeedback442();
-  const calibrationReadiness=await import('./ticketCalibrationReadiness443.js');calibrationReadiness.installTicketCalibrationReadiness443();
-  const quality=await import('./ticketDecisionQuality444.js');quality.installTicketDecisionQuality444();
-  const consensus=await import('./ticketConsensus445.js');consensus.installTicketConsensus445();
-  const riskOps=await import('./ticketRiskOps446.js');riskOps.installTicketRiskOps446();
-  const optimizer=await import('./ticketPortfolioOptimizer447.js');optimizer.installTicketPortfolioOptimizer447();
-  const commander4=await import('./ticketCommander448.js');commander4.installTicketCommander448();
-  const execution=await import('./ticketActionExecution449.js');execution.installTicketActionExecution449();
-  const executionOutcome=await import('./ticketExecutionOutcomes450.js');executionOutcome.installTicketExecutionOutcomes450();
-  const governance=await import('./ticketActionGovernance451.js');governance.installTicketActionGovernance451();
-  const regime=await import('./ticketMarketRegime452.js');regime.installTicketMarketRegime452();
-  const capitalPlanner=await import('./ticketCapitalPlanner453.js');capitalPlanner.installTicketCapitalPlanner453();
-  const commander5=await import('./ticketCommander454.js');commander5.installTicketCommander454();
-  const runtime=await import('./ticketRuntimeHealth455.js');runtime.installTicketRuntimeHealth455();
-  const recovery=await import('./ticketRecovery456.js');recovery.installTicketRecovery456();
-  const ui457=await import('./ticketUi457.js');ui457.installTicketUi457();
-  const layout458=await import('./ticketLayoutGuard458.js');layout458.installTicketLayoutGuard458();
-  const focus459=await import('./ticketOperationalFocus459.js');focus459.installTicketOperationalFocus459();
-  const inbox460=await import('./ticketActionInbox460.js');inbox460.installTicketActionInbox460();
-  const workflow461=await import('./ticketWorkflow461.js');workflow461.installTicketWorkflow461();
-  const analytics462=await import('./ticketDecisionAnalytics462.js');analytics462.installTicketDecisionAnalytics462();
-  const cadence463=await import('./ticketCadence463.js');cadence463.installTicketCadence463();
-  const event464=await import('./ticketEventStrategy464.js');event464.installTicketEventStrategy464();
-  const commander6=await import('./ticketCommander465.js');commander6.installTicketCommander465();
-  const consolidation=await import('./ticketConsolidation466.js');consolidation.installTicketConsolidation466();
+  const state={version:BOOT_VERSION,startedAt:Date.now(),finishedAt:null,status:'STARTING',modules:[],failed:[],ok:0};
+  window.__KAMIL_TICKET_BOOT466__=state;
+  document.documentElement.dataset.ticketBoot466='starting';
+
+  // Only the canonical base desk is fatal. Everything layered above it is isolated.
+  const base=await import('./ticketDesk331.js');
+  if(document.documentElement.dataset.ticketDesk331!=='1')base.installTicketDesk331();
+
+  for(const [path,fn,label] of MODULES)await installSafe(path,fn,label,state);
+
   document.documentElement.dataset.ticketCanonical430='1';
+  publishBoot(state);
   return window.__KAMIL_TICKET_DESK331__;
 }
 
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets466] canonical desk boot failed',error);
+    const state=window.__KAMIL_TICKET_BOOT466__||{version:BOOT_VERSION,modules:[]};
+    state.status='FATAL';
+    state.fatal=String(error?.message||error);
+    state.finishedAt=Date.now();
+    window.__KAMIL_TICKET_BOOT466__=state;
+    document.documentElement.dataset.ticketBoot466='fatal';
+    console.error('[tickets466] base desk boot failed',error);
     throw error;
   });
   return bootPromise;
