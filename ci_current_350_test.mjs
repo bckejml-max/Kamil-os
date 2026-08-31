@@ -25,8 +25,8 @@ assert.ok(!shell.includes("from './personalAssistant530.js'"),'legacy Assistant 
 assert.ok(ticketPage.includes("import('./ticketDesk331.js')"),'ticketPage100 must delegate to Ticket Desk 331');
 assert.ok(ticketPage.includes("'./ticketUi421.js','installTicketUi421','CANONICAL UI 421/466'")&&ticketUi.includes('canonical-466'),'ticketPage100 must boot the canonical Ticket DOM owner first');
 assert.ok(ticketConsolidation.includes('logicOnly:true')&&!ticketConsolidation.includes('function reorder('),'ticket consolidation must remain logic-only and must not own page ordering');
-assert.ok(boot.includes("optionalImport('./ticketOnDemand346.js'"),'ticket on-demand loader must stay on the critical path');
-assert.ok(!boot.includes("optionalImport('./ticketDesk331.js'"),'Ticket Desk 331 must not eager-load during boot');
+assert.ok(boot.includes("['./ticketOnDemand346.js','installTicketOnDemand346']")&&boot.includes('await optionalImport(p,f)'),'ticket on-demand loader must stay on the critical optional-import path');
+assert.ok(!boot.includes("['./ticketDesk331.js','installTicketDesk331']")&&!boot.includes("optionalImport('./ticketDesk331.js'"),'Ticket Desk 331 must not eager-load during boot');
 assert.ok(ticketLoader.includes("import('./ticketDesk331.js')")&&ticketLoader.includes('kamil:view-change'),'ticket on-demand loader contract missing');
 
 // Current ticket market source detection: Viagogo official API and URLs are recognized without a brittle legacy label.
