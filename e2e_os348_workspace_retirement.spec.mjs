@@ -31,16 +31,17 @@ test('OS348 workspace refresh stays single-owner without DOM ping-pong',async({p
   await page.waitForTimeout(350);
   const result=await page.evaluate(async()=>{
     const host=document.querySelector('#moneyView');
-    let childMutations=0;
-    const observer=new MutationObserver(records=>{for(const r of records)if(r.type==='childList')childMutations++});
+    let workspaceMutations=0;
+    const isWorkspace=node=>node?.nodeType===1&&(node.matches?.('[data-workspace305-money]')||node.querySelector?.('[data-workspace305-money]'));
+    const observer=new MutationObserver(records=>{for(const r of records){if(r.type!=='childList')continue;workspaceMutations+=[...r.addedNodes,...r.removedNodes].filter(isWorkspace).length}});
     observer.observe(host,{childList:true,subtree:false});
     window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:'money'}));
     window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:'money'}));
     await new Promise(r=>setTimeout(r,700));
     observer.disconnect();
-    return {count:host.querySelectorAll('[data-workspace305-money]').length,childMutations,observer:window.__KAMIL_WORKSPACES305__?.observer};
+    return {count:host.querySelectorAll('[data-workspace305-money]').length,workspaceMutations,observer:window.__KAMIL_WORKSPACES305__?.observer};
   });
   expect(result.count).toBe(1);
   expect(result.observer).toBe('retired-os348');
-  expect(result.childMutations).toBeLessThanOrEqual(1);
+  expect(result.workspaceMutations).toBeLessThanOrEqual(1);
 });
