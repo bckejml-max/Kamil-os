@@ -1,3 +1,3 @@
-export const APP_VERSION='457.0.0';
-export const APP_RELEASE='457.0.0';
-// Tickets: Commander-first layout, runtime/recovery health placement and compact inventory density 457
+export const APP_VERSION='458.0.0';
+export const APP_RELEASE='458.0.0';
+// Tickets: canonical layout guard, visual QA, duplicate/overflow/card-height checks and enforced compact closed-card density 458
