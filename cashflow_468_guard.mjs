@@ -1,0 +1,9 @@
+import fs from 'node:fs';
+const fail=message=>{console.error(`OS468 guard: ${message}`);process.exitCode=1};
+const read=path=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
+const boot=read('./js/instantShell64.js'),mod=read('./js/cashflow468.js'),css=read('./cashflow468.css'),release=read('./js/releaseMeta.js');
+for(const token of ["'./cashflow468.js','installCashflow468'",'optionalImport'])if(!boot.includes(token))fail(`boot missing ${token}`);
+for(const token of ['__KAMIL_CASHFLOW468__','buildCashflow468','forecastMustStayAboveReserve','minOpportunityScore:60','autoExecute:false','DRŽET HOTOVOST','PŘIKOUPIT XTB','KOUPIT VSTUPENKU'])if(!mod.includes(token))fail(`module missing ${token}`);
+for(const token of ['.os468-horizons','.os468-answer','@media(max-width:760px)','@media(max-width:420px)'])if(!css.includes(token))fail(`responsive CSS missing ${token}`);
+if(!release.includes("APP_VERSION='468.0.0'"))fail('release metadata is not 468.0.0');
+if(!process.exitCode)console.log('OS468 cash-flow allocation guard OK');
