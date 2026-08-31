@@ -6,6 +6,8 @@ async function boot(page){
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
   await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
   await expect.poll(()=>page.evaluate(()=>window.__KAMIL_FOCUS_QUEUE335__?.healthy),{timeout:5000}).toBe(true);
+  await page.evaluate(()=>window.__KAMIL_NAVIGATION342__?.navigate?.('today')||window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'today'})));
+  await expect(page.locator('#view-today')).toHaveClass(/on/,{timeout:5000});
 }
 
 test('OS349 promotes urgent monthly manager duties into the global focus queue',async({page})=>{
