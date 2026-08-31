@@ -2,7 +2,7 @@ import {cloudClient,session} from './cloud.js';
 import {formModal} from './utils.js';
 import {setTicketActionMeta461} from './ticketWorkflow461.js';
 
-const VERSION='466.0.5';
+const VERSION='466.0.7';
 const N=v=>Number(v||0);
 let bound=false,timer=0,busy=false;
 const key=(id,code)=>`${String(id)}|${String(code||'')}`;
@@ -38,25 +38,28 @@ async function ignore(action){const data=await formModal('Ignorovat doporučení
 async function note(action){const cur=latestExecution().get(key(action.id,action.what)),data=await formModal('Poznámka k akci',`<label class="field"><span>Poznámka</span><input name="note" maxlength="220" value="${esc(cur?.note||'')}"></label>`,{submitLabel:'Uložit'});if(data)await setTicketActionMeta461(action.id,action.what,'NOTE',data.note||'')}
 function jump(id){const safe=globalThis.CSS?.escape?CSS.escape(String(id)):String(id).replace(/["\\]/g,'\\$&'),d=document.querySelector(`#ticketIntelView [data-ticket-detail="${safe}"]`),card=d?.closest('[data-inventory-card]');if(card){card.dataset.focus459Hidden='0';card.scrollIntoView({behavior:'smooth',block:'center'})}}
 function statusLabel(s){return s==='DONE'?'HOTOVO':s==='CONFIRMED'?'POTVRZENO':s==='IGNORED'?'IGNOROVÁNO':'NOVÉ'}
+function setMarkup(el,markup,sig){if(!el)return false;if(el.dataset.c466Sig===sig)return false;el.dataset.c466Sig=sig;el.innerHTML=markup;return true}
 
 function decorateCommander(){
   const box=document.querySelector('#ticketIntelView [data-c465]'),model=commanderMap(),states=latestExecution();
   if(!box)return 0;
   let head=box.querySelector('.c466-head-actions');
   if(!head){head=document.createElement('div');head.className='c466-head-actions';box.querySelector('.c465-head')?.appendChild(head)}
-  head.innerHTML=`<button type="button" class="c466-btn" data-c466-more>${box.classList.contains('show-all')?'Top 5':`Všechny akce · ${model.size}`}</button>`;
-  head.querySelector('[data-c466-more]')?.addEventListener('click',()=>{box.classList.toggle('show-all');decorateCommander()});
+  const headMarkup=`<button type="button" class="c466-btn" data-c466-more>${box.classList.contains('show-all')?'Top 5':`Všechny akce · ${model.size}`}</button>`;
+  if(setMarkup(head,headMarkup,`${model.size}|${box.classList.contains('show-all')?'all':'top'}`))head.querySelector('[data-c466-more]')?.addEventListener('click',()=>{box.classList.toggle('show-all');decorateCommander()});
   let count=0;
   for(const row of box.querySelectorAll('[data-c465-row]')){
     const id=String(row.dataset.c465Id||''),action=model.get(id);if(!action)continue;count++;
     const st=states.get(key(id,action.what)),status=st?.action_status||'RECOMMENDED',overdue=!!window.__KAMIL_TICKET_WORKFLOW461__?.rows?.find(x=>String(x.id)===id)?.overdue;
     let controls=row.querySelector('.c466-actions');if(!controls){controls=document.createElement('div');controls.className='c466-actions';row.appendChild(controls)}
-    controls.innerHTML=`<span class="c466-state ${status==='DONE'?'c466-done':status==='CONFIRMED'?'c466-confirmed':status==='IGNORED'?'c466-ignored':''} ${overdue?'c466-overdue':''}">${overdue?'PO TERMÍNU · ':''}${statusLabel(status)}</span><button class="c466-btn" data-a="JUMP">Karta</button><button class="c466-btn" data-a="CONFIRMED" ${status==='DONE'?'disabled':''}>Potvrdit</button><button class="c466-btn" data-a="DONE">Hotovo</button><button class="c466-btn" data-a="SNOOZE" ${status==='DONE'||status==='IGNORED'?'disabled':''}>Odložit</button><button class="c466-btn" data-a="NOTE">Pozn.</button><button class="c466-btn" data-a="IGNORE" ${status==='DONE'?'disabled':''}>Ignorovat</button>${st?.note?`<span class="c466-note">${esc(st.note)}</span>`:''}`;
-    for(const b of controls.querySelectorAll('[data-a]'))b.addEventListener('click',()=>{const a=b.dataset.a;if(a==='JUMP')jump(id);else if(a==='SNOOZE')snooze(action);else if(a==='IGNORE')ignore(action);else if(a==='NOTE')note(action);else saveStatus(action,a,b)})
+    const markup=`<span class="c466-state ${status==='DONE'?'c466-done':status==='CONFIRMED'?'c466-confirmed':status==='IGNORED'?'c466-ignored':''} ${overdue?'c466-overdue':''}">${overdue?'PO TERMÍNU · ':''}${statusLabel(status)}</span><button class="c466-btn" data-a="JUMP">Karta</button><button class="c466-btn" data-a="CONFIRMED" ${status==='DONE'?'disabled':''}>Potvrdit</button><button class="c466-btn" data-a="DONE">Hotovo</button><button class="c466-btn" data-a="SNOOZE" ${status==='DONE'||status==='IGNORED'?'disabled':''}>Odložit</button><button class="c466-btn" data-a="NOTE">Pozn.</button><button class="c466-btn" data-a="IGNORE" ${status==='DONE'?'disabled':''}>Ignorovat</button>${st?.note?`<span class="c466-note">${esc(st.note)}</span>`:''}`;
+    const sig=[status,overdue?'1':'0',st?.note||'',action.what].join('|');
+    if(setMarkup(controls,markup,sig))for(const b of controls.querySelectorAll('[data-a]'))b.addEventListener('click',()=>{const a=b.dataset.a;if(a==='JUMP')jump(id);else if(a==='SNOOZE')snooze(action);else if(a==='IGNORE')ignore(action);else if(a==='NOTE')note(action);else saveStatus(action,a,b)})
   }
   return count;
 }
 
-function render(){ensureCss();const actions=decorateCommander();document.documentElement.dataset.ticketConsolidation466='logic-only';window.__KAMIL_TICKET_CONSOLIDATION466__={version:VERSION,healthy:!!window.__KAMIL_TICKET_COMMANDER465__,logicOnly:true,actions,at:Date.now()};window.dispatchEvent(new CustomEvent('kamil:ticket-consolidation466-updated',{detail:{actions,logicOnly:true}}))}
-function schedule(ms=100){clearTimeout(timer);timer=setTimeout(render,ms)}
+let lastSignature='';
+function render(){ensureCss();const actions=decorateCommander(),signature=`${actions}|${window.__KAMIL_TICKET_COMMANDER465__?.at||0}|${window.__KAMIL_TICKET_EXECUTION449__?.at||0}`;document.documentElement.dataset.ticketConsolidation466='logic-only';window.__KAMIL_TICKET_CONSOLIDATION466__={version:VERSION,healthy:!!window.__KAMIL_TICKET_COMMANDER465__,logicOnly:true,actions,at:Date.now()};if(signature!==lastSignature){lastSignature=signature;window.dispatchEvent(new CustomEvent('kamil:ticket-consolidation466-updated',{detail:{actions,logicOnly:true}}))}}
+function schedule(ms=100){if(timer)return;timer=setTimeout(()=>{timer=0;render()},ms)}
 export function installTicketConsolidation466(){if(bound)return;bound=true;ensureCss();for(const ev of ['kamil:view-change','kamil:ticket-commander465-updated','kamil:ticket-action449-saved','kamil:ticket-workflow461-updated'])window.addEventListener(ev,()=>schedule());schedule(0);setTimeout(()=>schedule(0),1500)}
