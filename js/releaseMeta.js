@@ -1,3 +1,3 @@
-export const APP_VERSION='466.0.5';
-export const APP_RELEASE='466.0.5';
-// Tickets: single canonical DOM owner, live system diagnostics and Commander 6 fallback chain 454 -> 439 -> 435 -> engine 426
+export const APP_VERSION='466.0.6';
+export const APP_RELEASE='466.0.6';
+// Tickets: canonical UI + market engine + Commander 6 boot first; legacy analytics load afterwards as isolated best-effort modules
