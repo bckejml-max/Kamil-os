@@ -3,8 +3,8 @@
 // never block or take DOM ownership away from the visible Commander 6 workflow.
 
 let bootPromise=null,legacyPromise=null;
-const BOOT_VERSION='466.1.1';
-const LEGACY_DELAY_MS=5000;
+const BOOT_VERSION='466.1.2';
+const LEGACY_DELAY_MS=12000;
 const LEGACY_YIELD_MS=12;
 
 const CRITICAL=[
@@ -146,13 +146,21 @@ async function loadBackground(state){
 async function loadLegacy(state){
   if(state.legacyDone)return;
   state.legacyStarted=true;publishBoot(state);
-  // The canonical analytics contract only depends on Market Health + Alerts.
-  // Load those deterministically; all historical models continue best-effort.
+  // Only diagnostics that are part of the canonical visible analytics contract
+  // are required here. Historical models remain best-effort background work.
   for(const [path,fn,label] of ESSENTIAL_ANALYTICS)await installSafe(path,fn,label,state);
+  window.__KAMIL_TICKET_MARKET_HEALTH397__?.refresh?.();
+  window.__KAMIL_TICKET_UI421__?.refresh?.();
+  const healthMounted=!!document.querySelector('[data-analytics466-body] [data-ticket-health397]');
+  const alertsReady=!!window.__KAMIL_TICKET_ALERTS413__?.renderAlerts;
+  if(!healthMounted||!alertsReady){
+    state.modules.push({label:'CANONICAL ANALYTICS READY',path:'canonical:analytics466',status:'ERROR',error:`healthMounted=${healthMounted};alertsReady=${alertsReady}`,ms:0});
+    publishBoot(state);
+    return;
+  }
   state.legacyDone=true;
   document.documentElement.dataset.ticketCanonical430='1';
   publishBoot(state);
-  kick('boot466-analytics-ready');
   setTimeout(()=>loadBackground(state).catch(error=>{state.backgroundError=String(error?.message||error);console.warn('[tickets466] background analytics failed',error);publishBoot(state)}),1000);
 }
 
