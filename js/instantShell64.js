@@ -27,6 +27,14 @@ function scheduleDeferred345(){
   const run=async()=>{
     if(DEFER345.started)return;
     DEFER345.started=true;publishDeferred345();
+    // The first paint only needs the core command/finance/execution owners.
+    // Market decision enrichment is event-driven and safely fills in after interactive boot.
+    await deferredImport('./xtbDecision368.js','installXtbDecision368');
+    await deferredImport('./ticketDecision369.js','installTicketDecision369');
+    await deferredImport('./opportunityScore370.js','installOpportunityScore370');
+    await deferredImport('./xtbTargets371.js','installXtbTargets371');
+    await deferredImport('./ticketTargets372.js','installTicketTargets372');
+    await deferredImport('./positionSizing373.js','installPositionSizing373');
     // OS467 owns the first visible decision surface. These older Today layers
     // remain available for compatibility, but no longer tax interactive boot.
     await deferredImport('./focusRadar334.js','installFocusRadar334');
@@ -44,7 +52,7 @@ function scheduleDeferred345(){
 async function load(){
   let appOk=false;
   const appStart=performance.now();
-  try{await import('./app.js');appOk=true}catch(error){noteBootError('app',error);const host=document.querySelector('#todayView');if(host&&!host.querySelector('[data-core-boot-failed]'))host.insertAdjacentHTML('beforeend','<div class="decision-note bad" data-core-boot-failed>Kamil OS se nepodařilo načíst. Lokální data zůstala beze změn. Zkus obnovit stránku.</div>');setTimeout(registerSw,300);BOOT343.modules.unshift({path:'./app.js',fn:'module',ms:Math.max(0,Math.round((performance.now()-appStart)*10)/10),ok:false});BOOT343.complete=true;publishBoot343();return}
+  try{await import('./app.js');appOk=true}catch(error){noteBootError('app',error);const host=document.querySelector('#todayView');if(host&&!host.querySelector('[data-core-boot-failed]'))host.insertAdjacentHTML('beforeend','<div class="decision-note bad" data-core-boot-failed>Kamil OS se nepodařilo načíst. Lokální data zůstala beze změny. Zkus obnovit stránku.</div>');setTimeout(registerSw,300);BOOT343.modules.unshift({path:'./app.js',fn:'module',ms:Math.max(0,Math.round((performance.now()-appStart)*10)/10),ok:false});BOOT343.complete=true;publishBoot343();return}
   BOOT343.modules.push({path:'./app.js',fn:'module',ms:Math.max(0,Math.round((performance.now()-appStart)*10)/10),ok:true});publishBoot343();
   const critical=[
     ['./navigationOS342.js','installNavigation342'],
@@ -72,12 +80,6 @@ async function load(){
     ['./managerOS341.js','installManagerOS341'],
     ['./executionState364.js','installExecutionState364'],
     ['./urgencyDraft367.js','installUrgencyDraft367'],
-    ['./xtbDecision368.js','installXtbDecision368'],
-    ['./ticketDecision369.js','installTicketDecision369'],
-    ['./opportunityScore370.js','installOpportunityScore370'],
-    ['./xtbTargets371.js','installXtbTargets371'],
-    ['./ticketTargets372.js','installTicketTargets372'],
-    ['./positionSizing373.js','installPositionSizing373'],
     ['./commandCenter467.js','installCommandCenter467'],
     ['./cashflow468.js','installCashflow468']
   ];
