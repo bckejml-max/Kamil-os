@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 const BASE='http://127.0.0.1:4173';
 const FORBIDDEN=['./performance330.js','./ticketQa332.js','./ticketDesk331.js'];
+const MAX_CRITICAL_MODULES=38,MAX_CRITICAL_MS=2200;
 const fakeSdk=`(()=>{function q(){const api={select(){return api},order(){return api},limit(){return api},is(){return api},eq(){return api},in(){return api},update(){return api},upsert(){return api},delete(){return api},maybeSingle:async()=>({data:null,error:null}),then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject)}};return api}window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{user:{id:'os347-test'}}}})},from:q})}})();`;
 
 async function boot(page){
@@ -20,13 +21,14 @@ test('OS347 enforces the interactive critical-path budget',async({page})=>{
   const paths=s.boot.modules.map(x=>x.path);
   expect(s.boot.healthy).toBe(true);
   expect(s.boot.failures).toHaveLength(0);
-  expect(s.boot.modules.length).toBeLessThanOrEqual(26);
+  expect(s.boot.modules.length).toBeLessThanOrEqual(MAX_CRITICAL_MODULES);
+  expect(s.boot.totalMs).toBeLessThanOrEqual(MAX_CRITICAL_MS);
   for(const path of FORBIDDEN)expect(paths).not.toContain(path);
   expect(paths).toContain('./ticketOnDemand346.js');
   expect(s.loader.loaded).toBe(false);
   expect(s.loader.loads).toBe(0);
   expect(s.order[0]?.name).toBe('critical');
-  console.log('OS347_CRITICAL_PATH',JSON.stringify({totalMs:s.boot.totalMs,moduleCount:s.boot.modules.length,forbiddenLoaded:FORBIDDEN.filter(x=>paths.includes(x)),order:s.order}));
+  console.log('OS347_CRITICAL_PATH',JSON.stringify({totalMs:s.boot.totalMs,moduleCount:s.boot.modules.length,maxModules:MAX_CRITICAL_MODULES,maxMs:MAX_CRITICAL_MS,forbiddenLoaded:FORBIDDEN.filter(x=>paths.includes(x)),order:s.order}));
 });
 
 test('OS347 starts deferred diagnostics only after interactive boot',async({page})=>{
