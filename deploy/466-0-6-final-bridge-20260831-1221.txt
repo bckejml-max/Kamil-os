@@ -1,0 +1,6 @@
+Complete OS466.0.6 production state
+Critical-first boot
+Canonical bridge 466.0.6
+Commander 465.1 fallback
+Logic-only consolidation
+ReleaseMeta 466.0.6
