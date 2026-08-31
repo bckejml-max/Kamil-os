@@ -39,14 +39,14 @@ assert.ok(release&&/^\d+\.\d+$/.test(release)&&release===version.split('.').slic
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 
-const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage101.js','js/ticketPage100.js','js/ticketOnDemand346.js','js/moneyPage100.js','js/os181Suite.js','js/executiveCommand164.js','js/dataTrust163.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js'];
+const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage101.js','js/ticketPage100.js','js/ticketOnDemand346.js','js/moneyPage100.js','js/os181Suite.js','js/executiveCommand164.js','js/dataTrust163.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','js/commandCenter467.js','js/cashflow468.js'];
 for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 
 assert.ok(index.includes('./js/instantShell64.js'),'instant startup shell must remain wired');
 assert.ok(index.includes('./personal65.css'),'personal assistant styles must remain wired');
 for(const label of ['Dnes','Vstupenky','Rodina','Domov','Peníze','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
 assert.ok(!index.includes('Personal Home')&&!index.includes('Pohledávka'),'legacy shell labels must not return');
-assert.ok(instant.includes("import('./app.js')")&&instant.includes('async function optionalImport')&&instant.includes("optionalImport('./personalShell640.js'")&&instant.includes("optionalImport('./personalHardening650.js'"),'bootstrap core/addon isolation missing');
+assert.ok(instant.includes("import('./app.js')")&&instant.includes('async function optionalImport')&&instant.includes("['./personalShell640.js','bindPersonalShell640']")&&instant.includes("['./personalHardening650.js','bindPersonalHardening650']"),'bootstrap core/addon isolation missing');
 assert.ok(personalAssistant.includes('personalDailyAssistant650')&&personalAssistant.includes('personalWaitingCenter650')&&personalAssistant.includes('personalSearch650'),'personal assistant engines missing');
 assert.ok(personalShell.includes('Najít / zeptat se')&&personalShell.includes('openVaultRecord640'),'global search/assistant integration missing');
 assert.ok(hardening.includes('primary<=1')&&hardening.includes('dataHealth===0'),'personal preflight guard missing');
