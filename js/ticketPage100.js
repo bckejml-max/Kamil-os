@@ -3,7 +3,7 @@
 // never block or take DOM ownership away from the visible Commander 6 workflow.
 
 let bootPromise=null,legacyPromise=null;
-const BOOT_VERSION='466.1.2';
+const BOOT_VERSION='466.1.3';
 const LEGACY_DELAY_MS=12000;
 const LEGACY_YIELD_MS=12;
 
@@ -101,8 +101,8 @@ function publishBoot(state){
   window.dispatchEvent(new CustomEvent('kamil:ticket-boot466-updated',{detail:{status:state.status,failed:state.failed.map(x=>x.label),ok:state.ok,total:state.modules.length,criticalDone:!!state.criticalDone,legacyStarted:!!state.legacyStarted,legacyDone:!!state.legacyDone}}));
 }
 
-function kick(source='boot466'){window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:{view:'tickets',source}}))}
 const yieldMain=()=>new Promise(resolve=>setTimeout(resolve,LEGACY_YIELD_MS));
+const settleAnalytics=()=>new Promise(resolve=>setTimeout(resolve,180));
 
 async function installSafe(path,fn,label,state){
   if(RETIRED_CANONICAL_UI.has(path)){state.modules.push({label,path,status:'RETIRED',ms:0,owner:'canonical-466'});publishBoot(state);return true}
@@ -146,11 +146,10 @@ async function loadBackground(state){
 async function loadLegacy(state){
   if(state.legacyDone)return;
   state.legacyStarted=true;publishBoot(state);
-  // Only diagnostics that are part of the canonical visible analytics contract
-  // are required here. Historical models remain best-effort background work.
   for(const [path,fn,label] of ESSENTIAL_ANALYTICS)await installSafe(path,fn,label,state);
-  window.__KAMIL_TICKET_MARKET_HEALTH397__?.refresh?.();
-  window.__KAMIL_TICKET_UI421__?.refresh?.();
+  // UI421 owns diagnostic placement. Its existing structural observer/event
+  // queue gets one short settle window; the adapter never calls a renderer.
+  await settleAnalytics();
   const healthMounted=!!document.querySelector('[data-analytics466-body] [data-ticket-health397]');
   const alertsReady=!!window.__KAMIL_TICKET_ALERTS413__?.renderAlerts;
   if(!healthMounted||!alertsReady){
