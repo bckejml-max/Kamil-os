@@ -13,7 +13,8 @@
 // OS447 portfolio optimizer, OS448 Commander 4.0, OS449 action execution tracking,
 // OS450 execution outcomes, OS451 action governance, OS452 market regime,
 // OS453 capital planner, OS454 Commander 5.0 / Executive Brief 2.0,
-// OS455 runtime stabilization, OS456 client recovery boundary and OS457 UI consolidation.
+// OS455 runtime stabilization, OS456 client recovery boundary, OS457 UI consolidation
+// and OS458 canonical layout guard / visual QA.
 
 let bootPromise=null;
 
@@ -78,6 +79,7 @@ async function desk(){
   const runtime=await import('./ticketRuntimeHealth455.js');runtime.installTicketRuntimeHealth455();
   const recovery=await import('./ticketRecovery456.js');recovery.installTicketRecovery456();
   const ui457=await import('./ticketUi457.js');ui457.installTicketUi457();
+  const layout458=await import('./ticketLayoutGuard458.js');layout458.installTicketLayoutGuard458();
   document.documentElement.dataset.ticketCanonical430='1';
   return window.__KAMIL_TICKET_DESK331__;
 }
@@ -85,7 +87,7 @@ async function desk(){
 export function renderTicketPage100(){
   if(!bootPromise)bootPromise=desk().catch(error=>{
     bootPromise=null;
-    console.error('[tickets457] canonical desk boot failed',error);
+    console.error('[tickets458] canonical desk boot failed',error);
     throw error;
   });
   return bootPromise;
