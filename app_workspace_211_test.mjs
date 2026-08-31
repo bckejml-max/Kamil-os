@@ -9,5 +9,5 @@ assert.ok(js.includes('data-prev211')&&js.includes('data-next211'),'button pager
 assert.ok(js.includes('.ux64-doc-list,.ux64-contract-grid'),'long document/home lists must become button pages');
 assert.ok(css.includes('overflow:hidden'),'page must stay no-scroll');
 assert.ok(css.includes('.app-panel211-on'),'single active panel rule missing');
-assert.ok(shell.includes("optionalImport('./appWorkspace211.js','installAppWorkspaces211')"),'workspace not boot-wired');
+assert.ok(shell.includes("['./appWorkspace211.js','installAppWorkspaces211']"),'workspace not boot-wired in current module table');
 console.log('OS 211 UNIVERSAL NO-SCROLL WORKSPACE PASS');
