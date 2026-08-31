@@ -35,7 +35,7 @@ const rootPackage=JSON.parse(read('package.json'));
 const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
 const release=meta.match(/APP_RELEASE='([^']+)'/)?.[1];
 assert.ok(version&&/^\d+\.\d+\.\d+$/.test(version)&&Number(version.split('.')[0])>=181,'OS 181+ release metadata required');
-assert.ok(release&&/^\d+\.\d+$/.test(release)&&release===version.split('.').slice(0,2).join('.'),'release label must match APP_VERSION');
+assert.ok(release&&/^\d+\.\d+\.\d+$/.test(release)&&release===version,'APP_RELEASE must equal full APP_VERSION');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 
@@ -56,7 +56,7 @@ assert.ok(todayPage.includes("['./os181Suite.js','enhanceToday181']"),'OS 181 To
 assert.ok(todayPage.includes('await import(path)')&&todayPage.includes('[today addon failed]'),'Today addon isolation missing');
 assert.ok(!todayPage.includes("import {enhanceToday181} from './os181Suite.js'"),'OS 181 addon must not become a static Today import');
 
-assert.ok(ticketPage.includes("import('./ticketDesk331.js')")&&ticketPage.includes('bootPromise')&&ticketPage.includes('one owner'),'Ticket canonical adapter/single-owner guard missing');
+assert.ok(ticketPage.includes('let bootPromise=null')&&ticketPage.includes('const CRITICAL=[')&&ticketPage.includes('const MODULES=[')&&ticketPage.includes("await import('./ticketDesk331.js')")&&ticketPage.includes("dataset.ticketDesk331!=='1'")&&ticketPage.includes('state.criticalDone=true')&&ticketPage.includes('if(!bootPromise)bootPromise=desk()'),'Ticket canonical critical-first single-flight adapter missing');
 assert.ok(ticketLoader.includes("import('./ticketDesk331.js')")&&ticketLoader.includes('if(promise)return promise')&&ticketLoader.includes('kamil:view-change'),'Ticket Desk on-demand single-flight integration missing');
 assert.ok(!instant.includes("optionalImport('./ticketDesk331.js'"),'Ticket Desk must not return to eager startup');
 assert.ok(moneyPage.includes('enhanceMoney181')&&moneyPage.includes('if(running){rerun=true;return}'),'Money OS 181 integration/single-flight guard missing');
