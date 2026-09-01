@@ -1,5 +1,5 @@
 const VIEW_META={today:{host:'#todayView',title:'Dnes'},money:{host:'#moneyView',title:'Peníze'},home:{host:'#homeView',title:'Domov'},more:{host:'#moreView',title:'Dokumenty'}};
-const EXCLUDE='.view-head,.money-filters,.home-filters,.document-filters,.ux65-footnote,[data-app-workspace211]';
+const EXCLUDE='.view-head,.money-filters,.home-filters,.document-filters,.ux65-footnote,[data-app-workspace211],[data-spending484-anchor]';
 
 function ensureStyle211(){if(document.querySelector('link[data-appworkspace211]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='./appWorkspace211.css';l.dataset.appworkspace211='1';document.head.appendChild(l)}
 function titleOf211(el,fallback='Panel'){
