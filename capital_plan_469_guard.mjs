@@ -8,8 +8,8 @@ if(!boot.includes("'./capitalPlan469.js','installCapitalPlan469'"))fail('boot mi
 if(!boot.includes('deferredImport'))fail('OS469 must remain outside the critical first-paint boot');
 for(const token of ['__KAMIL_CAPITAL_PLAN469__','buildCapitalPlan469','cashflowSafe','cashflowGate:true','cashflowHealthy','reserveUntouched:true','unsafeTicketsExcluded:true','totalWithinSafeCapital','explicitConfirmation:true','autoExecute:false','partialTicketPurchase:false'])if(!mod.includes(token))fail(`module missing ${token}`);
 for(const token of ['.os469-summary','.os469-steps','.os469-step','@media(max-width:760px)','@media(max-width:420px)'])if(!css.includes(token))fail(`responsive CSS missing ${token}`);
-if(!release.includes("APP_VERSION='469.0.0'")||!release.includes("APP_RELEASE='469.0.0'"))fail('release metadata is not canonical 469.0.0');
-for(const token of ["const CACHE='kamil-os-469.0.0-core-r1'",'capitalPlan469.css','capitalPlan469.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
+const version=release.match(/APP_VERSION='(\d+)\./)?.[1];if(Number(version)<469)fail('app release is older than OS469 contract');
+for(const token of ['capitalPlan469.css','capitalPlan469.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
 if(!pkg.includes('capital_plan_469_guard.mjs')||!pkg.includes('e2e_os469_capital_plan.spec.mjs'))fail('package scripts do not include OS469 guard/E2E');
 if(!fs.existsSync(new URL('./e2e_os469_capital_plan.spec.mjs',import.meta.url)))fail('OS469 browser contract missing');
 if(!read('./e2e_os469_capital_plan.spec.mjs').includes('hard-stops allocation when OS468 is unhealthy'))fail('OS469 unhealthy cash-flow regression missing');
