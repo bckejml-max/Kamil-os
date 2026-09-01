@@ -1,5 +1,6 @@
-// Ticket Redesign 500 loader. The exact approved renderer is stored compressed
-// next to this module to keep the GitHub update atomic and preserve the tested source.
+// Ticket Redesign 500 + Visual Polish 501 loader.
+// The approved OS500 renderer stays byte-for-byte in the compressed asset;
+// OS501 is a small, reversible presentation layer loaded on top.
 let loadPromise=null;
 let installPromise=null;
 let styleNode=null;
@@ -13,6 +14,12 @@ const ungzip=async url=>{
   return new Response(stream).text();
 };
 
+const text=async url=>{
+  const response=await fetch(url,{cache:'no-store'});
+  if(!response.ok)throw new Error(`OS501 asset ${response.status}: ${url}`);
+  return response.text();
+};
+
 function keepStyleLast(){
   if(!styleNode?.isConnected)return;
   if(document.head.lastElementChild!==styleNode)document.head.appendChild(styleNode);
@@ -21,14 +28,16 @@ function keepStyleLast(){
 async function loadRedesign(){
   if(loadPromise)return loadPromise;
   loadPromise=(async()=>{
-    const [css,rawSource]=await Promise.all([
+    const [css,polishCss,rawSource,polishMod]=await Promise.all([
       ungzip(new URL('../ticketRedesign500.css.gz',import.meta.url)),
-      ungzip(new URL('./ticketDesk331.redesign500.js.gz',import.meta.url))
+      text(new URL('../ticketPolish501.css',import.meta.url)),
+      ungzip(new URL('./ticketDesk331.redesign500.js.gz',import.meta.url)),
+      import(new URL('./ticketPolish501.js',import.meta.url).href)
     ]);
 
     styleNode=document.querySelector('style[data-ticket-redesign500]')||document.createElement('style');
     styleNode.dataset.ticketRedesign500='1';
-    styleNode.textContent=css;
+    styleNode.textContent=`${css}\n\n/* OS501 visual polish */\n${polishCss}`;
     document.head.appendChild(styleNode);
     if(!styleObserver){
       styleObserver=new MutationObserver(keepStyleLast);
@@ -44,9 +53,10 @@ async function loadRedesign(){
 
     const objectUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
     try{
-      const mod=await import(objectUrl);
-      if(typeof mod.installTicketDesk331!=='function')throw new Error('OS500 renderer export missing');
-      return mod;
+      const renderer=await import(objectUrl);
+      if(typeof renderer.installTicketDesk331!=='function')throw new Error('OS500 renderer export missing');
+      if(typeof polishMod.installTicketPolish501!=='function')throw new Error('OS501 polish export missing');
+      return{renderer,polishMod};
     }finally{
       setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);
     }
@@ -56,15 +66,18 @@ async function loadRedesign(){
 
 export function installTicketDesk331(){
   if(installPromise)return installPromise;
-  installPromise=loadRedesign().then(mod=>{
-    const result=mod.installTicketDesk331();
+  installPromise=loadRedesign().then(({renderer,polishMod})=>{
+    const result=renderer.installTicketDesk331();
+    polishMod.installTicketPolish501();
     document.documentElement.dataset.ticketRedesign500='1';
+    document.documentElement.dataset.ticketPolish501='1';
     window.__KAMIL_TICKET_REDESIGN500__={version:'500.0.0',healthy:true,at:Date.now(),source:'exact-approved-patch'};
+    window.__KAMIL_TICKET_POLISH501__={version:'501.0.0',healthy:true,at:Date.now()};
     keepStyleLast();
     return result;
   }).catch(error=>{
     installPromise=null;
-    console.error('[ticketRedesign500] activation failed',error);
+    console.error('[ticketRedesign500/501] activation failed',error);
     throw error;
   });
   return installPromise;
