@@ -2,7 +2,7 @@ name: OS333 Chromium Smoke
 
 on:
   push:
-    branches: [main, feat/os361-ticket-stability, release/os469-final, release/os470, release/os472, release/os480, release/os481]
+    branches: [main, feat/os361-ticket-stability, release/os469-final, release/os470, release/os472, release/os480, release/os481, release/os483]
   workflow_dispatch:
 
 jobs:
@@ -37,6 +37,7 @@ jobs:
           node --check js/propertyDecision472.js
           node --check js/investmentBattle480.js
           node --check js/managerDeadlines481.js
+          node --check js/morningDirector483.js
           node --check e2e_os343_boot_budget.spec.mjs
           node --check e2e_os344_lazy_shell.spec.mjs
           node --check e2e_os345_deferred_boot.spec.mjs
@@ -52,6 +53,7 @@ jobs:
           node --check e2e_os472_property_decision.spec.mjs
           node --check e2e_os480_investment_battle.spec.mjs
           node --check e2e_os481_manager_deadlines.spec.mjs
+          node --check e2e_os483_morning_director.spec.mjs
       - name: OS333+ release guard
         run: npm run test:release
       - name: OS338 ticket renderer ownership
@@ -65,5 +67,5 @@ jobs:
           for i in {1..20}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/kamil-os-http.log
           exit 1
-      - name: OS333 through OS481 browser smoke
-        run: npx playwright test e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs e2e_os345_deferred_boot.spec.mjs e2e_os346_ticket_on_demand.spec.mjs e2e_os347_critical_path.spec.mjs e2e_os348_workspace_retirement.spec.mjs e2e_os349_manager_focus.spec.mjs e2e_os361_ticket_longlist.spec.mjs e2e_os467_command_center.spec.mjs e2e_os468_cashflow.spec.mjs e2e_os469_capital_plan.spec.mjs e2e_os470_free_cash_forecast.spec.mjs e2e_os472_property_decision.spec.mjs e2e_os480_investment_battle.spec.mjs e2e_os481_manager_deadlines.spec.mjs --reporter=line
+      - name: OS333 through OS483 browser smoke
+        run: npx playwright test e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs e2e_os345_deferred_boot.spec.mjs e2e_os346_ticket_on_demand.spec.mjs e2e_os347_critical_path.spec.mjs e2e_os348_workspace_retirement.spec.mjs e2e_os349_manager_focus.spec.mjs e2e_os361_ticket_longlist.spec.mjs e2e_os467_command_center.spec.mjs e2e_os468_cashflow.spec.mjs e2e_os469_capital_plan.spec.mjs e2e_os470_free_cash_forecast.spec.mjs e2e_os472_property_decision.spec.mjs e2e_os480_investment_battle.spec.mjs e2e_os481_manager_deadlines.spec.mjs e2e_os483_morning_director.spec.mjs --reporter=line
