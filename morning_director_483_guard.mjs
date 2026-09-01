@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import {spawnSync} from 'node:child_process';
+const fail=message=>{console.error(`OS483 guard: ${message}`);process.exitCode=1};
+const read=path=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
+const boot=read('./js/instantShell64.js'),mod=read('./js/morningDirector483.js'),css=read('./morningDirector483.css'),release=read('./js/releaseMeta.js'),sw=read('./sw.js'),pkg=read('./package.json');
+const syntax=spawnSync(process.execPath,['--check','js/morningDirector483.js'],{encoding:'utf8'});if(syntax.status!==0)fail(`syntax failed: ${syntax.stderr||syntax.stdout}`);
+if(!boot.includes("deferredImport('./morningDirector483.js','installMorningDirector483')"))fail('OS483 must be wired into deferred boot');
+if(/critical=\[[\s\S]*morningDirector483/.test(boot))fail('OS483 must not enter critical boot');
+for(const token of ['__KAMIL_MORNING_DIRECTOR483__','buildMorningDirector483','aggregateOnly:true','noNewTaskStore:true','noInventedDeadlines:true','noAutoExecute:true','noFalseClearWhenSourceMissing:true'])if(!mod.includes(token))fail(`module missing ${token}`);
+for(const token of ['.os483-brief','.os483-first','.os483-strip','@media(max-width:620px)','@media(max-width:420px)'])if(!css.includes(token))fail(`responsive CSS missing ${token}`);
+if(!release.includes("APP_VERSION='483.0.0'")||!release.includes("APP_RELEASE='483.0.0'"))fail('release metadata is not canonical 483.0.0');
+for(const token of ["const CACHE='kamil-os-483.0.0-core-r1'",'morningDirector483.css','morningDirector483.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
+if(!pkg.includes('morning_director_483_guard.mjs')||!pkg.includes('e2e_os483_morning_director.spec.mjs'))fail('package scripts do not include OS483 guard/E2E');
+if(!process.exitCode)console.log('OS483 Morning Director guard OK');
