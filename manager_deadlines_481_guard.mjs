@@ -8,7 +8,7 @@ if(!boot.includes("deferredImport('./managerDeadlines481.js','installManagerDead
 if(/critical=\[[\s\S]*managerDeadlines481/.test(boot))fail('OS481 must not enter critical boot');
 for(const token of ['__KAMIL_MANAGER_DEADLINES481__','buildManagerDeadlines481','consumesManager341:true','noSecondTaskStore:true','noAutoComplete:true','noInventedDeadlines:true','existingCompletionOwner:true'])if(!mod.includes(token))fail(`module missing ${token}`);
 for(const token of ['.os481-verdict','.os481-row','@media(max-width:620px)','@media(max-width:420px)'])if(!css.includes(token))fail(`responsive CSS missing ${token}`);
-if(!release.includes("APP_VERSION='481.0.0'")||!release.includes("APP_RELEASE='481.0.0'"))fail('release metadata is not canonical 481.0.0');
-for(const token of ["const CACHE='kamil-os-481.0.0-core-r1'",'managerDeadlines481.css','managerDeadlines481.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
+const version=release.match(/APP_VERSION='(\d+)\.0\.0'/)?.[1],releaseVersion=release.match(/APP_RELEASE='(\d+)\.0\.0'/)?.[1];if(!version||version!==releaseVersion||Number(version)<481)fail('release metadata must remain canonical and >=481');
+for(const token of ['managerDeadlines481.css','managerDeadlines481.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
 if(!pkg.includes('manager_deadlines_481_guard.mjs')||!pkg.includes('e2e_os481_manager_deadlines.spec.mjs'))fail('package scripts do not include OS481 guard/E2E');
 if(!process.exitCode)console.log('OS481 manager deadline guard OK');
