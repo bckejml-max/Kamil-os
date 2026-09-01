@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import {spawnSync} from 'node:child_process';
+const fail=message=>{console.error(`OS484 guard: ${message}`);process.exitCode=1};
+const read=path=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
+const boot=read('./js/instantShell64.js'),mod=read('./js/spendingIntelligence484.js'),money=read('./js/personalMoney640.js'),css=read('./spendingIntelligence484.css'),release=read('./js/releaseMeta.js'),sw=read('./sw.js'),pkg=read('./package.json');
+const syntax=spawnSync(process.execPath,['--check','js/spendingIntelligence484.js'],{encoding:'utf8'});if(syntax.status!==0)fail(`syntax failed: ${syntax.stderr||syntax.stdout}`);
+if(!boot.includes("deferredImport('./spendingIntelligence484.js','installSpendingIntelligence484')"))fail('OS484 must be wired into deferred boot');
+if(/critical=\[[\s\S]*spendingIntelligence484/.test(boot))fail('OS484 must not enter critical boot');
+if(!money.includes('data-spending484-anchor'))fail('canonical Money page must own the OS484 anchor');
+for(const token of ['__KAMIL_SPENDING484__','buildSpendingIntelligence484','noNewStore:true','readOnly:true','noInventedCategories:true','explicitRecurrenceOnly:true','incompleteCannotBeAllClear:true','autoMutate:false'])if(!mod.includes(token))fail(`module missing ${token}`);
+for(const token of ['.os484','.os484-metrics','.os484-verdict','@media(max-width:620px)','@media(max-width:420px)'])if(!css.includes(token))fail(`responsive CSS missing ${token}`);
+if(!release.includes("APP_VERSION='484.0.0'")||!release.includes("APP_RELEASE='484.0.0'"))fail('release metadata is not canonical 484.0.0');
+for(const token of ["const CACHE='kamil-os-484.0.0-core-r1'",'spendingIntelligence484.css','spendingIntelligence484.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
+if(!pkg.includes('spending_intelligence_484_guard.mjs')||!pkg.includes('e2e_os484_spending_intelligence.spec.mjs'))fail('package scripts do not include OS484 guard/E2E');
+if(!process.exitCode)console.log('OS484 Spending Intelligence guard OK');
