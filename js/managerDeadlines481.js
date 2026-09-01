@@ -3,9 +3,10 @@ const VERSION=481;
 const N=v=>Number.isFinite(Number(v))?Number(v):0;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const isTodayEvent=e=>{const d=e?.detail;return !d||d==='today'||d?.view==='today'};
+const nullableNumber=v=>v===null||v===undefined||v===''?null:(Number.isFinite(Number(v))?Number(v):null);
 function ensureCss(){if(document.querySelector('link[data-manager-deadlines481-css]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='./managerDeadlines481.css';l.dataset.managerDeadlines481Css='1';document.head.appendChild(l)}
-function dutyRow(x){return{id:`duty:${x.id}`,kind:'DUTY',sourceId:x.id,title:x.label||'Manažerská povinnost',diff:Number.isFinite(Number(x.diff))?Number(x.diff):null,state:x.state||'upcoming',due:x.due||null,detail:x.detail||'',canComplete:!x.isDone}}
-function workRow(x){return{id:`work:${x.id||x._title}`,kind:'WORK',sourceId:x.id||null,title:x._title||x.title||x.name||'Pracovní úkol',diff:Number.isFinite(Number(x._diff))?Number(x._diff):null,state:x._state||'open',due:x._due||null,detail:'',canComplete:false}}
+function dutyRow(x){return{id:`duty:${x.id}`,kind:'DUTY',sourceId:x.id,title:x.label||'Manažerská povinnost',diff:nullableNumber(x.diff),state:x.state||'upcoming',due:x.due||null,detail:x.detail||'',canComplete:!x.isDone}}
+function workRow(x){return{id:`work:${x.id||x._title}`,kind:'WORK',sourceId:x.id||null,title:x._title||x.title||x.name||'Pracovní úkol',diff:nullableNumber(x._diff),state:x._state||'open',due:x._due||null,detail:'',canComplete:false}}
 function risk(row){if(row.state==='overdue')return Math.min(100,92+Math.min(8,Math.abs(N(row.diff))));if(row.state==='today')return 90;if(row.state==='soon')return Math.max(65,82-N(row.diff)*4);if(row.diff!==null&&row.diff<=7)return 55;if(row.diff===null)return 35;return 20}
 export function buildManagerDeadlines481(manager=buildManagerOS341()){
  const rows=[...(manager?.duties||[]).filter(x=>!x.isDone).map(dutyRow),...(manager?.work||[]).map(workRow)].map(x=>({...x,risk:risk(x)})).sort((a,b)=>b.risk-a.risk||(a.diff??9999)-(b.diff??9999));
