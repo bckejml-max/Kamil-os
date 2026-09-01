@@ -1,3 +1,3 @@
-export const APP_VERSION='469.0.0';
-export const APP_RELEASE='469.0.0';
-// OS469: guarded 30-day capital plan over OS468 cash-flow and existing XTB/Ticket opportunity engines
+export const APP_VERSION='470.0.0';
+export const APP_RELEASE='470.0.0';
+// OS470: conservative 7/14/30/60/90 free-cash forecast over guarded OS468 cash-flow
