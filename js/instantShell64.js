@@ -36,6 +36,7 @@ function scheduleDeferred345(){
     await deferredImport('./ticketTargets372.js','installTicketTargets372');
     await deferredImport('./positionSizing373.js','installPositionSizing373');
     await deferredImport('./capitalPlan469.js','installCapitalPlan469');
+    await deferredImport('./freeCashForecast470.js','installFreeCashForecast470');
     // OS467 owns the first visible decision surface. These older Today layers
     // remain available for compatibility, but no longer tax interactive boot.
     await deferredImport('./focusRadar334.js','installFocusRadar334');
