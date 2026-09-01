@@ -11,7 +11,8 @@ const CRITICAL=[
   ['./ticketUi421.js','installTicketUi421','CANONICAL UI 421/466'],
   ['./ticketMarketEngine426.js','installTicketMarketEngine426','ENGINE 426'],
   ['./ticketCommander465.js','installTicketCommander465','COMMANDER 465'],
-  ['./ticketConsolidation466.js','installTicketConsolidation466','EXECUTION UI 466']
+  ['./ticketConsolidation466.js','installTicketConsolidation466','EXECUTION UI 466'],
+  ['./ticketDashboard500.js','installTicketDashboard500','DASHBOARD 500']
 ];
 
 const ESSENTIAL_ANALYTICS=[
