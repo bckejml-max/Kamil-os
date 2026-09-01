@@ -1,0 +1,58 @@
+/* Kamil OS — Ticket Rail 503
+   Uses the existing OS500 profit/insight panel as a real right-hand rail. */
+
+@media (min-width:1181px){
+  html[data-ticket-rail503="1"] #ticketIntelView .td331 [data-ticket-side500]{
+    position:absolute!important;
+    top:var(--td503-side-top,360px)!important;
+    right:0!important;
+    width:var(--td503-right-width,var(--td502-right-width,360px))!important;
+    margin:0!important;
+    z-index:20!important;
+    display:grid!important;
+    gap:10px!important;
+  }
+
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-profit-card{
+    padding:13px 14px 11px!important;
+    border-radius:11px!important;
+  }
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-side-head span{
+    font-size:10px!important;
+  }
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-side-head b{
+    margin-top:3px!important;
+    font-size:18px!important;
+  }
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-side-head small{
+    font-size:8px!important;
+  }
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-profit-chart{
+    height:70px!important;
+    margin-top:6px!important;
+  }
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-chart-legend{
+    font-size:7.5px!important;
+  }
+
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-insight-grid{
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+  }
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-insight-grid article{
+    min-height:90px!important;
+    padding:10px 9px 9px!important;
+    border-radius:9px!important;
+  }
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-insight-grid span{
+    font-size:8px!important;
+  }
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-insight-grid b{
+    margin-top:11px!important;
+    font-size:8.5px!important;
+  }
+  html[data-ticket-rail503="1"] #ticketIntelView .td500-insight-grid strong{
+    margin-top:6px!important;
+    font-size:8.5px!important;
+  }
+}
