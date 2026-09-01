@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import {spawnSync} from 'node:child_process';
+const fail=message=>{console.error(`OS481 guard: ${message}`);process.exitCode=1};
+const read=path=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
+const boot=read('./js/instantShell64.js'),mod=read('./js/managerDeadlines481.js'),css=read('./managerDeadlines481.css'),release=read('./js/releaseMeta.js'),sw=read('./sw.js'),pkg=read('./package.json');
+const syntax=spawnSync(process.execPath,['--check','js/managerDeadlines481.js'],{encoding:'utf8'});if(syntax.status!==0)fail(`syntax failed: ${syntax.stderr||syntax.stdout}`);
+if(!boot.includes("deferredImport('./managerDeadlines481.js','installManagerDeadlines481')"))fail('OS481 must be wired into deferred boot');
+if(/critical=\[[\s\S]*managerDeadlines481/.test(boot))fail('OS481 must not enter critical boot');
+for(const token of ['__KAMIL_MANAGER_DEADLINES481__','buildManagerDeadlines481','consumesManager341:true','noSecondTaskStore:true','noAutoComplete:true','noInventedDeadlines:true','existingCompletionOwner:true'])if(!mod.includes(token))fail(`module missing ${token}`);
+for(const token of ['.os481-verdict','.os481-row','@media(max-width:620px)','@media(max-width:420px)'])if(!css.includes(token))fail(`responsive CSS missing ${token}`);
+if(!release.includes("APP_VERSION='481.0.0'")||!release.includes("APP_RELEASE='481.0.0'"))fail('release metadata is not canonical 481.0.0');
+for(const token of ["const CACHE='kamil-os-481.0.0-core-r1'",'managerDeadlines481.css','managerDeadlines481.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
+if(!pkg.includes('manager_deadlines_481_guard.mjs')||!pkg.includes('e2e_os481_manager_deadlines.spec.mjs'))fail('package scripts do not include OS481 guard/E2E');
+if(!process.exitCode)console.log('OS481 manager deadline guard OK');

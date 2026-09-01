@@ -1,3 +1,3 @@
-export const APP_VERSION='480.0.0';
-export const APP_RELEASE='480.0.0';
-// OS480: guarded Investment Battle across XTB, tickets, property and cash using existing decision engines
+export const APP_VERSION='481.0.0';
+export const APP_RELEASE='481.0.0';
+// OS481: deadline-risk layer over canonical Manager OS341 without a second task store
