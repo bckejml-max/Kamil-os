@@ -93,6 +93,6 @@
 
 @media (min-width:1181px) and (max-width:1499px){
   html[data-ticket-layout502="1"] #ticketIntelView .td331{
-    gap-column:14px!important;
+    column-gap:14px!important;
   }
 }
