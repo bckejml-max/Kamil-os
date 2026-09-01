@@ -1,6 +1,5 @@
-// Ticket Redesign 500 + Visual Polish 501 loader.
-// The approved OS500 renderer stays byte-for-byte in the compressed asset;
-// OS501 is a small, reversible presentation layer loaded on top.
+// Ticket Redesign 500 + Visual Polish 501 + Layout Fix 502 loader.
+// OS500 stays byte-for-byte in the compressed asset; 501/502 are reversible overlays.
 let loadPromise=null;
 let installPromise=null;
 let styleNode=null;
@@ -16,7 +15,7 @@ const ungzip=async url=>{
 
 const text=async url=>{
   const response=await fetch(url,{cache:'no-store'});
-  if(!response.ok)throw new Error(`OS501 asset ${response.status}: ${url}`);
+  if(!response.ok)throw new Error(`Ticket overlay asset ${response.status}: ${url}`);
   return response.text();
 };
 
@@ -28,16 +27,18 @@ function keepStyleLast(){
 async function loadRedesign(){
   if(loadPromise)return loadPromise;
   loadPromise=(async()=>{
-    const [css,polishCss,rawSource,polishMod]=await Promise.all([
+    const [css,polishCss,layoutCss,rawSource,polishMod,layoutMod]=await Promise.all([
       ungzip(new URL('../ticketRedesign500.css.gz',import.meta.url)),
       text(new URL('../ticketPolish501.css',import.meta.url)),
+      text(new URL('../ticketLayout502.css',import.meta.url)),
       ungzip(new URL('./ticketDesk331.redesign500.js.gz',import.meta.url)),
-      import(new URL('./ticketPolish501.js',import.meta.url).href)
+      import(new URL('./ticketPolish501.js',import.meta.url).href),
+      import(new URL('./ticketLayout502.js',import.meta.url).href)
     ]);
 
     styleNode=document.querySelector('style[data-ticket-redesign500]')||document.createElement('style');
     styleNode.dataset.ticketRedesign500='1';
-    styleNode.textContent=`${css}\n\n/* OS501 visual polish */\n${polishCss}`;
+    styleNode.textContent=`${css}\n\n/* OS501 visual polish */\n${polishCss}\n\n/* OS502 layout fix */\n${layoutCss}`;
     document.head.appendChild(styleNode);
     if(!styleObserver){
       styleObserver=new MutationObserver(keepStyleLast);
@@ -46,8 +47,7 @@ async function loadRedesign(){
 
     const base=new URL('./',import.meta.url);
     let source=rawSource.replace(/from\s+(['"])(\.\/[^'"]+)\1/g,(match,quote,path)=>`from ${quote}${new URL(path,base).href}${quote}`);
-    // UI421 in the current production shell already treats data-focus459 as core.
-    // Add the compatibility marker so its cleanup pass keeps OS500 side panels in place.
+    // UI421 treats data-focus459 as canonical; keep OS500 side panels outside diagnostics.
     source=source.replace(/data-ticket-side500(?![\w-])/g,'data-ticket-side500 data-focus459')
                  .replace(/data-ticket-tip500(?![\w-])/g,'data-ticket-tip500 data-focus459');
 
@@ -56,7 +56,8 @@ async function loadRedesign(){
       const renderer=await import(objectUrl);
       if(typeof renderer.installTicketDesk331!=='function')throw new Error('OS500 renderer export missing');
       if(typeof polishMod.installTicketPolish501!=='function')throw new Error('OS501 polish export missing');
-      return{renderer,polishMod};
+      if(typeof layoutMod.installTicketLayout502!=='function')throw new Error('OS502 layout export missing');
+      return{renderer,polishMod,layoutMod};
     }finally{
       setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);
     }
@@ -66,9 +67,10 @@ async function loadRedesign(){
 
 export function installTicketDesk331(){
   if(installPromise)return installPromise;
-  installPromise=loadRedesign().then(({renderer,polishMod})=>{
+  installPromise=loadRedesign().then(({renderer,polishMod,layoutMod})=>{
     const result=renderer.installTicketDesk331();
     polishMod.installTicketPolish501();
+    layoutMod.installTicketLayout502();
     document.documentElement.dataset.ticketRedesign500='1';
     document.documentElement.dataset.ticketPolish501='1';
     window.__KAMIL_TICKET_REDESIGN500__={version:'500.0.0',healthy:true,at:Date.now(),source:'exact-approved-patch'};
@@ -77,7 +79,7 @@ export function installTicketDesk331(){
     return result;
   }).catch(error=>{
     installPromise=null;
-    console.error('[ticketRedesign500/501] activation failed',error);
+    console.error('[ticketRedesign500/501/502] activation failed',error);
     throw error;
   });
   return installPromise;
