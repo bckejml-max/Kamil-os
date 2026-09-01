@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import {spawnSync} from 'node:child_process';
+const fail=message=>{console.error(`OS472 guard: ${message}`);process.exitCode=1};
+const read=path=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
+const boot=read('./js/instantShell64.js'),mod=read('./js/propertyDecision472.js'),css=read('./propertyDecision472.css'),release=read('./js/releaseMeta.js'),sw=read('./sw.js'),pkg=read('./package.json');
+const syntax=spawnSync(process.execPath,['--check','js/propertyDecision472.js'],{encoding:'utf8'});if(syntax.status!==0)fail(`syntax failed: ${syntax.stderr||syntax.stdout}`);
+if(!boot.includes("deferredImport('./propertyDecision472.js','installPropertyDecision472')"))fail('OS472 must be wired into deferred boot');
+if(/critical=\[[\s\S]*propertyDecision472/.test(boot))fail('OS472 must not enter critical boot');
+for(const token of ['__KAMIL_PROPERTY_DECISION472__','evaluateProperty472','buildPropertyDecision472','missingDataBlocksBuy:true','downsideRequired:true','noHardcodedPrivateData:true','autoExecute:false'])if(!mod.includes(token))fail(`module missing ${token}`);
+for(const token of ['.os472-verdict','.os472-row','@media(max-width:620px)','@media(max-width:420px)'])if(!css.includes(token))fail(`responsive CSS missing ${token}`);
+if(!release.includes("APP_VERSION='472.0.0'")||!release.includes("APP_RELEASE='472.0.0'"))fail('release metadata is not canonical 472.0.0');
+for(const token of ["const CACHE='kamil-os-472.0.0-core-r1'",'propertyDecision472.css','propertyDecision472.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
+if(!pkg.includes('property_decision_472_guard.mjs')||!pkg.includes('e2e_os472_property_decision.spec.mjs'))fail('package scripts do not include OS472 guard/E2E');
+if(!process.exitCode)console.log('OS472 property decision guard OK');
