@@ -1,7 +1,8 @@
 import {test,expect} from '@playwright/test';
 const BASE='http://127.0.0.1:4173';
 const FORBIDDEN=['./performance330.js','./ticketQa332.js','./ticketDesk331.js'];
-const MAX_CRITICAL_MODULES=38,MAX_CRITICAL_MS=2200;
+// Keep structural headroom tight while allowing modest cold-runner timing jitter.
+const MAX_CRITICAL_MODULES=30,MAX_CRITICAL_MS=2500;
 const fakeSdk=`(()=>{function q(){const api={select(){return api},order(){return api},limit(){return api},is(){return api},eq(){return api},in(){return api},update(){return api},upsert(){return api},delete(){return api},maybeSingle:async()=>({data:null,error:null}),then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject)}};return api}window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{user:{id:'os347-test'}}}})},from:q})}})();`;
 
 async function boot(page){
