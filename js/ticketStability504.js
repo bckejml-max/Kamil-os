@@ -1,4 +1,4 @@
-const VERSION='504.0.0';
+const VERSION='504.1.0';
 let bound=false;
 let timer=0;
 let rootObserver=null;
@@ -41,7 +41,7 @@ function fixCapital(host){
 
 function clearRail(side){
   if(!side)return;
-  for(const key of ['position','top','right','width','margin','z-index'])side.style.removeProperty(key);
+  for(const key of ['position','top','right','left','width','margin','z-index','transform'])side.style.removeProperty(key);
 }
 
 function observeCommander(commander){
@@ -57,6 +57,9 @@ function stabilize(){
   const host=document.querySelector('#ticketIntelView .td331');
   if(!host)return false;
   fixCapital(host);
+
+  // OS505 owns the rail geometry. Keep this layer alive only for KPI normalization.
+  if(document.documentElement.dataset.ticketAnchor505==='1')return true;
 
   const side=host.querySelector('[data-ticket-side500]');
   if(matchMedia('(max-width:1180px)').matches){
