@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 const BASE='http://127.0.0.1:4173';
-const MAX_CRITICAL_MODULES=38;
+const MAX_CRITICAL_MODULES=30;
 const fakeSdk=`(()=>{function q(){const api={select(){return api},order(){return api},limit(){return api},is(){return api},eq(){return api},in(){return api},update(){return api},upsert(){return api},delete(){return api},maybeSingle:async()=>({data:null,error:null}),then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject)}};return api}window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{user:{id:'os348-test'}}}})},from:q})}})();`;
 async function boot(page){
   await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',r=>r.fulfill({status:200,contentType:'application/javascript',body:fakeSdk}));
@@ -31,17 +31,18 @@ test('OS348 workspace refresh stays single-owner without DOM ping-pong',async({p
   await page.waitForTimeout(350);
   const result=await page.evaluate(async()=>{
     const host=document.querySelector('#moneyView');
-    let workspaceMutations=0;
+    let workspaceMutationCycles=0,maxWorkspaceCount=host.querySelectorAll('[data-workspace305-money]').length;
     const isWorkspace=node=>node?.nodeType===1&&(node.matches?.('[data-workspace305-money]')||node.querySelector?.('[data-workspace305-money]'));
-    const observer=new MutationObserver(records=>{for(const r of records){if(r.type!=='childList')continue;workspaceMutations+=[...r.addedNodes,...r.removedNodes].filter(isWorkspace).length}});
+    const observer=new MutationObserver(records=>{for(const r of records){if(r.type!=='childList')continue;const touched=[...r.addedNodes,...r.removedNodes].some(isWorkspace);if(touched)workspaceMutationCycles++;maxWorkspaceCount=Math.max(maxWorkspaceCount,host.querySelectorAll('[data-workspace305-money]').length)}});
     observer.observe(host,{childList:true,subtree:false});
     window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:'money'}));
     window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:'money'}));
     await new Promise(r=>setTimeout(r,700));
     observer.disconnect();
-    return {count:host.querySelectorAll('[data-workspace305-money]').length,workspaceMutations,observer:window.__KAMIL_WORKSPACES305__?.observer};
+    return {count:host.querySelectorAll('[data-workspace305-money]').length,workspaceMutationCycles,maxWorkspaceCount,observer:window.__KAMIL_WORKSPACES305__?.observer};
   });
   expect(result.count).toBe(1);
+  expect(result.maxWorkspaceCount).toBeLessThanOrEqual(1);
   expect(result.observer).toBe('retired-os348');
-  expect(result.workspaceMutations).toBeLessThanOrEqual(1);
+  expect(result.workspaceMutationCycles).toBeLessThanOrEqual(1);
 });
