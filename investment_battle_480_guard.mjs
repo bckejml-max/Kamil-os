@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import {spawnSync} from 'node:child_process';
+const fail=message=>{console.error(`OS480 guard: ${message}`);process.exitCode=1};
+const read=path=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
+const boot=read('./js/instantShell64.js'),mod=read('./js/investmentBattle480.js'),css=read('./investmentBattle480.css'),release=read('./js/releaseMeta.js'),sw=read('./sw.js'),pkg=read('./package.json');
+const syntax=spawnSync(process.execPath,['--check','js/investmentBattle480.js'],{encoding:'utf8'});if(syntax.status!==0)fail(`syntax failed: ${syntax.stderr||syntax.stdout}`);
+if(!boot.includes("deferredImport('./investmentBattle480.js','installInvestmentBattle480')"))fail('OS480 must be wired into deferred boot');
+if(/critical=\[[\s\S]*investmentBattle480/.test(boot))fail('OS480 must not enter critical boot');
+for(const token of ['__KAMIL_INVESTMENT_BATTLE480__','buildInvestmentBattle480','actionableWinnerWithinFreeCash:true','noCrossDomainFalsePrecision:true',"scoreBasis:'existing-engine-quality-not-return'",'propertyFundingGapIsNotActionable:true','autoExecute:false'])if(!mod.includes(token))fail(`module missing ${token}`);
+for(const token of ['.os480-verdict','.os480-row','@media(max-width:620px)','@media(max-width:420px)'])if(!css.includes(token))fail(`responsive CSS missing ${token}`);
+if(!release.includes("APP_VERSION='480.0.0'")||!release.includes("APP_RELEASE='480.0.0'"))fail('release metadata is not canonical 480.0.0');
+for(const token of ["const CACHE='kamil-os-480.0.0-core-r1'",'investmentBattle480.css','investmentBattle480.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
+if(!pkg.includes('investment_battle_480_guard.mjs')||!pkg.includes('e2e_os480_investment_battle.spec.mjs'))fail('package scripts do not include OS480 guard/E2E');
+if(!process.exitCode)console.log('OS480 investment battle guard OK');
