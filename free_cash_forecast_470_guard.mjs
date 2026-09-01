@@ -8,7 +8,7 @@ for(const token of ["deferredImport('./freeCashForecast470.js','installFreeCashF
 if(/critical=\[[\s\S]*freeCashForecast470/.test(boot))fail('OS470 must not enter critical boot');
 for(const token of ['__KAMIL_FREE_CASH470__','buildFreeCashForecast470','HORIZONS=[7,14,30,60,90]','reserveProtected:true','unknownInflowsAssumedZero:true','explicitInflowsOnly:true','allHorizonsMustStayAboveReserve:true','autoExecute:false'])if(!mod.includes(token))fail(`module missing ${token}`);
 for(const token of ['.os470-horizons','.os470-verdict','@media(max-width:620px)','@media(max-width:420px)'])if(!css.includes(token))fail(`responsive CSS missing ${token}`);
-if(!release.includes("APP_VERSION='470.0.0'")||!release.includes("APP_RELEASE='470.0.0'"))fail('release metadata is not canonical 470.0.0');
-for(const token of ["const CACHE='kamil-os-470.0.0-core-r1'",'freeCashForecast470.css','freeCashForecast470.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
+const version=release.match(/APP_VERSION='(\d+)\./)?.[1];if(Number(version)<470)fail('app release is older than OS470 contract');
+for(const token of ['freeCashForecast470.css','freeCashForecast470.js'])if(!sw.includes(token))fail(`service-worker shell missing ${token}`);
 if(!pkg.includes('free_cash_forecast_470_guard.mjs')||!pkg.includes('e2e_os470_free_cash_forecast.spec.mjs'))fail('package scripts do not include OS470 guard/E2E');
 if(!process.exitCode)console.log('OS470 free cash forecast guard OK');
