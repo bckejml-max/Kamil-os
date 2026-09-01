@@ -1,0 +1,98 @@
+/* Kamil OS — Ticket Layout 502
+   Decouples the right Commander height from the KPI/tabs rows. */
+
+@media (min-width:1181px){
+  html[data-ticket-layout502="1"] #ticketIntelView .td331{
+    position:relative!important;
+    gap:10px 18px!important;
+  }
+
+  /* Commander stays visually beside the KPIs, but no longer sizes grid rows 2–3. */
+  html[data-ticket-layout502="1"] #ticketIntelView .td331>[data-c465]{
+    position:absolute!important;
+    top:var(--td502-commander-top,70px)!important;
+    right:0!important;
+    width:var(--td502-right-width,360px)!important;
+    grid-column:auto!important;
+    grid-row:auto!important;
+    align-self:auto!important;
+    z-index:24!important;
+  }
+
+  /* Keep the lower right-side insight stack clear of the absolute Commander. */
+  html[data-ticket-layout502="1"] #ticketIntelView .td331>[data-ticket-side500]{
+    margin-top:var(--td502-side-offset,0px)!important;
+  }
+
+  /* KPI strip: information-dense instead of card-shaped whitespace. */
+  html[data-ticket-layout502="1"] #ticketIntelView .td331-overview{
+    align-self:start!important;
+    gap:10px!important;
+  }
+  html[data-ticket-layout502="1"] #ticketIntelView .td331-stat{
+    height:94px!important;
+    min-height:94px!important;
+    padding:12px 11px 9px 55px!important;
+  }
+  html[data-ticket-layout502="1"] #ticketIntelView .td500-kpi-icon,
+  html[data-ticket-layout502="1"] #ticketIntelView .td331-stat[data-kpi-risk466]:after{
+    left:13px!important;
+    top:12px!important;
+    width:34px!important;
+    height:34px!important;
+    font-size:15px!important;
+  }
+  html[data-ticket-layout502="1"] #ticketIntelView .td331-stat>span:not(.td500-kpi-icon):not(.ticket-kpi-compat500){
+    font-size:10.5px!important;
+    line-height:1.2!important;
+  }
+  html[data-ticket-layout502="1"] #ticketIntelView .td331-stat>b{
+    margin-top:5px!important;
+    font-size:22px!important;
+    line-height:1.05!important;
+  }
+  html[data-ticket-layout502="1"] #ticketIntelView .td331-stat>small{
+    margin-top:7px!important;
+    font-size:8.75px!important;
+    line-height:1.25!important;
+  }
+
+  /* Tabs should be one compact control row, not a large white panel. */
+  html[data-ticket-layout502="1"] #ticketIntelView .td331-modes{
+    height:50px!important;
+    min-height:50px!important;
+    align-self:start!important;
+    margin:0 0 -10px!important;
+    padding:0 9px 0 12px!important;
+  }
+  html[data-ticket-layout502="1"] #ticketIntelView .td500-tabs{
+    height:49px!important;
+  }
+  html[data-ticket-layout502="1"] #ticketIntelView .td331-mode{
+    min-height:49px!important;
+    padding:0 10px!important;
+    font-size:11px!important;
+  }
+  html[data-ticket-layout502="1"] #ticketIntelView .td500-columns-btn{
+    min-height:34px!important;
+  }
+
+  /* Slightly more table density while preserving OS501 readability. */
+  html[data-ticket-layout502="1"] #ticketIntelView .td500-table-head{
+    min-height:40px!important;
+  }
+  html[data-ticket-layout502="1"] #ticketIntelView .td331-ticket{
+    min-height:70px!important;
+  }
+  html[data-ticket-layout502="1"] #ticketIntelView .td500-event-thumb{
+    flex-basis:54px!important;
+    width:54px!important;
+    height:43px!important;
+  }
+}
+
+@media (min-width:1181px) and (max-width:1499px){
+  html[data-ticket-layout502="1"] #ticketIntelView .td331{
+    gap-column:14px!important;
+  }
+}
