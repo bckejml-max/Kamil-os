@@ -1,0 +1,252 @@
+/* Kamil OS — Ticket Visual Polish 501
+   Desktop-first readability pass. Keeps OS500 structure and behavior intact. */
+
+@media (min-width:1181px){
+  body:has(#view-tickets.on) main{
+    width:min(1840px,100%)!important;
+    padding:18px 32px 52px!important;
+  }
+
+  html[data-ticket-polish501="1"] #ticketIntelView .td331{
+    --td500-date:118px;
+    --td500-platform:118px;
+    --td500-qty:68px;
+    --td500-buy:124px;
+    --td500-sell:124px;
+    --td500-profit:120px;
+    --td500-status:124px;
+    grid-template-columns:minmax(0,1fr) 360px!important;
+    gap:18px!important;
+    max-width:1760px!important;
+  }
+
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-hero{
+    padding:6px 5px 8px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-hero>h1:after{
+    font-size:29px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-hero>p:after{
+    font-size:13.5px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-toolbar .td331-btn{
+    min-height:44px!important;
+    padding:0 16px!important;
+    font-size:12px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-toolbar .td331-btn.primary{
+    padding:0 19px!important;
+  }
+
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-overview{
+    gap:12px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-stat{
+    min-height:104px!important;
+    padding:15px 14px 12px 62px!important;
+    border-radius:11px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-stat>span:not(.td500-kpi-icon):not(.ticket-kpi-compat500){
+    font-size:11px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-stat>b{
+    margin-top:7px!important;
+    font-size:24px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-stat>small{
+    margin-top:10px!important;
+    font-size:9.5px!important;
+    line-height:1.3!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-kpi-icon,
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-stat[data-kpi-risk466]:after{
+    left:14px!important;
+    top:14px!important;
+    width:38px!important;
+    height:38px!important;
+    font-size:17px!important;
+  }
+
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-modes{
+    min-height:61px!important;
+    padding-left:16px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-tabs{
+    height:60px!important;
+    gap:7px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-mode{
+    min-height:60px!important;
+    padding:0 13px!important;
+    font-size:11.5px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-columns-btn{
+    min-height:37px!important;
+    font-size:10.5px!important;
+  }
+
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-table-head{
+    min-height:44px!important;
+    padding:0 8px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-table-head span{
+    font-size:9.5px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-ticket{
+    min-height:76px!important;
+    padding:0 8px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-event-cell{
+    gap:12px!important;
+    padding:9px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-event-thumb{
+    flex-basis:58px!important;
+    width:58px!important;
+    height:46px!important;
+    border-radius:9px!important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.16),0 3px 8px rgba(16,24,40,.08)!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-event-thumb span{
+    font-size:17px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-event-thumb.football{
+    background:linear-gradient(145deg,#0d3150,#0a7c55)!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-event-thumb.tennis{
+    background:linear-gradient(145deg,#174d5c,#2f9e69)!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-event-thumb.racing{
+    background:linear-gradient(145deg,#262c3f,#d43b32)!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-event-thumb.basketball{
+    background:linear-gradient(145deg,#3e2b1e,#c36a21)!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-event-thumb.hockey{
+    background:linear-gradient(145deg,#183759,#2b7fc2)!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-event-thumb.music{
+    background:linear-gradient(145deg,#342354,#8b45a5)!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-ticket h3{
+    font-size:12.25px!important;
+    line-height:1.3!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-meta{
+    margin-top:4px!important;
+    font-size:9.5px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-cell{
+    min-height:54px!important;
+    padding:6px 9px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-cell b{
+    font-size:10.75px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-cell small{
+    font-size:8.25px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-platform{
+    padding:5px 8px!important;
+    font-size:8.75px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td331-badge{
+    padding:5px 8px!important;
+    font-size:8.25px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-verdict{
+    margin-top:3px!important;
+    font-size:7.75px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-row-menu-toggle{
+    width:32px!important;
+    height:32px!important;
+    font-size:15px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-table-footer{
+    min-height:42px!important;
+    font-size:9.25px!important;
+  }
+
+  html[data-ticket-polish501="1"] #ticketIntelView .c465{
+    border-radius:11px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .c465-head{
+    padding:13px 15px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .c465-head>div:first-of-type>b:after{
+    font-size:14px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .c465-head>div:first-of-type>b:before{
+    margin-bottom:3px!important;
+    font-size:8.5px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .c465-row{
+    grid-template-columns:11px minmax(0,1fr) auto!important;
+    gap:10px!important;
+    min-height:66px!important;
+    padding:11px 14px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .c465-row>div:nth-child(2)>small{
+    margin-bottom:4px!important;
+    font-size:10.25px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .c465-row>div:nth-child(2)>strong{
+    font-size:8.5px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .c465-when{
+    font-size:8.5px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .c466-actions [data-a="JUMP"]{
+    font-size:8.5px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .c466-head-actions .c466-btn{
+    font-size:9.25px!important;
+  }
+
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-side{
+    gap:14px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-profit-card{
+    padding:16px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-side-head span{
+    font-size:10px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-side-head b{
+    font-size:17px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-side-head small{
+    font-size:8px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-profit-chart{
+    height:96px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-chart-legend{
+    font-size:8px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-insight-grid{
+    gap:9px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-insight-grid article{
+    min-height:112px!important;
+    padding:12px 10px 10px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-insight-grid span{
+    font-size:8.5px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-insight-grid b{
+    margin-top:14px!important;
+    font-size:9px!important;
+  }
+  html[data-ticket-polish501="1"] #ticketIntelView .td500-insight-grid strong{
+    font-size:8.75px!important;
+  }
+}
+
+@media (min-width:1181px) and (max-width:1499px){
+  html[data-ticket-polish501="1"] #ticketIntelView .td331{
+    grid-template-columns:minmax(0,1fr) 330px!important;
+    gap:14px!important;
+  }
+}
