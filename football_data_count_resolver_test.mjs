@@ -25,10 +25,13 @@ const events=[{
 const resolved=await resolveFootballDataCountModels(events,{fetchImpl,useCache:false,now:Date.parse('2026-09-02T12:00:00Z'),limit:5,baseUrl:'https://example.test'});
 assert.equal(resolved.meta.candidateEvents,1);
 assert.equal(resolved.meta.modeledEvents,1);
+assert.equal(resolved.meta.provider,'football-data-count-calibrated');
 assert.ok(resolved.probabilities.has('corners-over'));
 assert.ok(resolved.probabilities.has('corners-under'));
 assert.ok(resolved.probabilities.has('cards-over'));
 assert.equal(resolved.probabilities.has('unsafe-general-cards'),false,'generic card markets must not assume yellow-card settlement rules');
-assert.equal(resolved.sources.get('corners-over'),'football-data-count-corners');
-assert.equal(resolved.sources.get('cards-over'),'football-data-count-yellow_cards');
+assert.equal(resolved.sources.get('corners-over'),'football-data-count-corners-calibrated');
+assert.equal(resolved.sources.get('cards-over'),'football-data-count-yellow_cards-calibrated');
+assert.equal(resolved.meta.calibrationWeights.corners,0.5);
+assert.equal(resolved.meta.calibrationWeights.yellow_cards,0.35);
 console.log('football-data count resolver tests: OK');
