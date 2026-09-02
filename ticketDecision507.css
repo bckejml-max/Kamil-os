@@ -1,0 +1,42 @@
+/* Kamil OS — Ticket Decision 507 */
+
+html[data-ticket-decision507="1"] #ticketIntelView .td507-countdown{
+  display:block!important;
+  margin-top:3px!important;
+  font-size:8px!important;
+  font-weight:800!important;
+  white-space:nowrap;
+}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-normal{color:#667085!important}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-near{color:#9a6700!important}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-urgent{color:#d97706!important}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-critical{color:#d92d20!important}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-past{color:#98a2b3!important}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-unknown{color:#98a2b3!important}
+
+html[data-ticket-decision507="1"] #ticketIntelView .td507-decision{
+  display:block;
+  margin-top:4px;
+  font-size:7.5px;
+  line-height:1.2;
+  font-weight:900;
+  letter-spacing:.01em;
+  white-space:nowrap;
+}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-decision[data-tone="elite"]{color:#087443}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-decision[data-tone="strong"]{color:#1769ff}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-decision[data-tone="mid"]{color:#9a6700}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-decision[data-tone="low"]{color:#667085}
+html[data-ticket-decision507="1"] #ticketIntelView .td507-decision[data-tone="unknown"]{color:#98a2b3}
+
+html[data-ticket-decision507="1"] #ticketIntelView .td500-ticket-row[data-countdown507="critical"]{
+  box-shadow:inset 3px 0 0 rgba(217,45,32,.30)!important;
+}
+html[data-ticket-decision507="1"] #ticketIntelView .td500-ticket-row[data-countdown507="urgent"]{
+  box-shadow:inset 3px 0 0 rgba(217,119,6,.22)!important;
+}
+
+@media(max-width:620px){
+  html[data-ticket-decision507="1"] #ticketIntelView .td507-decision,
+  html[data-ticket-decision507="1"] #ticketIntelView .td507-countdown{white-space:normal}
+}
