@@ -1,9 +1,9 @@
 // Canonical ticket view adapter.
 // Critical ticket UX boots first. Historical analytics are best-effort and must
-// never block or take DOM ownership away from the visible Commander 6 workflow.
+// never block or take DOM ownership away from the visible Commander workflow.
 
 let bootPromise=null,legacyPromise=null;
-const BOOT_VERSION='466.1.3';
+const BOOT_VERSION='466.1.4';
 const LEGACY_DELAY_MS=12000;
 const LEGACY_YIELD_MS=12;
 
@@ -13,12 +13,10 @@ const CRITICAL=[
   ['./ticketCommander465.js','installTicketCommander465','COMMANDER 465'],
   ['./ticketConsolidation466.js','installTicketConsolidation466','EXECUTION UI 466']
 ];
-
 const ESSENTIAL_ANALYTICS=[
   ['./ticketMarketHealth397.js','installTicketMarketHealth397','MARKET HEALTH 397'],
   ['./ticketAlerts413.js','installTicketAlerts413','ALERTS 413']
 ];
-
 const MODULES=[
   ['./ticketPriceIntelligence374.js','installTicketPriceIntelligence374','PRICE 374'],
   ['./ticketRefresh395.js','installTicketRefresh395','REFRESH 395'],
@@ -86,10 +84,7 @@ const MODULES=[
 
 const ESSENTIAL_PATHS=new Set(ESSENTIAL_ANALYTICS.map(x=>x[0]));
 const BACKGROUND_MODULES=MODULES.filter(x=>!ESSENTIAL_PATHS.has(x[0]));
-const RETIRED_CANONICAL_UI=new Set([
-  './ticketUi420.js','./ticketUi422.js','./ticketUi423.js','./ticketUi424.js',
-  './ticketUi425.js','./ticketEngineUi427.js','./ticketPredictUi436.js','./ticketUi457.js'
-]);
+const RETIRED_CANONICAL_UI=new Set(['./ticketUi420.js','./ticketUi422.js','./ticketUi423.js','./ticketUi424.js','./ticketUi425.js','./ticketEngineUi427.js','./ticketPredictUi436.js','./ticketUi457.js']);
 
 function publishBoot(state){
   state.finishedAt=Date.now();
@@ -100,84 +95,45 @@ function publishBoot(state){
   document.documentElement.dataset.ticketBoot466=state.status.toLowerCase();
   window.dispatchEvent(new CustomEvent('kamil:ticket-boot466-updated',{detail:{status:state.status,failed:state.failed.map(x=>x.label),ok:state.ok,total:state.modules.length,criticalDone:!!state.criticalDone,legacyStarted:!!state.legacyStarted,legacyDone:!!state.legacyDone}}));
 }
-
 const yieldMain=()=>new Promise(resolve=>setTimeout(resolve,LEGACY_YIELD_MS));
-const settleAnalytics=()=>new Promise(resolve=>setTimeout(resolve,180));
-
 async function installSafe(path,fn,label,state){
   if(RETIRED_CANONICAL_UI.has(path)){state.modules.push({label,path,status:'RETIRED',ms:0,owner:'canonical-466'});publishBoot(state);return true}
   const started=performance.now();
-  try{
-    const mod=await import(path);
-    if(typeof mod?.[fn]!=='function')throw new Error(`Chybí export ${fn}`);
-    await mod[fn]();
-    state.modules.push({label,path,status:'OK',ms:Math.round(performance.now()-started)});
-    publishBoot(state);return true;
-  }catch(error){
-    const message=String(error?.message||error||'Neznámá chyba');
-    state.modules.push({label,path,status:'ERROR',error:message,ms:Math.round(performance.now()-started)});
-    console.error(`[tickets466] ${label} failed`,error);publishBoot(state);return false;
-  }
+  try{const mod=await import(path);if(typeof mod?.[fn]!=='function')throw new Error(`Chybí export ${fn}`);await mod[fn]();state.modules.push({label,path,status:'OK',ms:Math.round(performance.now()-started)});publishBoot(state);return true}
+  catch(error){const message=String(error?.message||error||'Neznámá chyba');state.modules.push({label,path,status:'ERROR',error:message,ms:Math.round(performance.now()-started)});console.error(`[tickets466] ${label} failed`,error);publishBoot(state);return false}
 }
-
 async function installLegacySafe(path,fn,label,state){
   if(RETIRED_CANONICAL_UI.has(path)){state.modules.push({label,path,status:'RETIRED',ms:0,owner:'canonical-466'});publishBoot(state);return true}
   const started=performance.now();
-  try{
-    const mod=await import(path);
-    if(typeof mod?.[fn]!=='function')throw new Error(`Chybí export ${fn}`);
-    const result=mod[fn]();
-    const entry={label,path,status:result&&typeof result.then==='function'?'BACKGROUND':'OK',ms:Math.round(performance.now()-started)};
-    state.modules.push(entry);publishBoot(state);
-    if(result&&typeof result.then==='function')Promise.resolve(result).then(()=>{entry.status='OK';entry.ms=Math.round(performance.now()-started);publishBoot(state)}).catch(error=>{entry.status='ERROR';entry.error=String(error?.message||error||'Neznámá chyba');console.warn(`[tickets466] background ${label} failed`,error);publishBoot(state)});
-    return true;
-  }catch(error){
-    const message=String(error?.message||error||'Neznámá chyba');
-    state.modules.push({label,path,status:'ERROR',error:message,ms:Math.round(performance.now()-started)});
-    console.error(`[tickets466] deferred ${label} failed`,error);publishBoot(state);return false;
+  try{const mod=await import(path);if(typeof mod?.[fn]!=='function')throw new Error(`Chybí export ${fn}`);const result=mod[fn]();const entry={label,path,status:result&&typeof result.then==='function'?'BACKGROUND':'OK',ms:Math.round(performance.now()-started)};state.modules.push(entry);publishBoot(state);if(result&&typeof result.then==='function')Promise.resolve(result).then(()=>{entry.status='OK';entry.ms=Math.round(performance.now()-started);publishBoot(state)}).catch(error=>{entry.status='ERROR';entry.error=String(error?.message||error||'Neznámá chyba');console.warn(`[tickets466] background ${label} failed`,error);publishBoot(state)});return true}
+  catch(error){const message=String(error?.message||error||'Neznámá chyba');state.modules.push({label,path,status:'ERROR',error:message,ms:Math.round(performance.now()-started)});console.error(`[tickets466] deferred ${label} failed`,error);publishBoot(state);return false}
+}
+async function waitCanonicalAnalytics(){
+  for(let i=0;i<8;i++){
+    const healthMounted=!!document.querySelector('[data-analytics466-body] [data-ticket-health397]');
+    const alertsReady=!!window.__KAMIL_TICKET_ALERTS413__?.renderAlerts;
+    if(healthMounted&&alertsReady)return{healthMounted,alertsReady};
+    await new Promise(resolve=>setTimeout(resolve,120));
   }
+  return{healthMounted:!!document.querySelector('[data-analytics466-body] [data-ticket-health397]'),alertsReady:!!window.__KAMIL_TICKET_ALERTS413__?.renderAlerts};
 }
-
-async function loadBackground(state){
-  for(const [path,fn,label] of BACKGROUND_MODULES){await installLegacySafe(path,fn,label,state);await yieldMain()}
-  state.backgroundDone=true;publishBoot(state);
-}
-
+async function loadBackground(state){for(const [path,fn,label] of BACKGROUND_MODULES){await installLegacySafe(path,fn,label,state);await yieldMain()}state.backgroundDone=true;publishBoot(state)}
 async function loadLegacy(state){
   if(state.legacyDone)return;
   state.legacyStarted=true;publishBoot(state);
   for(const [path,fn,label] of ESSENTIAL_ANALYTICS)await installSafe(path,fn,label,state);
-  // UI421 owns diagnostic placement. Its existing structural observer/event
-  // queue gets one short settle window; the adapter never calls a renderer.
-  await settleAnalytics();
-  const healthMounted=!!document.querySelector('[data-analytics466-body] [data-ticket-health397]');
-  const alertsReady=!!window.__KAMIL_TICKET_ALERTS413__?.renderAlerts;
-  if(!healthMounted||!alertsReady){
-    state.modules.push({label:'CANONICAL ANALYTICS READY',path:'canonical:analytics466',status:'ERROR',error:`healthMounted=${healthMounted};alertsReady=${alertsReady}`,ms:0});
-    publishBoot(state);
-    return;
-  }
-  state.legacyDone=true;
-  document.documentElement.dataset.ticketCanonical430='1';
-  publishBoot(state);
+  const ready=await waitCanonicalAnalytics();
+  if(!ready.healthMounted||!ready.alertsReady){state.modules.push({label:'CANONICAL ANALYTICS READY',path:'canonical:analytics466',status:'ERROR',error:`healthMounted=${ready.healthMounted};alertsReady=${ready.alertsReady}`,ms:0});publishBoot(state);return}
+  state.legacyDone=true;document.documentElement.dataset.ticketCanonical430='1';publishBoot(state);
   setTimeout(()=>loadBackground(state).catch(error=>{state.backgroundError=String(error?.message||error);console.warn('[tickets466] background analytics failed',error);publishBoot(state)}),1000);
 }
-
-function scheduleLegacy(state){
-  if(legacyPromise)return legacyPromise;
-  legacyPromise=new Promise(resolve=>setTimeout(resolve,LEGACY_DELAY_MS)).then(()=>loadLegacy(state)).catch(error=>{console.error('[tickets466] deferred analytics failed',error);state.legacyError=String(error?.message||error);publishBoot(state)});
-  return legacyPromise;
-}
-
+function scheduleLegacy(state){if(legacyPromise)return legacyPromise;legacyPromise=new Promise(resolve=>setTimeout(resolve,LEGACY_DELAY_MS)).then(()=>loadLegacy(state)).catch(error=>{console.error('[tickets466] deferred analytics failed',error);state.legacyError=String(error?.message||error);publishBoot(state)});return legacyPromise}
 async function desk(){
   const state={version:BOOT_VERSION,startedAt:Date.now(),finishedAt:null,status:'STARTING',modules:[],failed:[],ok:0,criticalDone:false,legacyStarted:false,legacyDone:false,backgroundDone:false};
   window.__KAMIL_TICKET_BOOT466__=state;document.documentElement.dataset.ticketBoot466='starting';
   const base=await import('./ticketDesk331.js');
-  if(document.documentElement.dataset.ticketDesk331!=='1')base.installTicketDesk331();
+  if(document.documentElement.dataset.ticketDesk331!=='1')await base.installTicketDesk331();
   for(const [path,fn,label] of CRITICAL)await installSafe(path,fn,label,state);
-  state.criticalDone=true;publishBoot(state);
-  scheduleLegacy(state);
-  return window.__KAMIL_TICKET_DESK331__;
+  state.criticalDone=true;publishBoot(state);scheduleLegacy(state);return window.__KAMIL_TICKET_DESK331__;
 }
-
 export function renderTicketPage100(){if(!bootPromise)bootPromise=desk().catch(error=>{bootPromise=null;const state=window.__KAMIL_TICKET_BOOT466__||{version:BOOT_VERSION,modules:[]};state.status='FATAL';state.fatal=String(error?.message||error);state.finishedAt=Date.now();window.__KAMIL_TICKET_BOOT466__=state;document.documentElement.dataset.ticketBoot466='fatal';console.error('[tickets466] base desk boot failed',error);throw error});return bootPromise}
