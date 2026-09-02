@@ -4,9 +4,9 @@ import {openPersonalAction641} from './personalActionExecution641.js';
 import {prepareFamilyEvent644} from './personalFamilyHomeActions644.js';
 import {openPersonalCapture643} from './personalCapture643.js';
 import {personalDaysTo650} from './personalDate650.js';
+import {isPersonalScope527} from './personalScope527.js';
 
-const WORK_RE=/zak[aá]zk|faktur|dodavat|pks|cpi|zbrojov|pracovn|xtb|ticket|vstupenk/i;
-const personal=x=>!WORK_RE.test(`${x?.title||''} ${x?.name||''} ${x?.category||''}`);
+const personal=isPersonalScope527;
 const familyRe=/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/i;
 const daysTo=personalDaysTo650;
 const row=(title,meta='',button='')=>`<div class="row ux64-row"><div><b>${h(title)}</b>${meta?`<div class="muted">${h(meta)}</div>`:''}</div>${button}</div>`;
