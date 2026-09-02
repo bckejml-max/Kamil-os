@@ -22,19 +22,21 @@ const tomorrowPreview=rows=>rows.length?`<section class="card ux65-night-handoff
 const morningPreview=x=>`<section class="card ux65-morning-launch"><div class="eyebrow">START DNE</div><div class="row"><span>Dnes v kalendáři</span><b>${x.calendar.length}</b></div><div class="row"><span>Follow-up dnes / po termínu</span><b>${x.followups.length}</b></div><button class="btn" data-morning-open>Ranní přehled</button></section>`;
 const healthPill=(tone,label,detail)=>`<span class="os684-pill ${tone}"><i></i><b>${h(label)}</b><small>${h(detail)}</small></span>`;
 function changeTarget686(label=''){const t=String(label).toLowerCase();if(/vstupenk|ticket|viagogo|prodej.*líst|tržní.*cen/.test(t))return'tickets';if(/hypot|finance|peníz|platb|faktur|rozpočet|spořen|invest|xtb/.test(t))return'money';if(/rodin|dcera|dítě|manžel|škol|očkov|víkend/.test(t))return'family';if(/domov|dům|energie|elektř|plyn|servis|údržb|reviz|nemovit/.test(t))return'home';if(/dokument|smlouv|pojist|protokol|doklad|archiv/.test(t))return'more';return null}
-function changesSince685(s){let since=Date.now()-864e5;try{const saved=Number(localStorage.getItem(LAST_SEEN_KEY)||0);if(saved)since=saved}catch{}const out=[],seen=new Set();for(const x of s.audit||[]){const at=Date.parse(x?.at||'');if(!at||at<=since)continue;const label=String(x?.label||'').trim();if(!label||seen.has(label))continue;seen.add(label);out.push({label,at,target:changeTarget686(label)});if(out.length>=3)break}return out}
+function changesSince685(s){let since=Date.now()-864e5;try{const saved=Number(localStorage.getItem(LAST_SEEN_KEY)||0);if(saved)since=saved}catch{}const rows=(s.audit||[]).map(x=>({...x,_at:Date.parse(x?.at||'')})).filter(x=>Number.isFinite(x._at)&&x._at>since).sort((a,b)=>b._at-a._at),out=[],seen=new Set();for(const x of rows){const label=String(x?.label||'').trim();if(!label||seen.has(label))continue;seen.add(label);out.push({label,at:x._at,target:changeTarget686(label)});if(out.length>=3)break}return out}
 function changesHtml685(rows){if(!rows.length)return'';return `<section class="card os685-changes"><div class="eyebrow">CO SE ZMĚNILO OD MINULA</div><div class="os685-change-list">${rows.map(x=>x.target?`<button class="os685-change-row" data-change-target="${h(x.target)}"><span>${h(x.label)}</span><small>${new Date(x.at).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})} ›</small></button>`:`<div class="row"><span>${h(x.label)}</span><small>${new Date(x.at).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}</small></div>`).join('')}</div></section>`}
+function newestMarketStamp(cloud){let newest=null;for(const s of cloud?.snapshots||[]){const raw=s?.checked_at||s?.market_checked_at||s?.fetched_at||s?.observed_at||null,t=Date.parse(raw||'');if(Number.isFinite(t)&&(newest===null||t>newest))newest=t}return newest}
 async function appendSystemHealth684(host){
  try{
   const [sess,cloud,vr,core]=await Promise.all([session(),loadTicketCloud660(),fetch('/api/viagogo-official',{cache:'no-store'}).then(r=>r.json()).catch(()=>({configured:false})),fetch('/api/core70-health',{cache:'no-store'}).then(r=>r.json()).catch(()=>({ok:false}))]);
-  const latest=cloud?.snapshots?.[0]?.checked_at||null,age=latest?Math.max(0,(Date.now()-Date.parse(latest))/36e5):null,issues=[];
-  if(!sess)issues.push(healthPill('bad','Cloud','odpojen – změny jsou jen na zařízení'));
+  const latest=newestMarketStamp(cloud),age=latest===null?null:Math.max(0,(Date.now()-latest)/36e5),issues=[];
+  // Local mode is a supported personal mode; lack of cloud session is not a health failure.
   if(age==null)issues.push(healthPill('warn','Tržní data','zatím bez úspěšné kontroly'));else if(age>24)issues.push(healthPill('warn','Tržní data',`poslední funkční stav před ${Math.round(age)} h`));
   if(!vr?.configured)issues.push(healthPill('warn','Viagogo API','nepřipojeno – používá se omezená záloha'));
   if(core?.ok===false)issues.push(healthPill('bad','Core 70','diagnostika našla chybějící modul'));
   if(!issues.length)return;
   const wrap=document.createElement('section');wrap.className='card os684-health';wrap.innerHTML=`<div class="os684-head"><div><div class="eyebrow">STAV OS · JEN PROBLÉMY</div><b>Něco potřebuje pozornost</b></div><div class="row-actions"><button class="btn" data-os684-inbox>Inbox</button><button class="btn" data-os684-tickets>Vstupenky</button></div></div><div class="os684-pills">${issues.join('')}</div>`;
   host.querySelector('.ux65-today')?.appendChild(wrap);wrap.querySelector('[data-os684-inbox]')?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'inbox'})));wrap.querySelector('[data-os684-tickets]')?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'tickets'})));
+  window.__KAMIL_TODAY_HEALTH526__={healthy:true,cloudSession:!!sess,localMode:!sess,marketAgeHours:age,issues:issues.length,at:Date.now()};
  }catch{}
 }
 
