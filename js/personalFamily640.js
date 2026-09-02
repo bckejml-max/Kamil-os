@@ -3,11 +3,12 @@ import {h,qs} from './utils.js';
 import {openPersonalAction641} from './personalActionExecution641.js';
 import {prepareFamilyEvent644} from './personalFamilyHomeActions644.js';
 import {openPersonalCapture643} from './personalCapture643.js';
+import {personalDaysTo650} from './personalDate650.js';
 
 const WORK_RE=/zak[aá]zk|faktur|dodavat|pks|cpi|zbrojov|pracovn|xtb|ticket|vstupenk/i;
 const personal=x=>!WORK_RE.test(`${x?.title||''} ${x?.name||''} ${x?.category||''}`);
 const familyRe=/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/i;
-const daysTo=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.ceil((t-Date.now())/86400000):null};
+const daysTo=personalDaysTo650;
 const row=(title,meta='',button='')=>`<div class="row ux64-row"><div><b>${h(title)}</b>${meta?`<div class="muted">${h(meta)}</div>`:''}</div>${button}</div>`;
 const when=x=>x.d===0?'dnes':x.d===1?'zítra':x.d<0?`${Math.abs(x.d)} d po termínu`:`za ${x.d} dní`;
 
@@ -17,7 +18,10 @@ export function renderPersonalFamily640(){
  const events=(s.calendar?.events||[]).filter(personal).map(x=>({...x,d:daysTo(x.start||x.date||x.when)})).filter(x=>x.d!==null&&x.d>=0&&x.d<=30).sort((a,b)=>a.d-b.d);
  const tasks=(s.tasks||[]).filter(personal).filter(x=>familyRe.test(`${x.title||''} ${x.category||''} ${x.area||''}`)||String(x.area||'').toLowerCase()==='rodina').filter(x=>!['DONE','CLOSED','ARCHIVED'].includes(String(x.status||'').toUpperCase())).map(x=>({...x,d:daysTo(x.due)})).sort((a,b)=>(a.d??9999)-(b.d??9999));
  const weekend=events.filter(x=>{const t=Date.parse(x.start||x.date||x.when||'');if(!Number.isFinite(t))return false;const d=new Date(t).getDay();return d===0||d===6}).slice(0,4);
- const urgent=[...events.filter(x=>x.d<=2).map(x=>({kind:'event',title:x.title||x.summary||'Událost',meta:when(x),src:x})),...tasks.filter(x=>x.d!==null&&x.d<=3).map(x=>({kind:'task',title:x.title||'Úkol',meta:x.d<0?`${Math.abs(x.d)} d po termínu`:x.d===0?'dnes':x.d===1?'zítra':`za ${x.d} dní`,src:x}))].slice(0,3);
+ const urgent=[
+  ...events.filter(x=>x.d<=2).map(x=>({kind:'event',title:x.title||x.summary||'Událost',meta:when(x),src:x,d:x.d})),
+  ...tasks.filter(x=>x.d!==null&&x.d<=3).map(x=>({kind:'task',title:x.title||'Úkol',meta:x.d<0?`${Math.abs(x.d)} d po termínu`:x.d===0?'dnes':x.d===1?'zítra':`za ${x.d} dní`,src:x,d:x.d}))
+ ].sort((a,b)=>a.d-b.d||String(a.title).localeCompare(String(b.title),'cs')).slice(0,3);
  const overdue=tasks.filter(x=>x.d!==null&&x.d<0).length,due7=events.filter(x=>x.d<=7).length+tasks.filter(x=>x.d!==null&&x.d>=0&&x.d<=7).length;
  host.innerHTML=`<div class="ux64-page family-page"><div class="view-head"><div><div class="eyebrow">RODINA</div><h1>Co nás čeká</h1><p>Nejdřív důležité věci, potom teprve celý přehled.</p></div><div class="row-actions"><button class="btn primary" id="familyAdd650">+ Rodinný úkol</button></div></div>
  <section class="family-action-summary ${urgent.length?'has-issues':''}"><div class="eyebrow">CO ŘEŠIT TEĎ</div>${urgent.length?urgent.map((x,i)=>`<div class="family-action-row"><span class="family-action-rank">${i+1}</span><div><b>${h(x.title)}</b><div class="muted">${h(x.meta)}</div></div><button class="btn ${i===0?'primary':''}" data-family-urgent="${i}">Řešit</button></div>`).join(''):'<div class="family-clear"><b>Teď není nic rodinného akutního.</b><span class="muted">Nejbližší termíny najdeš níže.</span></div>'}</section>
