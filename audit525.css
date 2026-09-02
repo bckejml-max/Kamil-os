@@ -1,0 +1,7 @@
+@media(max-width:850px){
+  #bottomNav.bottom-nav{grid-template-columns:repeat(7,minmax(0,1fr))!important;height:58px!important;overflow-x:auto!important;overscroll-behavior-x:contain!important}
+  #bottomNav.bottom-nav button{min-width:0!important;width:auto!important;padding-inline:4px!important}
+  html[data-ticket-redesign500="1"] #ticketIntelView .td500-view-tools{display:flex!important;margin-left:auto!important;gap:5px!important}
+  html[data-ticket-redesign500="1"] #ticketIntelView .td500-view-tools>:not(.tdops-control){display:none!important}
+  html[data-ticket-redesign500="1"] #ticketIntelView .tdops-control{display:inline-flex!important;min-width:58px!important}
+}
