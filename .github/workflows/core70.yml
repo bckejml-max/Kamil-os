@@ -35,11 +35,13 @@ jobs:
           test -f lib/api-football-model.js
           test -f lib/football-data-poisson.js
           test -f lib/chance-football-data-model.js
+          test -f lib/conservative-poisson-calibration.js
           test -f lib/auto-betting-model.js
           test -f api_football_model_test.mjs
           test -f core70_auto_model_test.mjs
           test -f football_data_poisson_test.mjs
           test -f chance_league_mapping_test.mjs
+          test -f conservative_poisson_calibration_test.mjs
           test -f CORE70.md
       - name: Syntax check canonical JavaScript
         run: |
@@ -62,11 +64,13 @@ jobs:
           node --check lib/api-football-model.js
           node --check lib/football-data-poisson.js
           node --check lib/chance-football-data-model.js
+          node --check lib/conservative-poisson-calibration.js
           node --check lib/auto-betting-model.js
           node --check api_football_model_test.mjs
           node --check core70_auto_model_test.mjs
           node --check football_data_poisson_test.mjs
           node --check chance_league_mapping_test.mjs
+          node --check conservative_poisson_calibration_test.mjs
           node --check ci_current_350_test.mjs
       - name: Betting model safety tests
         run: |
@@ -74,6 +78,7 @@ jobs:
           node core70_auto_model_test.mjs
           node football_data_poisson_test.mjs
           node chance_league_mapping_test.mjs
+          node conservative_poisson_calibration_test.mjs
       - name: Current architecture guard
         run: node ci_current_350_test.mjs
       - name: Canonical runtime assertions
