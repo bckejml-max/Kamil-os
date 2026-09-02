@@ -1,12 +1,13 @@
 import {store} from './state.js';
 import {personalDataConfidence626} from './personalDataConfidence626.js';
 import {evidenceLedger630,confirmEvidence630} from './personalEvidenceLedger630.js';
+import {personalDaysTo650} from './personalDate650.js';
 
-const DAY=86400000;
 const nowIso=()=>new Date().toISOString();
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
-const daysBetween=(a,b=Date.now())=>{const t=Date.parse(a||'');return Number.isFinite(t)?Math.floor((b-t)/DAY):null};
-const daysUntil=(a,b=Date.now())=>{const t=Date.parse(a||'');return Number.isFinite(t)?Math.ceil((t-b)/DAY):null};
+const asDate=v=>v instanceof Date?v:new Date(v);
+const daysUntil=(a,b=Date.now())=>personalDaysTo650(a,asDate(b));
+const daysBetween=(a,b=Date.now())=>{const d=personalDaysTo650(a,asDate(b));return d===null?null:-d};
 
 const META={
  'recovered-home-insurance-2026':{section:'home',recordType:'insurance',title:'Pojištění domu Vlasatice',provider:'PVZP',annualAmount:2600,reviewAt:'2027-03-25',sourceLabel:'Archivní návrh pojistné smlouvy',nextAction:'Potvrdit, že smlouva je stále aktivní a kryje současný stav rekonstrukce.',freshnessDays:365},
@@ -54,7 +55,7 @@ export function ensurePersonalVault640(){
 
 export function vaultRecordStatus640(record,evidence=null,now=Date.now()){
  const base=Number(record?.confidence||0),age=evidence?.confirmedAt?daysBetween(evidence.confirmedAt,now):null,maxEvidence=Number(record?.freshnessDays||365);
- const proofFresh=!!evidence&&(age===null||age<=maxEvidence);
+ const proofFresh=!!evidence&&age!==null&&age>=0&&age<=maxEvidence;
  const effective=proofFresh?Math.max(base,Number(evidence.after||95)):base;
  const until=daysUntil(record?.validUntil,now),notice=daysUntil(record?.noticeBy,now),review=daysUntil(record?.reviewAt,now);
  const snapshotAge=record?.asOf?daysBetween(record.asOf,now):null;
@@ -62,6 +63,7 @@ export function vaultRecordStatus640(record,evidence=null,now=Date.now()){
  if(until!==null&&until<0){code='EXPIRED';label='Po platnosti';severity=100;detail=`Platnost skončila před ${Math.abs(until)} dny.`}
  else if(notice!==null&&notice<=30){code='NOTICE';label='Rozhodnout';severity=92;detail=notice<0?'Termín pro rozhodnutí už minul.':`Rozhodnutí nejpozději za ${notice} dní.`}
  else if(until!==null&&until<=45){code='EXPIRING';label='Brzy končí';severity=88;detail=`Platnost končí za ${until} dní.`}
+ else if(snapshotAge!==null&&snapshotAge<0){code='FUTURE_DATE';label='Ověřit datum';severity=96;detail='Poslední známý stav má datum v budoucnosti.'}
  else if(snapshotAge!==null&&record?.freshnessDays&&snapshotAge>record.freshnessDays){code='STALE';label='Aktualizovat';severity=82;detail=`Poslední stav je ${snapshotAge} dní starý.`}
  else if(effective<65){code='VERIFY';label='Ověřit';severity=96;detail='Nemáme spolehlivé potvrzení aktuálního stavu.'}
  else if(effective<85){code='CHECK';label='Potvrdit';severity=72;detail='Máme podklady, ale chybí čerstvé potvrzení.'}
@@ -78,7 +80,7 @@ export function personalVault640(s=store.get()){
  const annualKnown=records.reduce((a,v)=>a+(num(v.annualAmount)||0)+(num(v.monthlyAmount)||0)*12,0);
  const insurance=records.filter(v=>v.recordType==='insurance');
  const insuranceAnnual=insurance.reduce((a,v)=>a+(num(v.annualAmount)||0)+(num(v.monthlyAmount)||0)*12,0);
- return{records,action,coverage,monthlyKnown,annualKnown,insurance,insuranceAnnual,evidence:emap,cloudReady:!!s.meta?.cloudMode,summary:`${records.length} osobních záznamů · pokrytí ${coverage}%`};
+ return{records,action,coverage,monthlyKnown,annualKnown,insurance,insuranceAnnual,evidence:emap,cloudReady:s.meta?.cloudMode==='cloud',summary:`${records.length} osobních záznamů · pokrytí ${coverage}%`};
 }
 
 export function confirmVaultRecord640(id,note='Potvrzeno uživatelem v Personal Data Vault 64.0'){
