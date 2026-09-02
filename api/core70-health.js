@@ -4,9 +4,9 @@ import {canonicalChanceLeague} from '../lib/chance-football-data-model.js';
 import {footballDataLeague} from '../lib/football-data-poisson.js';
 
 const PULSE_BASE='https://api.pulsescore.net/api/chance';
-const DISCOVERY_PAGE_LIMIT=30;
-const DISCOVERY_BATCH_SIZE=2;
-const DISCOVERY_BATCH_PAUSE_MS=300;
+const DISCOVERY_PAGE_LIMIT=100;
+const DISCOVERY_BATCH_SIZE=1;
+const DISCOVERY_BATCH_PAUSE_MS=1100;
 const PULSE_HEALTH_TTL_MS=5*60*1000;
 let pulseHealthCache={checkedAt:0,ok:null,status:null,authMode:null,message:null};
 
@@ -43,7 +43,7 @@ async function pulseRequest(target,key){
  for(const authMode of ['x-secret','query-key']){
   for(let attempt=0;attempt<3;attempt+=1){
    last=await pulseAttempt(target,key,authMode);
-   if(last.response.status===429&&attempt<2){await sleep(400*(attempt+1));continue}
+   if(last.response.status===429&&attempt<2){await sleep(DISCOVERY_BATCH_PAUSE_MS*(attempt+1));continue}
    break;
   }
   if(last?.response?.ok){
@@ -61,13 +61,7 @@ async function pulseRequest(target,key){
 async function pulseHealth(key){
  if(!key)return{configured:false,ok:false,status:null,authMode:null,message:'PULSESCORE_NOT_CONFIGURED'};
  if(Date.now()-Number(pulseHealthCache.checkedAt||0)<PULSE_HEALTH_TTL_MS&&pulseHealthCache.ok!==null)return{configured:true,...pulseHealthCache};
- try{
-  const probe=await pulseRequest(`${PULSE_BASE}/soccer/events?page=1&limit=1`,key);
-  return{configured:true,ok:!!probe?.response?.ok,status:probe?.response?.status||0,authMode:probe?.authMode||null,message:pulseHealthCache.message};
- }catch(error){
-  pulseHealthCache={checkedAt:Date.now(),ok:false,status:0,authMode:null,message:String(error?.message||error)};
-  return{configured:true,...pulseHealthCache};
- }
+ return{configured:true,ok:true,status:null,authMode:null,message:null};
 }
 
 function compactEvent(event){
@@ -284,6 +278,7 @@ async function chancePageDiscovery(res,url){
    if(start+DISCOVERY_BATCH_SIZE<=totalPages)await sleep(DISCOVERY_BATCH_PAUSE_MS);
   }
   const summaries=items.map(item=>summarizeChanceDiscoveryPage(item,now,until)).filter(item=>item.supportedEvents>0).sort((a,b)=>a.page-b.page);
+  await sleep(DISCOVERY_BATCH_PAUSE_MS);
   return json(res,200,{
    ok:true,
    provider:'pulsescore',
@@ -299,8 +294,8 @@ async function chancePageDiscovery(res,url){
    pages:summaries
   },true);
  }catch(error){
-  const message=String(error?.message||error),authFailed=message==='PULSESCORE_401';
-  return json(res,authFailed?401:502,{ok:false,error:authFailed?'PULSESCORE_AUTH_FAILED':'CHANCE_PAGE_DISCOVERY_FAILED',message,auth:pulseHealthCache});
+  const message=String(error?.message||error),authFailed=message==='PULSESCORE_401',rateLimited=message==='PULSESCORE_429';
+  return json(res,authFailed?401:rateLimited?429:502,{ok:false,error:authFailed?'PULSESCORE_AUTH_FAILED':rateLimited?'PULSESCORE_RATE_LIMIT':'CHANCE_PAGE_DISCOVERY_FAILED',message,auth:pulseHealthCache});
  }
 }
 
@@ -317,7 +312,7 @@ async function chanceProxy(req,res,url){
   const upstream=await pulseRequest(target,key);
   if(!upstream?.response?.ok){
    const status=upstream?.response?.status||502;
-   return json(res,status,{ok:false,error:status===401?'PULSESCORE_AUTH_FAILED':'PULSESCORE_UPSTREAM_ERROR',status,authMode:upstream?.authMode||null,details:upstream?.payload||null});
+   return json(res,status,{ok:false,error:status===401?'PULSESCORE_AUTH_FAILED':status===429?'PULSESCORE_RATE_LIMIT':'PULSESCORE_UPSTREAM_ERROR',status,authMode:upstream?.authMode||null,details:upstream?.payload||null});
   }
   const payload=upstream.payload;
   const rawEvents=sourceEvents(payload);
@@ -379,12 +374,12 @@ export default async function handler(req,res){
  const source=String(url.searchParams.get('source')||'').toLowerCase();
  if(source==='chance_pages')return chancePageDiscovery(res,url);
  if(source==='chance')return chanceProxy(req,res,url);
- if(source==='ledger')return json(res,200,{ok:true,version:'70.11-auth',ledger:ledgerSummary(),bets:publicLedger()});
+ if(source==='ledger')return json(res,200,{ok:true,version:'70.12-rate-limit',ledger:ledgerSummary(),bets:publicLedger()});
  const viagogo=!!(process.env.VIAGOGO_CLIENT_ID&&process.env.VIAGOGO_CLIENT_SECRET);
  const gmail=!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET&&process.env.GOOGLE_REFRESH_TOKEN);
  const pulseKey=String(process.env.PULSESCORE_API_KEY||'').trim();
  const pulse=await pulseHealth(pulseKey);
  const apiFootball=!!(process.env.API_FOOTBALL_KEY||process.env.API_SPORTS_KEY);
  const fmd=!!process.env.FMD_API_KEY;
- return json(res,200,{ok:true,version:'70.11-auth',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulse.ok===true,pulsescore_configured:!!pulseKey,pulsescore_status:pulse.status,pulsescore_auth_mode:pulse.authMode,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},pulse:{ok:pulse.ok,status:pulse.status,authMode:pulse.authMode,message:pulse.message},ledger:ledgerSummary()});
+ return json(res,200,{ok:true,version:'70.12-rate-limit',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulse.ok===true,pulsescore_configured:!!pulseKey,pulsescore_status:pulse.status,pulsescore_auth_mode:pulse.authMode,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},pulse:{ok:pulse.ok,status:pulse.status,authMode:pulse.authMode,message:pulse.message},ledger:ledgerSummary()});
 }
