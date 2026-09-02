@@ -57,12 +57,12 @@ export function personalWaitingCenter650(s=store.get()){
 export function personalHomeTimeline650(s=store.get()){
  const v=personalVault640(s),rows=[];
  for(const x of v.records.filter(x=>x.section==='home')){
-  const at=x.noticeBy||x.validUntil||x.reviewAt||null;if(!at)continue;const d=daysTo(at);if(d===null||d<-30||d>365)continue;
+  const at=x.noticeBy||x.validUntil||x.reviewAt||null;if(!at)continue;const d=daysTo(at);if(d===null||d>365)continue;
   rows.push({id:`vault:${x.id}`,title:x.title,date:at,days:d,kind:'contract',next:x.nextAction||'Zkontrolovat údaj.'});
  }
  const maintRe=/servis|reviz|filtr|čerpad|cerpad|rekuper|klima|kom[ií]n|zahrad|oprava|údržb|udrzb|stk/i;
  for(const x of [...(s.tasks||[]),...(s.personalAdmin?.items||[])].filter(open).filter(personal).filter(x=>maintRe.test(`${x.title||''} ${x.name||''} ${x.category||''}`))){
-  const at=dateOf(x),d=daysTo(at);if(d===null||d<-30||d>365)continue;rows.push({id:`task:${x.id}`,title:x.title||x.name||'Údržba',date:at,days:d,kind:'maintenance',next:'Vyřešit nebo posunout termín.'});
+  const at=dateOf(x),d=daysTo(at);if(d===null||d>365)continue;rows.push({id:`task:${x.id}`,title:x.title||x.name||'Údržba',date:at,days:d,kind:'maintenance',next:'Vyřešit nebo posunout termín.'});
  }
  rows.sort((a,b)=>a.days-b.days);return rows;
 }
