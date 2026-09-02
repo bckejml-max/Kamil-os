@@ -280,7 +280,7 @@ async function chancePageDiscovery(res,url){
    const pages=[];
    for(let page=start;page<Math.min(start+DISCOVERY_BATCH_SIZE,totalPages+1);page+=1)pages.push(page);
    const batch=await Promise.all(pages.map(page=>fetchChanceDiscoveryPage(page,key)));
-   items.push(...batch;
+   items.push(...batch);
    if(start+DISCOVERY_BATCH_SIZE<=totalPages)await sleep(DISCOVERY_BATCH_PAUSE_MS);
   }
   const summaries=items.map(item=>summarizeChanceDiscoveryPage(item,now,until)).filter(item=>item.supportedEvents>0).sort((a,b)=>a.page-b.page);
