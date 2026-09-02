@@ -5,7 +5,8 @@ import {footballDataLeague} from '../lib/football-data-poisson.js';
 
 const PULSE_BASE='https://api.pulsescore.net/api/chance';
 const DISCOVERY_PAGE_LIMIT=30;
-const DISCOVERY_BATCH_SIZE=6;
+const DISCOVERY_BATCH_SIZE=2;
+const DISCOVERY_BATCH_PAUSE_MS=300;
 
 function json(res,status,body,cache=false){
  res.statusCode=status;
@@ -22,6 +23,7 @@ function round(value,digits=4){if(!Number.isFinite(value))return null;const p=10
 function priceOf(selection){for(const key of ['decimal','odds','price']){const n=Number(selection?.[key]);if(Number.isFinite(n)&&n>1)return n}return null}
 function sourceEvents(payload){return Array.isArray(payload)?payload:Array.isArray(payload?.events)?payload.events:Array.isArray(payload?.data)?payload.data:[]}
 function probability(value){const n=Number(value);if(!Number.isFinite(n)||n<=0)return null;if(n>1&&n<=100)return n/100;return n<=1?n:null}
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
 
 function compactEvent(event){
  const markets=(Array.isArray(event?.markets)?event.markets:[]).filter(m=>m?.isActive!==false).map(market=>({
@@ -198,12 +200,20 @@ function supportedChanceLeague(value){
 
 async function fetchChanceDiscoveryPage(page,key){
  const target=`${PULSE_BASE}/soccer/events?page=${page}&limit=${DISCOVERY_PAGE_LIMIT}`;
- const response=await fetch(target,{headers:{'X-Secret':key,'Accept':'application/json'}});
- const text=await response.text();
- let payload;
- try{payload=JSON.parse(text)}catch{payload={}}
- if(!response.ok)throw new Error(`PULSESCORE_${response.status}`);
- return {page,payload,events:sourceEvents(payload)};
+ for(let attempt=0;attempt<3;attempt+=1){
+  const response=await fetch(target,{headers:{'X-Secret':key,'Accept':'application/json'}});
+  if(response.status===429&&attempt<2){
+   await response.text().catch(()=>{});
+   await sleep(400*(attempt+1));
+   continue;
+  }
+  const text=await response.text();
+  let payload;
+  try{payload=JSON.parse(text)}catch{payload={}}
+  if(!response.ok)throw new Error(`PULSESCORE_${response.status}`);
+  return {page,payload,events:sourceEvents(payload)};
+ }
+ throw new Error('PULSESCORE_429');
 }
 
 function summarizeChanceDiscoveryPage(item,now,until){
@@ -237,6 +247,7 @@ async function chancePageDiscovery(res,url){
    for(let page=start;page<Math.min(start+DISCOVERY_BATCH_SIZE,totalPages+1);page+=1)pages.push(page);
    const batch=await Promise.all(pages.map(page=>fetchChanceDiscoveryPage(page,key)));
    items.push(...batch);
+   if(start+DISCOVERY_BATCH_SIZE<=totalPages)await sleep(DISCOVERY_BATCH_PAUSE_MS);
   }
   const summaries=items.map(item=>summarizeChanceDiscoveryPage(item,now,until)).filter(item=>item.supportedEvents>0).sort((a,b)=>a.page-b.page);
   return json(res,200,{
