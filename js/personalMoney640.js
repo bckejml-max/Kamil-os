@@ -3,10 +3,11 @@ import {h,qs} from './utils.js';
 import {ensurePersonalVault640,personalVault640} from './personalVault640.js';
 import {openMoneyRecord645,updateMortgageSnapshot645,updateBankSnapshot645,createMoneyTask645} from './personalMoneyActions645.js';
 import {personalMoneyPlan650} from './personalAssistant650.js';
+import {personalDaysTo650} from './personalDate650.js';
 
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
-const daysOld=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.max(0,Math.floor((Date.now()-t)/86400000)):null};
+const daysOld=v=>{const d=personalDaysTo650(v);return d===null?null:-d};
 const val=(x,...keys)=>{for(const k of keys){const n=Number(x?.[k]);if(Number.isFinite(n)&&n!==0)return n}return 0};
 function wealthSnapshot(s,v){
  const debt=v.records.filter(x=>['mortgage','loan','debt'].includes(x.recordType)).reduce((a,x)=>a+Math.abs(val(x,'balance','debtBalance')),0);
@@ -24,14 +25,14 @@ function wealthSnapshot(s,v){
  if(!property)missing.push('tržní hodnota nemovitostí');if(!bank)missing.push('aktuální hotovost / účty');if(!invest)missing.push('aktuální investiční portfolio');
  return{debt,property,bank,invest,tickets,knownAssets,netKnown,missing,complete:missing.length===0,xtbConnected:xtbAccounts.length>0};
 }
-const confidenceLine=x=>{const st=x?.status,age=daysOld(x?.asOf);const tone=st?.code==='OK'&&!(age>45)?'fresh':st?.severity>=85?'bad':'stale',label=st?.effectiveConfidence?`důvěra ${Math.round(st.effectiveConfidence)} %`:age!==null?`stav ${age} dní starý`:'zdroj není čerstvě potvrzený';return `<div class="data70-line ${tone}"><i class="data70-dot"></i><span>${h(x?.sourceLabel||'Uložený zdroj')} · ${h(label)}</span></div>`};
+const confidenceLine=x=>{const st=x?.status,age=daysOld(x?.asOf);const tone=st?.code==='OK'&&age!==null&&age>=0&&age<=45?'fresh':st?.severity>=85?'bad':'stale',label=st?.effectiveConfidence?`důvěra ${Math.round(st.effectiveConfidence)} %`:age!==null?(age<0?'datum je v budoucnosti':`stav ${age} dní starý`):'zdroj není čerstvě potvrzený';return `<div class="data70-line ${tone}"><i class="data70-dot"></i><span>${h(x?.sourceLabel||'Uložený zdroj')} · ${h(label)}</span></div>`};
 
 export function renderPersonalMoney640(){
  ensurePersonalVault640();const s=store.get(),v=personalVault640(s),plan=personalMoneyPlan650(s),wealth=wealthSnapshot(s,v),host=qs('#moneyView');if(!host)return;
  const mortgage=v.records.find(x=>x.recordType==='mortgage'),bank=v.records.find(x=>x.recordType==='bank-data');
  const recurring=v.records.filter(x=>x.monthlyAmount||x.annualAmount).sort((a,b)=>(Number(b.monthlyAmount||0)+Number(b.annualAmount||0)/12)-(Number(a.monthlyAmount||0)+Number(a.annualAmount||0)/12));
- const bankAge=daysOld(bank?.asOf),transactions=(s.personalSpending?.transactions||[]),spendComplete=transactions.length>0&&bankAge!==null&&bankAge<=40;
- const mortgageAge=daysOld(mortgage?.asOf),issues=[];if(!spendComplete)issues.push({title:'Doplnit aktuální bankovní data',kind:'data'});if(plan.oneOff.length)issues.push(...plan.oneOff.slice(0,2).map(x=>({title:x.title||x.name||'Finanční úkol',kind:'task'})));if(mortgage&&(mortgageAge===null||mortgageAge>60))issues.push({title:'Aktualizovat zůstatek hypotéky',kind:'mortgage'});
+ const bankAge=daysOld(bank?.asOf),transactions=(s.personalSpending?.transactions||[]),spendComplete=transactions.length>0&&bankAge!==null&&bankAge>=0&&bankAge<=40;
+ const mortgageAge=daysOld(mortgage?.asOf),issues=[];if(!spendComplete)issues.push({title:'Doplnit aktuální bankovní data',kind:'data'});if(plan.oneOff.length)issues.push(...plan.oneOff.slice(0,2).map(x=>({title:x.title||x.name||'Finanční úkol',kind:'task'})));if(mortgage&&(mortgageAge===null||mortgageAge<0||mortgageAge>60))issues.push({title:mortgageAge<0?'Opravit datum stavu hypotéky':'Aktualizovat zůstatek hypotéky',kind:'mortgage'});
  const nextMoney=wealth.missing.length?`Nejdřív doplň ${wealth.missing[0]}. Bez toho nebudu předstírat přesné čisté jmění.`:wealth.netKnown>0?'Majetek je kompletně zmapovaný. Další volné peníze posuzuj podle rezervy, dluhu a investičního plánu.':'Nejdřív zkontroluj dluhy a rezervu.';
  host.innerHTML=`<div class="ux64-page money-page"><div class="view-head"><div><div class="eyebrow">PENÍZE + WEALTH</div><h1>Rozhodnutí dřív než tabulky.</h1><p>Domácí závazky, majetek, dluhy a investice v jednom pohledu.</p></div><div class="row-actions"><button class="btn primary" id="moneyTask645">+ Finanční úkol</button></div></div>
  <div data-workspace305-anchor-money></div>
