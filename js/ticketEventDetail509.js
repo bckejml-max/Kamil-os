@@ -1,6 +1,6 @@
 import {loadTicketCloud660} from './ticketCloud660.js';
 
-const VERSION='509.0.0';
+const VERSION='509.0.1';
 let bound=false;
 let cloud=null;
 let loading=null;
@@ -26,14 +26,11 @@ function platform(row){
   return clean&&clean!=='Excel import'?clean:'Evidence';
 }
 function latest(row){return cloud?.latest?.get?.(row.id)||cloud?.latest?.get?.(String(row.id))||null}
-function targetEach(row){const s=latest(row);return n(row?.ask_each_czk)||n(s?.recommended_ask_czk)||n(s?.market_price_czk)||n(s?.stubhub_price_czk)||0}
+function targetEach(row){const s=latest(row);return n(s?.recommended_ask_czk)||n(row?.ask_each_czk)||n(s?.market_price_czk)||n(s?.stubhub_price_czk)||0}
+function eventDate(row){return row?.event_date??row?.eventDate??''}
 function fmtDate(raw){const t=Date.parse(raw||'');return Number.isFinite(t)?new Date(t).toLocaleDateString('cs-CZ',{day:'numeric',month:'numeric',year:'numeric'}):'—'}
 function memberText(el,selector,fallback='—'){const x=el?.querySelector(selector);return String(x?.textContent||'').trim()||fallback}
-function decision(el){
-  const text=memberText(el,'[data-decision507]','D—');
-  const m=text.match(/D(\d+)/i);
-  return{score:m?Number(m[1]):null,label:text};
-}
+function decision(el){const text=memberText(el,'[data-decision507]','D—');const m=text.match(/D(\d+)/i);return{score:m?Number(m[1]):null,label:text}}
 function aggregate(rows){
   const q=rows.reduce((s,r)=>s+qty(r),0);
   const buy=rows.reduce((s,r)=>s+(n(r?.buy_total_czk)||n(r?.buy_each_czk)*qty(r)),0);
@@ -44,7 +41,7 @@ function aggregate(rows){
   const payoutBuy=payoutRows.reduce((s,r)=>s+(n(r?.buy_total_czk)||n(r?.buy_each_czk)*qty(r)),0);
   const net=payoutRows.length?payout-payoutBuy:null;
   const active=rows.filter(r=>ACTIVE.has(status(r))).length,sold=rows.filter(r=>SOLD.has(status(r))).length;
-  const dates=rows.map(r=>Date.parse(r?.event_date||'')).filter(Number.isFinite).sort((a,b)=>a-b);
+  const dates=rows.map(r=>Date.parse(eventDate(r))).filter(Number.isFinite).sort((a,b)=>a-b);
   const dateLabel=dates.length?(dates[0]===dates.at(-1)?fmtDate(dates[0]):`${fmtDate(dates[0])} – ${fmtDate(dates.at(-1))}`):'—';
   const platforms=[...new Set(rows.map(platform))];
   return{q,buy,target,targetKnown,grossPotential:targetKnown===rows.length&&rows.length?target-buy:null,payoutRows:payoutRows.length,payout,net,active,sold,dateLabel,platforms};
@@ -71,15 +68,15 @@ function ensure(){
 }
 function close(){if(wrap)wrap.hidden=true;delete document.documentElement.dataset.ticketDetail509}
 function rowMarkup(row,el){
-  const d=decision(el),buy=n(row?.buy_total_czk)||n(row?.buy_each_czk)*qty(row),target=targetEach(row),targetTotal=target*qty(row),payout=n(row?.payout_received_czk),actualNet=payout>0?payout-buy:null;
+  const d=decision(el),q=qty(row),buy=n(row?.buy_total_czk)||n(row?.buy_each_czk)*q,buyEach=n(row?.buy_each_czk)||(q?buy/q:0),target=targetEach(row),targetTotal=target*q,payout=n(row?.payout_received_czk),actualNet=payout>0?payout-buy:null;
   const seat=[row?.section,row?.row_label?`řada ${row.row_label}`:''].filter(Boolean).join(' · ')||'bez sektoru';
   const sellLine=memberText(el,'[data-col="sell"] small',target?`${money(target)} / ks`:'bez cíle');
   const profitLine=actualNet!==null?`NET ${signed(actualNet)}`:memberText(el,'[data-col="profit"] small','NET čeká na payout');
   const statusLabel=memberText(el,'[data-col="status"] .td331-badge',status(row)||'—');
   return `<tr>
-    <td><button type="button" class="td509-row-link" data-td509-row-open="${esc(row.id)}"><b>${esc(seat)}</b><small>${esc(fmtDate(row.event_date))} · ${esc(platform(row))}</small></button></td>
-    <td class="num"><b>${qty(row)}</b></td>
-    <td class="num"><b>${money(buy)}</b><small>${money(n(row?.buy_each_czk))} / ks</small></td>
+    <td><button type="button" class="td509-row-link" data-td509-row-open="${esc(row.id)}"><b>${esc(seat)}</b><small>${esc(fmtDate(eventDate(row)))} · ${esc(platform(row))}</small></button></td>
+    <td class="num"><b>${q}</b></td>
+    <td class="num"><b>${money(buy)}</b><small>${buyEach>0?`${money(buyEach)} / ks`:'—'}</small></td>
     <td class="num"><b>${targetTotal?money(targetTotal):'—'}</b><small>${esc(sellLine)}</small></td>
     <td class="num ${actualNet!==null?(actualNet>=0?'good':'bad'):''}"><b>${actualNet!==null?signed(actualNet):memberText(el,'[data-col="profit"] b','—')}</b><small>${esc(profitLine)}</small></td>
     <td><span class="td509-score ${d.score!==null&&d.score>=65?'strong':''}">${d.score===null?'D—':`D${d.score}`}</span><small>${esc(d.label.split('·').slice(1).join('·').trim()||statusLabel)}</small></td>
@@ -120,7 +117,7 @@ async function openFromSummary(summary){
   const ids=new Set(memberEls.map(el=>String(el.dataset.ticketId)));
   const rows=(next.inventory||[]).filter(r=>ids.has(String(r.id)));
   if(!rows.length)return;
-  const title=summary.querySelector('.td508-event-main b')?.textContent?.trim()||rows[0]?.event_name||'Event';
+  const title=summary.querySelector('.td508-event-main b')?.textContent?.trim()||rows[0]?.event_name||rows[0]?.eventName||'Event';
   render(title,rows,memberEls);
 }
 export function installTicketEventDetail509(){
@@ -133,8 +130,7 @@ export function installTicketEventDetail509(){
     if(!main||event.target.closest('.td508-folder'))return;
     const summary=main.closest('[data-group508-summary]');
     if(!summary)return;
-    event.preventDefault();event.stopImmediatePropagation();
-    openFromSummary(summary);
+    event.preventDefault();event.stopImmediatePropagation();openFromSummary(summary);
   },true);
   window.addEventListener('kamil:ticket-refresh397-done',()=>load(true));
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&wrap&&!wrap.hidden)close()});
