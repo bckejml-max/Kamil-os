@@ -1,3 +1,5 @@
+import {decorateLedgerSelection,ledgerSummary,publicLedger} from '../lib/bet-ledger.js';
+
 const PULSE_BASE='https://api.pulsescore.net/api/chance';
 
 function json(res,status,body){
@@ -143,7 +145,10 @@ function applyFilters(events,url,{futureOnly=true}={}){
   if(useMain)markets=mainLines(markets,maxMarkets);
   if(value.enabled){
    markets=markets.map(market=>({...market,selections:market.selections.map(selection=>decorateSelection(selection,value))}));
-   if(value.betsOnly)markets=markets.map(market=>({...market,selections:market.selections.filter(selection=>selection.decision==='BET')})).filter(market=>market.selections.length>0);
+  }
+  markets=markets.map(market=>({...market,selections:market.selections.map(selection=>decorateLedgerSelection(event,market,selection))}));
+  if(value.enabled&&value.betsOnly){
+   markets=markets.map(market=>({...market,selections:market.selections.filter(selection=>selection.decision==='BET'&&!selection.existingBet)})).filter(market=>market.selections.length>0);
   }
   return {...event,markets};
  }).filter(event=>event.markets.length>0);
@@ -181,7 +186,8 @@ async function chanceProxy(req,res,url){
    totalPages:num(payload?.totalPages,1),
    hasNextPage:payload?.hasNextPage===true,
    rawCount:rawEvents.length,
-   eventCount:events.length
+   eventCount:events.length,
+   ledger:ledgerSummary()
   };
   if(value.enabled){
    base.value={
@@ -192,7 +198,7 @@ async function chanceProxy(req,res,url){
     suppliedModelProbabilities:value.probabilities.size,
     modelProviderConfigured:!!process.env.FMD_API_KEY,
     modelProvider:process.env.FMD_API_KEY?'fmd_key_present_not_wired':'none',
-    rule:'BET requires an independent model probability; bookmaker implied probability is never used as the model.'
+    rule:'BET requires an independent model probability; bookmaker implied probability is never used as the model. Locked selections are excluded from new BET recommendations.'
    };
   }
   return json(res,200,compact?{...base,events}:{...base,raw:payload,events});
@@ -204,10 +210,12 @@ async function chanceProxy(req,res,url){
 export default async function handler(req,res){
  if(req.method!=='GET')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
  const url=requestUrl(req);
- if(String(url.searchParams.get('source')||'').toLowerCase()==='chance')return chanceProxy(req,res,url);
+ const source=String(url.searchParams.get('source')||'').toLowerCase();
+ if(source==='chance')return chanceProxy(req,res,url);
+ if(source==='ledger')return json(res,200,{ok:true,version:'70.7-ledger',ledger:ledgerSummary(),bets:publicLedger()});
  const viagogo=!!(process.env.VIAGOGO_CLIENT_ID&&process.env.VIAGOGO_CLIENT_SECRET);
  const gmail=!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET&&process.env.GOOGLE_REFRESH_TOKEN);
  const pulsescore=!!process.env.PULSESCORE_API_KEY;
  const fmd=!!process.env.FMD_API_KEY;
- return json(res,200,{ok:true,version:'70.6-value',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulsescore,fmd_api_key:fmd}});
+ return json(res,200,{ok:true,version:'70.7-ledger',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulsescore,fmd_api_key:fmd},ledger:ledgerSummary()});
 }
