@@ -1,6 +1,6 @@
-const VERSION='525.0.0';
+const VERSION='526.0.0';
 const TITLES={today:'DNES',inbox:'INBOX',money:'PENÍZE',tickets:'VSTUPENKY',betting:'SÁZENÍ',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
-let bound=false,timer=0,titleObserver=null;
+let bound=false,timer=0,titleObserver=null,syncObserver=null;
 
 function ensureCss(){
   if(document.querySelector('link[data-audit525]'))return;
@@ -24,13 +24,23 @@ function syncNav(view){
     if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
   });
 }
+function syncLocalStatus(){
+  const el=document.querySelector('#syncStatus');
+  if(!el?.classList.contains('local'))return;
+  el.onclick=null;el.onkeydown=null;el.removeAttribute('role');el.removeAttribute('tabindex');
+  el.style.cursor='default';
+  el.title='Data jsou uložená na tomto zařízení. Cloudové přihlášení je v osobním režimu skryté.';
+}
 function sync(view=viewFrom(null)){
   const title=TITLES[view];
   const pageTitle=document.querySelector('#pageTitle');
   if(pageTitle&&title&&pageTitle.textContent!==title)pageTitle.textContent=title;
   if(view)syncNav(view);
+  syncLocalStatus();
   document.documentElement.dataset.audit525='1';
+  document.documentElement.dataset.audit526='1';
   window.__KAMIL_AUDIT525__={version:VERSION,healthy:true,view,title:title||null,at:Date.now()};
+  window.__KAMIL_AUDIT526__=window.__KAMIL_AUDIT525__;
 }
 function schedule(view){
   queueMicrotask(()=>sync(view||viewFrom(null)));
@@ -45,9 +55,8 @@ export function installAudit525(){
   window.addEventListener('kamil:view-change',event=>schedule(viewFrom(event.detail)));
   window.addEventListener('popstate',()=>schedule());
   const title=document.querySelector('#pageTitle');
-  if(title){
-    titleObserver=new MutationObserver(()=>schedule());
-    titleObserver.observe(title,{childList:true,characterData:true,subtree:true});
-  }
+  if(title){titleObserver=new MutationObserver(()=>schedule());titleObserver.observe(title,{childList:true,characterData:true,subtree:true})}
+  const syncStatus=document.querySelector('#syncStatus');
+  if(syncStatus){syncObserver=new MutationObserver(()=>syncLocalStatus());syncObserver.observe(syncStatus,{attributes:true,childList:true,subtree:true})}
   setTimeout(()=>sync(),350);
 }
