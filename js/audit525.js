@@ -1,4 +1,4 @@
-const VERSION='526.0.0';
+const VERSION='526.0.1';
 const TITLES={today:'DNES',inbox:'INBOX',money:'PENÍZE',tickets:'VSTUPENKY',betting:'SÁZENÍ',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
 let bound=false,timer=0,titleObserver=null,syncObserver=null;
 
@@ -21,15 +21,17 @@ function syncNav(view){
   document.querySelectorAll('[data-view]').forEach(el=>{
     const active=el.dataset.view===view;
     el.classList.toggle('on',active);
-    if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
+    if(active){if(el.getAttribute('aria-current')!=='page')el.setAttribute('aria-current','page')}else if(el.hasAttribute('aria-current'))el.removeAttribute('aria-current');
   });
 }
 function syncLocalStatus(){
   const el=document.querySelector('#syncStatus');
   if(!el?.classList.contains('local'))return;
-  el.onclick=null;el.onkeydown=null;el.removeAttribute('role');el.removeAttribute('tabindex');
-  el.style.cursor='default';
-  el.title='Data jsou uložená na tomto zařízení. Cloudové přihlášení je v osobním režimu skryté.';
+  if(el.onclick)el.onclick=null;if(el.onkeydown)el.onkeydown=null;
+  if(el.hasAttribute('role'))el.removeAttribute('role');if(el.hasAttribute('tabindex'))el.removeAttribute('tabindex');
+  if(el.style.cursor!=='default')el.style.cursor='default';
+  const title='Data jsou uložená na tomto zařízení. Cloudové přihlášení je v osobním režimu skryté.';
+  if(el.title!==title)el.title=title;
 }
 function sync(view=viewFrom(null)){
   const title=TITLES[view];
@@ -48,10 +50,7 @@ function schedule(view){
   timer=setTimeout(()=>sync(view||viewFrom(null)),90);
 }
 export function installAudit525(){
-  ensureCss();
-  sync();
-  if(bound)return;
-  bound=true;
+  ensureCss();sync();if(bound)return;bound=true;
   window.addEventListener('kamil:view-change',event=>schedule(viewFrom(event.detail)));
   window.addEventListener('popstate',()=>schedule());
   const title=document.querySelector('#pageTitle');
