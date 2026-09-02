@@ -1,14 +1,13 @@
 import {loadTicketCloud660} from './ticketCloud660.js';
 import {buildTicketRepricingGuardDesk194} from './ticketRepricingGuardModel194.js';
-import {buildTicketSellLadderDesk195} from './ticketSellLadderModel195.js';
 
-const VERSION='524.0.0';
+const VERSION='524.0.1';
 const ACTIVE=new Set(['LISTED','NOT_LISTED']);
 const SOLD=new Set(['SOLD_UNDELIVERED','SOLD_WAITING_PAYMENT','PAYOUT_RECEIVED','PAID']);
 const ACTIONS=new Set(['DROP TO','RAISE TO','LIST AT']);
 const LOG_KEY='kamil.ticket.actionLog524';
 let bound=false,timer=0,loading=null,observer=null,painting=false;
-let cloud=null,guardDesk=null,ladderDesk=null;
+let cloud=null,guardDesk=null;
 
 const n=v=>{const x=Number(v);return Number.isFinite(x)?x:0};
 const qty=r=>Math.max(1,n(r?.qty)||1);
@@ -24,10 +23,10 @@ const askEach=r=>n(r?.ask_each_czk??r?.askEachCzk??r?.listPrice)||0;
 const parseDate=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?t:null};
 const ageHours=v=>{const t=parseDate(v);return t===null?null:Math.max(0,(Date.now()-t)/36e5)};
 const ageDays=v=>{const h=ageHours(v);return h===null?null:Math.floor(h/24)};
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>{const d=new Date(),pad=v=>String(v).padStart(2,'0');return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
 
 function latest(r){return cloud?.latest?.get?.(r.id)||cloud?.latest?.get?.(String(r.id))||null}
-function checkedAt(s){return s?.checked_at||s?.market_checked_at||s?.fetched_at||s?.observed_at||s?.updated_at||s?.created_at||null}
+function checkedAt(s){return s?.checked_at||s?.market_checked_at||s?.fetched_at||s?.observed_at||null}
 function marketEach(s){return n(s?.market_price_czk??s?.consensus?.market_price_czk??s?.viagogo_price_czk??s?.consensus?.viagogo_price_czk??s?.stubhub_price_czk??s?.consensus?.stubhub_price_czk)||0}
 function platform(r,s){
   const raw=[r?.source_name,r?.source_sheet,r?.viagogo_url,r?.stubhub_url,s?.source,s?.marketplace].filter(Boolean).join(' ').toLowerCase();
@@ -35,7 +34,6 @@ function platform(r,s){
   return String(r?.source_name||s?.source||'Evidence').trim()||'Evidence';
 }
 function guardMap(){return new Map((guardDesk?.rows||[]).map(r=>[String(r.id),r]))}
-function ladderMap(){return new Map((ladderDesk?.rows||[]).map(r=>[String(r.id),r]))}
 
 function readLog(){try{const x=JSON.parse(localStorage.getItem(LOG_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
 function writeLog(rows){try{localStorage.setItem(LOG_KEY,JSON.stringify(rows.slice(-1500)))}catch{}return rows}
@@ -46,9 +44,9 @@ function confirmGuard(g){
   const rows=readLog(),key=actionKey(g);
   if(rows.some(x=>x.key===key&&!x.undoneAt))return true;
   const inv=(cloud?.inventory||[]).find(r=>String(r.id)===String(g.id));
-  rows.push({key,kind:'TICKET_REPRICE',ticketId:String(g.id),event:name(inv||g),section:section(inv||g),action:g.action,oldAsk:n(g.askEach)||null,recommendedAsk:n(g.recommendedAsk)||null,marketEach:n(g.marketEach)||null,neverBelow:n(g.neverBelow)||null,emergencyFloor:n(g.emergencyFloor)||null,reason:String(g.reason||''),source:'ticketRepricingGuardModel194',createdAt:new Date().toISOString(),undoneAt:null});
+  rows.push({key,kind:'TICKET_REPRICE',ticketId:String(g.id),event:name(inv||g),section:section(inv||g),action:g.action,oldAsk:n(g.askEach)||null,recommendedAsk:n(g.recommendedAsk)||null,marketEach:n(g.marketEach)||null,neverBelow:n(g.neverBelow)||null,emergencyFloor:n(g.emergencyFloor)||null,reason:String(g.reason||''),source:'ticketRepricingGuardModel194',createdAt:new Date().toISOString(),localDay:today(),undoneAt:null});
   writeLog(rows);
-  window.__KAMIL_TICKET_ACTION524__={version:'524.0.0',healthy:true,count:rows.filter(x=>!x.undoneAt).length,last:rows.at(-1),localOnly:true,at:Date.now()};
+  window.__KAMIL_TICKET_ACTION524__={version:VERSION,healthy:true,count:rows.filter(x=>!x.undoneAt).length,last:rows.at(-1),localOnly:true,at:Date.now()};
   window.dispatchEvent(new CustomEvent('kamil:ticket-action524-updated',{detail:window.__KAMIL_TICKET_ACTION524__}));
   return true;
 }
@@ -104,13 +102,13 @@ function decorateRows(){
     el.dataset.trust517=trust.tone;el.dataset.freshness516=f.tone;
   }
   document.documentElement.dataset.ticketTarget514='1';document.documentElement.dataset.ticketFreshness516='1';document.documentElement.dataset.ticketTrust517='1';
-  window.__KAMIL_TICKET_TARGET514__={version:'514.0.0',healthy:true,active,guarded:(guardDesk?.rows||[]).filter(x=>n(x.neverBelow)>0).length,at:Date.now()};
-  window.__KAMIL_TICKET_FRESHNESS516__={version:'516.0.0',healthy:true,active,stale,thresholdHours:24,at:Date.now()};
-  window.__KAMIL_TICKET_TRUST517__={version:'517.0.0',healthy:true,active,average:active?Math.round(trustSum/active):null,stale,at:Date.now()};
+  window.__KAMIL_TICKET_TARGET514__={version:'514.0.1',healthy:true,active,guarded:(guardDesk?.rows||[]).filter(x=>n(x.neverBelow)>0).length,at:Date.now()};
+  window.__KAMIL_TICKET_FRESHNESS516__={version:'516.0.1',healthy:true,active,stale,thresholdHours:24,at:Date.now()};
+  window.__KAMIL_TICKET_TRUST517__={version:'517.0.1',healthy:true,active,average:active?Math.round(trustSum/active):null,stale,at:Date.now()};
   return{active,trustAvg:active?Math.round(trustSum/active):null,stale};
 }
 
-function saleStamp(r){return r?.sold_at||r?.sale_date||r?.sale_recorded_at||r?.updated_at||r?.imported_at||null}
+function saleStamp(r){return r?.sold_at||r?.sale_date||r?.sale_recorded_at||r?.sold_recorded_at||null}
 function payoutRows(){return (cloud?.inventory||[]).filter(r=>SOLD.has(status(r))).map(r=>{const st=status(r),buy=buyTotal(r),sell=sellTotal(r),payout=n(r?.payout_received_czk),known=payout>0,net=known?payout-buy:null,stamp=st==='PAYOUT_RECEIVED'||st==='PAID'?(r?.payout_recorded_at||saleStamp(r)):saleStamp(r);return{r,st,buy,sell,payout,known,net,days:ageDays(stamp),stamp}})}
 function payoutSummary(){const rows=payoutRows(),waiting=rows.filter(x=>x.st==='SOLD_WAITING_PAYMENT'),delivery=rows.filter(x=>x.st==='SOLD_UNDELIVERED'),paid=rows.filter(x=>x.known);return{rows,waiting,delivery,paid,pendingGross:[...waiting,...delivery].reduce((s,x)=>s+x.sell,0),payout:paid.reduce((s,x)=>s+x.payout,0),net:paid.reduce((s,x)=>s+n(x.net),0)}}
 
@@ -124,13 +122,13 @@ function openShell(title,eyebrow,html){const s=ensureShell();s.querySelector('[d
 function closeShell(){document.querySelector('[data-ticket-ops524-shell]')?.classList.remove('open');document.documentElement.classList.remove('ticket-ops-open')}
 function statusLabel(st){return st==='SOLD_UNDELIVERED'?'K doručení':st==='SOLD_WAITING_PAYMENT'?'Čeká payout':st==='PAYOUT_RECEIVED'||st==='PAID'?'Vyplaceno':st}
 function payoutItem(x){return `<article class="td511-row"><div><b>${esc(name(x.r))}</b><small>${esc(section(x.r)||'sektor neuveden')} · ${qty(x.r)} ks · ${esc(statusLabel(x.st))}${x.days!==null?` · ${x.days} d`:''}</small></div><div><span>Prodej</span><strong>${x.sell?money(x.sell):'—'}</strong></div><div><span>Payout</span><strong>${x.known?money(x.payout):'—'}</strong></div><div><span>NET</span><strong class="${x.net!==null?(x.net>=0?'good':'bad'):''}">${x.net!==null?signed(x.net):'—'}</strong></div></article>`}
-function openPayout(){const p=payoutSummary();const waiting=[...p.delivery,...p.waiting].sort((a,b)=>(b.days??-1)-(a.days??-1)),paid=[...p.paid].sort((a,b)=>(b.days??-1)-(a.days??-1));openShell('Payout centrum','OS511 · CASHFLOW',`<div class="td511-kpis"><article><small>ČEKÁ / DORUČIT</small><b>${waiting.length}</b><span>${money(p.pendingGross)} hrubě</span></article><article><small>SKUTEČNÉ PAYOUTY</small><b>${money(p.payout)}</b><span>${p.paid.length}/${p.rows.length} prodejů</span></article><article><small>SKUTEČNÝ NET</small><b class="${p.net>=0?'good':'bad'}">${p.paid.length?signed(p.net):'—'}</b><span>jen přijaté payouty</span></article></div><section class="td511-block"><h3>Čeká na dokončení</h3>${waiting.map(payoutItem).join('')||'<p class="tdops-empty">Nic aktuálně nečeká na doručení ani payout.</p>'}</section><section class="td511-block"><h3>Vyplaceno</h3>${paid.map(payoutItem).join('')||'<p class="tdops-empty">Zatím není uložen skutečný payout.</p>'}</section><p class="tdops-note">OS511 nepředpovídá čistý payout. NET se ukazuje jen tam, kde je v evidenci skutečně přijatá částka.</p>`);document.documentElement.dataset.ticketPayout511='1';window.__KAMIL_TICKET_PAYOUT511__={version:'511.0.0',healthy:true,waiting:waiting.length,pendingGross:p.pendingGross,paid:p.paid.length,actualPayout:p.payout,actualNet:p.net,at:Date.now()}}
+function openPayout(){const p=payoutSummary();const waiting=[...p.delivery,...p.waiting].sort((a,b)=>(b.days??-1)-(a.days??-1)),paid=[...p.paid].sort((a,b)=>(b.days??-1)-(a.days??-1));openShell('Payout centrum','OS511 · CASHFLOW',`<div class="td511-kpis"><article><small>ČEKÁ / DORUČIT</small><b>${waiting.length}</b><span>${money(p.pendingGross)} hrubě</span></article><article><small>SKUTEČNÉ PAYOUTY</small><b>${money(p.payout)}</b><span>${p.paid.length}/${p.rows.length} prodejů</span></article><article><small>SKUTEČNÝ NET</small><b class="${p.net>=0?'good':'bad'}">${p.paid.length?signed(p.net):'—'}</b><span>jen přijaté payouty</span></article></div><section class="td511-block"><h3>Čeká na dokončení</h3>${waiting.map(payoutItem).join('')||'<p class="tdops-empty">Nic aktuálně nečeká na doručení ani payout.</p>'}</section><section class="td511-block"><h3>Vyplaceno</h3>${paid.map(payoutItem).join('')||'<p class="tdops-empty">Zatím není uložen skutečný payout.</p>'}</section><p class="tdops-note">OS511 nepředpovídá čistý payout. NET se ukazuje jen tam, kde je v evidenci skutečně přijatá částka.</p>`);document.documentElement.dataset.ticketPayout511='1';window.__KAMIL_TICKET_PAYOUT511__={version:'511.0.1',healthy:true,waiting:waiting.length,pendingGross:p.pendingGross,paid:p.paid.length,actualPayout:p.payout,actualNet:p.net,at:Date.now()}}
 
 const actionRank=a=>a==='DROP TO'?100:a==='RAISE TO'?90:a==='LIST AT'?80:a==='PAYOUT DATA NEEDED'?60:10;
 const actionCs=a=>a==='DROP TO'?'ZLEVNIT':a==='RAISE TO'?'ZDRAŽIT':a==='LIST AT'?'VYSTAVIT':a==='PAYOUT DATA NEEDED'?'DOPLNIT PAYOUT':a==='HOLD'?'DRŽET':a;
 function repricingRows(){return [...(guardDesk?.rows||[])].sort((a,b)=>actionRank(b.action)-actionRank(a.action)||(a.days??999)-(b.days??999))}
 function repricingItem(g){const done=confirmed(g),actionable=ACTIONS.has(g.action);return `<article class="td523-row" data-tone="${g.action==='DROP TO'?'urgent':g.action==='RAISE TO'?'raise':g.action==='LIST AT'?'list':'hold'}"><div class="td523-main"><span>${esc(actionCs(g.action))}</span><b>${esc(g.name)}</b><small>${esc(g.section||'—')} · ${g.days==null?'termín neznámý':g.days<0?'event proběhl':`${g.days} dní do eventu`}</small></div><div><small>AKTUÁLNĚ</small><b>${n(g.askEach)?money(g.askEach):'—'}</b></div><div><small>CÍL</small><b>${n(g.recommendedAsk)?money(g.recommendedAsk):'—'}</b></div><div><small>TRH</small><b>${n(g.marketEach)?money(g.marketEach):'—'}</b></div><div><small>FLOOR</small><b>${n(g.neverBelow)?money(g.neverBelow):n(g.emergencyFloor)?`BE ${money(g.emergencyFloor)}`:'—'}</b></div><div class="td523-act">${actionable?`<button type="button" data-confirm524="${esc(g.id)}" ${done?'disabled':''}>${done?'✓ Potvrzeno':'Hotovo'}</button>`:'<span>—</span>'}</div><p>${esc(g.reason||'')}</p></article>`}
-function renderRepricing(){const shell=document.querySelector('[data-ticket-ops524-shell]');if(!shell?.classList.contains('open')||shell.querySelector('[data-ops-title]')?.textContent!=='Smart repricing')return;const rows=repricingRows(),actionable=rows.filter(x=>ACTIONS.has(x.action));shell.querySelector('[data-ops-body]').innerHTML=`<div class="td523-summary"><b>${actionable.length}</b><span>cenových akcí</span><b>${rows.filter(x=>x.action==='HOLD').length}</b><span>držet</span><b>${rows.filter(x=>x.action==='PAYOUT DATA NEEDED').length}</b><span>bez payout modelu</span></div><div class="td523-head"><span>POZICE</span><span>AKTUÁLNĚ</span><span>CÍL</span><span>TRH</span><span>FLOOR</span><span>AKCE</span></div>${rows.map(repricingItem).join('')||'<p class="tdops-empty">Žádné aktivní pozice.</p>'}<p class="tdops-note">„Hotovo“ pouze zapíše, že jsi doporučenou akci provedl. OS tím sám nemění cenu na marketplace.</p>`;window.__KAMIL_TICKET_REPRICING523__={version:'523.0.0',healthy:true,active:rows.length,actionable:actionable.length,confirmedToday:actionable.filter(confirmed).length,at:Date.now()}}
+function renderRepricing(){const shell=document.querySelector('[data-ticket-ops524-shell]');if(!shell?.classList.contains('open')||shell.querySelector('[data-ops-title]')?.textContent!=='Smart repricing')return;const rows=repricingRows(),actionable=rows.filter(x=>ACTIONS.has(x.action));shell.querySelector('[data-ops-body]').innerHTML=`<div class="td523-summary"><b>${actionable.length}</b><span>cenových akcí</span><b>${rows.filter(x=>x.action==='HOLD').length}</b><span>držet</span><b>${rows.filter(x=>x.action==='PAYOUT DATA NEEDED').length}</b><span>bez payout modelu</span></div><div class="td523-head"><span>POZICE</span><span>AKTUÁLNĚ</span><span>CÍL</span><span>TRH</span><span>FLOOR</span><span>AKCE</span></div>${rows.map(repricingItem).join('')||'<p class="tdops-empty">Žádné aktivní pozice.</p>'}<p class="tdops-note">„Hotovo“ pouze zapíše, že jsi doporučenou akci provedl. OS tím sám nemění cenu na marketplace.</p>`;window.__KAMIL_TICKET_REPRICING523__={version:'523.0.1',healthy:true,active:rows.length,actionable:actionable.length,confirmedToday:actionable.filter(confirmed).length,at:Date.now()}}
 function openRepricing(){openShell('Smart repricing','OS523–524 · PRICE ACTION','');renderRepricing();document.documentElement.dataset.ticketRepricing523='1';document.documentElement.dataset.ticketAction524='1'}
 
 function installControls(){
@@ -138,9 +136,9 @@ function installControls(){
   if(!tools.querySelector('[data-payout511]')){const b=document.createElement('button');b.type='button';b.className='td500-icon-btn tdops-control';b.dataset.payout511='1';b.textContent='Payouty';b.title='OS511 · otevřít payout centrum';b.addEventListener('click',openPayout);tools.prepend(b)}
   if(!tools.querySelector('[data-repricing523]')){const b=document.createElement('button');b.type='button';b.className='td500-icon-btn tdops-control';b.dataset.repricing523='1';b.textContent='Repricing';b.title='OS523 · otevřít frontu cenových akcí';b.addEventListener('click',openRepricing);tools.prepend(b)}
 }
-function publish(){const p=payoutSummary(),rows=repricingRows(),logs=readLog();window.__KAMIL_TICKET_PAYOUT511__={version:'511.0.0',healthy:true,waiting:rows.length,pendingGross:p.pendingGross,paid:p.paid.length,actualPayout:p.payout,actualNet:p.net,at:Date.now()};window.__KAMIL_TICKET_REPRICING523__={version:'523.0.0',healthy:true,active:rows.length,actionable:rows.filter(x=>ACTIONS.has(x.action)).length,confirmedToday:rows.filter(x=>ACTIONS.has(x.action)&&confirmed(x)).length,at:Date.now()};window.__KAMIL_TICKET_ACTION524__={version:'524.0.0',healthy:true,count:logs.filter(x=>!x.undoneAt).length,localOnly:true,at:Date.now()}}
+function publish(){const p=payoutSummary(),rows=repricingRows(),logs=readLog(),waiting=p.waiting.length+p.delivery.length;window.__KAMIL_TICKET_PAYOUT511__={version:'511.0.1',healthy:true,waiting,pendingGross:p.pendingGross,paid:p.paid.length,actualPayout:p.payout,actualNet:p.net,at:Date.now()};window.__KAMIL_TICKET_REPRICING523__={version:'523.0.1',healthy:true,active:rows.length,actionable:rows.filter(x=>ACTIONS.has(x.action)).length,confirmedToday:rows.filter(x=>ACTIONS.has(x.action)&&confirmed(x)).length,at:Date.now()};window.__KAMIL_TICKET_ACTION524__={version:VERSION,healthy:true,count:logs.filter(x=>!x.undoneAt).length,localOnly:true,at:Date.now()}}
 function paint(){if(painting||!cloud?.ok)return false;painting=true;try{installControls();decorateRows();publish();return true}finally{painting=false}}
-async function refresh(force=false){if(loading&&!force)return loading;loading=(async()=>{try{const next=await loadTicketCloud660();if(!next?.ok)return false;cloud=next;guardDesk=buildTicketRepricingGuardDesk194(next.inventory||[],next.latest||new Map());ladderDesk=buildTicketSellLadderDesk195(next.inventory||[],next.latest||new Map());paint();if(document.querySelector('[data-ticket-ops524-shell].open [data-ops-title]')?.textContent==='Smart repricing')renderRepricing();return true}catch(error){console.warn('[ticketOperations524]',error);return false}finally{loading=null}})();return loading}
+async function refresh(force=false){if(loading&&!force)return loading;loading=(async()=>{try{const next=await loadTicketCloud660();if(!next?.ok)return false;cloud=next;guardDesk=buildTicketRepricingGuardDesk194(next.inventory||[],next.latest||new Map());paint();if(document.querySelector('[data-ticket-ops524-shell].open [data-ops-title]')?.textContent==='Smart repricing')renderRepricing();return true}catch(error){console.warn('[ticketOperations524]',error);return false}finally{loading=null}})();return loading}
 function schedule(ms=100,{reload=false}={}){clearTimeout(timer);timer=setTimeout(()=>{timer=0;reload?refresh(true):paint()},ms)}
 export function installTicketOperations524(){
   refresh();setTimeout(()=>paint(),500);setTimeout(()=>paint(),1400);if(bound)return;bound=true;
