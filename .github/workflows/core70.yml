@@ -34,6 +34,7 @@ jobs:
           test -f api/core70-health.js
           test -f lib/api-football-model.js
           test -f lib/football-data-poisson.js
+          test -f lib/auto-betting-model.js
           test -f api_football_model_test.mjs
           test -f core70_auto_model_test.mjs
           test -f football_data_poisson_test.mjs
@@ -58,6 +59,7 @@ jobs:
           node --check api/core70-health.js
           node --check lib/api-football-model.js
           node --check lib/football-data-poisson.js
+          node --check lib/auto-betting-model.js
           node --check api_football_model_test.mjs
           node --check core70_auto_model_test.mjs
           node --check football_data_poisson_test.mjs
