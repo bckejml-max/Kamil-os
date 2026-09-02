@@ -6,6 +6,12 @@
       "main": true
     }
   },
+  "rewrites": [
+    {
+      "source": "/api/chance-model-pages",
+      "destination": "/api/core70-health?source=chance_pages"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
