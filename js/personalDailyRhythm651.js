@@ -1,18 +1,18 @@
 import {store} from './state.js';
 import {h,modal} from './utils.js';
 import {personalDailyAssistant650,personalWaitingCenter650} from './personalAssistant650.js';
+import {isPersonalScope527} from './personalScope527.js';
 
-const WORK_RE=/zak[aá]zk|faktur|dodavat|cest[aá]k|doch[aá]zk|ředitel|reditel|pks|cpi|zbrojov|pracovn|xtb|ticket|vstupenk/i;
 const todayStart=()=>{const d=new Date();d.setHours(0,0,0,0);return d.getTime()};
 const at=x=>Date.parse(x?.completedAt||x?.at||x?.createdAt||x?.updatedAt||'');
 const personalText=x=>String(x?.reason||x?.title||x?.action||x?.name||'');
 const doneToday=s=>{
  const ids=new Set();
  for(const x of [...(s.tasks||[]),...(s.personalAdmin?.items||[]),...(s.delegations||[])]){
-  const t=at(x);if(String(x?.status||'').toUpperCase()==='DONE'&&Number.isFinite(t)&&t>=todayStart()&&!WORK_RE.test(personalText(x)))ids.add(String(x.id||x.title||x.name));
+  const t=at(x);if(String(x?.status||'').toUpperCase()==='DONE'&&Number.isFinite(t)&&t>=todayStart()&&isPersonalScope527(x))ids.add(String(x.id||x.title||x.name));
  }
  for(const x of (s.audit||[])){
-  const t=at(x),txt=personalText(x);if(Number.isFinite(t)&&t>=todayStart()&&!WORK_RE.test(txt)&&/dokončen|hotovo|uzavřen/i.test(txt))ids.add(`audit:${txt}`);
+  const t=at(x),txt=personalText(x);if(Number.isFinite(t)&&t>=todayStart()&&isPersonalScope527(x)&&/dokončen|hotovo|uzavřen/i.test(txt))ids.add(`audit:${txt}`);
  }
  return ids.size;
 };
