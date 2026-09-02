@@ -1,14 +1,14 @@
 import {store} from './state.js';
 import {personalVault640} from './personalVault640.js';
 import {personalDaysTo650} from './personalDate650.js';
+import {isPersonalScope527,personalScopeText527} from './personalScope527.js';
 
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED']);
-const WORK_RE=/zak[aá]zk|faktur|dodavat|cest[aá]k|doch[aá]zk|ředitel|reditel|pks|cpi|zbrojov|projektov[aá] karta|pracovn|xtb|ticket|vstupenk/i;
 const FAMILY_RE=/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/i;
 const HOME_RE=/dom|dům|dum|vlasatic|servis|reviz|filtr|rekuper|klima|kom[ií]n|zahrad|energie|elektř/i;
 const MONEY_RE=/hypot|bank|platb|pojist|pojiště|rozpočet|finance|pen[ií]z|spořen/i;
-const text=x=>`${x?.title||''} ${x?.name||''} ${x?.subject||''} ${x?.category||''} ${x?.area||''} ${x?.project||''}`;
-const personal=x=>!WORK_RE.test(text(x));
+const text=personalScopeText527;
+const personal=isPersonalScope527;
 const open=x=>!CLOSED.has(String(x?.status||x?.workflow||'').toUpperCase());
 const dueOf=x=>x?.due||x?.dueAt||x?.deadline||x?.followUpAt||x?.nextAt||x?.date||x?.start||null;
 const daysTo=personalDaysTo650;
