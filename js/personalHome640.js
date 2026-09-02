@@ -3,6 +3,7 @@ import {h,qs} from './utils.js';
 import {ensurePersonalVault640,personalVault640} from './personalVault640.js';
 import {editHomeRecord644,openMaintenance644} from './personalFamilyHomeActions644.js';
 import {personalHomeTimeline650} from './personalAssistant650.js';
+import {isPersonalScope527} from './personalScope527.js';
 
 const maintRe=/servis|reviz|filtr|čerpad|cerpad|rekuper|klima|kom[ií]n|zahrad|oprava|údržb|udrzb|stk/i;
 const closed=x=>['DONE','CLOSED','ARCHIVED','RESOLVED'].includes(String(x?.status||'').toUpperCase());
@@ -15,7 +16,7 @@ const urgentRow=(x,i)=>`<div class="home-action-row"><span class="home-action-ra
 export function renderPersonalHome640(){
  ensurePersonalVault640();const s=store.get(),vault=personalVault640(s),host=qs('#homeView');if(!host)return;
  const home=vault.records.filter(x=>x.section==='home'),timeline=personalHomeTimeline650(s);
- const maintenance=[...(s.personalAdmin?.items||[]).map(x=>({item:x,source:'admin'})),...(s.tasks||[]).map(x=>({item:x,source:'task'}))].filter(({item:x})=>!closed(x)&&maintRe.test(`${x.title||''} ${x.name||''} ${x.category||''}`));
+ const maintenance=[...(s.personalAdmin?.items||[]).map(x=>({item:x,source:'admin'})),...(s.tasks||[]).map(x=>({item:x,source:'task'}))].filter(({item:x})=>!closed(x)&&isPersonalScope527(x)&&maintRe.test(`${x.title||''} ${x.name||''} ${x.category||''}`));
  const urgent=timeline.filter(x=>x.days<=30).slice(0,3),next90=timeline.filter(x=>x.days>=0&&x.days<=90).length,overdue=timeline.filter(x=>x.days<0).length;
  host.innerHTML=`<div class="ux64-page home-page"><div class="view-head"><div><div class="eyebrow">DOMOV</div><h1>Co bude dům potřebovat</h1><p>Smlouvy, energie, servis a údržba v jednom praktickém plánu.</p></div></div>
  <section class="home-action-summary ${urgent.length?'has-issues':''}"><div class="eyebrow">CO ŘEŠIT TEĎ</div>${urgent.length?urgent.map(urgentRow).join(''):`<div class="home-clear"><b>Nic kolem domu teď nehoří.</b><span class="muted">Další známé termíny hlídám níže.</span></div>`}</section>
