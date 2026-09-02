@@ -5,11 +5,17 @@ let installPromise=null;
 let styleNode=null;
 let styleObserver=null;
 
+const ASSET_REV='os540-ticket500-fix1';
+const revised=url=>{const u=new URL(url);u.searchParams.set('rev',ASSET_REV);return u};
 const ungzip=async url=>{
-  const response=await fetch(url,{cache:'no-store'});
-  if(!response.ok)throw new Error(`OS500 asset ${response.status}: ${url}`);
-  if(typeof DecompressionStream!=='function')throw new Error('OS500 requires DecompressionStream');
-  const stream=response.body.pipeThrough(new DecompressionStream('gzip'));
+  const requestUrl=revised(url);
+  const response=await fetch(requestUrl,{cache:'no-store'});
+  if(!response.ok)throw new Error(`OS500 asset ${response.status}: ${requestUrl}`);
+  const bytes=new Uint8Array(await response.arrayBuffer());
+  const isGzip=bytes.length>1&&bytes[0]===0x1f&&bytes[1]===0x8b;
+  if(!isGzip)return new TextDecoder().decode(bytes);
+  if(typeof DecompressionStream!=='function')throw new Error('OS500 requires DecompressionStream for gzip assets');
+  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
   return new Response(stream).text();
 };
 const text=async url=>{const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error(`Ticket overlay asset ${response.status}: ${url}`);return response.text()};
@@ -68,9 +74,9 @@ export function installTicketDesk331(){
     const allFailures=[...failures,...runtimeFailures],healthy=allFailures.length===0;
     document.documentElement.dataset.ticketPolish501='1';
     document.documentElement.dataset.ticketDesk331Health=healthy?'ok':'degraded';
-    window.__KAMIL_TICKET_REDESIGN500__={version:'500.0.0',healthy:true,at:Date.now(),source:'exact-approved-patch'};
+    window.__KAMIL_TICKET_REDESIGN500__={version:'500.0.1',healthy:true,assetRevision:ASSET_REV,at:Date.now(),source:'exact-approved-patch'};
     window.__KAMIL_TICKET_POLISH501__={version:'501.0.0',healthy:!allFailures.some(x=>x.label==='OS501'||x.label==='OS501 CSS'),at:Date.now()};
-    window.__KAMIL_TICKET_DESK526__={version:'526.0.0',healthy,failures:allFailures,optionalTotal:installers.length,optionalLoaded:installers.filter(x=>!!x.install).length,at:Date.now()};
+    window.__KAMIL_TICKET_DESK526__={version:'526.0.1',healthy,failures:allFailures,optionalTotal:installers.length,optionalLoaded:installers.filter(x=>!!x.install).length,assetRevision:ASSET_REV,at:Date.now()};
     keepStyleLast();return result
   }).catch(error=>{installPromise=null;document.documentElement.dataset.ticketDesk331Health='fatal';console.error('[ticketRedesign500/526] activation failed',error);throw error});
   return installPromise;
