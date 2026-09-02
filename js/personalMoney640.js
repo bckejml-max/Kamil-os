@@ -6,15 +6,17 @@ import {personalMoneyPlan650} from './personalAssistant650.js';
 
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
-const daysOld=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.floor((Date.now()-t)/86400000):null};
+const daysOld=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.max(0,Math.floor((Date.now()-t)/86400000)):null};
 const val=(x,...keys)=>{for(const k of keys){const n=Number(x?.[k]);if(Number.isFinite(n)&&n!==0)return n}return 0};
 function wealthSnapshot(s,v){
  const debt=v.records.filter(x=>['mortgage','loan','debt'].includes(x.recordType)).reduce((a,x)=>a+Math.abs(val(x,'balance','debtBalance')),0);
  const property=v.records.filter(x=>x.recordType==='property').reduce((a,x)=>a+val(x,'marketValue','estimatedValue','value'),0);
  const bank=v.records.filter(x=>x.recordType==='bank-data').reduce((a,x)=>a+val(x,'balance','cashBalance','currentBalance'),0);
- const genericPositions=[...(s.investments?.positions||[]),...(s.portfolio?.positions||[]),...(s.xtb?.positions||[])];
+ const xtbAccounts=Object.values(s.xtbHub?.accounts||{});
+ // The hub is the canonical XTB source when present. Legacy s.xtb positions must not be added again.
+ const genericPositions=[...(s.investments?.positions||[]),...(s.portfolio?.positions||[]),...(xtbAccounts.length?[]:(s.xtb?.positions||[]))];
  const genericInvest=genericPositions.reduce((a,x)=>a+val(x,'marketValueCzk','valueCzk'),0);
- const xtbAccounts=Object.values(s.xtbHub?.accounts||{}),xtbAccountCzk=xtbAccounts.reduce((a,x)=>a+val(x,'totalValueCzk','marketValueCzk','valueCzk'),0);
+ const xtbAccountCzk=xtbAccounts.reduce((a,x)=>a+val(x,'totalValueCzk','marketValueCzk','valueCzk'),0);
  const xtbPositionsCzk=xtbAccounts.reduce((a,account)=>a+(account?.positions||[]).reduce((b,p)=>b+val(p,'marketValueCzk','valueCzk')+(String(account?.currency||'').toUpperCase()==='CZK'?val(p,'marketValue','currentValue','value'):0),0),0);
  const invest=genericInvest+(xtbAccountCzk||xtbPositionsCzk);
  const tickets=(s.ticketBook?.items||[]).filter(x=>['HOLD','LISTED'].includes(String(x.workflow||'').toUpperCase())).reduce((a,x)=>a+Number(x.buy||x.buyTotalCzk||0),0);
@@ -29,7 +31,7 @@ export function renderPersonalMoney640(){
  const mortgage=v.records.find(x=>x.recordType==='mortgage'),bank=v.records.find(x=>x.recordType==='bank-data');
  const recurring=v.records.filter(x=>x.monthlyAmount||x.annualAmount).sort((a,b)=>(Number(b.monthlyAmount||0)+Number(b.annualAmount||0)/12)-(Number(a.monthlyAmount||0)+Number(a.annualAmount||0)/12));
  const bankAge=daysOld(bank?.asOf),transactions=(s.personalSpending?.transactions||[]),spendComplete=transactions.length>0&&bankAge!==null&&bankAge<=40;
- const issues=[];if(!spendComplete)issues.push({title:'Doplnit aktuální bankovní data',kind:'data'});if(plan.oneOff.length)issues.push(...plan.oneOff.slice(0,2).map(x=>({title:x.title||x.name||'Finanční úkol',kind:'task'})));if(mortgage&&daysOld(mortgage.asOf)>60)issues.push({title:'Aktualizovat zůstatek hypotéky',kind:'mortgage'});
+ const mortgageAge=daysOld(mortgage?.asOf),issues=[];if(!spendComplete)issues.push({title:'Doplnit aktuální bankovní data',kind:'data'});if(plan.oneOff.length)issues.push(...plan.oneOff.slice(0,2).map(x=>({title:x.title||x.name||'Finanční úkol',kind:'task'})));if(mortgage&&(mortgageAge===null||mortgageAge>60))issues.push({title:'Aktualizovat zůstatek hypotéky',kind:'mortgage'});
  const nextMoney=wealth.missing.length?`Nejdřív doplň ${wealth.missing[0]}. Bez toho nebudu předstírat přesné čisté jmění.`:wealth.netKnown>0?'Majetek je kompletně zmapovaný. Další volné peníze posuzuj podle rezervy, dluhu a investičního plánu.':'Nejdřív zkontroluj dluhy a rezervu.';
  host.innerHTML=`<div class="ux64-page money-page"><div class="view-head"><div><div class="eyebrow">PENÍZE + WEALTH</div><h1>Rozhodnutí dřív než tabulky.</h1><p>Domácí závazky, majetek, dluhy a investice v jednom pohledu.</p></div><div class="row-actions"><button class="btn primary" id="moneyTask645">+ Finanční úkol</button></div></div>
  <div data-workspace305-anchor-money></div>
@@ -50,5 +52,5 @@ export function renderPersonalMoney640(){
  host.querySelector('#mortgageUpdate645')?.addEventListener('click',async()=>{await updateMortgageSnapshot645(mortgage.id);renderPersonalMoney640()});
  const updateBank=async()=>{if(bank)await updateBankSnapshot645(bank.id);renderPersonalMoney640()};host.querySelector('#bankUpdate645')?.addEventListener('click',updateBank);host.querySelector('#moneyDataFix650')?.addEventListener('click',updateBank);
  host.querySelector('#moneyTask645')?.addEventListener('click',async()=>{await createMoneyTask645();renderPersonalMoney640()});
- if(typeof window!=='undefined')window.__KAMIL_WEALTH_700_LAST__={at:Date.now(),wealth,monthly:v.monthlyKnown,insuranceAnnual:v.insuranceAnnual,spendComplete,bankAge,issues:issues.length};
+ if(typeof window!=='undefined')window.__KAMIL_WEALTH_700_LAST__={at:Date.now(),wealth,monthly:v.monthlyKnown,insuranceAnnual:v.insuranceAnnual,spendComplete,bankAge,mortgageAge,issues:issues.length};
 }
