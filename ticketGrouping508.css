@@ -1,0 +1,54 @@
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group{
+  display:grid!important;
+  grid-template-columns:minmax(226px,1fr) var(--td500-date) var(--td500-platform) var(--td500-qty) var(--td500-buy) var(--td500-sell) var(--td500-profit) var(--td500-status) 44px!important;
+  align-items:center!important;min-height:58px!important;padding:0 7px!important;
+  border-top:1px solid #dce5f2!important;border-bottom:1px solid #dce5f2!important;
+  background:linear-gradient(90deg,#f5f8fd 0%,#f8fafc 58%,#fbfcfe 100%)!important;color:#101828!important
+}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group:hover{background:linear-gradient(90deg,#eef5ff,#f8fafc)!important}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-main{
+  appearance:none;border:0;background:transparent;display:flex;align-items:center;gap:9px;min-width:0;padding:9px 8px;text-align:left;color:#101828;cursor:pointer
+}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-main b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:900;line-height:1.2}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-main small,
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-cell small{display:block;margin-top:3px;color:#7b8798;font-size:7.5px;font-weight:650;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-folder{flex:0 0 25px;width:25px;height:25px;border:1px solid #cddcf0;border-radius:7px;background:#fff;display:grid;place-items:center;color:#1769ff;font-size:12px;font-weight:900;box-shadow:0 1px 3px rgba(16,24,40,.04)}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-cell{min-width:0;padding:8px;color:#344054;font-size:9px}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-cell>b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#101828;font-size:10px;font-weight:850}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-center{text-align:center}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-good>b{color:#079447}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-bad>b{color:#d92d20}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-decision{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:3px 5px;border-radius:6px;background:#eef2f6;color:#475467;font-size:8px;font-weight:950}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-decision[data-tone="strong"]{background:#eaf2ff;color:#155eef}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-toggle{appearance:none;border:0;background:transparent;width:34px;height:34px;margin:auto;border-radius:8px;color:#475467;font-size:15px;font-weight:900;cursor:pointer}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-toggle:hover{background:#eaf2ff;color:#1769ff}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-group-member .td500-event-cell{padding-left:25px!important;position:relative}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-group-member .td500-event-cell:before{content:"";position:absolute;left:11px;top:0;bottom:0;width:1px;background:#d9e4f2}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-group-member .td500-event-cell:after{content:"";position:absolute;left:11px;top:50%;width:8px;height:1px;background:#d9e4f2}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-collapsed-member{display:none!important}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-toolbar{width:auto!important;min-width:62px!important;padding:0 9px!important;font-size:8px!important;font-weight:850!important;white-space:nowrap}
+html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group[hidden]{display:none!important}
+
+html[data-ticket-redesign500="1"] #ticketIntelView .td331[data-ticket-layout="cards"] .td508-event-group{grid-column:1/-1!important;grid-template-columns:minmax(0,1.7fr) repeat(3,minmax(86px,.7fr))!important;border:1px solid #dce5f2!important;border-radius:10px!important;padding:4px 8px!important;box-shadow:0 3px 10px rgba(16,24,40,.03)!important}
+html[data-ticket-redesign500="1"] #ticketIntelView .td331[data-ticket-layout="cards"] .td508-event-group [data-col="platform"],
+html[data-ticket-redesign500="1"] #ticketIntelView .td331[data-ticket-layout="cards"] .td508-event-group [data-col="sell"],
+html[data-ticket-redesign500="1"] #ticketIntelView .td331[data-ticket-layout="cards"] .td508-event-group [data-col="profit"],
+html[data-ticket-redesign500="1"] #ticketIntelView .td331[data-ticket-layout="cards"] .td508-event-group [data-col="actions"]{display:none!important}
+
+@media(max-width:1180px){
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group{grid-column:1/-1!important;grid-template-columns:minmax(0,1.55fr) repeat(3,minmax(78px,.7fr))!important;border:1px solid #dce5f2!important;border-radius:10px!important;padding:4px 7px!important;margin:0!important}
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group [data-col="platform"],
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group [data-col="sell"],
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group [data-col="profit"],
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group [data-col="actions"]{display:none!important}
+}
+@media(max-width:720px){
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group{grid-template-columns:minmax(0,1fr) 72px 70px!important}
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group [data-col="date"],
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group [data-col="platform"],
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group [data-col="buy"],
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group [data-col="sell"],
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group [data-col="profit"],
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-group [data-col="actions"]{display:none!important}
+  html[data-ticket-grouping508="1"] #ticketIntelView .td508-event-main b{font-size:10px}
+}
