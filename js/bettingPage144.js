@@ -3,6 +3,11 @@ const HEALTH_API='/api/core70-health';
 const DISCOVERY_API='/api/chance-model-pages?days=5&maxPages=40';
 const SCAN_BASE='/api/core70-health?source=chance&sport=soccer&days=5&main=1&limit=100&maxMarkets=12&minOdds=1.45&maxOdds=3.20&value=1&autoModel=1&autoModelLimit=3&poissonLimit=15&betsOnly=1';
 const SCAN_PAGE_PAUSE_MS=1100;
+const HEALTH_CLIENT_TTL_MS=30000;
+
+let activeScan=null;
+let scanSeq=0;
+let healthClientCache={value:null,checkedAt:0};
 
 const money=value=>`${Number(value||0).toLocaleString('cs-CZ')} Kč`;
 const decimal=value=>Number(value||0).toLocaleString('cs-CZ',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -29,6 +34,11 @@ function loading(host){
  host.innerHTML=`<div class="bet144"><section class="bet144-hero"><div><div class="eyebrow">SÁZENÍ · CHANCE</div><h1>Betting centrum</h1><p>Načítám ledger a stav automatického value scanneru…</p></div></section></div>`;
 }
 
+function cancelActiveScan(){
+ if(activeScan?.controller&&!activeScan.controller.signal.aborted)activeScan.controller.abort();
+ activeScan=null;
+}
+
 function renderPickRows(events){
  const rows=[];
  const seen=new Set();
@@ -47,20 +57,48 @@ function renderPickRows(events){
  return rows;
 }
 
+function pickRowsHtml(rows){
+ return rows.map(({event,market,selection})=>`<article class="bet144-pick"><div class="bet144-pickmain"><strong>🟢 ${escapeHtml(selection.name||selection.outcome)} @ ${decimal(selection.odds)}</strong><span>${escapeHtml(event.home)} – ${escapeHtml(event.away)} · ${escapeHtml(marketLabel(market.type))} · ${escapeHtml(selection.modelSource||'model')}</span></div><div class="bet144-stat"><span>Model</span><b>${pct(Number(selection.modelProbability||0)*100)} %</b></div><div class="bet144-stat"><span>Fair</span><b>${decimal(selection.fairOdds)}</b></div><div class="bet144-stat"><span>Edge</span><b>+${pct(selection.edgePctPoints)} pp</b></div><div class="bet144-stat bet144-ev"><span>EV</span><b>+${pct(selection.evPct)} %</b></div></article>`).join('');
+}
+
+function publishScanState(state,rows){
+ window.__KAMIL_VALUE_SCAN_144__={
+  ok:!state.error,
+  loading:!!state.loading,
+  partial:!!state.partial,
+  modelReady:state.modelReady,
+  picks:rows.length,
+  pagesScanned:state.pagesScanned||0,
+  relevantPages:state.relevantPages||0,
+  totalPages:state.totalPages||0,
+  modeledEvents:state.modeledEvents||0,
+  dataRequests:state.dataRequests||0,
+  apiRequests:state.apiRequests||0,
+  failedPages:Array.isArray(state.failedPages)?state.failedPages.map(item=>item.page):[]
+ };
+}
+
 function renderScannerResults(host,state){
  const body=host.querySelector('[data-bet144-scanbody]');
  const meta=host.querySelector('[data-bet144-scanmeta]');
  const btn=host.querySelector('[data-bet144-scan]');
  if(!body)return;
- if(btn){btn.disabled=state.loading||!state.modelReady;btn.textContent=state.loading?'Skenuji Chance…':'Spustit value sken'}
+ const rows=renderPickRows(state.events);
+ publishScanState(state,rows);
+ if(btn){
+  btn.disabled=state.loading||!state.modelReady;
+  btn.textContent=state.loading?(state.relevantPages?`Skenuji ${state.pagesScanned}/${state.relevantPages}…`:'Skenuji Chance…'):'Spustit value sken';
+ }
  if(state.loading){
-  body.innerHTML='<div class="bet144-scanempty"><strong>Procházím Chance + vlastní model…</strong>Na BASIC feedu jedu bezpečně po jedné stránce. Nejdřív najdu podporované ligy, potom modeluju budoucí pre-match zápasy. Filtr: kurz 1,45–3,20, EV ≥ 5 % a edge ≥ 4 pp.</div>';
+  const intro=`<div class="bet144-scanempty"><strong>${rows.length?`Průběžně nalezeno ${rows.length} tipů`:'Procházím Chance + vlastní model…'}</strong>Na BASIC feedu jedu bezpečně po jedné stránce. Výsledky níže jsou už ověřené a zůstávají viditelné i během pokračujícího skenu.</div>`;
+  body.innerHTML=intro+(rows.length?pickRowsHtml(rows):'');
   if(meta)meta.textContent=state.progress||'Hledám relevantní stránky Chance…';
   return;
  }
  if(state.error){
-  body.innerHTML=`<div class="bet144-error"><b>Sken se nepodařil.</b><div class="muted" style="margin-top:6px">${escapeHtml(state.error)}</div></div>`;
-  if(meta)meta.textContent='Sken selhal';
+  const partial=rows.length||state.pagesScanned>0;
+  body.innerHTML=`<div class="bet144-error"><b>${partial?'Sken skončil částečně.':'Sken se nepodařil.'}</b><div class="muted" style="margin-top:6px">${escapeHtml(state.error)}</div>${partial?'<div class="muted" style="margin-top:5px">Už ověřené výsledky zachovávám.</div>':''}</div>`+(rows.length?pickRowsHtml(rows):'');
+  if(meta)meta.textContent=partial?`Částečný sken ${state.pagesScanned||0}/${state.relevantPages||'?'} · ${rows.length} tipů zachováno`:'Sken selhal';
   return;
  }
  if(!state.modelReady){
@@ -68,11 +106,12 @@ function renderScannerResults(host,state){
   if(meta)meta.textContent='Bez modelu = 0 BET';
   return;
  }
- const rows=renderPickRows(state.events);
- if(!rows.length){
+ if(state.partial&&Array.isArray(state.failedPages)&&state.failedPages.length){
+  body.innerHTML=`<div class="bet144-error"><b>Sken dokončen s výpadky.</b><div class="muted" style="margin-top:6px">Nepodařilo se ověřit ${state.failedPages.length} stran; úspěšné výsledky níže jsou zachované.</div></div>`+(rows.length?pickRowsHtml(rows):'<div class="bet144-scanempty"><strong>NIC z ověřených stran — 0u</strong>Na úspěšně zkontrolovaných stranách nebyl tip, který splnil oba filtry.</div>');
+ }else if(!rows.length){
   body.innerHTML='<div class="bet144-scanempty"><strong>NIC — 0u</strong>V modelovaných podporovaných ligách není tip, který splní oba filtry. Nic nenutím.</div>';
  }else{
-  body.innerHTML=rows.map(({event,market,selection})=>`<article class="bet144-pick"><div class="bet144-pickmain"><strong>🟢 ${escapeHtml(selection.name||selection.outcome)} @ ${decimal(selection.odds)}</strong><span>${escapeHtml(event.home)} – ${escapeHtml(event.away)} · ${escapeHtml(marketLabel(market.type))} · ${escapeHtml(selection.modelSource||'model')}</span></div><div class="bet144-stat"><span>Model</span><b>${pct(Number(selection.modelProbability||0)*100)} %</b></div><div class="bet144-stat"><span>Fair</span><b>${decimal(selection.fairOdds)}</b></div><div class="bet144-stat"><span>Edge</span><b>+${pct(selection.edgePctPoints)} pp</b></div><div class="bet144-stat bet144-ev"><span>EV</span><b>+${pct(selection.evPct)} %</b></div></article>`).join('');
+  body.innerHTML=pickRowsHtml(rows);
  }
  if(meta){
   const modeled=Number(state.modeledEvents||0);
@@ -81,57 +120,109 @@ function renderScannerResults(host,state){
   const cacheHits=Number(state.cacheHits||0);
   const relevant=Number(state.relevantPages||0);
   const total=Number(state.totalPages||0);
-  meta.textContent=`${state.pagesScanned||0}/${relevant} relevantních stran z ${total||'?'} · ${modeled} modelovaných zápasů · ${dataRequests} historických načtení · ${apiRequests} API predikcí · ${cacheHits} cache hitů`;
+  const failed=Array.isArray(state.failedPages)?state.failedPages.length:0;
+  meta.textContent=`${state.pagesScanned||0}/${relevant} relevantních stran z ${total||'?'} · ${modeled} modelovaných zápasů · ${rows.length} value tipů${failed?` · ${failed} stran přeskočeno`:''} · ${dataRequests} historických načtení · ${apiRequests} API predikcí · ${cacheHits} cache hitů`;
  }
- window.__KAMIL_VALUE_SCAN_144__={ok:!state.error,modelReady:state.modelReady,picks:rows.length,pagesScanned:state.pagesScanned||0,relevantPages:state.relevantPages||0,totalPages:state.totalPages||0,modeledEvents:state.modeledEvents||0,dataRequests:state.dataRequests||0,apiRequests:state.apiRequests||0};
 }
 
 async function readJson(response){try{return await response.json()}catch{return null}}
 function apiError(payload,fallback){
  const raw=payload?.message||payload?.details?.message||payload?.error||fallback;
- if(String(payload?.error||'').includes('RATE_LIMIT')||String(raw).includes('Too many requests'))return'Chance feed narazil na limit 1 požadavek/s. OS už používá throttle; zkus sken znovu za pár sekund.';
+ if(String(payload?.error||'').includes('RATE_LIMIT')||String(raw).includes('Too many requests'))return'Chance feed narazil na limit 1 požadavek/s. OS automaticky počká a zkusí stránku znovu.';
  if(String(payload?.error||'').includes('AUTH'))return'Chance feed odmítl přístupový klíč. Zkontroluj PulseScore API klíč.';
  return String(raw||fallback);
 }
 
-async function discoverRelevantPages(){
- const response=await fetch(DISCOVERY_API,{headers:{Accept:'application/json'}});
+async function discoverRelevantPages(signal){
+ const response=await fetch(DISCOVERY_API,{headers:{Accept:'application/json'},signal});
  const payload=await readJson(response);
  if(!response.ok)throw new Error(apiError(payload,`Chance discovery HTTP ${response.status}`));
  if(!payload?.ok)throw new Error(apiError(payload,'Chance page discovery není dostupné'));
- const pages=(Array.isArray(payload.pages)?payload.pages:[]).map(item=>Number(item?.page)).filter(Number.isInteger);
+ const pages=(Array.isArray(payload.pages)?payload.pages:[]).map(item=>({
+  page:Number(item?.page),
+  supportedEvents:Number(item?.supportedEvents||0),
+  leagues:Array.isArray(item?.leagues)?item.leagues:[]
+ })).filter(item=>Number.isInteger(item.page)).sort((a,b)=>b.supportedEvents-a.supportedEvents||a.page-b.page);
  return {pages,totalPages:Number(payload.totalPages||0),scannedPages:Number(payload.scannedPages||0),authMode:payload.authMode||null};
 }
 
+async function fetchScanPage(page,signal){
+ let lastError=null;
+ for(let attempt=0;attempt<3;attempt+=1){
+  if(signal?.aborted)throw new DOMException('Aborted','AbortError');
+  try{
+   const response=await fetch(`${SCAN_BASE}&page=${page}&_=${Date.now()}`,{cache:'no-store',headers:{Accept:'application/json'},signal});
+   const payload=await readJson(response);
+   if(response.ok&&payload?.ok)return payload;
+   const message=apiError(payload,`Chance scanner HTTP ${response.status}`);
+   if(response.status<500&&response.status!==429)throw new Error(message);
+   lastError=new Error(message);
+  }catch(error){
+   if(error?.name==='AbortError')throw error;
+   lastError=error;
+  }
+  if(attempt<2)await wait(1300*(attempt+1));
+ }
+ throw lastError||new Error('Chance scanner není dostupný');
+}
+
 async function runValueScan(host){
+ cancelActiveScan();
+ const controller=new AbortController();
+ const runId=++scanSeq;
+ activeScan={runId,controller};
  const health=window.__KAMIL_BETTING_HEALTH_144__||{};
  const modelReady=hasBuiltInModel(health);
- const state={loading:true,modelReady,events:[],pagesScanned:0,relevantPages:0,totalPages:0,modeledEvents:0,dataRequests:0,apiRequests:0,cacheHits:0,error:null,progress:'Hledám relevantní stránky Chance…'};
+ const state={loading:true,modelReady,events:[],pagesScanned:0,relevantPages:0,totalPages:0,modeledEvents:0,dataRequests:0,apiRequests:0,cacheHits:0,error:null,partial:false,failedPages:[],progress:'Hledám relevantní stránky Chance…'};
  renderScannerResults(host,state);
- if(!modelReady){state.loading=false;renderScannerResults(host,state);return}
+ if(!modelReady){
+  state.loading=false;
+  renderScannerResults(host,state);
+  if(activeScan?.runId===runId)activeScan=null;
+  return;
+ }
  try{
-  const discovery=await discoverRelevantPages();
+  const discovery=await discoverRelevantPages(controller.signal);
+  if(controller.signal.aborted||activeScan?.runId!==runId)return;
   state.relevantPages=discovery.pages.length;
   state.totalPages=discovery.totalPages;
   if(!discovery.pages.length){state.loading=false;renderScannerResults(host,state);return}
   for(let i=0;i<discovery.pages.length;i+=1){
-   const page=discovery.pages[i];
-   state.progress=`Skenuji relevantní stránku ${i+1}/${discovery.pages.length} · čekej prosím…`;
-   const meta=host.querySelector('[data-bet144-scanmeta]');if(meta)meta.textContent=state.progress;
-   const response=await fetch(`${SCAN_BASE}&page=${page}&_=${Date.now()}`,{cache:'no-store',headers:{Accept:'application/json'}});
-   const payload=await readJson(response);
-   if(!response.ok)throw new Error(apiError(payload,`Chance scanner HTTP ${response.status}`));
-   if(!payload?.ok)throw new Error(apiError(payload,'Chance scanner není dostupný'));
-   state.pagesScanned+=1;
-   state.events.push(...(Array.isArray(payload.events)?payload.events:[]));
-   state.modeledEvents+=Number(payload?.value?.autoModel?.modeledEvents||0);
-   state.dataRequests+=Number(payload?.value?.autoModel?.dataRequests||0);
-   state.apiRequests+=Number(payload?.value?.autoModel?.apiRequests||0);
-   state.cacheHits+=Number(payload?.value?.autoModel?.cacheHits||0);
-   if(payload?.value?.autoModel?.configured===false){state.modelReady=false;break}
+   if(controller.signal.aborted||activeScan?.runId!==runId)return;
+   const pageInfo=discovery.pages[i];
+   const page=pageInfo.page;
+   const currentPicks=renderPickRows(state.events).length;
+   state.progress=`Skenuji ${i+1}/${discovery.pages.length} · strana ${page} · ${pageInfo.supportedEvents} podporovaných zápasů · ${currentPicks} tipů`;
+   renderScannerResults(host,state);
+   try{
+    const payload=await fetchScanPage(page,controller.signal);
+    if(controller.signal.aborted||activeScan?.runId!==runId)return;
+    state.pagesScanned+=1;
+    state.events.push(...(Array.isArray(payload.events)?payload.events:[]));
+    state.modeledEvents+=Number(payload?.value?.autoModel?.modeledEvents||0);
+    state.dataRequests+=Number(payload?.value?.autoModel?.dataRequests||0);
+    state.apiRequests+=Number(payload?.value?.autoModel?.apiRequests||0);
+    state.cacheHits+=Number(payload?.value?.autoModel?.cacheHits||0);
+    if(payload?.value?.autoModel?.configured===false){state.modelReady=false;break}
+   }catch(error){
+    if(error?.name==='AbortError')return;
+    const message=String(error?.message||error);
+    if(/klíč|AUTH|401/i.test(message))throw error;
+    state.partial=true;
+    state.failedPages.push({page,error:message});
+   }
+   const found=renderPickRows(state.events).length;
+   state.progress=`Hotovo ${i+1}/${discovery.pages.length} · ${found} value tipů${state.failedPages.length?` · ${state.failedPages.length} výpadků`:''}`;
+   renderScannerResults(host,state);
    if(i<discovery.pages.length-1)await wait(SCAN_PAGE_PAUSE_MS);
   }
- }catch(error){state.error=String(error?.message||error)}
+ }catch(error){
+  if(error?.name==='AbortError')return;
+  state.error=String(error?.message||error);
+  state.partial=state.pagesScanned>0;
+ }finally{
+  if(activeScan?.runId===runId)activeScan=null;
+ }
  state.loading=false;
  renderScannerResults(host,state);
 }
@@ -140,7 +231,7 @@ function scannerHtml(health){
  const modelReady=hasBuiltInModel(health);
  const chanceReady=health?.checks?.pulsescore_api===true;
  const apiBoost=health?.checks?.api_football_key===true;
- return `<section class="bet144-scanner"><div class="bet144-scanhead"><div><h2>🎯 Value scanner</h2><p>Chance kurzy → nezávislý model → fair kurz → edge → EV → VSADIT / NIC.</p></div><button class="btn" type="button" data-bet144-scan ${modelReady?'':'disabled'}>Spustit value sken</button></div><div class="bet144-statusrow"><span class="bet144-status ${chanceReady?'ok':'warn'}">${chanceReady?'●':'○'} Chance feed</span><span class="bet144-status ${modelReady?'ok':'warn'}">${modelReady?'● Vlastní Poisson model':'○ Model nedostupný'}</span>${apiBoost?'<span class="bet144-status ok">● API-Football 1X2 boost</span>':''}<span class="bet144-status">EV ≥ 5 %</span><span class="bet144-status">Edge ≥ 4 pp</span><span class="bet144-status">Pre-match only</span></div><div class="bet144-modelhelp"><span><b>Bez bookmakerového modelu.</b> Scanner projde Chance soccer feed s throttlem podle BASIC API limitu a model pustí jen na relevantní podporované ligy. Historické výsledky Football-Data používám pro 1X2, BTTS, O/U x.5 a týmové totaly x.5; celé linie zatím vynechávám kvůli push/refundu.</span></div><div class="bet144-scanbody" data-bet144-scanbody><div class="bet144-scanempty"><strong>${modelReady?'Připraveno ke skenu.':'Model není dostupný.'}</strong>${modelReady?'Klikni na Spustit value sken. První kompletní průchod může kvůli limitu feedu pár sekund trvat.':'Bez nezávislého modelu nic nedoporučím.'}</div></div><div class="bet144-scinfo" data-bet144-scanmeta>${modelReady?'Discovery se cacheuje 5 minut; bookmaker odds nejsou vstupem modelu.':'Bez modelu = 0 BET'}</div></section>`;
+ return `<section class="bet144-scanner"><div class="bet144-scanhead"><div><h2>🎯 Value scanner</h2><p>Chance kurzy → nezávislý model → fair kurz → edge → EV → VSADIT / NIC.</p></div><button class="btn" type="button" data-bet144-scan ${modelReady?'':'disabled'}>Spustit value sken</button></div><div class="bet144-statusrow"><span class="bet144-status ${chanceReady?'ok':'warn'}">${chanceReady?'●':'○'} Chance feed</span><span class="bet144-status ${modelReady?'ok':'warn'}">${modelReady?'● Vlastní Poisson model':'○ Model nedostupný'}</span>${apiBoost?'<span class="bet144-status ok">● API-Football 1X2 boost</span>':''}<span class="bet144-status">EV ≥ 5 %</span><span class="bet144-status">Edge ≥ 4 pp</span><span class="bet144-status">Pre-match only</span></div><div class="bet144-modelhelp"><span><b>Bez bookmakerového modelu.</b> Scanner projde Chance soccer feed s throttlem podle BASIC API limitu a model pustí jen na relevantní podporované ligy. Nejbohatší stránky kontroluje jako první a nalezené tipy ukazuje průběžně.</span></div><div class="bet144-scanbody" data-bet144-scanbody><div class="bet144-scanempty"><strong>${modelReady?'Připraveno ke skenu.':'Model není dostupný.'}</strong>${modelReady?'Klikni na Spustit value sken. Výsledky se budou zobrazovat průběžně, nemusíš čekat až na konec.':'Bez nezávislého modelu nic nedoporučím.'}</div></div><div class="bet144-scinfo" data-bet144-scanmeta>${modelReady?'Discovery se cacheuje 5 minut; bookmaker odds nejsou vstupem modelu.':'Bez modelu = 0 BET'}</div></section>`;
 }
 
 function renderData(host,payload,health){
@@ -159,18 +250,26 @@ function renderData(host,payload,health){
  window.__KAMIL_BETTING_144__={ok:true,openCount:bets.length,exposureCzk:exposure,modelReady:hasBuiltInModel(health),bets:bets.map(b=>({id:b.id,label:b.label,odds:b.odds,stakeCzk:b.stakeCzk,status:b.status}))};
 }
 
+async function getHealth(){
+ const now=Date.now();
+ if(healthClientCache.value&&now-healthClientCache.checkedAt<HEALTH_CLIENT_TTL_MS)return healthClientCache.value;
+ const response=await fetch(`${HEALTH_API}?_=${now}`,{cache:'no-store',headers:{Accept:'application/json'}});
+ const payload=await readJson(response);
+ if(!response.ok)throw new Error(`Health HTTP ${response.status}`);
+ if(!payload?.ok)throw new Error(payload?.error||'Health není dostupný');
+ healthClientCache={value:payload,checkedAt:Date.now()};
+ return payload;
+}
+
 async function loadBetting(host,force=false){
  if(!host)return;
- if(force)loading(host);
+ if(force){cancelActiveScan();loading(host)}
  try{
    const stamp=Date.now();
-   const [ledgerResponse,healthResponse]=await Promise.all([
-    fetch(`${LEDGER_API}&_=${stamp}`,{cache:'no-store',headers:{Accept:'application/json'}}),
-    fetch(`${HEALTH_API}?_=${stamp}`,{cache:'no-store',headers:{Accept:'application/json'}})
-   ]);
+   const ledgerPromise=fetch(`${LEDGER_API}&_=${stamp}`,{cache:'no-store',headers:{Accept:'application/json'}});
+   const [ledgerResponse,health]=await Promise.all([ledgerPromise,getHealth()]);
    if(!ledgerResponse.ok)throw new Error(`Ledger HTTP ${ledgerResponse.status}`);
-   if(!healthResponse.ok)throw new Error(`Health HTTP ${healthResponse.status}`);
-   const [payload,health]=await Promise.all([ledgerResponse.json(),healthResponse.json()]);
+   const payload=await ledgerResponse.json();
    if(!payload?.ok)throw new Error(payload?.error||'Ledger není dostupný');
    renderData(host,payload,health);
  }catch(error){
@@ -184,6 +283,7 @@ export function renderBettingPage144(){
  ensureStyles();
  const host=document.querySelector('#bettingView');
  if(!host)return null;
+ cancelActiveScan();
  loading(host);
  loadBetting(host);
  return window.__KAMIL_BETTING_144__||{ok:true,loading:true};
