@@ -11,6 +11,11 @@ const commander=read('./js/ticketCommander465.js');
 const consolidation=read('./js/ticketConsolidation466.js');
 const layout=read('./js/ticketLayoutGuard458.js');
 const health=read('./js/ticketMarketHealth397.js');
+const dashboard=read('./js/ticketDashboard500.js');
+const dashboardCss=read('./ticketDashboard500.css');
+const ticketCloud=read('./js/ticketCloud660.js');
+const index=read('./index.html');
+const sw=read('./sw.js');
 
 const appVersion=release.match(/APP_VERSION='([^']+)'/)?.[1]||'';
 const appRelease=release.match(/APP_RELEASE='([^']+)'/)?.[1]||'';
@@ -54,5 +59,14 @@ if(health.includes('observe(document.body'))fail('Market Health must not observe
 for(const forbidden of ['function reorder(','function moveAnalytics(','host.appendChild(drawer)'])if(consolidation.includes(forbidden))fail(`logic-only consolidation must not own page DOM: ${forbidden}`);
 for(const token of ['logicOnly:true','decorateCommander','data-c466-more'])if(!consolidation.includes(token))fail(`execution consolidation missing ${token}`);
 for(const token of ['canonicalSystem','data-bridge-system466','data-system466'])if(!layout.includes(token))fail(`Layout Guard 458.1 missing canonical bridge support: ${token}`);
+
+if(major>=500){
+ for(const token of ['installTicketDashboard500','data-t500-visual','Dnes řešit','Příležitosti','t500-list-tools'])if(!dashboard.includes(token))fail(`OS500 dashboard missing ${token}`);
+ for(const token of ['data-ticket-dashboard500','@media(max-width:850px)','@media(max-width:560px)'])if(!dashboardCss.includes(token))fail(`OS500 responsive CSS missing ${token}`);
+ if(!criticalBlock.includes("'./ticketDashboard500.js','installTicketDashboard500','DASHBOARD 500'"))fail('OS500 dashboard is not in critical ticket boot');
+ if(!ticketCloud.includes('localTicketCloud660')||!ticketCloud.includes("reason:'LOCAL_MODE'"))fail('OS500 local ticket fallback missing');
+ if(!index.includes('ticketDashboard500.css'))fail('OS500 stylesheet is not linked');
+ for(const token of ['ticketDashboard500.css','ticketDashboard500.js'])if(!sw.includes(token))fail(`OS500 service-worker shell missing ${token}`);
+}
 
 if(!process.exitCode)console.log(`Ticket canonical guard OK · ${appVersion}`);

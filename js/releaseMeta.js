@@ -1,3 +1,3 @@
-export const APP_VERSION='483.0.0';
-export const APP_RELEASE='483.0.0';
-// OS483: compact Morning Director Briefing over canonical deadline, follow-up, free-cash and investment engines
+export const APP_VERSION='500.0.0';
+export const APP_RELEASE='500.0.0';
+// OS500: light Ticket Desk dashboard with local-first data fallback and responsive portfolio controls
