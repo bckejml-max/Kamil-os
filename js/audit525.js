@@ -1,6 +1,6 @@
-const VERSION='526.0.1';
+const VERSION='527.0.0';
 const TITLES={today:'DNES',inbox:'INBOX',money:'PENÍZE',tickets:'VSTUPENKY',betting:'SÁZENÍ',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
-let bound=false,timer=0,titleObserver=null,syncObserver=null;
+let bound=false,timer=0,titleObserver=null,syncObserver=null,bettingObserver=null,bettingTimer=0,ledgerPromise=null,ledgerInfo=null;
 
 function ensureCss(){
   if(document.querySelector('link[data-audit525]'))return;
@@ -33,16 +33,61 @@ function syncLocalStatus(){
   const title='Data jsou uložená na tomto zařízení. Cloudové přihlášení je v osobním režimu skryté.';
   if(el.title!==title)el.title=title;
 }
+async function loadLedgerInfo(){
+  if(ledgerInfo)return ledgerInfo;
+  if(ledgerPromise)return ledgerPromise;
+  ledgerPromise=fetch(`/api/core70-health?source=ledger&_=${Date.now()}`,{cache:'no-store',headers:{Accept:'application/json'}}).then(async response=>{
+    if(!response.ok)throw new Error(`ledger HTTP ${response.status}`);
+    const payload=await response.json();
+    if(!payload?.ok)throw new Error(payload?.error||'ledger unavailable');
+    ledgerInfo=payload.ledger||{};
+    return ledgerInfo;
+  }).catch(error=>{console.warn('[audit527:ledger]',error);return null}).finally(()=>{ledgerPromise=null});
+  return ledgerPromise;
+}
+function applyBettingTruth(){
+  const host=document.querySelector('#bettingView'),metrics=host?.querySelectorAll('.bet144-metric');
+  if(!host||!metrics?.length||!ledgerInfo)return;
+  const incomplete=ledgerInfo.priorReportedExposureUnresolved===true;
+  const second=metrics[1]?.querySelector('span'),third=metrics[2]?.querySelector('span');
+  if(incomplete){
+    if(second&&second.textContent!=='Evidováno otevřené')second.textContent='Evidováno otevřené';
+    if(third&&third.textContent!=='Možná výplata (evid.)')third.textContent='Možná výplata (evid.)';
+    let note=host.querySelector('[data-audit527-ledger]');
+    if(!note){
+      note=document.createElement('div');note.className='bet144-note';note.dataset.audit527Ledger='1';
+      const list=host.querySelector('.bet144-list');(list||host.querySelector('.bet144'))?.insertAdjacentElement(list?'beforebegin':'beforeend',note);
+    }
+    if(note){
+      const text='Datová poznámka: betting ledger zatím není kompletní. Částky nahoře jsou pouze evidované potvrzené otevřené sázky, ne úplná historie ani celkové vsazeno.';
+      if(note.textContent!==text)note.textContent=text;
+    }
+  }else{
+    host.querySelector('[data-audit527-ledger]')?.remove();
+  }
+  if(window.__KAMIL_BETTING_144__){window.__KAMIL_BETTING_144__.ledgerComplete=!incomplete;window.__KAMIL_BETTING_144__.ledgerPersistence=ledgerInfo.persistence||null}
+  document.documentElement.dataset.bettingLedger527=incomplete?'partial':'complete';
+}
+function scheduleBettingTruth(){
+  clearTimeout(bettingTimer);bettingTimer=setTimeout(()=>applyBettingTruth(),35);
+}
+function ensureBettingTruth(){
+  const host=document.querySelector('#bettingView');if(!host)return;
+  if(!bettingObserver){bettingObserver=new MutationObserver(scheduleBettingTruth);bettingObserver.observe(host,{childList:true,subtree:true})}
+  loadLedgerInfo().then(()=>scheduleBettingTruth());
+}
 function sync(view=viewFrom(null)){
   const title=TITLES[view];
   const pageTitle=document.querySelector('#pageTitle');
   if(pageTitle&&title&&pageTitle.textContent!==title)pageTitle.textContent=title;
   if(view)syncNav(view);
   syncLocalStatus();
+  if(view==='betting')ensureBettingTruth();
   document.documentElement.dataset.audit525='1';
   document.documentElement.dataset.audit526='1';
-  window.__KAMIL_AUDIT525__={version:VERSION,healthy:true,view,title:title||null,at:Date.now()};
-  window.__KAMIL_AUDIT526__=window.__KAMIL_AUDIT525__;
+  document.documentElement.dataset.audit527='1';
+  const state={version:VERSION,healthy:true,view,title:title||null,ledgerComplete:ledgerInfo?ledgerInfo.priorReportedExposureUnresolved!==true:null,at:Date.now()};
+  window.__KAMIL_AUDIT525__=state;window.__KAMIL_AUDIT526__=state;window.__KAMIL_AUDIT527__=state;
 }
 function schedule(view){
   queueMicrotask(()=>sync(view||viewFrom(null)));
