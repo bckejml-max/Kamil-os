@@ -10,6 +10,15 @@ async function fetchQuote(symbol){
 }
 function clampInt(value,fallback,min,max){const n=Number.parseInt(String(value??''),10);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):fallback}
 function cleanSport(value){const sport=String(value||'soccer').trim().toLowerCase();return /^[a-z0-9-]+$/.test(sport)?sport:'soccer'}
+function requestPulseKey(req){
+ if(process.env.PULSESCORE_API_KEY)return process.env.PULSESCORE_API_KEY;
+ const auth=String(req.headers?.authorization||'').trim();
+ if(/^Bearer\s+/i.test(auth))return auth.replace(/^Bearer\s+/i,'').trim();
+ if(/^Basic\s+/i.test(auth)){
+  try{const decoded=Buffer.from(auth.replace(/^Basic\s+/i,''),'base64').toString('utf8');const i=decoded.indexOf(':');if(i>=0)return decoded.slice(i+1).trim()}catch{}
+ }
+ return '';
+}
 function normalizeChanceEvents(payload){
  const source=Array.isArray(payload)?payload:Array.isArray(payload?.events)?payload.events:Array.isArray(payload?.data)?payload.data:[];
  return source.map(event=>({
@@ -22,8 +31,8 @@ function normalizeChanceEvents(payload){
 }
 async function chanceOdds(req,res,url){
  res.setHeader('Cache-Control','no-store');
- const apiKey=process.env.PULSESCORE_API_KEY;
- if(!apiKey)return res.status(503).json({ok:false,error:'PULSESCORE_NOT_CONFIGURED',action:'Add PULSESCORE_API_KEY in Vercel Project Settings -> Environment Variables.'});
+ const apiKey=requestPulseKey(req);
+ if(!apiKey)return res.status(503).json({ok:false,error:'PULSESCORE_NOT_CONFIGURED'});
  const sport=cleanSport(url.searchParams.get('sport'));
  const mode=String(url.searchParams.get('mode')||'prematch').toLowerCase();
  const page=clampInt(url.searchParams.get('page'),1,1,10000);
