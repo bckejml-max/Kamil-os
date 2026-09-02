@@ -1,7 +1,7 @@
 import {loadTicketCloud660} from './ticketCloud660.js';
 import {buildTicketActionPriority209} from './ticketActionPriorityModel209.js';
 
-const VERSION='510.0.0';
+const VERSION='510.0.1';
 const ACTIVE=new Set(['LISTED','NOT_LISTED']);
 const SOLD=new Set(['SOLD_UNDELIVERED','SOLD_WAITING_PAYMENT','PAYOUT_RECEIVED','PAID']);
 let bound=false;
@@ -32,8 +32,8 @@ function compute(cloud){
   const inventory=cloud.inventory||[],active=inventory.filter(r=>ACTIVE.has(status(r))),sold=inventory.filter(r=>SOLD.has(status(r))),settled=sold.filter(r=>n(r?.payout_received_czk)>0);
   const invested=active.reduce((s,r)=>s+(n(r?.buy_total_czk)||n(r?.buy_each_czk)*qty(r)),0);
   const actualNet=settled.reduce((s,r)=>s+n(r.payout_received_czk)-(n(r?.buy_total_czk)||n(r?.buy_each_czk)*qty(r)),0);
-  const due7=active.filter(r=>{const d=daysTo(r?.event_date);return d!==null&&d>=0&&d<=7}).length;
-  const due21=active.filter(r=>{const d=daysTo(r?.event_date);return d!==null&&d>=0&&d<=21}).length;
+  const due7=active.filter(r=>{const d=daysTo(r?.event_date??r?.eventDate);return d!==null&&d>=0&&d<=7}).length;
+  const due21=active.filter(r=>{const d=daysTo(r?.event_date??r?.eventDate);return d!==null&&d>=0&&d<=21}).length;
   let priority=null;
   try{priority=buildTicketActionPriority209({inventory,latest:cloud.latest||new Map()})}catch(error){console.warn('[ticketExecutive510/model]',error)}
   const queue=priority?.queue||[];
@@ -61,11 +61,12 @@ function render(m){
   const host=document.querySelector('#ticketIntelView .td331'),hero=host?.querySelector(':scope > .td331-hero');if(!hero)return false;
   let box=hero.querySelector(':scope > [data-executive510]');
   if(!box){box=document.createElement('section');box.dataset.executive510='1';box.className='td510-brief';hero.appendChild(box)}
-  const primary=m.primary,primaryScore=primary?.riskAdjusted?.rankScore,actionCount=m.actionable.length;
-  box.innerHTML=`<div class="td510-icon" aria-hidden="true">✦</div><div class="td510-copy"><small>EXECUTIVE BRIEFING</small><p>${sentence(m)}</p></div><div class="td510-chips"><span class="${actionCount?'warn':'ok'}">Dnes ${actionCount}</span><span class="${m.due7?'warn':''}">≤7 dní ${m.due7}</span><span>Payout ${m.settled.length}/${m.sold.length}</span>${Number.isFinite(Number(primaryScore))?`<span>D${Math.round(primaryScore)}</span>`:''}</div>`;
-  if(primary)box.title=`Nejvyšší priorita: ${eventName(primary)} · ${actionLabel(primary)}`;
+  const primary=m.primary,primaryScore=primary?.riskAdjusted?.rankScore,actionCount=m.actionable.length,briefing=sentence(m);
+  box.innerHTML=`<div class="td510-icon" aria-hidden="true">✦</div><div class="td510-copy"><small>EXECUTIVE BRIEFING</small><p data-executive510-text></p></div><div class="td510-chips"><span class="${actionCount?'warn':'ok'}">Dnes ${actionCount}</span><span class="${m.due7?'warn':''}">≤7 dní ${m.due7}</span><span>Payout ${m.settled.length}/${m.sold.length}</span>${Number.isFinite(Number(primaryScore))?`<span>D${Math.round(primaryScore)}</span>`:''}</div>`;
+  const text=box.querySelector('[data-executive510-text]');if(text)text.textContent=briefing;
+  if(primary)box.title=`Nejvyšší priorita: ${eventName(primary)} · ${actionLabel(primary)}`;else box.removeAttribute('title');
   document.documentElement.dataset.ticketExecutive510='1';
-  window.__KAMIL_TICKET_EXECUTIVE510__={version:VERSION,healthy:true,text:sentence(m),active:m.active.length,invested:m.invested,actions:actionCount,due7:m.due7,sold:m.sold.length,settled:m.settled.length,actualNet:m.actualNet,primary:primary?{id:primary.id,name:eventName(primary),action:actionLabel(primary),decision:Number.isFinite(Number(primaryScore))?Math.round(primaryScore):null}:null,at:Date.now()};
+  window.__KAMIL_TICKET_EXECUTIVE510__={version:VERSION,healthy:true,text:briefing,active:m.active.length,invested:m.invested,actions:actionCount,due7:m.due7,sold:m.sold.length,settled:m.settled.length,actualNet:m.actualNet,primary:primary?{id:primary.id,name:eventName(primary),action:actionLabel(primary),decision:Number.isFinite(Number(primaryScore))?Math.round(primaryScore):null}:null,at:Date.now()};
   return true;
 }
 async function refresh(force=false){
