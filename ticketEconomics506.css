@@ -1,0 +1,54 @@
+/* Kamil OS — Ticket Economics 506
+   Break-even and NET profit layer based only on actual payout history. */
+
+html[data-ticket-economics506="1"] #ticketIntelView .td506-econ-line{
+  font-size:8px!important;
+  line-height:1.25!important;
+  letter-spacing:-.01em;
+  white-space:nowrap;
+}
+html[data-ticket-economics506="1"] #ticketIntelView .td506-good{color:#079447!important}
+html[data-ticket-economics506="1"] #ticketIntelView .td506-bad{color:#d92d20!important}
+
+html[data-ticket-economics506="1"] #ticketIntelView .td506-model-badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  margin-left:auto;
+  padding:0 9px;
+  border:1px solid #dbe5f2;
+  border-radius:7px;
+  background:#f8fbff;
+  color:#344054;
+  font-size:8px;
+  font-weight:800;
+  white-space:nowrap;
+}
+html[data-ticket-economics506="1"] #ticketIntelView .td506-model-badge[data-ready="1"]{
+  border-color:#ccebd9;
+  background:#f3fbf6;
+  color:#087443;
+}
+html[data-ticket-economics506="1"] #ticketIntelView .td506-model-badge[data-ready="0"]{
+  border-color:#e4e7ec;
+  background:#f9fafb;
+  color:#667085;
+}
+
+html[data-ticket-economics506="1"] #ticketIntelView .td331-stat[data-econ506="actual"]{
+  box-shadow:inset 0 0 0 1px rgba(7,148,71,.05)!important;
+}
+html[data-ticket-economics506="1"] #ticketIntelView .td331-stat[data-econ506="partial"]{
+  box-shadow:inset 0 0 0 1px rgba(245,158,11,.05)!important;
+}
+
+@media(max-width:1180px){
+  html[data-ticket-economics506="1"] #ticketIntelView .td506-model-badge{display:none!important}
+}
+
+@media(max-width:620px){
+  html[data-ticket-economics506="1"] #ticketIntelView .td506-econ-line{
+    white-space:normal;
+    font-size:7.5px!important;
+  }
+}
