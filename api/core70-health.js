@@ -1,12 +1,16 @@
 import {decorateLedgerSelection,ledgerSummary,publicLedger} from '../lib/bet-ledger.js';
 import {resolveAutoBettingModels} from '../lib/auto-betting-model.js';
+import {canonicalChanceLeague} from '../lib/chance-football-data-model.js';
+import {footballDataLeague} from '../lib/football-data-poisson.js';
 
 const PULSE_BASE='https://api.pulsescore.net/api/chance';
+const DISCOVERY_PAGE_LIMIT=30;
+const DISCOVERY_BATCH_SIZE=6;
 
-function json(res,status,body){
+function json(res,status,body,cache=false){
  res.statusCode=status;
  res.setHeader('content-type','application/json; charset=utf-8');
- res.setHeader('cache-control','no-store');
+ res.setHeader('cache-control',cache?'public, s-maxage=300, stale-while-revalidate=600':'no-store');
  res.end(JSON.stringify(body));
 }
 
@@ -187,6 +191,72 @@ function applyFilters(events,url,{futureOnly=true,autoModel=null}={}){
  }).filter(event=>event.markets.length>0);
 }
 
+function supportedChanceLeague(value){
+ const canonical=canonicalChanceLeague(value);
+ return footballDataLeague(canonical);
+}
+
+async function fetchChanceDiscoveryPage(page,key){
+ const target=`${PULSE_BASE}/soccer/events?page=${page}&limit=${DISCOVERY_PAGE_LIMIT}`;
+ const response=await fetch(target,{headers:{'X-Secret':key,'Accept':'application/json'}});
+ const text=await response.text();
+ let payload;
+ try{payload=JSON.parse(text)}catch{payload={}}
+ if(!response.ok)throw new Error(`PULSESCORE_${response.status}`);
+ return {page,payload,events:sourceEvents(payload)};
+}
+
+function summarizeChanceDiscoveryPage(item,now,until){
+ const leagues=new Set();
+ let supportedEvents=0;
+ for(const event of item.events){
+  const ts=Date.parse(event?.startTime??event?.startsAt??event?.start??'');
+  if(!Number.isFinite(ts)||ts<=now||ts>until)continue;
+  const leagueName=event?.league??event?.competition??event?.tournament??'';
+  const league=supportedChanceLeague(leagueName);
+  if(!league)continue;
+  supportedEvents+=1;
+  leagues.add(`${league.code}:${league.name}`);
+ }
+ return {page:item.page,supportedEvents,leagues:[...leagues].sort()};
+}
+
+async function chancePageDiscovery(res,url){
+ const key=process.env.PULSESCORE_API_KEY;
+ if(!key)return json(res,503,{ok:false,error:'PULSESCORE_NOT_CONFIGURED'});
+ const days=clampInt(url.searchParams.get('days'),5,1,14);
+ const maxPages=clampInt(url.searchParams.get('maxPages'),40,1,60);
+ const now=Date.now();
+ const until=now+days*86400000;
+ try{
+  const first=await fetchChanceDiscoveryPage(1,key);
+  const totalPages=Math.min(maxPages,clampInt(first.payload?.totalPages,1,1,maxPages));
+  const items=[first];
+  for(let start=2;start<=totalPages;start+=DISCOVERY_BATCH_SIZE){
+   const pages=[];
+   for(let page=start;page<Math.min(start+DISCOVERY_BATCH_SIZE,totalPages+1);page+=1)pages.push(page);
+   const batch=await Promise.all(pages.map(page=>fetchChanceDiscoveryPage(page,key)));
+   items.push(...batch);
+  }
+  const summaries=items.map(item=>summarizeChanceDiscoveryPage(item,now,until)).filter(item=>item.supportedEvents>0).sort((a,b)=>a.page-b.page);
+  return json(res,200,{
+   ok:true,
+   provider:'pulsescore',
+   bookmaker:'chance',
+   sport:'soccer',
+   mode:'page-discovery',
+   days,
+   fetchedAt:new Date().toISOString(),
+   totalPages:Number(first.payload?.totalPages||totalPages),
+   scannedPages:items.length,
+   relevantPages:summaries.length,
+   pages:summaries
+  },true);
+ }catch(error){
+  return json(res,502,{ok:false,error:'CHANCE_PAGE_DISCOVERY_FAILED',message:String(error?.message||error)});
+ }
+}
+
 async function chanceProxy(req,res,url){
  const key=process.env.PULSESCORE_API_KEY;
  if(!key)return json(res,503,{ok:false,error:'PULSESCORE_NOT_CONFIGURED'});
@@ -258,12 +328,13 @@ export default async function handler(req,res){
  if(req.method!=='GET')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
  const url=requestUrl(req);
  const source=String(url.searchParams.get('source')||'').toLowerCase();
+ if(source==='chance_pages')return chancePageDiscovery(res,url);
  if(source==='chance')return chanceProxy(req,res,url);
- if(source==='ledger')return json(res,200,{ok:true,version:'70.9-poisson',ledger:ledgerSummary(),bets:publicLedger()});
+ if(source==='ledger')return json(res,200,{ok:true,version:'70.10-discovery',ledger:ledgerSummary(),bets:publicLedger()});
  const viagogo=!!(process.env.VIAGOGO_CLIENT_ID&&process.env.VIAGOGO_CLIENT_SECRET);
  const gmail=!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET&&process.env.GOOGLE_REFRESH_TOKEN);
  const pulsescore=!!process.env.PULSESCORE_API_KEY;
  const apiFootball=!!(process.env.API_FOOTBALL_KEY||process.env.API_SPORTS_KEY);
  const fmd=!!process.env.FMD_API_KEY;
- return json(res,200,{ok:true,version:'70.9-poisson',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulsescore,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},ledger:ledgerSummary()});
+ return json(res,200,{ok:true,version:'70.10-discovery',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulsescore,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},ledger:ledgerSummary()});
 }
