@@ -1,4 +1,5 @@
 import {decorateLedgerSelection,ledgerSummary,publicLedger} from '../lib/bet-ledger.js';
+import {resolveApiFootballModels} from '../lib/api-football-model.js';
 
 const PULSE_BASE='https://api.pulsescore.net/api/chance';
 
@@ -87,20 +88,28 @@ function modelProbabilities(url){
  return map;
 }
 
-function valueConfig(url){
+function valueConfig(url,autoModel=null){
+ const manual=modelProbabilities(url);
+ const probabilities=new Map(autoModel?.probabilities||[]);
+ const sources=new Map();
+ for(const id of probabilities.keys())sources.set(String(id),'api-football');
+ const manualSource=String(url.searchParams.get('modelSource')||'external').trim()||'external';
+ for(const [id,p] of manual){probabilities.set(String(id),p);sources.set(String(id),manualSource)}
  return {
   enabled:url.searchParams.get('value')==='1',
   minEv:num(url.searchParams.get('minEv'),0.05),
   minEdgePp:num(url.searchParams.get('minEdgePp'),4),
   betsOnly:url.searchParams.get('betsOnly')==='1',
-  modelSource:String(url.searchParams.get('modelSource')||'external').trim()||'external',
-  probabilities:modelProbabilities(url)
+  manualProbabilities:manual,
+  probabilities,
+  sources
  };
 }
 
 function decorateSelection(selection,config){
  const implied=1/selection.odds;
- const modelProbability=config.probabilities.get(String(selection.id))??null;
+ const id=String(selection.id);
+ const modelProbability=config.probabilities.get(id)??null;
  const fairOdds=modelProbability===null?null:1/modelProbability;
  const edgePp=modelProbability===null?null:(modelProbability-implied)*100;
  const ev=modelProbability===null?null:modelProbability*selection.odds-1;
@@ -114,29 +123,41 @@ function decorateSelection(selection,config){
   ev:ev===null?null:round(ev,4),
   evPct:ev===null?null:round(ev*100,2),
   decision,
-  modelSource:modelProbability===null?null:config.modelSource
+  modelSource:modelProbability===null?null:(config.sources.get(id)||'external')
  };
 }
 
-function applyFilters(events,url,{futureOnly=true}={}){
+function eventPassesBaseFilters(event,url,{futureOnly=true}={}){
  const eventQ=String(url.searchParams.get('event')||'').trim().toLowerCase();
+ const days=clampInt(url.searchParams.get('days'),0,0,31);
+ const now=Date.now();
+ const until=days?now+days*86400000:null;
+ const ts=Date.parse(event.startTime||'');
+ if(futureOnly&&(!Number.isFinite(ts)||ts<=now))return false;
+ if(days&&(!Number.isFinite(ts)||ts>until))return false;
+ if(eventQ&&!`${event.home||''} ${event.away||''} ${event.league||''}`.toLowerCase().includes(eventQ))return false;
+ return true;
+}
+
+function autoModelCandidates(events,url,{futureOnly=true}={}){
+ const minOdds=num(url.searchParams.get('minOdds'));
+ const maxOdds=num(url.searchParams.get('maxOdds'));
+ return events.map(compactEvent).filter(event=>eventPassesBaseFilters(event,url,{futureOnly})).filter(event=>{
+  const market=event.markets.find(item=>String(item.type||'').toUpperCase()==='MATCH_RESULT'&&String(item.period||'').toUpperCase()==='FULL_TIME');
+  if(!market)return false;
+  return market.selections.some(selection=>(minOdds===null||selection.odds>=minOdds)&&(maxOdds===null||selection.odds<=maxOdds));
+ });
+}
+
+function applyFilters(events,url,{futureOnly=true,autoModel=null}={}){
  const marketQ=String(url.searchParams.get('market')||'').trim().toLowerCase();
  const minOdds=num(url.searchParams.get('minOdds'));
  const maxOdds=num(url.searchParams.get('maxOdds'));
- const days=clampInt(url.searchParams.get('days'),0,0,31);
  const useMain=url.searchParams.get('main')==='1';
  const maxMarkets=clampInt(url.searchParams.get('maxMarkets'),20,1,50);
- const value=valueConfig(url);
- const now=Date.now();
- const until=days?now+days*86400000:null;
+ const value=valueConfig(url,autoModel);
 
- return events.map(compactEvent).filter(event=>{
-  const ts=Date.parse(event.startTime||'');
-  if(futureOnly&&(!Number.isFinite(ts)||ts<=now))return false;
-  if(days&&(!Number.isFinite(ts)||ts>until))return false;
-  if(eventQ&&!`${event.home||''} ${event.away||''} ${event.league||''}`.toLowerCase().includes(eventQ))return false;
-  return true;
- }).map(event=>{
+ return events.map(compactEvent).filter(event=>eventPassesBaseFilters(event,url,{futureOnly})).map(event=>{
   let markets=event.markets.filter(market=>{
    if(marketQ&&!`${market.type||''} ${market.name||''}`.toLowerCase().includes(marketQ))return false;
    market.selections=market.selections.filter(selection=>(minOdds===null||selection.odds>=minOdds)&&(maxOdds===null||selection.odds<=maxOdds));
@@ -162,7 +183,6 @@ async function chanceProxy(req,res,url){
  const page=clampInt(url.searchParams.get('page'),1,1,10000);
  const limit=clampInt(url.searchParams.get('limit'),100,1,100);
  const compact=url.searchParams.get('compact')!=='0';
- const value=valueConfig(url);
  const target=mode==='live'?`${PULSE_BASE}/live-events?sport=${encodeURIComponent(sport)}`:`${PULSE_BASE}/${encodeURIComponent(sport)}/events?page=${page}&limit=${limit}`;
  try{
   const upstream=await fetch(target,{headers:{'X-Secret':key,'Accept':'application/json'}});
@@ -171,7 +191,15 @@ async function chanceProxy(req,res,url){
   try{payload=JSON.parse(text)}catch{payload={raw:text.slice(0,4000)}}
   if(!upstream.ok)return json(res,upstream.status,{ok:false,error:'PULSESCORE_UPSTREAM_ERROR',status:upstream.status,target,details:payload});
   const rawEvents=sourceEvents(payload);
-  const events=applyFilters(rawEvents,url,{futureOnly:mode!=='live'});
+  const autoRequested=url.searchParams.get('autoModel')==='1'&&url.searchParams.get('value')==='1'&&sport==='soccer'&&mode!=='live';
+  const apiFootballKey=process.env.API_FOOTBALL_KEY||process.env.API_SPORTS_KEY||'';
+  let autoModel={probabilities:new Map(),meta:{requested:autoRequested,provider:'api-football',configured:!!apiFootballKey,limit:clampInt(url.searchParams.get('autoModelLimit'),3,1,10),candidateEvents:0,matchedEvents:0,modeledEvents:0,modeledSelections:0,apiRequests:0,cacheHits:0,rateRemainingDaily:null,rateRemainingMinute:null,errors:[],matches:[]}};
+  if(autoRequested){
+   const candidates=autoModelCandidates(rawEvents,url,{futureOnly:true});
+   autoModel=await resolveApiFootballModels(candidates,{apiKey:apiFootballKey,limit:clampInt(url.searchParams.get('autoModelLimit'),3,1,10)});
+  }
+  const events=applyFilters(rawEvents,url,{futureOnly:mode!=='live',autoModel});
+  const value=valueConfig(url,autoModel);
   const base={
    ok:true,
    provider:'pulsescore',
@@ -190,14 +218,17 @@ async function chanceProxy(req,res,url){
    ledger:ledgerSummary()
   };
   if(value.enabled){
+   const fmd=!!process.env.FMD_API_KEY;
    base.value={
     minEv:value.minEv,
     minEvPct:round(value.minEv*100,2),
     minEdgePp:value.minEdgePp,
     betsOnly:value.betsOnly,
-    suppliedModelProbabilities:value.probabilities.size,
-    modelProviderConfigured:!!process.env.FMD_API_KEY,
-    modelProvider:process.env.FMD_API_KEY?'fmd_key_present_not_wired':'none',
+    suppliedModelProbabilities:value.manualProbabilities.size,
+    automaticModelProbabilities:autoModel.probabilities.size,
+    modelProviderConfigured:!!apiFootballKey||fmd,
+    modelProvider:apiFootballKey?'api-football':fmd?'fmd_key_present_not_wired':'none',
+    autoModel:autoModel.meta,
     rule:'BET requires an independent model probability; bookmaker implied probability is never used as the model. Locked selections are excluded from new BET recommendations.'
    };
   }
@@ -212,10 +243,11 @@ export default async function handler(req,res){
  const url=requestUrl(req);
  const source=String(url.searchParams.get('source')||'').toLowerCase();
  if(source==='chance')return chanceProxy(req,res,url);
- if(source==='ledger')return json(res,200,{ok:true,version:'70.7-ledger',ledger:ledgerSummary(),bets:publicLedger()});
+ if(source==='ledger')return json(res,200,{ok:true,version:'70.8-auto-model',ledger:ledgerSummary(),bets:publicLedger()});
  const viagogo=!!(process.env.VIAGOGO_CLIENT_ID&&process.env.VIAGOGO_CLIENT_SECRET);
  const gmail=!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET&&process.env.GOOGLE_REFRESH_TOKEN);
  const pulsescore=!!process.env.PULSESCORE_API_KEY;
+ const apiFootball=!!(process.env.API_FOOTBALL_KEY||process.env.API_SPORTS_KEY);
  const fmd=!!process.env.FMD_API_KEY;
- return json(res,200,{ok:true,version:'70.7-ledger',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulsescore,fmd_api_key:fmd},ledger:ledgerSummary()});
+ return json(res,200,{ok:true,version:'70.8-auto-model',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulsescore,api_football_key:apiFootball,fmd_api_key:fmd},ledger:ledgerSummary()});
 }
