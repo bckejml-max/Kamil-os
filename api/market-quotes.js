@@ -10,10 +10,15 @@ async function fetchQuote(symbol){
 }
 function clampInt(value,fallback,min,max){const n=Number.parseInt(String(value??''),10);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):fallback}
 function cleanSport(value){const sport=String(value||'soccer').trim().toLowerCase();return /^[a-z0-9-]+$/.test(sport)?sport:'soccer'}
-function cleanChancePayload(payload){
- if(!payload||typeof payload!=='object')return payload;
- const events=Array.isArray(payload.events)?payload.events:null;if(!events)return payload;
- return {...payload,events:events.map(event=>({...event,markets:Array.isArray(event.markets)?event.markets.filter(m=>m?.isActive!==false).map(m=>({...m,selections:Array.isArray(m.selections)?m.selections.filter(s=>s?.isActive!==false&&Number(s?.odds)>1):m.selections})).filter(m=>!Array.isArray(m.selections)||m.selections.length):event.markets}))};
+function normalizeChanceEvents(payload){
+ const source=Array.isArray(payload)?payload:Array.isArray(payload?.events)?payload.events:Array.isArray(payload?.data)?payload.data:[];
+ return source.map(event=>({
+  ...event,
+  markets:Array.isArray(event?.markets)?event.markets.map(market=>({
+   ...market,
+   selections:Array.isArray(market?.selections)?market.selections.filter(selection=>Number(selection?.decimal)>1):[]
+  })).filter(market=>market.selections.length):[]
+ })).filter(event=>event.markets.length);
 }
 async function chanceOdds(req,res,url){
  res.setHeader('Cache-Control','no-store');
@@ -23,13 +28,16 @@ async function chanceOdds(req,res,url){
  const mode=String(url.searchParams.get('mode')||'prematch').toLowerCase();
  const page=clampInt(url.searchParams.get('page'),1,1,10000);
  const limit=clampInt(url.searchParams.get('limit'),100,1,100);
- const target=mode==='live'?`${PULSE_BASE}/live-events?sport=${encodeURIComponent(sport)}&page=${page}&limit=${limit}`:`${PULSE_BASE}/${encodeURIComponent(sport)}/events?page=${page}&limit=${limit}`;
+ const sportPrefix=sport==='soccer'?'':`/${encodeURIComponent(sport)}`;
+ const target=mode==='live'
+  ?`${PULSE_BASE}/live-events?sport=${encodeURIComponent(sport)}`
+  :`${PULSE_BASE}${sportPrefix}/events?page=${page}&limit=${limit}`;
  try{
   const upstream=await fetch(target,{headers:{'X-Secret':apiKey,'Accept':'application/json'}});
   const text=await upstream.text();let payload;try{payload=JSON.parse(text)}catch{payload={raw:text.slice(0,2000)}}
   if(!upstream.ok)return res.status(upstream.status>=400&&upstream.status<600?upstream.status:502).json({ok:false,error:'PULSESCORE_UPSTREAM_ERROR',status:upstream.status,details:payload});
-  const cleaned=cleanChancePayload(payload);
-  return res.status(200).json({ok:true,provider:'pulsescore',bookmaker:'chance',sport,mode,fetchedAt:new Date().toISOString(),...cleaned});
+  const events=normalizeChanceEvents(payload);
+  return res.status(200).json({ok:true,provider:'pulsescore',bookmaker:'chance',sport,mode,fetchedAt:new Date().toISOString(),eventCount:events.length,events});
  }catch(error){return res.status(502).json({ok:false,error:'PULSESCORE_FETCH_FAILED',message:String(error?.message||error).slice(0,300)})}
 }
 export default async function handler(req,res){
