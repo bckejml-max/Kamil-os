@@ -5,14 +5,18 @@ import {isPersonalScope527} from './personalScope527.js';
 
 const todayStart=()=>{const d=new Date();d.setHours(0,0,0,0);return d.getTime()};
 const at=x=>Date.parse(x?.completedAt||x?.at||x?.createdAt||x?.updatedAt||'');
-const personalText=x=>String(x?.reason||x?.title||x?.action||x?.name||'');
+const personalText=x=>String(x?.reason||x?.label||x?.title||x?.action||x?.name||'');
 const doneToday=s=>{
  const ids=new Set();
  for(const x of [...(s.tasks||[]),...(s.personalAdmin?.items||[]),...(s.delegations||[])]){
   const t=at(x);if(String(x?.status||'').toUpperCase()==='DONE'&&Number.isFinite(t)&&t>=todayStart()&&isPersonalScope527(x))ids.add(String(x.id||x.title||x.name));
  }
  for(const x of (s.audit||[])){
-  const t=at(x),txt=personalText(x);if(Number.isFinite(t)&&t>=todayStart()&&isPersonalScope527(x)&&/dokončen|hotovo|uzavřen/i.test(txt))ids.add(`audit:${txt}`);
+  const t=at(x),txt=personalText(x);
+  if(!Number.isFinite(t)||t<todayStart()||!isPersonalScope527(x)||!/dokončen|hotovo|uzavřen/i.test(txt))continue;
+  // Entity-backed completions are already counted from tasks/admin/waiting above.
+  if(/^Dokončena osobní věc:/i.test(txt))continue;
+  ids.add(`audit:${txt}`);
  }
  return ids.size;
 };
