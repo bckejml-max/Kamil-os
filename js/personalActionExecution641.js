@@ -11,9 +11,25 @@ const findAdmin=(s,id)=>Array.isArray(s.personalAdmin?.items)?s.personalAdmin.it
 const findWaiting=(s,id)=>Array.isArray(s.delegations)?s.delegations.find(x=>String(x.id||x.title)===String(id)):null;
 const updated224=(result,action)=>{if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('kamil:personal-action-updated',{detail:{result,actionId:action?.id||null,title:action?.title||null,at:Date.now()}}));return result};
 
+function releaseWaitingSource641(s,waiting,at){
+ if(!waiting?.sourceId||!['task','admin'].includes(String(waiting.sourceKind||'')))return false;
+ const source=waiting.sourceKind==='task'?findTask(s,waiting.sourceId):findAdmin(s,waiting.sourceId);
+ if(!source)return false;
+ source.waitingFor=false;
+ if(source.followUpAt&&String(source.followUpAt)===String(waiting.followUpAt||''))source.followUpAt=null;
+ source.updatedAt=at;
+ return true;
+}
+
 export function completePersonalAction641(action){
  if(!action?.id)return false;const [kind,rawId]=splitId(action.id);if(kind==='vault')return !!confirmVaultRecord640(rawId);let changed=false;
- store.mutate(`Dokončena osobní věc: ${action.title||rawId}`,s=>{const x=kind==='task'?findTask(s,rawId):kind==='admin'?findAdmin(s,rawId):kind==='waiting'?findWaiting(s,rawId):null;if(x){x.status='DONE';x.completedAt=now();changed=true}},{undo:true,cloud:true,audit:true});return changed;
+ store.mutate(`Dokončena osobní věc: ${action.title||rawId}`,s=>{
+  const x=kind==='task'?findTask(s,rawId):kind==='admin'?findAdmin(s,rawId):kind==='waiting'?findWaiting(s,rawId):null;
+  if(!x)return;
+  const at=now();x.status='DONE';x.completedAt=at;x.updatedAt=at;
+  if(kind==='waiting'){x.resolvedAt=at;releaseWaitingSource641(s,x,at)}
+  changed=true;
+ },{undo:true,cloud:true,audit:true});return changed;
 }
 
 function prepareCalendarAction641(action){let created=null;const sourceEventId=String(action.id||action.title||'calendar').replace(/^calendar:/,'');store.mutate(`Přidána příprava: ${action.title}`,s=>{s.tasks=Array.isArray(s.tasks)?s.tasks:[];const existing=s.tasks.find(x=>String(x.sourceEventId||'')===sourceEventId&&String(x.status||'OPEN').toUpperCase()!=='DONE');if(existing){created=existing;return}created={id:uid('family-prep'),title:`Připravit: ${action.title||'rodinná událost'}`,status:'OPEN',category:'Rodina',area:'Rodina',due:new Date().toISOString(),sourceEventId,createdAt:now()};s.tasks.push(created)},{undo:true,cloud:true,audit:true});return created}
