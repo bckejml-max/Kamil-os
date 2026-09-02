@@ -10,36 +10,39 @@ import {ASSET_KINDS,INBOX_KINDS,INBOX_SOURCES} from './autopilot28.js';
 import {GOAL_TYPES} from './personalPlus29.js';
 import {personalQuery} from './personalQuery29.js';
 import {buildCommandWriteProposal32,applyCommandWriteProposal32,copilotWrite32Contract} from './copilotWrite32.js';
+import {isPersonalScope527} from './personalScope527.js';
 
-const navigateFromTarget=(target,homeMode=null)=>{if(target==='home'){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'home'}));queueMicrotask(()=>window.dispatchEvent(new CustomEvent('kamil:home-open',{detail:homeMode||'dashboard'})))}else window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}))};
+const navigateFromTarget=(target,homeMode=null)=>{if(target==='home'){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'home'}));if(homeMode)queueMicrotask(()=>window.dispatchEvent(new CustomEvent('kamil:home-open',{detail:homeMode})))}else window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}))};
 const openResult=x=>navigateFromTarget(x?.target,x?.homeMode);
 const cmdFingerprints=new Map();
 function once(key,fn){const now=Date.now(),last=cmdFingerprints.get(key)||0;if(now-last<800)return false;cmdFingerprints.set(key,now);fn();return true}
 const S=()=>store.get();
-const personalTask=t=>String(t?.area||'').toLocaleLowerCase('cs-CZ').includes('osob');
-const active=x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED';
+const CLOSED=new Set(['HOTOVO','DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED']);
+const active=x=>!CLOSED.has(String(x?.status||x?.workflow||'ACTIVE').toUpperCase());
+const personalTask=isPersonalScope527;
+const taskTarget=t=>{const area=norm(t?.area||t?.category||'');if(area.includes('rodin'))return'family';if(area.includes('domov')||area==='home')return'home';if(area.includes('peniz')||area.includes('finance')||area==='money')return'money';if(area.includes('dokument'))return'more';return'today'};
 const homeModeFor=x=>x.category==='INSURANCE'?'insurance':x.category==='DOCUMENT'?'documents':x.category==='VEHICLE'?'car':x.category==='FAMILY'?'family':['HOME','UTILITY'].includes(x.category)?'house':['SUBSCRIPTION','LOAN','FEE'].includes(x.category)?'contracts':x.category==='PAYMENT'?'payments':'contracts';
 const WRITE_TYPES=new Set(copilotWrite32Contract.knownWriteTypes);
 
 export function search(q){
  q=norm(q);if(!q)return[];const out=[],add=(kind,title,detail,target,id,extra={})=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,...extra})};
- for(const t of S().tasks||[])if(t.status!=='HOTOVO'&&personalTask(t))add('Osobní úkol',t.title,t.area||'Osobní','today',t.id);
+ for(const t of S().tasks||[])if(active(t)&&personalTask(t))add('Osobní úkol',t.title||t.name||'Úkol',t.area||t.category||'Osobní',taskTarget(t),t.id);
  for(const x of S().personalAdmin?.items||[]){if(!active(x))continue;const cat=PERSONAL_CATEGORIES[x.category]||PERSONAL_CATEGORIES.OTHER,ins=x.insurance||{},doc=x.document||{};const detail=[cat,x.provider,x.notes,ins.insured,INSURANCE_KINDS[ins.kind],doc.holder,DOCUMENT_KINDS[doc.kind],doc.issuer].filter(Boolean).join(' · ');add(cat,x.title||cat,detail,'home',x.id,{homeMode:homeModeFor(x)})}
- for(const m of S().familyHome?.members||[])if(active(m))add('Rodina',m.name,[FAMILY_RELATIONS[m.relation]||'',m.notes||''].filter(Boolean).join(' · '),'home',m.id,{homeMode:'family'});
+ for(const m of S().familyHome?.members||[])if(active(m))add('Rodina',m.name,[FAMILY_RELATIONS[m.relation]||'',m.notes||''].filter(Boolean).join(' · '),'family',m.id);
  for(const x of S().emergencyFile?.contacts||[])if(active(x))add('Nouzový kontakt',x.name||'Kontakt',EMERGENCY_CONTACT_ROLES[x.role]||EMERGENCY_CONTACT_ROLES.OTHER,'home',x.id,{homeMode:'dashboard'});
  for(const x of S().emergencyFile?.assets||[])if(active(x))add('Emergency File',x.title||'Nouzová položka',EMERGENCY_ASSET_KINDS[x.kind]||EMERGENCY_ASSET_KINDS.OTHER,'home',x.id,{homeMode:'dashboard'});
  for(const x of S().assetBook?.items||[])if(active(x))add('Majetek',x.title||'Majetek',ASSET_KINDS[x.kind]||ASSET_KINDS.OTHER,'home',x.id,{homeMode:'dashboard'});
  for(const x of S().personalGoals?.items||[])if(active(x))add('Cíl / fond',x.title||'Cíl',[GOAL_TYPES[x.type]||GOAL_TYPES.OTHER,x.targetDate||'',x.currency||'CZK'].filter(Boolean).join(' · '),'money',x.id);
- for(const x of S().personalInbox?.items||[])if(String(x.status||'NEW').toUpperCase()==='NEW')add('Personal Inbox',x.title||'Inbox',`${INBOX_SOURCES[x.source]||INBOX_SOURCES.OTHER} · ${INBOX_KINDS[x.kind]||INBOX_KINDS.OTHER}`,'today',x.id);
- for(const x of S().ticketBook?.items||[])add('Vstupenka',x.name,`${x.qty||1} ks`,'tickets',x.id);
- for(const x of S().debtBook?.items||[])if(x.status!=='PAID')add('Pohledávka',x.person||x.reason||'Pohledávka',`${money(debtRemaining(x))}`,'money',x.id);
+ for(const x of S().personalInbox?.items||[])if(String(x.status||'NEW').toUpperCase()==='NEW')add('Personal Inbox',x.title||'Inbox',`${INBOX_SOURCES[x.source]||INBOX_SOURCES.OTHER} · ${INBOX_KINDS[x.kind]||INBOX_KINDS.OTHER}`,'inbox',x.id);
+ for(const x of S().ticketBook?.items||[])add('Vstupenka',x.name||x.eventName||'Vstupenka',`${x.qty||1} ks`,'tickets',x.id);
+ for(const x of S().debtBook?.items||[])if(String(x.status||'').toUpperCase()!=='PAID')add('Pohledávka',x.person||x.reason||'Pohledávka',`${money(debtRemaining(x))}`,'money',x.id);
  for(const a of Object.values(S().xtbHub?.accounts||{}))for(const p of a?.positions||[])add('XTB',p.ticker||p.name||'Pozice',[p.name,p.category,a.currency].filter(Boolean).join(' · '),'money',p.ticker||p.name);
  return out.slice(0,15);
 }
 
 export function parse(raw){
  const t=String(raw||'').trim(),n=norm(t);if(!n)return{type:'empty'};
- const nav={'ukaž domov':['home','dashboard'],'ukaz domov':['home','dashboard'],'ukaž domácnost':['home','house'],'ukaz domacnost':['home','house'],'ukaž dům':['home','house'],'ukaz dum':['home','house'],'ukaž platby':['home','payments'],'ukaz platby':['home','payments'],'ukaž pojištění':['home','insurance'],'ukaz pojisteni':['home','insurance'],'ukaž smlouvy':['home','contracts'],'ukaz smlouvy':['home','contracts'],'ukaž doklady':['home','documents'],'ukaz doklady':['home','documents'],'ukaž auto':['home','car'],'ukaz auto':['home','car'],'ukaž rodinu':['home','family'],'ukaz rodinu':['home','family'],'ukaž rizika':['home','risk'],'ukaz rizika':['home','risk'],'ukaž emergency file':['home','dashboard'],'ukaz emergency file':['home','dashboard'],'ukaž nouzový přehled':['home','dashboard'],'ukaz nouzovy prehled':['home','dashboard'],'ukaž termíny':['home','timeline'],'ukaz terminy':['home','timeline'],'ukaž vstupenky':['tickets',null],'ukaz vstupenky':['tickets',null],'ukaž peníze':['money',null],'ukaz penize':['money',null],'ukaž pohledávky':['money',null],'ukaz pohledavky':['money',null],'ukaž cíle':['money',null],'ukaz cile':['money',null]};
+ const nav={'ukaž dnes':['today',null],'ukaz dnes':['today',null],'ukaž inbox':['inbox',null],'ukaz inbox':['inbox',null],'ukaž domov':['home',null],'ukaz domov':['home',null],'ukaž domácnost':['home',null],'ukaz domacnost':['home',null],'ukaž dům':['home',null],'ukaz dum':['home',null],'ukaž platby':['home','payments'],'ukaz platby':['home','payments'],'ukaž pojištění':['home','insurance'],'ukaz pojisteni':['home','insurance'],'ukaž smlouvy':['more',null],'ukaz smlouvy':['more',null],'ukaž doklady':['more',null],'ukaz doklady':['more',null],'ukaž dokumenty':['more',null],'ukaz dokumenty':['more',null],'ukaž auto':['home','car'],'ukaz auto':['home','car'],'ukaž rodinu':['family',null],'ukaz rodinu':['family',null],'ukaž rizika':['home','risk'],'ukaz rizika':['home','risk'],'ukaž emergency file':['home','dashboard'],'ukaz emergency file':['home','dashboard'],'ukaž nouzový přehled':['home','dashboard'],'ukaz nouzovy prehled':['home','dashboard'],'ukaž termíny':['family',null],'ukaz terminy':['family',null],'ukaž vstupenky':['tickets',null],'ukaz vstupenky':['tickets',null],'ukaž sázení':['betting',null],'ukaz sazeni':['betting',null],'ukaž peníze':['money',null],'ukaz penize':['money',null],'ukaž pohledávky':['money',null],'ukaz pohledavky':['money',null],'ukaž cíle':['money',null],'ukaz cile':['money',null]};
  if(nav[n])return{type:'nav',target:nav[n][0],homeMode:nav[n][1]};
  let m=n.match(/^(.+?)\s+spl[aá]tka\s+([\d\s.,]+)$/);if(m)return{type:'payment',person:m[1],amount:Number(m[2].replace(/\s/g,'').replace(',','.'))};
  m=n.match(/^(.+?)\s+prod[aá]no$/);if(m)return{type:'sold',name:m[1]};
@@ -69,6 +72,6 @@ export function execute(raw){
  if(WRITE_TYPES.has(c.type)){confirmKnownWrite(c);return}
  const answer=personalQuery(c.text,S(),store.meta(),new Date());if(answer){window.dispatchEvent(new CustomEvent('kamil:copilot-answer',{detail:answer}));return}
  const found=search(c.text);if(found.length===1){openResult(found[0]);return}if(found.length>1){renderResults(c.text);toast('Našel jsem více osobních výsledků – vyber správný.');return}
- modal('Náhled změny',`<p><b>Vytvořit osobní úkol:</b> ${h(c.text)}</p><p class="muted">Příkazu nerozumím jako známé akci. Nic jsem nezapsal. Pokud potvrzuješ, vytvořím pouze tento osobní úkol.</p>`,[{label:'Zrušit',value:false},{label:'Potvrdit vytvoření úkolu',value:true,primary:true}]).then(ok=>{if(!ok)return;once(`unknown-task|${norm(c.text)}`,()=>store.mutate('Přidán osobní úkol z Command Baru',s=>s.tasks.unshift({id:uid('task'),title:c.text,status:'UDĚLAT',priority:'NORMAL',area:'Osobní',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})));toast('Osobní úkol přidán')});
+ modal('Náhled změny',`<p><b>Vytvořit osobní úkol:</b> ${h(c.text)}</p><p class="muted">Příkazu nerozumím jako známé akci. Nic jsem nezapsal. Pokud potvrzuješ, vytvořím pouze tento osobní úkol.</p>`,[{label:'Zrušit',value:false},{label:'Potvrdit vytvoření úkolu',value:true,primary:true}]).then(ok=>{if(!ok)return;once(`unknown-task|${norm(c.text)}`,()=>store.mutate('Přidán osobní úkol z Command Baru',s=>s.tasks.unshift({id:uid('task'),title:c.text,status:'OPEN',priority:'NORMAL',area:'Osobní',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})));toast('Osobní úkol přidán')});
 }
 export function renderResults(q){const box=qs('#commandResults');if(!q.trim()){box.classList.add('hidden');box.innerHTML='';return}const answer=personalQuery(q,S(),store.meta(),new Date());if(answer){box.classList.remove('hidden');box.innerHTML=`<div class="search-row"><div><b>${h(answer.title)}</b><div class="muted">Osobní copilot · odpověď z uložených dat</div></div><button class="btn" id="commandCopilot29">Zobrazit</button></div>`;qs('#commandCopilot29',box)?.addEventListener('click',()=>{window.dispatchEvent(new CustomEvent('kamil:copilot-answer',{detail:answer}));box.classList.add('hidden')});return}const a=search(q);if(!a.length){box.classList.add('hidden');box.innerHTML='';return}box.classList.remove('hidden');box.innerHTML=a.map((x,i)=>`<div class="search-row"><div><b>${h(x.title)}</b><div class="muted">${h(x.kind)} · ${h(x.detail||'')}</div></div><button class="btn" data-search="${i}">Otevřít</button></div>`).join('');qsa('[data-search]',box).forEach(b=>b.onclick=()=>{openResult(a[Number(b.dataset.search)]);box.classList.add('hidden')})}
