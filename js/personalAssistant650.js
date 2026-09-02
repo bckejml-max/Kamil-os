@@ -2,12 +2,12 @@ import {store} from './state.js';
 import {personalVault640} from './personalVault640.js';
 import {personalActions640} from './personalActions640.js';
 import {personalDaysTo650} from './personalDate650.js';
+import {isPersonalScope527} from './personalScope527.js';
 
 const DAY=86400000;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED']);
-const WORK_RE=/zak[aá]zk|faktur|dodavat|cest[aá]k|doch[aá]zk|ředitel|reditel|pks|cpi|zbrojov|projektov[aá] karta|pracovn|xtb|ticket|vstupenk/i;
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-const personal=x=>!WORK_RE.test(`${x?.title||''} ${x?.name||''} ${x?.subject||''} ${x?.category||''} ${x?.area||''} ${x?.project||''}`);
+const personal=isPersonalScope527;
 const open=x=>!CLOSED.has(String(x?.status||x?.workflow||'').toUpperCase());
 const dateOf=x=>x?.due||x?.dueAt||x?.deadline||x?.followUpAt||x?.nextAt||x?.date||x?.start||x?.when||null;
 const daysTo=personalDaysTo650;
@@ -85,6 +85,6 @@ export function personalSearch650(query,s=store.get()){
 }
 
 export function personalWeeklyReset650(s=store.get()){
- const d=personalDailyAssistant650(s),v=personalVault640(s),done=(s.audit||[]).filter(x=>{const t=Date.parse(x.at||x.createdAt||'');return Number.isFinite(t)&&t>=Date.now()-7*DAY&&!WORK_RE.test(String(x.reason||x.title||x.action||''))}).slice(-8).reverse();
+ const d=personalDailyAssistant650(s),v=personalVault640(s),done=(s.audit||[]).filter(x=>{const t=Date.parse(x.at||x.createdAt||'');return Number.isFinite(t)&&t>=Date.now()-7*DAY&&personal(x)}).slice(-8).reverse();
  const stale=v.action.slice(0,5);return{done,next7:d.next7,waiting:d.waiting.slice(0,5),stale,summary:`${done.length} posledních změn · ${d.next7.length} věcí do 7 dní · ${d.waiting.length} čekání`};
 }
