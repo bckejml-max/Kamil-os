@@ -4,7 +4,7 @@ import {personalVaultRecord640,confirmVaultRecord640} from './personalVault640.j
 import {openVaultEdit641,updateVaultRecord641} from './personalVaultEdit641.js';
 
 const n=v=>{const x=Number(String(v??'').replace(',','.').trim());return Number.isFinite(x)?x:null};
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>{const d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
 
 export async function openMoneyRecord645(id){
  const x=personalVaultRecord640(id);if(!x)return null;
