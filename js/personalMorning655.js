@@ -2,10 +2,9 @@ import {store} from './state.js';
 import {modal,h} from './utils.js';
 import {personalDailyAssistant650,personalWaitingCenter650} from './personalAssistant650.js';
 import {personalDaysTo650} from './personalDate650.js';
+import {isPersonalScope527} from './personalScope527.js';
 
-const WORK_RE=/zak[aá]zk|faktur|dodavat|cest[aá]k|doch[aá]zk|ředitel|reditel|pks|cpi|zbrojov|projektov[aá] karta|pracovn|xtb|ticket|vstupenk/i;
-const text=x=>`${x?.title||''} ${x?.name||''} ${x?.summary||''} ${x?.category||''} ${x?.area||''}`;
-const personal=x=>!WORK_RE.test(text(x));
+const personal=isPersonalScope527;
 const title=x=>x.title||x.name||x.summary||'Událost';
 const time=x=>{const t=Date.parse(x.start||x.date||x.when||'');return Number.isFinite(t)?new Date(t).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'}):''};
 
