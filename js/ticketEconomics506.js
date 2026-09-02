@@ -1,7 +1,7 @@
 import {loadTicketCloud660} from './ticketCloud660.js';
 import {buildTicketPayoutLearning192} from './ticketPayoutLearningModel192.js';
 
-const VERSION='506.0.0';
+const VERSION='506.0.1';
 const ACTIVE=new Set(['LISTED','NOT_LISTED']);
 const SOLD=new Set(['SOLD_UNDELIVERED','SOLD_WAITING_PAYMENT','PAYOUT_RECEIVED','PAID']);
 let bound=false;
@@ -43,7 +43,7 @@ function latestFor(row){
 
 function targetEach(row){
   const snap=latestFor(row);
-  return n(row.ask_each_czk)||n(snap?.recommended_ask_czk)||n(snap?.market_price_czk)||n(snap?.stubhub_price_czk)||0;
+  return n(snap?.recommended_ask_czk)||n(row.ask_each_czk)||n(snap?.market_price_czk)||n(snap?.stubhub_price_czk)||0;
 }
 
 function economics(row){
@@ -133,7 +133,7 @@ function decorateSold(el,row,e){
       profitSmall.title='Čistý P/L = skutečně přijatý payout − nákupní cena.';
     }
   }else if(profitSmall){
-    setText(profitSmall,`hrubý P/L · NET čeká na skutečný payout`);
+    setText(profitSmall,'hrubý P/L · NET čeká na skutečný payout');
     profitSmall.classList.add('td506-econ-line');
     profitSmall.classList.remove('td506-good','td506-bad');
     profitSmall.title='Dokud není payout skutečně přijatý, Kamil OS ho nevydává za čistý zisk.';
@@ -182,7 +182,7 @@ function updateProfitKpi(){
     setText(label,'Hrubý zisk');
     if(small){
       if(settled.length)setText(small,`čistý znám ${settled.length}/${sold.length} · ${signed(actualNet)}`);
-      else setText(small,`čistý NET čeká na payouty`);
+      else setText(small,'čistý NET čeká na payouty');
     }
     card.dataset.econ506='partial';
   }
@@ -220,53 +220,23 @@ function paint(){
   document.documentElement.dataset.ticketEconomics506='1';
   const sold=(cloud.inventory||[]).filter(r=>SOLD.has(status(r)));
   const settled=sold.filter(r=>n(r.payout_received_czk)>0);
-  window.__KAMIL_TICKET_ECONOMICS506__={
-    version:VERSION,healthy:true,
-    payoutSamples:learning?.totalSamples||0,
-    knownMarketSamples:learning?.knownMarketSamples||0,
-    sold:sold.length,settled:settled.length,
-    actualNetCzk:settled.reduce((sum,r)=>sum+n(r.payout_received_czk)-(n(r.buy_total_czk)||n(r.buy_each_czk)*qty(r)),0),
-    at:Date.now()
-  };
+  window.__KAMIL_TICKET_ECONOMICS506__={version:VERSION,healthy:true,payoutSamples:learning?.totalSamples||0,knownMarketSamples:learning?.knownMarketSamples||0,sold:sold.length,settled:settled.length,actualNetCzk:settled.reduce((sum,r)=>sum+n(r.payout_received_czk)-(n(r.buy_total_czk)||n(r.buy_each_czk)*qty(r)),0),at:Date.now()};
   window.dispatchEvent(new CustomEvent('kamil:ticket-economics506-updated',{detail:window.__KAMIL_TICKET_ECONOMICS506__}));
   return true;
 }
 
 async function refresh(force=false){
   if(loading&&!force)return loading;
-  loading=(async()=>{
-    try{
-      const next=await loadTicketCloud660();
-      if(!next?.ok)return false;
-      cloud=next;
-      learning=buildTicketPayoutLearning192(next.inventory||[]);
-      return paint();
-    }catch(error){
-      console.warn('[ticketEconomics506]',error);
-      return false;
-    }finally{loading=null}
-  })();
+  loading=(async()=>{try{const next=await loadTicketCloud660();if(!next?.ok)return false;cloud=next;learning=buildTicketPayoutLearning192(next.inventory||[]);return paint()}catch(error){console.warn('[ticketEconomics506]',error);return false}finally{loading=null}})();
   return loading;
 }
-
-function schedule(ms=80,{reload=false}={}){
-  clearTimeout(timer);
-  timer=setTimeout(()=>{timer=0;reload?refresh(true):paint()},ms);
-}
-
+function schedule(ms=80,{reload=false}={}){clearTimeout(timer);timer=setTimeout(()=>{timer=0;reload?refresh(true):paint()},ms)}
 export function installTicketEconomics506(){
   refresh();
   if(bound)return;
   bound=true;
-  for(const event of ['kamil:view-change','kamil:ticket-desk331-updated','kamil:ticket-boot466-updated'])
-    window.addEventListener(event,()=>schedule(100));
-  for(const event of ['kamil:ticket-refresh397-done','kamil:ticket-payout154-updated'])
-    window.addEventListener(event,()=>schedule(80,{reload:true}));
+  for(const event of ['kamil:view-change','kamil:ticket-desk331-updated','kamil:ticket-boot466-updated'])window.addEventListener(event,()=>schedule(100));
+  for(const event of ['kamil:ticket-refresh397-done','kamil:ticket-payout154-updated'])window.addEventListener(event,()=>schedule(80,{reload:true}));
   const root=document.querySelector('#ticketIntelView');
-  if(root){
-    observer=new MutationObserver(records=>{
-      if(records.some(r=>r.type==='childList'))schedule(70);
-    });
-    observer.observe(root,{childList:true,subtree:true});
-  }
+  if(root){observer=new MutationObserver(records=>{if(records.some(r=>r.type==='childList'))schedule(70)});observer.observe(root,{childList:true,subtree:true})}
 }
