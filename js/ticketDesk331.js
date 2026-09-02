@@ -1,5 +1,5 @@
 // Ticket Redesign 500 + Visual Polish 501 + Layout Fix 502 + Right Rail 503 + Stability 504 + Anchor 505 + Economics 506 + Decision 507 + Grouping 508 + Event Detail 509 + Executive 510 + Operations 511-524 loader.
-// OS500 stays byte-for-byte in the compressed asset; later layers are reversible overlays.
+// OS500 is critical. Later overlays are isolated so one optional failure cannot take down the Ticket desk.
 let loadPromise=null;
 let installPromise=null;
 let styleNode=null;
@@ -12,108 +12,66 @@ const ungzip=async url=>{
   const stream=response.body.pipeThrough(new DecompressionStream('gzip'));
   return new Response(stream).text();
 };
-
-const text=async url=>{
-  const response=await fetch(url,{cache:'no-store'});
-  if(!response.ok)throw new Error(`Ticket overlay asset ${response.status}: ${url}`);
-  return response.text();
-};
-
-function keepStyleLast(){
-  if(!styleNode?.isConnected)return;
-  if(document.head.lastElementChild!==styleNode)document.head.appendChild(styleNode);
-}
+const text=async url=>{const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error(`Ticket overlay asset ${response.status}: ${url}`);return response.text()};
+function keepStyleLast(){if(!styleNode?.isConnected)return;if(document.head.lastElementChild!==styleNode)document.head.appendChild(styleNode)}
+function noteFailure(list,label,error,phase='load'){const item={label,phase,message:String(error?.message||error),at:Date.now()};list.push(item);console.warn(`[ticketDesk331:${phase}] ${label}`,error);return item}
+async function optionalText(url,label,failures){try{return await text(url)}catch(error){noteFailure(failures,label,error,'css');return''}}
+async function optionalInstaller(url,fn,label,failures){try{const mod=await import(url);if(typeof mod?.[fn]!=='function')throw new Error(`Chybí export ${fn}`);return{label,fn,install:mod[fn]}}catch(error){noteFailure(failures,label,error,'module');return{label,fn,install:null}}}
 
 async function loadRedesign(){
   if(loadPromise)return loadPromise;
   loadPromise=(async()=>{
-    const [css,polishCss,layoutCss,railCss,economicsCss,decisionCss,groupingCss,eventDetailCss,executiveCss,operationsCss,rawSource,polishMod,layoutMod,railMod,stabilityMod,anchorMod,economicsMod,decisionMod,groupingMod,eventDetailMod,executiveMod,operationsMod]=await Promise.all([
+    const failures=[];
+    const [css,rawSource]=await Promise.all([
       ungzip(new URL('../ticketRedesign500.css.gz',import.meta.url)),
-      text(new URL('../ticketPolish501.css',import.meta.url)),
-      text(new URL('../ticketLayout502.css',import.meta.url)),
-      text(new URL('../ticketRail503.css',import.meta.url)),
-      text(new URL('../ticketEconomics506.css',import.meta.url)),
-      text(new URL('../ticketDecision507.css',import.meta.url)),
-      text(new URL('../ticketGrouping508.css',import.meta.url)),
-      text(new URL('../ticketEventDetail509.css',import.meta.url)),
-      text(new URL('../ticketExecutive510.css',import.meta.url)),
-      text(new URL('../ticketOperations524.css',import.meta.url)),
-      ungzip(new URL('./ticketDesk331.redesign500.js.gz',import.meta.url)),
-      import(new URL('./ticketPolish501.js',import.meta.url).href),
-      import(new URL('./ticketLayout502.js',import.meta.url).href),
-      import(new URL('./ticketRail503.js',import.meta.url).href),
-      import(new URL('./ticketStability504.js',import.meta.url).href),
-      import(new URL('./ticketAnchor505.js',import.meta.url).href),
-      import(new URL('./ticketEconomics506.js',import.meta.url).href),
-      import(new URL('./ticketDecision507.js',import.meta.url).href),
-      import(new URL('./ticketGrouping508.js',import.meta.url).href),
-      import(new URL('./ticketEventDetail509.js',import.meta.url).href),
-      import(new URL('./ticketExecutive510.js',import.meta.url).href),
-      import(new URL('./ticketOperations524.js',import.meta.url).href)
+      ungzip(new URL('./ticketDesk331.redesign500.js.gz',import.meta.url))
     ]);
+    const cssSpecs=[
+      ['../ticketPolish501.css','OS501 CSS'],['../ticketLayout502.css','OS502 CSS'],['../ticketRail503.css','OS503 CSS'],
+      ['../ticketEconomics506.css','OS506 CSS'],['../ticketDecision507.css','OS507 CSS'],['../ticketGrouping508.css','OS508 CSS'],
+      ['../ticketEventDetail509.css','OS509 CSS'],['../ticketExecutive510.css','OS510 CSS'],['../ticketOperations524.css','OS511-524 CSS']
+    ];
+    const jsSpecs=[
+      ['./ticketPolish501.js','installTicketPolish501','OS501'],['./ticketLayout502.js','installTicketLayout502','OS502'],
+      ['./ticketRail503.js','installTicketRail503','OS503'],['./ticketStability504.js','installTicketStability504','OS504'],
+      ['./ticketAnchor505.js','installTicketAnchor505','OS505'],['./ticketEconomics506.js','installTicketEconomics506','OS506'],
+      ['./ticketDecision507.js','installTicketDecision507','OS507'],['./ticketGrouping508.js','installTicketGrouping508','OS508'],
+      ['./ticketEventDetail509.js','installTicketEventDetail509','OS509'],['./ticketExecutive510.js','installTicketExecutive510','OS510'],
+      ['./ticketOperations524.js','installTicketOperations524','OS511-524']
+    ];
+    const overlayCss=await Promise.all(cssSpecs.map(([path,label])=>optionalText(new URL(path,import.meta.url),label,failures)));
+    const installers=await Promise.all(jsSpecs.map(([path,fn,label])=>optionalInstaller(new URL(path,import.meta.url).href,fn,label,failures)));
 
     styleNode=document.querySelector('style[data-ticket-redesign500]')||document.createElement('style');
     styleNode.dataset.ticketRedesign500='1';
-    styleNode.textContent=`${css}\n\n/* OS501 visual polish */\n${polishCss}\n\n/* OS502 layout fix */\n${layoutCss}\n\n/* OS503 right rail */\n${railCss}\n\n/* OS506 ticket economics */\n${economicsCss}\n\n/* OS507 countdown and decision score */\n${decisionCss}\n\n/* OS508 event grouping */\n${groupingCss}\n\n/* OS509 event detail dashboard */\n${eventDetailCss}\n\n/* OS510 executive ticket briefing */\n${executiveCss}\n\n/* OS511-524 ticket operations */\n${operationsCss}`;
+    styleNode.textContent=[css,...overlayCss].filter(Boolean).join('\n\n');
     document.head.appendChild(styleNode);
-    if(!styleObserver){
-      styleObserver=new MutationObserver(keepStyleLast);
-      styleObserver.observe(document.head,{childList:true});
-    }
+    if(!styleObserver){styleObserver=new MutationObserver(keepStyleLast);styleObserver.observe(document.head,{childList:true})}
 
     const base=new URL('./',import.meta.url);
     let source=rawSource.replace(/from\s+(['"])(\.\/[^'"]+)\1/g,(match,quote,path)=>`from ${quote}${new URL(path,base).href}${quote}`);
-    source=source.replace(/data-ticket-side500(?![\w-])/g,'data-ticket-side500 data-focus459')
-                 .replace(/data-ticket-tip500(?![\w-])/g,'data-ticket-tip500 data-focus459');
-
+    source=source.replace(/data-ticket-side500(?![\w-])/g,'data-ticket-side500 data-focus459').replace(/data-ticket-tip500(?![\w-])/g,'data-ticket-tip500 data-focus459');
     const objectUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
-    try{
-      const renderer=await import(objectUrl);
-      if(typeof renderer.installTicketDesk331!=='function')throw new Error('OS500 renderer export missing');
-      if(typeof polishMod.installTicketPolish501!=='function')throw new Error('OS501 polish export missing');
-      if(typeof layoutMod.installTicketLayout502!=='function')throw new Error('OS502 layout export missing');
-      if(typeof railMod.installTicketRail503!=='function')throw new Error('OS503 rail export missing');
-      if(typeof stabilityMod.installTicketStability504!=='function')throw new Error('OS504 stability export missing');
-      if(typeof anchorMod.installTicketAnchor505!=='function')throw new Error('OS505 anchor export missing');
-      if(typeof economicsMod.installTicketEconomics506!=='function')throw new Error('OS506 economics export missing');
-      if(typeof decisionMod.installTicketDecision507!=='function')throw new Error('OS507 decision export missing');
-      if(typeof groupingMod.installTicketGrouping508!=='function')throw new Error('OS508 grouping export missing');
-      if(typeof eventDetailMod.installTicketEventDetail509!=='function')throw new Error('OS509 event detail export missing');
-      if(typeof executiveMod.installTicketExecutive510!=='function')throw new Error('OS510 executive export missing');
-      if(typeof operationsMod.installTicketOperations524!=='function')throw new Error('OS511-524 operations export missing');
-      return{renderer,polishMod,layoutMod,railMod,stabilityMod,anchorMod,economicsMod,decisionMod,groupingMod,eventDetailMod,executiveMod,operationsMod};
-    }finally{
-      setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);
-    }
+    try{const renderer=await import(objectUrl);if(typeof renderer.installTicketDesk331!=='function')throw new Error('OS500 renderer export missing');return{renderer,installers,failures}}
+    finally{setTimeout(()=>URL.revokeObjectURL(objectUrl),1000)}
   })().catch(error=>{loadPromise=null;throw error});
   return loadPromise;
 }
 
 export function installTicketDesk331(){
   if(installPromise)return installPromise;
-  installPromise=loadRedesign().then(({renderer,polishMod,layoutMod,railMod,stabilityMod,anchorMod,economicsMod,decisionMod,groupingMod,eventDetailMod,executiveMod,operationsMod})=>{
-    const result=renderer.installTicketDesk331();
-    polishMod.installTicketPolish501();
-    layoutMod.installTicketLayout502();
-    railMod.installTicketRail503();
-    stabilityMod.installTicketStability504();
-    anchorMod.installTicketAnchor505();
-    economicsMod.installTicketEconomics506();
-    decisionMod.installTicketDecision507();
-    groupingMod.installTicketGrouping508();
-    eventDetailMod.installTicketEventDetail509();
-    executiveMod.installTicketExecutive510();
-    operationsMod.installTicketOperations524();
+  installPromise=loadRedesign().then(async({renderer,installers,failures})=>{
     document.documentElement.dataset.ticketRedesign500='1';
+    const result=renderer.installTicketDesk331();if(result&&typeof result.then==='function')await result;
+    const runtimeFailures=[];
+    for(const item of installers){if(!item.install)continue;try{const r=item.install();if(r&&typeof r.then==='function')await r}catch(error){noteFailure(runtimeFailures,item.label,error,'install')}}
+    const allFailures=[...failures,...runtimeFailures],healthy=allFailures.length===0;
     document.documentElement.dataset.ticketPolish501='1';
+    document.documentElement.dataset.ticketDesk331Health=healthy?'ok':'degraded';
     window.__KAMIL_TICKET_REDESIGN500__={version:'500.0.0',healthy:true,at:Date.now(),source:'exact-approved-patch'};
-    window.__KAMIL_TICKET_POLISH501__={version:'501.0.0',healthy:true,at:Date.now()};
-    keepStyleLast();
-    return result;
-  }).catch(error=>{
-    installPromise=null;
-    console.error('[ticketRedesign500/501/502/503/504/505/506/507/508/509/510/511-524] activation failed',error);
-    throw error;
-  });
+    window.__KAMIL_TICKET_POLISH501__={version:'501.0.0',healthy:!allFailures.some(x=>x.label==='OS501'||x.label==='OS501 CSS'),at:Date.now()};
+    window.__KAMIL_TICKET_DESK526__={version:'526.0.0',healthy,failures:allFailures,optionalTotal:installers.length,optionalLoaded:installers.filter(x=>!!x.install).length,at:Date.now()};
+    keepStyleLast();return result
+  }).catch(error=>{installPromise=null;document.documentElement.dataset.ticketDesk331Health='fatal';console.error('[ticketRedesign500/526] activation failed',error);throw error});
   return installPromise;
 }
