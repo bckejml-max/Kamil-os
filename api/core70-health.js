@@ -26,6 +26,7 @@ function priceOf(selection){for(const key of ['decimal','odds','price']){const n
 function sourceEvents(payload){return Array.isArray(payload)?payload:Array.isArray(payload?.events)?payload.events:Array.isArray(payload?.data)?payload.data:[]}
 function probability(value){const n=Number(value);if(!Number.isFinite(n)||n<=0)return null;if(n>1&&n<=100)return n/100;return n<=1?n:null}
 function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+function plain(value){return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
 
 async function pulseAttempt(target,key,authMode){
  const url=new URL(target);
@@ -189,21 +190,35 @@ function isHalfLine(value){
  return Number.isFinite(n)&&n>=0&&Math.abs(n*2-Math.round(n*2))<1e-8&&Math.abs(Math.round(n*2)%2)===1;
 }
 
-function modelableFullTimeMarket(market){
+function isHalfHandicapLine(value){
+ const n=Number(value);
+ return Number.isFinite(n)&&Math.abs(n*2-Math.round(n*2))<1e-8&&Math.abs(Math.round(n*2)%2)===1;
+}
+
+function explicitYellowCardMarket(market){
+ const type=String(market?.type||'').toUpperCase();
+ const text=plain(`${type} ${market?.name||''}`);
+ const czechYellow=text.includes('zlut')&&(text.includes('karet')||text.includes('karta')||text.includes('karty')||text.includes('kart'));
+ return type.includes('YELLOW')||(type.includes('CARD')&&((text.includes('yellow')&&text.includes('card'))||czechYellow));
+}
+
+function modelableFullTimeSelection(market,selection){
  if(String(market?.period||'').toUpperCase()!=='FULL_TIME')return false;
  const type=String(market?.type||'').toUpperCase();
- if(type==='MATCH_RESULT'||type==='BOTH_TEAMS_TO_SCORE')return true;
- if(['OVER_UNDER','HOME_OVER_UNDER','AWAY_OVER_UNDER'].includes(type))return isHalfLine(market?.line??market?.selections?.[0]?.line);
+ const outcome=String(selection?.outcome||'').toUpperCase();
+ const line=selection?.line??market?.line;
+ if(type==='MATCH_RESULT')return ['HOME','DRAW','AWAY'].includes(outcome);
+ if(type==='BOTH_TEAMS_TO_SCORE')return ['YES','NO'].includes(outcome);
+ if(['OVER_UNDER','HOME_OVER_UNDER','AWAY_OVER_UNDER'].includes(type))return ['OVER','UNDER'].includes(outcome)&&isHalfLine(line);
+ if(type==='ASIAN_HANDICAP')return ['HOME','AWAY'].includes(outcome)&&isHalfHandicapLine(line);
+ if(type.includes('OVER_UNDER')&&(type.includes('CORNER')||explicitYellowCardMarket(market)))return ['OVER','UNDER'].includes(outcome)&&isHalfLine(line);
  return false;
 }
 
 function autoModelCandidates(events,url,{futureOnly=true}={}){
  const minOdds=num(url.searchParams.get('minOdds'));
  const maxOdds=num(url.searchParams.get('maxOdds'));
- return events.map(compactEvent).filter(event=>eventPassesBaseFilters(event,url,{futureOnly})).filter(event=>event.markets.some(market=>{
-  if(!modelableFullTimeMarket(market))return false;
-  return market.selections.some(selection=>(minOdds===null||selection.odds>=minOdds)&&(maxOdds===null||selection.odds<=maxOdds));
- }));
+ return events.map(compactEvent).filter(event=>eventPassesBaseFilters(event,url,{futureOnly})).filter(event=>event.markets.some(market=>market.selections.some(selection=>modelableFullTimeSelection(market,selection)&&(minOdds===null||selection.odds>=minOdds)&&(maxOdds===null||selection.odds<=maxOdds))));
 }
 
 function applyFilters(events,url,{futureOnly=true,autoModel=null}={}){
@@ -359,7 +374,7 @@ async function chanceProxy(req,res,url){
     modelProviderConfigured:autoRequested||!!apiFootballKey||fmd,
     modelProvider:autoRequested?autoModel.meta.provider:apiFootballKey?'api-football':fmd?'fmd_key_present_not_wired':'none',
     autoModel:autoModel.meta,
-    rule:'BET requires an independent model probability; bookmaker implied probability is never used as the model. Built-in Football-Data Poisson uses results/stats only. Integer goal lines are not auto-modeled because push refunds need separate EV math. Locked selections are excluded from new BET recommendations.'
+    rule:'BET requires an independent model probability; bookmaker implied probability is never used as the model. Built-in Football-Data models cover safe FULL_TIME 1X2, BTTS, half-goal goals/team totals, half-goal corners/yellow-card totals and conservative half-goal handicaps. Quarter/integer handicap lines, integer totals and non-full-time count props stay unmodeled because push/split-refund or period-specific math is not implemented. Locked selections are excluded from new BET recommendations.'
    };
   }
   return json(res,200,compact?{...base,events}:{...base,raw:payload,events});
@@ -374,12 +389,12 @@ export default async function handler(req,res){
  const source=String(url.searchParams.get('source')||'').toLowerCase();
  if(source==='chance_pages')return chancePageDiscovery(res,url);
  if(source==='chance')return chanceProxy(req,res,url);
- if(source==='ledger')return json(res,200,{ok:true,version:'70.12-rate-limit',ledger:ledgerSummary(),bets:publicLedger()});
+ if(source==='ledger')return json(res,200,{ok:true,version:'70.13-candidate-scope',ledger:ledgerSummary(),bets:publicLedger()});
  const viagogo=!!(process.env.VIAGOGO_CLIENT_ID&&process.env.VIAGOGO_CLIENT_SECRET);
  const gmail=!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET&&process.env.GOOGLE_REFRESH_TOKEN);
  const pulseKey=String(process.env.PULSESCORE_API_KEY||'').trim();
  const pulse=await pulseHealth(pulseKey);
  const apiFootball=!!(process.env.API_FOOTBALL_KEY||process.env.API_SPORTS_KEY);
  const fmd=!!process.env.FMD_API_KEY;
- return json(res,200,{ok:true,version:'70.12-rate-limit',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulse.ok===true,pulsescore_configured:!!pulseKey,pulsescore_status:pulse.status,pulsescore_auth_mode:pulse.authMode,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},pulse:{ok:pulse.ok,status:pulse.status,authMode:pulse.authMode,message:pulse.message},ledger:ledgerSummary()});
+ return json(res,200,{ok:true,version:'70.13-candidate-scope',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulse.ok===true,pulsescore_configured:!!pulseKey,pulsescore_status:pulse.status,pulsescore_auth_mode:pulse.authMode,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},pulse:{ok:pulse.ok,status:pulse.status,authMode:pulse.authMode,message:pulse.message},ledger:ledgerSummary()});
 }
