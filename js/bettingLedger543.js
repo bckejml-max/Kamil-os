@@ -1,14 +1,14 @@
 const API='/api/betting-ledger543';
 const STORE='kamil_betting_ledger_543';
 const CONFIRMED542='kamil_betting_confirmed_542';
-const VERSION='543.0.0';
+const VERSION='543.1.0';
 
 const num=value=>{const n=Number(String(value??'').replace(/\s/g,'').replace(',','.').replace(/[^0-9.+-]/g,''));return Number.isFinite(n)?n:null};
 const money=value=>`${Number(value||0).toLocaleString('cs-CZ',{maximumFractionDigits:0})} Kč`;
 const pct=value=>`${Number(value||0).toLocaleString('cs-CZ',{minimumFractionDigits:1,maximumFractionDigits:1})} %`;
 const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 function read(){try{const v=JSON.parse(localStorage.getItem(STORE)||'{}');return{bets:Array.isArray(v?.bets)?v.bets:[],bankrollCzk:Number(v?.bankrollCzk||0),unitCzk:Number(v?.unitCzk||0),updatedAt:v?.updatedAt||null}}catch{return{bets:[],bankrollCzk:0,unitCzk:0}}}
-function write(state){localStorage.setItem(STORE,JSON.stringify({...state,updatedAt:new Date().toISOString()}))}
+function write(state){const next={...state,updatedAt:new Date().toISOString()};localStorage.setItem(STORE,JSON.stringify(next));window.dispatchEvent(new CustomEvent('kamil:betting-ledger543-updated',{detail:{bets:Array.isArray(next.bets)?next.bets.length:0,bankrollCzk:Number(next.bankrollCzk||0),unitCzk:Number(next.unitCzk||0),at:Date.now()}}));return next}
 function betId(bet){return String(bet?.id||`${bet?.event||''}|${bet?.market||''}|${bet?.selection||bet?.label||''}|${bet?.odds||''}`).toLowerCase()}
 function merge(a,b){const map=new Map();for(const item of [...(a||[]),...(b||[])]){if(!item)continue;const key=betId(item);map.set(key,{...(map.get(key)||{}),...item})}return [...map.values()]}
 function analytics(state){
@@ -30,8 +30,9 @@ function migrate542(state){
 }
 async function apiGet(){try{const r=await fetch(`${API}?_=${Date.now()}`,{cache:'no-store'});return r.ok?await r.json():null}catch{return null}}
 async function apiPost(payload){try{const r=await fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});return{status:r.status,payload:await r.json().catch(()=>null)}}catch{return{status:0,payload:null}}}
+function cleanStrongText(card){const strong=card.querySelector('.bet144-pickmain strong');if(!strong)return'';const clone=strong.cloneNode(true);clone.querySelectorAll('.bet560-corr,.bet564-urgency,.bet565-flag').forEach(x=>x.remove());return clone.textContent||''}
 function parseCard(card){
- const title=card.querySelector('.bet144-pickmain strong')?.textContent||'';
+ const title=cleanStrongText(card);
  const detail=card.querySelector('.bet144-pickmain span')?.textContent||'';
  const stats=Object.fromEntries([...card.querySelectorAll('.bet144-stat')].map(x=>[x.querySelector('span')?.textContent?.trim(),num(x.querySelector('b')?.textContent)]));
  const actions=Object.fromEntries([...card.querySelectorAll('.bet542-decision')].map(x=>[x.querySelector('span')?.textContent?.trim(),num(x.querySelector('b')?.textContent)]));
