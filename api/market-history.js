@@ -28,6 +28,10 @@ async function oddsJson(path,key){
  if(!response.ok){const error=new Error(String(payload?.message||payload?.error||`ODDS_API_HTTP_${response.status}`));error.status=response.status;error.payload=payload;throw error}
  return payload;
 }
+function selectedBookmakerNames692(payload){
+ const rows=Array.isArray(payload)?payload:Array.isArray(payload?.bookmakers)?payload.bookmakers:Array.isArray(payload?.selected)?payload.selected:Array.isArray(payload?.data)?payload.data:[];
+ return [...new Set(rows.map(item=>typeof item==='string'?item:item?.name??item?.bookmaker??item?.title).map(value=>String(value||'').trim()).filter(Boolean))];
+}
 function oddsHealth692(){
  const configured=!!oddsKey();
  return{ok:true,version:'692.0.0',provider:'odds-api.io',bookmaker:ODDS_API_BOOKMAKER692,exactChance:true,configured,pulsescoreFallbackConfigured:!!String(process.env.PULSESCORE_API_KEY||'').trim(),primary:configured?'odds-api.io':'pulsescore',directChanceWeb:{public:true,serverIngestion:false,reason:'Do not bypass bookmaker anti-bot protection'}};
@@ -41,6 +45,9 @@ async function chanceOdds692(req,res,u){
  const days=clamp(u.searchParams.get('days'),1,7,5),maxEvents=clamp(u.searchParams.get('limit'),10,50,40),now=Date.now(),until=now+days*86400000;
  const minOdds=finite(u.searchParams.get('minOdds'),1.45),maxOdds=finite(u.searchParams.get('maxOdds'),3.20),minEv=finite(u.searchParams.get('minEv'),0.05),minEdgePp=finite(u.searchParams.get('minEdgePp'),4),betsOnly=u.searchParams.get('betsOnly')!=='0';
  try{
+  const selectedPayload=await oddsJson('/bookmakers/selected',key);
+  const selectedBookmakers=selectedBookmakerNames692(selectedPayload);
+  if(!selectedBookmakers.includes(ODDS_API_BOOKMAKER692))return res.status(409).json({...oddsHealth692(),ok:false,error:'ODDS_API_IO_CHANCE_NOT_SELECTED',message:`${ODDS_API_BOOKMAKER692} is not selected in the Odds-API.io account. Select Chance.cz in one of the available bookmaker slots before scanning.`,selectedBookmakers});
   const from=new Date(now).toISOString(),to=new Date(until).toISOString();
   const rawEvents=await oddsJson(`/events?sport=football&status=pending&bookmaker=${encodeURIComponent(ODDS_API_BOOKMAKER692)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&limit=${maxEvents}`,key);
   const events=(Array.isArray(rawEvents)?rawEvents:[]).filter(e=>{const t=Date.parse(e?.date||'');return Number.isFinite(t)&&t>now&&t<=until}).sort((a,b)=>Date.parse(a.date)-Date.parse(b.date)).slice(0,maxEvents);
@@ -54,7 +61,7 @@ async function chanceOdds692(req,res,u){
   const ledger=await getBettingLedger543();
   const valued=applyOddsValueModel692(normalized,autoModel,{openBets:ledger?.bets||[],minOdds,maxOdds,minEv,minEdgePp,betsOnly});
   const valueSelections=valued.reduce((n,event)=>n+event.markets.reduce((m,market)=>m+market.selections.filter(s=>s.decision==='BET').length,0),0);
-  return res.status(200).json({ok:true,version:'692.0.0',provider:'odds-api.io',bookmaker:ODDS_API_BOOKMAKER692,exactChance:true,fresh:true,fetchedAt:new Date().toISOString(),days,sourceEventCount:events.length,oddsEventCount:normalized.length,eventCount:valued.length,providerRequests:1+batches.length,events:valued,value:{minEv,minEvPct:minEv*100,minEdgePp,betsOnly,automaticModelProbabilities:autoModel.probabilities.size,modelProvider:autoModel.meta.provider,autoModel:autoModel.meta,valueSelections,rule:'Only exact Chance.cz odds are evaluated. BET requires an independent Kamil OS model probability; open/locked bets are always NO_ADD.'},ledger:{openCount:ledger?.analytics?.openCount||0,openExposureCzk:ledger?.analytics?.openExposureCzk||0}});
+  return res.status(200).json({ok:true,version:'692.0.0',provider:'odds-api.io',bookmaker:ODDS_API_BOOKMAKER692,exactChance:true,fresh:true,fetchedAt:new Date().toISOString(),days,selectedBookmakers,sourceEventCount:events.length,oddsEventCount:normalized.length,eventCount:valued.length,providerRequests:2+batches.length,events:valued,value:{minEv,minEvPct:minEv*100,minEdgePp,betsOnly,automaticModelProbabilities:autoModel.probabilities.size,modelProvider:autoModel.meta.provider,autoModel:autoModel.meta,valueSelections,rule:'Only exact Chance.cz odds are evaluated. BET requires an independent Kamil OS model probability; open/locked bets are always NO_ADD.'},ledger:{openCount:ledger?.analytics?.openCount||0,openExposureCzk:ledger?.analytics?.openExposureCzk||0}});
  }catch(error){
   const status=Number(error?.status||0),code=status===401||status===403?'ODDS_API_IO_AUTH':status===429?'ODDS_API_IO_RATE_LIMIT':'ODDS_API_IO_FETCH_FAILED';
   return res.status(status===401||status===403?401:status===429?429:502).json({...oddsHealth692(),ok:false,error:code,status:status||null,message:String(error?.message||error)});
