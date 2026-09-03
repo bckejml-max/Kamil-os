@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {applyOddsValueModel692,chunkEventIds692,normalizeOddsApiEvent692,ODDS_API_BOOKMAKER692} from './lib/betting-odds692.js';
 
@@ -43,4 +44,9 @@ valued=applyOddsValueModel692([event],model,{minEv:0.05,minEdgePp:4,minOdds:1.45
 assert.equal(valued.length,0,'open/locked bet must never be recommended again');
 assert.deepEqual(chunkEventIds692([1,2,3,4,5],2),[['1','2'],['3','4'],['5']]);
 assert.equal(chunkEventIds692(Array.from({length:25},(_,i)=>i+1),50).length,3,'provider batch size must never exceed 10');
+
+const api=fs.readFileSync('api/market-history.js','utf8');
+assert.ok(api.includes("oddsJson('/bookmakers/selected',key)"),'OS692 must verify the bookmakers selected for the provider account before scanning');
+assert.ok(api.includes("error:'ODDS_API_IO_CHANCE_NOT_SELECTED'"),'OS692 must fail explicitly when Chance.cz is not in the provider account slots');
+assert.ok(api.includes('providerRequests:2+batches.length'),'provider request accounting must include selected-bookmaker validation');
 console.log('OS692 Chance odds normalization/value guard PASS');
