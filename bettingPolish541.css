@@ -1,0 +1,532 @@
+/* Kamil OS — Betting Polish 541
+   Visual-only trading dashboard layer for Betting Centrum.
+   No betting logic, model thresholds, feeds or ledger behavior are changed here. */
+
+html[data-betting-polish541="1"] #bettingView{
+  --bet541-bg:#07111d;
+  --bet541-panel:#0b1827;
+  --bet541-panel-2:#0e2033;
+  --bet541-panel-3:#10263a;
+  --bet541-line:rgba(145,174,202,.16);
+  --bet541-line-strong:rgba(145,174,202,.25);
+  --bet541-text:#edf5fb;
+  --bet541-muted:#8fa6ba;
+  --bet541-soft:#b9cada;
+  --bet541-green:#4ee08b;
+  --bet541-green-soft:rgba(78,224,139,.12);
+  --bet541-blue:#67a7ff;
+  --bet541-amber:#f2c46d;
+  --bet541-red:#f08b8b;
+}
+
+html[data-betting-polish541="1"] #bettingView .bet144{
+  width:min(1480px,100%);
+  max-width:none;
+  gap:18px;
+  margin:0 auto;
+  padding:2px 0 34px;
+  color:var(--bet541-text);
+  font-variant-numeric:tabular-nums;
+}
+
+/* Command header */
+html[data-betting-polish541="1"] #bettingView .bet144-hero{
+  position:relative;
+  isolation:isolate;
+  min-height:142px;
+  align-items:center;
+  padding:28px 30px;
+  overflow:hidden;
+  border:1px solid var(--bet541-line);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 10% -20%,rgba(83,159,255,.22),transparent 42%),
+    radial-gradient(circle at 88% 10%,rgba(78,224,139,.14),transparent 34%),
+    linear-gradient(135deg,#0d1d2f 0%,#081522 58%,#0a1928 100%);
+  box-shadow:0 20px 55px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-hero:after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  right:-80px;
+  bottom:-125px;
+  width:330px;
+  height:330px;
+  border:1px solid rgba(103,167,255,.11);
+  border-radius:50%;
+  box-shadow:0 0 0 48px rgba(103,167,255,.025),0 0 0 96px rgba(78,224,139,.018);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-hero .eyebrow{
+  display:inline-flex;
+  align-items:center;
+  min-height:26px;
+  padding:0 9px;
+  border:1px solid rgba(103,167,255,.22);
+  border-radius:999px;
+  background:rgba(103,167,255,.08);
+  color:#9ac5ff;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.11em;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-hero h1{
+  margin:10px 0 6px;
+  color:#f5f9fd;
+  font-size:34px;
+  line-height:1.05;
+  letter-spacing:-.045em;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-hero p{
+  max-width:850px;
+  color:#9eb1c3;
+  font-size:13px;
+  line-height:1.55;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-refresh,
+html[data-betting-polish541="1"] #bettingView [data-bet144-scan]{
+  min-height:42px;
+  padding:0 16px;
+  border-radius:11px;
+  font-size:12px;
+  font-weight:850;
+  letter-spacing:.01em;
+  transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-refresh{
+  border:1px solid rgba(160,187,211,.2);
+  background:rgba(255,255,255,.055);
+  color:#e8f1f8;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-refresh:hover{
+  transform:translateY(-1px);
+  border-color:rgba(160,187,211,.34);
+  background:rgba(255,255,255,.085);
+}
+
+/* Portfolio KPI strip */
+html[data-betting-polish541="1"] #bettingView .bet144-metrics{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-metric{
+  position:relative;
+  min-height:110px;
+  padding:17px 18px 15px 66px;
+  overflow:hidden;
+  border:1px solid var(--bet541-line);
+  border-radius:15px;
+  background:linear-gradient(160deg,rgba(16,36,55,.96),rgba(8,22,35,.96));
+  box-shadow:0 8px 24px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.025);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-metric:before{
+  position:absolute;
+  left:16px;
+  top:16px;
+  display:grid;
+  place-items:center;
+  width:36px;
+  height:36px;
+  border:1px solid rgba(103,167,255,.18);
+  border-radius:10px;
+  background:rgba(103,167,255,.08);
+  color:#9ac5ff;
+  font-size:15px;
+  font-weight:900;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-metric:nth-child(1):before{content:"#"}
+html[data-betting-polish541="1"] #bettingView .bet144-metric:nth-child(2):before{content:"Kč";font-size:11px;color:#a8eec3;border-color:rgba(78,224,139,.2);background:rgba(78,224,139,.08)}
+html[data-betting-polish541="1"] #bettingView .bet144-metric:nth-child(3):before{content:"↗";color:#a8eec3;border-color:rgba(78,224,139,.2);background:rgba(78,224,139,.08)}
+html[data-betting-polish541="1"] #bettingView .bet144-metric:nth-child(4):before{content:"●";font-size:12px;color:#f2c46d;border-color:rgba(242,196,109,.2);background:rgba(242,196,109,.08)}
+html[data-betting-polish541="1"] #bettingView .bet144-metric:after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,rgba(103,167,255,.5),transparent);
+  opacity:.65;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-metric:nth-child(2):after,
+html[data-betting-polish541="1"] #bettingView .bet144-metric:nth-child(3):after{background:linear-gradient(90deg,transparent,rgba(78,224,139,.55),transparent)}
+html[data-betting-polish541="1"] #bettingView .bet144-metric>span{
+  color:#8199ad;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-metric>b{
+  margin-top:8px;
+  color:#f1f7fb;
+  font-size:24px;
+  line-height:1.05;
+  letter-spacing:-.025em;
+}
+
+/* Scanner = main working surface */
+html[data-betting-polish541="1"] #bettingView .bet144-scanner{
+  position:relative;
+  gap:15px;
+  padding:24px;
+  overflow:hidden;
+  border:1px solid rgba(78,224,139,.18);
+  border-radius:18px;
+  background:
+    linear-gradient(180deg,rgba(14,34,50,.97),rgba(7,20,32,.98)),
+    var(--bet541-panel);
+  box-shadow:0 18px 46px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.025);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-scanner:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  height:2px;
+  background:linear-gradient(90deg,transparent 0%,rgba(78,224,139,.85) 35%,rgba(103,167,255,.65) 68%,transparent 100%);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-scanhead{
+  align-items:center;
+  padding-bottom:2px;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-scanhead h2{
+  color:#f4f9fc;
+  font-size:22px;
+  letter-spacing:-.025em;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-scanhead p{
+  margin-top:6px;
+  color:#879fb3;
+  font-size:12px;
+}
+html[data-betting-polish541="1"] #bettingView [data-bet144-scan]{
+  min-width:158px;
+  border:1px solid rgba(78,224,139,.34);
+  background:linear-gradient(180deg,#36c978,#28ad65);
+  color:#03150b;
+  box-shadow:0 8px 24px rgba(36,181,105,.17),inset 0 1px 0 rgba(255,255,255,.22);
+}
+html[data-betting-polish541="1"] #bettingView [data-bet144-scan]:not(:disabled):hover{
+  transform:translateY(-1px);
+  background:linear-gradient(180deg,#4bdd8c,#2fbd70);
+  box-shadow:0 11px 28px rgba(36,181,105,.23),inset 0 1px 0 rgba(255,255,255,.24);
+}
+html[data-betting-polish541="1"] #bettingView [data-bet144-scan]:disabled{
+  border-color:rgba(145,174,202,.12);
+  background:rgba(145,174,202,.08);
+  color:#667d91;
+  box-shadow:none;
+}
+
+/* Scanner health rail */
+html[data-betting-polish541="1"] #bettingView .bet144-statusrow{
+  gap:7px;
+  padding:10px;
+  border:1px solid rgba(145,174,202,.10);
+  border-radius:12px;
+  background:rgba(4,14,23,.35);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-status{
+  min-height:26px;
+  padding:0 9px;
+  border-color:rgba(145,174,202,.14);
+  border-radius:8px;
+  background:rgba(145,174,202,.055);
+  color:#9db1c2;
+  font-size:9.5px;
+  font-weight:850;
+  letter-spacing:.015em;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-status.ok{
+  border-color:rgba(78,224,139,.22);
+  background:rgba(78,224,139,.075);
+  color:#95e9b4;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-status.warn{
+  border-color:rgba(242,196,109,.24);
+  background:rgba(242,196,109,.075);
+  color:#efd08f;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-status.bad{
+  border-color:rgba(240,139,139,.24);
+  background:rgba(240,139,139,.075);
+  color:#efaaaa;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-modelhelp{
+  position:relative;
+  padding:12px 14px 12px 38px;
+  border:0;
+  border-radius:11px;
+  background:rgba(78,224,139,.055);
+  color:#9fb8aa;
+  font-size:11.5px;
+  line-height:1.48;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-modelhelp:before{
+  content:"✓";
+  position:absolute;
+  left:13px;
+  top:12px;
+  display:grid;
+  place-items:center;
+  width:17px;
+  height:17px;
+  border-radius:50%;
+  background:rgba(78,224,139,.14);
+  color:#82e7a9;
+  font-size:10px;
+  font-weight:950;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-modelhelp b{color:#c8ead5}
+
+/* Value results */
+html[data-betting-polish541="1"] #bettingView .bet144-scanbody{gap:9px}
+html[data-betting-polish541="1"] #bettingView .bet144-scanempty{
+  padding:22px;
+  border:1px dashed rgba(145,174,202,.18);
+  border-radius:13px;
+  background:rgba(4,14,23,.27);
+  color:#8299ac;
+  text-align:center;
+  line-height:1.5;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-scanempty strong{
+  margin-bottom:7px;
+  color:#dce8f1;
+  font-size:16px;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-pick{
+  position:relative;
+  grid-template-columns:minmax(270px,1fr) repeat(4,minmax(86px,105px));
+  gap:8px;
+  min-height:82px;
+  padding:13px 13px 13px 17px;
+  overflow:hidden;
+  border:1px solid rgba(78,224,139,.19);
+  border-radius:13px;
+  background:linear-gradient(100deg,rgba(78,224,139,.075),rgba(9,25,38,.86) 38%,rgba(9,25,38,.92));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-pick:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:12px;
+  bottom:12px;
+  width:3px;
+  border-radius:0 3px 3px 0;
+  background:#43d782;
+  box-shadow:0 0 14px rgba(67,215,130,.28);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-pickmain strong{
+  color:#eef8f2;
+  font-size:14.5px;
+  line-height:1.25;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-pickmain span{
+  margin-top:6px;
+  color:#8098aa;
+  font-size:10.5px;
+  line-height:1.4;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-stat{
+  min-height:52px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:8px 9px;
+  border:1px solid rgba(145,174,202,.09);
+  border-radius:9px;
+  background:rgba(4,14,23,.35);
+  text-align:right;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-stat span{
+  color:#71899d;
+  font-size:8px;
+  font-weight:800;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-stat b{
+  margin-top:4px;
+  color:#dce8f1;
+  font-size:13.5px;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-ev{
+  border-color:rgba(78,224,139,.16);
+  background:rgba(78,224,139,.07);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-ev b{color:#69e39a;font-size:15px}
+html[data-betting-polish541="1"] #bettingView .bet144-scinfo{
+  padding-top:2px;
+  color:#607b91;
+  font-size:9.5px;
+  line-height:1.4;
+}
+
+/* Portfolio */
+html[data-betting-polish541="1"] #bettingView .bet144-section-title{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:6px 1px -4px;
+  color:#8ca2b6;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.11em;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-section-title:before{
+  content:"";
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#67a7ff;
+  box-shadow:0 0 0 4px rgba(103,167,255,.08);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-list{gap:8px}
+html[data-betting-polish541="1"] #bettingView .bet144-ticket{
+  align-items:center;
+  min-height:86px;
+  padding:14px 15px 14px 18px;
+  border:1px solid var(--bet541-line);
+  border-radius:13px;
+  background:linear-gradient(105deg,rgba(16,38,58,.9),rgba(8,22,35,.92));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
+  transition:border-color .15s ease,transform .15s ease,background .15s ease;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-ticket:hover{
+  transform:translateY(-1px);
+  border-color:rgba(103,167,255,.25);
+  background:linear-gradient(105deg,rgba(18,43,65,.94),rgba(9,24,38,.95));
+}
+html[data-betting-polish541="1"] #bettingView .bet144-title{gap:7px}
+html[data-betting-polish541="1"] #bettingView .bet144-title strong{
+  color:#eaf2f8;
+  font-size:14.5px;
+  letter-spacing:-.01em;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-lock{
+  padding:3px 7px;
+  border-color:rgba(78,224,139,.19);
+  border-radius:7px;
+  background:rgba(78,224,139,.07);
+  color:#82dfa6;
+  font-size:8px;
+  letter-spacing:.065em;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-event{
+  margin-top:5px;
+  color:#8299ac;
+  font-size:10.5px;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-meta{gap:5px;margin-top:8px}
+html[data-betting-polish541="1"] #bettingView .bet144-chip{
+  padding:4px 7px;
+  border:1px solid rgba(145,174,202,.09);
+  border-radius:7px;
+  background:rgba(145,174,202,.05);
+  color:#93aabd;
+  font-size:9px;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-numbers{
+  grid-template-columns:repeat(3,minmax(96px,112px));
+  gap:7px;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-number{
+  min-height:52px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:7px 9px;
+  border:1px solid rgba(145,174,202,.08);
+  border-radius:9px;
+  background:rgba(4,14,23,.28);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-number span{
+  color:#70899e;
+  font-size:8px;
+  font-weight:800;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-number b{
+  margin-top:4px;
+  color:#dce7ef;
+  font-size:13px;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-number:last-child{
+  border-color:rgba(103,167,255,.13);
+  background:rgba(103,167,255,.055);
+}
+html[data-betting-polish541="1"] #bettingView .bet144-number:last-child b{color:#a9ceff}
+
+/* Footnote and errors */
+html[data-betting-polish541="1"] #bettingView .bet144-note{
+  padding:11px 13px;
+  border:1px solid rgba(145,174,202,.10);
+  border-radius:11px;
+  background:rgba(6,18,29,.52);
+  color:#71899d;
+  font-size:10px;
+  line-height:1.5;
+}
+html[data-betting-polish541="1"] #bettingView .bet144-error{
+  border-color:rgba(240,139,139,.22);
+  border-radius:13px;
+  background:rgba(109,37,44,.16);
+  color:#eeb7b7;
+}
+
+/* Focus */
+html[data-betting-polish541="1"] #bettingView button:focus-visible{
+  outline:2px solid rgba(103,167,255,.8);
+  outline-offset:2px;
+}
+
+/* Tablet */
+@media(max-width:1050px){
+  html[data-betting-polish541="1"] #bettingView .bet144{width:100%}
+  html[data-betting-polish541="1"] #bettingView .bet144-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html[data-betting-polish541="1"] #bettingView .bet144-pick{grid-template-columns:minmax(220px,1fr) repeat(2,minmax(86px,105px))}
+  html[data-betting-polish541="1"] #bettingView .bet144-pickmain{grid-row:1/3}
+  html[data-betting-polish541="1"] #bettingView .bet144-ticket{grid-template-columns:1fr}
+  html[data-betting-polish541="1"] #bettingView .bet144-numbers{grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+  html[data-betting-polish541="1"] #bettingView .bet144-number{text-align:left}
+}
+
+/* Mobile */
+@media(max-width:700px){
+  html[data-betting-polish541="1"] #bettingView .bet144{gap:12px;padding-bottom:22px}
+  html[data-betting-polish541="1"] #bettingView .bet144-hero{min-height:0;padding:20px;border-radius:16px;align-items:flex-start}
+  html[data-betting-polish541="1"] #bettingView .bet144-hero h1{font-size:27px}
+  html[data-betting-polish541="1"] #bettingView .bet144-hero p{font-size:11.5px}
+  html[data-betting-polish541="1"] #bettingView .bet144-refresh{width:100%}
+  html[data-betting-polish541="1"] #bettingView .bet144-metrics{gap:8px}
+  html[data-betting-polish541="1"] #bettingView .bet144-metric{min-height:92px;padding:13px 12px 12px 52px;border-radius:12px}
+  html[data-betting-polish541="1"] #bettingView .bet144-metric:before{left:11px;top:12px;width:30px;height:30px;border-radius:9px}
+  html[data-betting-polish541="1"] #bettingView .bet144-metric>b{font-size:19px}
+  html[data-betting-polish541="1"] #bettingView .bet144-scanner{padding:16px;border-radius:15px}
+  html[data-betting-polish541="1"] #bettingView .bet144-scanhead{align-items:flex-start}
+  html[data-betting-polish541="1"] #bettingView [data-bet144-scan]{width:100%}
+  html[data-betting-polish541="1"] #bettingView .bet144-statusrow{padding:8px}
+  html[data-betting-polish541="1"] #bettingView .bet144-modelhelp{padding:11px 11px 11px 35px;font-size:10.5px}
+  html[data-betting-polish541="1"] #bettingView .bet144-pick{grid-template-columns:repeat(2,minmax(0,1fr));padding:12px 11px 12px 15px}
+  html[data-betting-polish541="1"] #bettingView .bet144-pickmain{grid-column:1/-1;grid-row:auto}
+  html[data-betting-polish541="1"] #bettingView .bet144-stat{text-align:left}
+  html[data-betting-polish541="1"] #bettingView .bet144-ticket{padding:13px;border-radius:12px}
+  html[data-betting-polish541="1"] #bettingView .bet144-numbers{gap:5px}
+  html[data-betting-polish541="1"] #bettingView .bet144-number{min-height:48px;padding:6px 7px}
+  html[data-betting-polish541="1"] #bettingView .bet144-number b{font-size:11px}
+}
+
+@media(max-width:440px){
+  html[data-betting-polish541="1"] #bettingView .bet144-metric{padding-left:12px}
+  html[data-betting-polish541="1"] #bettingView .bet144-metric:before{display:none}
+  html[data-betting-polish541="1"] #bettingView .bet144-metric>span{font-size:8px}
+  html[data-betting-polish541="1"] #bettingView .bet144-metric>b{font-size:17px}
+  html[data-betting-polish541="1"] #bettingView .bet144-numbers{grid-template-columns:1fr 1fr}
+  html[data-betting-polish541="1"] #bettingView .bet144-number:last-child{grid-column:1/-1}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html[data-betting-polish541="1"] #bettingView *{transition:none!important;animation:none!important}
+}
