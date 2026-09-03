@@ -23,6 +23,22 @@ async function bettingResults(req,res,u){
  const matches=bets.map(bet=>{const hit=matchBet(bet,all);return hit?{betId:bet.id,confidence:hit.confidence,fixture:hit.fixture}:null}).filter(Boolean);
  return res.status(200).json({ok:true,version:'544.0.0',provider:'API-Football',dates,fixturesChecked:all.length,matches,errors});
 }
+function unique(values){return [...new Set(values.filter(Boolean))]}
+function absolutize(base,raw){try{return new URL(String(raw||''),base).toString()}catch{return null}}
+async function chanceProbe(req,res,u){
+ res.setHeader('Cache-Control','no-store');
+ if(req.method!=='GET')return res.status(405).json({ok:false,error:'METHOD_NOT_ALLOWED'});
+ const host=String(u.searchParams.get('host')||'www').toLowerCase()==='m'?'m.chance.cz':'www.chance.cz';
+ const target=`https://${host}/`;
+ try{
+  const r=await fetch(target,{headers:{'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/152 Safari/537.36','Accept':'text/html,application/xhtml+xml','Accept-Language':'cs-CZ,cs;q=0.9,en;q=0.7'},redirect:'follow',cache:'no-store'});
+  const text=await r.text();
+  const scripts=unique([...text.matchAll(/<script[^>]+src=["']([^"']+)["']/gi)].map(m=>absolutize(r.url,m[1]))).slice(0,40);
+  const links=unique([...text.matchAll(/<link[^>]+href=["']([^"']+)["']/gi)].map(m=>absolutize(r.url,m[1]))).slice(0,40);
+  const endpointHints=unique([...text.matchAll(/https?:\\?\/\\?\/[A-Za-z0-9._~:/?#[\]@!$&'()*+,;=%-]+/g)].map(m=>String(m[0]).replaceAll('\\/','/')).filter(x=>/chance|api|sport|bet|offer|event|odds/i.test(x))).slice(0,80);
+  return res.status(r.ok?200:r.status).json({ok:r.ok,status:r.status,url:r.url,contentType:r.headers.get('content-type'),bytes:text.length,scripts,links,endpointHints,head:text.slice(0,1600)});
+ }catch(error){return res.status(502).json({ok:false,error:'CHANCE_WEB_PROBE_FAILED',message:String(error?.message||error)})}
+}
 export default async function handler(req,res){
  const u=requestUrl(req),source=String(u.searchParams.get('source')||'').toLowerCase();
  res.setHeader('Content-Type','application/json; charset=utf-8');
@@ -33,6 +49,7 @@ export default async function handler(req,res){
   res.setHeader('Allow','GET, POST, PUT');return res.status(405).json({ok:false,error:'METHOD_NOT_ALLOWED'});
  }
  if(source==='bet_results')return bettingResults(req,res,u);
+ if(source==='chance_probe')return chanceProbe(req,res,u);
  res.setHeader('Cache-Control','public, s-maxage=600, stale-while-revalidate=1800');
  if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({ok:false,error:'METHOD_NOT_ALLOWED'})}
  const ss=symbols(req),range=ranges.has(u.searchParams.get('range'))?u.searchParams.get('range'):'1mo';if(!ss.length)return res.status(400).json({ok:false,error:'NO_SYMBOLS'});const series=[],errors=[];for(const s of ss){try{series.push(await one(s,range))}catch(e){errors.push({symbol:s,error:String(e?.message||e).slice(0,80)})}}return res.status(series.length?200:502).json({ok:series.length>0,provider:'Yahoo Finance chart',range,fetchedAt:new Date().toISOString(),series,errors})}
