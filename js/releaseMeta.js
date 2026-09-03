@@ -1,3 +1,3 @@
-export const APP_VERSION='691.0.0';
-export const APP_RELEASE='691.0.0';
-// OS691: Betting reliability hardening — provider quota stop, source-only DOM observers, stable bet identity, slower automatic scans and canonical ledger updates.
+export const APP_VERSION='692.0.0';
+export const APP_RELEASE='692.0.0';
+// OS692: Exact Chance.cz odds provider abstraction with batched Odds-API.io ingestion, independent Kamil OS value model, locked-bet exclusion and PulseScore fallback.
