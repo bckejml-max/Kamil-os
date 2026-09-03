@@ -12,6 +12,7 @@ on:
       - 'js/betting*.js'
       - 'betting_reliability_691_guard.mjs'
       - 'package.json'
+      - '.github/workflows/betting691.yml'
 
 jobs:
   betting-reliability:
@@ -23,3 +24,5 @@ jobs:
           node-version: 24
       - name: Validate betting architecture and syntax
         run: node betting_reliability_691_guard.mjs
+      - name: Validate complete Kamil OS release chain
+        run: npm run test:release
