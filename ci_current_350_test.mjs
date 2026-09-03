@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 const read=p=>fs.readFileSync(p,'utf8');
 const boot=read('js/instantShell64.js');
 const shell=read('js/personalShell640.js');
+const app=read('js/app.js');
 const ticketPage=read('js/ticketPage100.js');
 const ticketUi=read('js/ticketUi421.js');
 const ticketConsolidation=read('js/ticketConsolidation466.js');
@@ -16,9 +17,12 @@ const pkg=JSON.parse(read('package.json'));
 const version=release.match(/APP_VERSION='([^']+)'/)?.[1]||'';
 assert.equal(pkg.version,version,'package.json and releaseMeta must agree');
 
-// Current personal shell: question engine is lazy, not a startup dependency.
-assert.ok(shell.includes("lazy('./personalAsk640.js','answerPersonalQuestion640')"),'personalAsk640 must remain lazy-loaded by the canonical shell');
-assert.ok(shell.includes("go.textContent='Najít / zeptat se'"),'canonical personal command CTA missing');
+// Current personal shell: Personal Ask must not become a startup dependency. The
+// canonical user entry point is the global Command Bar owned by app.js/viewRuntime41.
+assert.ok(!boot.includes('personalAsk640.js')&&!shell.includes("from './personalAsk640.js'"),'personalAsk640 must stay out of startup dependencies');
+assert.ok(shell.includes('const lazy=async(path,name)=>')&&shell.includes("lazy('./personalMore640.js','openPersonalMore640')"),'personal shell lazy-loading contract missing');
+assert.ok(app.includes("const input=qs('#commandInput')")&&app.includes('executeCommand41(v)'),'canonical command bar execution missing');
+assert.ok(app.includes("e.key.toLowerCase()==='k'")&&app.includes('input.focus()'),'Ctrl+K canonical command shortcut missing');
 assert.ok(!shell.includes("from './personalAssistant530.js'"),'legacy Assistant 53 must not return to startup');
 
 // Current ticket ownership: Ticket Desk is on-demand; canonical UI owns page DOM and consolidation is logic-only.
