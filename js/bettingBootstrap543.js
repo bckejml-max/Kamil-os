@@ -3,6 +3,7 @@ let autoSettleStarted=false;
 let intelligenceStarted=false;
 let budgetStarted=false;
 let timingStarted=false;
+let performanceStarted=false;
 async function ensureBudget(){
  if(budgetStarted)return true;
  try{const budget=await import('./bettingRequestBudget561.js?rev=os561');budget.installBettingRequestBudget561?.();budgetStarted=true;return true}catch{return false}
@@ -10,6 +11,10 @@ async function ensureBudget(){
 async function ensureTiming(){
  if(timingStarted)return true;
  try{const timing=await import('./bettingTiming564.js?rev=os564');timing.installBettingTiming564?.();timingStarted=true;return true}catch{return false}
+}
+async function ensurePerformance(){
+ if(performanceStarted)return true;
+ try{const performance=await import('./bettingPerformance565.js?rev=os565');performance.installBettingPerformance565?.();performanceStarted=true;return true}catch{return false}
 }
 async function boot(){
  const root=document.querySelector('#bettingView');
@@ -19,6 +24,7 @@ async function boot(){
   if(!autoSettleStarted){try{const auto=await import('./bettingAutoSettle544.js?rev=os544');auto.runBettingAutoSettle544?.();autoSettleStarted=true}catch{}}
   if(!intelligenceStarted){try{const intelligence=await import('./bettingIntelligence560.js?rev=os560');intelligence.installBettingIntelligence560?.();intelligenceStarted=true}catch{}}
   await ensureTiming();
+  await ensurePerformance();
   return true;
  }
  started=true;
@@ -29,7 +35,8 @@ async function boot(){
   auto.runBettingAutoSettle544?.();autoSettleStarted=true;
   intelligence.installBettingIntelligence560?.();intelligenceStarted=true;
   await ensureTiming();
-  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'564.0.0',budget:true,timing:true,at:Date.now()};
+  await ensurePerformance();
+  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'565.0.0',budget:true,timing:true,performance:true,at:Date.now()};
   return true;
  }catch(error){window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:false,error:String(error?.message||error),at:Date.now()};return false}
 }
