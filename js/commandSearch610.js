@@ -22,7 +22,8 @@ function navIntent(raw){const q=norm(raw);const map=[
  [['hypoteční scénáře','hypotecni scenare','financování bytu','financovani bytu'],['money','property']],
  [['historie majetku','net worth historie','vývoj majetku','vyvoj majetku'],['money','wealth-history']],
  [['ticket risk','riziko vstupenek','exposure vstupenek'],['tickets','ticket-risk']],
- [['rodinný týden','rodinny tyden','family hub'],['family','family-week']]
+ [['rodinný týden','rodinny tyden','family hub'],['family','family-week']],
+ [['sázky 2.0','sazky 2.0','sázky 2','sazky 2','betting 2.0','betting 2','betting command center','co vsadit','co mám vsadit','co mam vsadit'],['betting','betting-hub']]
  ];
  for(const [terms,target] of map)if(terms.includes(q))return{target:target[0],focus:target[1]};return null
 }
