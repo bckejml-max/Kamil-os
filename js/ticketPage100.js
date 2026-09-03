@@ -3,7 +3,7 @@
 // never block or take DOM ownership away from the visible Commander workflow.
 
 let bootPromise=null,legacyPromise=null;
-const BOOT_VERSION='466.1.5';
+const BOOT_VERSION='640.0.0';
 const LEGACY_DELAY_MS=12000;
 const LEGACY_RETRY_MS=1800;
 const LEGACY_YIELD_MS=12;
@@ -13,7 +13,8 @@ const CRITICAL=[
   ['./ticketUi421.js','installTicketUi421','CANONICAL UI 421/466'],
   ['./ticketMarketEngine426.js','installTicketMarketEngine426','ENGINE 426'],
   ['./ticketCommander465.js','installTicketCommander465','COMMANDER 465'],
-  ['./ticketConsolidation466.js','installTicketConsolidation466','EXECUTION UI 466']
+  ['./ticketConsolidation466.js','installTicketConsolidation466','EXECUTION UI 466'],
+  ['./ticketHub640.js','installTicketHub640','TICKETS 2.0 640']
 ];
 const ESSENTIAL_ANALYTICS=[
   ['./ticketMarketHealth397.js','installTicketMarketHealth397','MARKET HEALTH 397'],
