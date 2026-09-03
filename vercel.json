@@ -10,6 +10,10 @@
     {
       "source": "/api/chance-model-pages",
       "destination": "/api/core70-health?source=chance_pages"
+    },
+    {
+      "source": "/api/betting-ledger543",
+      "destination": "/api/market-history?source=ledger543"
     }
   ],
   "headers": [
