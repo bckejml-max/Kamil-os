@@ -9,7 +9,7 @@ const addMatch=(out,q,kind,title,detail,target,id,focus)=>{if(norm(`${title} ${d
 
 export function searchExtended610(raw){
  const q=norm(raw);if(!q)return[];const s=S(),out=[];
- for(const x of A(s.propertyBook?.candidates))addMatch(out,q,'Investiční byt',x.name||x.title||'Nemovitost',[x.location,x.purchasePrice||x.priceCzk||x.price?money(x.purchasePrice||x.priceCzk||x.price):'',x.monthlyRent||x.rentCzk?`nájem ${money(x.monthlyRent||x.rentCzk)}`:''].filter(Boolean).join(' · '),'money',x.id,'property');
+ for(const x of A(s.propertyBook?.candidates))addMatch(out,q,'Reality 2.0',x.name||x.title||'Nemovitost',[x.location,x.purchasePrice||x.priceCzk||x.price?money(x.purchasePrice||x.priceCzk||x.price):'',x.monthlyRent||x.rentCzk?`nájem ${money(x.monthlyRent||x.rentCzk)}`:'',x.areaM2||x.sizeM2||x.floorArea||x.area?`${x.areaM2||x.sizeM2||x.floorArea||x.area} m²`:''].filter(Boolean).join(' · '),'money',x.id,'property-hub');
  for(const x of A(s.ticketBook?.watchlist))addMatch(out,q,'Ticket watchlist',x.name||x.event||x.title||'Sledovaná akce',[x.city,x.venue,x.date||x.eventDate].filter(Boolean).join(' · '),'tickets',x.id,'ticket-risk');
  for(const x of A(s.ticketBook?.opportunities||s.ticketOpportunities||s.ticket_market_opportunities))addMatch(out,q,'Ticket příležitost',x.name||x.event||x.title||'Příležitost',[x.city,x.category,x.maxBuyPrice||x.maxBuyPriceCzk?`max ${money(x.maxBuyPrice||x.maxBuyPriceCzk)}`:''].filter(Boolean).join(' · '),'tickets',x.id,'ticket-risk');
  for(const x of A(s.netWorthBook?.history))addMatch(out,q,'Historie majetku',x.title||x.label||`Snapshot ${x.asOf||x.date||''}`,[x.netKnown!=null?`netto ${money(x.netKnown)}`:'',x.knownAssets!=null?`aktiva ${money(x.knownAssets)}`:''].filter(Boolean).join(' · '),'money',x.id,'wealth-history');
@@ -18,7 +18,8 @@ export function searchExtended610(raw){
  return out.slice(0,15)
 }
 function navIntent(raw){const q=norm(raw);const map=[
- [['ukaž reality','ukaz reality','ukaž byty','ukaz byty','investiční byty','investicni byty'],['money','property']],
+ [['ukaž reality','ukaz reality','ukaž byty','ukaz byty','investiční byty','investicni byty','reality 2.0','reality 2','property hub','porovnej byty','srovnej byty'],['money','property-hub']],
+ [['hypoteční scénáře','hypotecni scenare','financování bytu','financovani bytu'],['money','property']],
  [['historie majetku','net worth historie','vývoj majetku','vyvoj majetku'],['money','wealth-history']],
  [['ticket risk','riziko vstupenek','exposure vstupenek'],['tickets','ticket-risk']],
  [['rodinný týden','rodinny tyden','family hub'],['family','family-week']]
