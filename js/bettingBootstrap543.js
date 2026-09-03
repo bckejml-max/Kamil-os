@@ -4,6 +4,7 @@ let intelligenceStarted=false;
 let budgetStarted=false;
 let timingStarted=false;
 let performanceStarted=false;
+let missedStarted=false;
 async function ensureBudget(){
  if(budgetStarted)return true;
  try{const budget=await import('./bettingRequestBudget561.js?rev=os561');budget.installBettingRequestBudget561?.();budgetStarted=true;return true}catch{return false}
@@ -16,6 +17,10 @@ async function ensurePerformance(){
  if(performanceStarted)return true;
  try{const performance=await import('./bettingPerformance565.js?rev=os565');performance.installBettingPerformance565?.();performanceStarted=true;return true}catch{return false}
 }
+async function ensureMissed(){
+ if(missedStarted)return true;
+ try{const missed=await import('./bettingMissed566.js?rev=os566');missed.installBettingMissed566?.();missedStarted=true;return true}catch{return false}
+}
 async function boot(){
  const root=document.querySelector('#bettingView');
  if(!root)return false;
@@ -25,6 +30,7 @@ async function boot(){
   if(!intelligenceStarted){try{const intelligence=await import('./bettingIntelligence560.js?rev=os560');intelligence.installBettingIntelligence560?.();intelligenceStarted=true}catch{}}
   await ensureTiming();
   await ensurePerformance();
+  await ensureMissed();
   return true;
  }
  started=true;
@@ -36,7 +42,8 @@ async function boot(){
   intelligence.installBettingIntelligence560?.();intelligenceStarted=true;
   await ensureTiming();
   await ensurePerformance();
-  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'565.0.0',budget:true,timing:true,performance:true,at:Date.now()};
+  await ensureMissed();
+  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'566.0.0',budget:true,timing:true,performance:true,missed:true,at:Date.now()};
   return true;
  }catch(error){window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:false,error:String(error?.message||error),at:Date.now()};return false}
 }
