@@ -39,6 +39,7 @@ function scheduleDeferred345(){
     await deferredImport('./investmentBattle480.js','installInvestmentBattle480');
     await deferredImport('./managerDeadlines481.js','installManagerDeadlines481');
     await deferredImport('./morningDirector483.js','installMorningDirector483');
+    await deferredImport('./personalUpgrade600.js','installPersonalUpgrade600');
     await deferredImport('./focusRadar334.js','installFocusRadar334');
     await deferredImport('./actionExecution336.js','installActionExecution336');
     await deferredImport('./todayCockpit363.js','installTodayCockpit363');
