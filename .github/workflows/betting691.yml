@@ -1,14 +1,16 @@
-name: OS691 Betting Reliability QA
+name: OS693 Betting Reliability QA
 
 on:
   push:
     paths:
+      - 'api/market-history.js'
       - 'js/betting*.js'
       - 'betting_reliability_691_guard.mjs'
       - 'package.json'
       - '.github/workflows/betting691.yml'
   pull_request:
     paths:
+      - 'api/market-history.js'
       - 'js/betting*.js'
       - 'betting_reliability_691_guard.mjs'
       - 'package.json'
