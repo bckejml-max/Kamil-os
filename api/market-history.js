@@ -1,6 +1,7 @@
 import {quoteSymbol32} from '../js/marketQuote32.js';
 import {getBettingLedger543,mutateBettingLedger543} from '../lib/betting-ledger543-store.js';
 const UA='Mozilla/5.0 (compatible; KamilOS/111; +https://kamil-os-smoke.vercel.app/)';
+const BROWSER_UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/152 Safari/537.36';
 const ranges=new Set(['1mo','3mo','6mo','1y']);
 function requestUrl(req){return new URL(String(req.url||'/api/market-history'),'https://kamil-os-smoke.vercel.app')}
 function symbols(req){const u=requestUrl(req),out=[];for(const raw of String(u.searchParams.get('symbols')||'').split(',')){const s=quoteSymbol32(raw);if(s&&!out.includes(s))out.push(s);if(out.length>=16)break}return out}
@@ -23,6 +24,48 @@ async function bettingResults(req,res,u){
  const matches=bets.map(bet=>{const hit=matchBet(bet,all);return hit?{betId:bet.id,confidence:hit.confidence,fixture:hit.fixture}:null}).filter(Boolean);
  return res.status(200).json({ok:true,version:'544.0.0',provider:'API-Football',dates,fixturesChecked:all.length,matches,errors});
 }
+function unique(values){return [...new Set(values.filter(Boolean))]}
+function absolutize(base,raw){try{return new URL(String(raw||''),base).toString()}catch{return null}}
+async function apiFootballBookmakers(key,search){
+ if(!key)return{configured:false,search,items:[],error:'API_FOOTBALL_NOT_CONFIGURED'};
+ try{
+  const r=await fetch(`https://v3.football.api-sports.io/odds/bookmakers?search=${encodeURIComponent(search)}`,{headers:{Accept:'application/json','x-apisports-key':key},cache:'no-store'});
+  const j=await r.json().catch(()=>null);
+  return{configured:true,search,status:r.status,items:Array.isArray(j?.response)?j.response.map(x=>({id:x?.id??null,name:x?.name??null})).filter(x=>x.id!=null||x.name):[],errors:j?.errors&&Object.keys(j.errors).length?j.errors:null};
+ }catch(error){return{configured:true,search,status:null,items:[],error:String(error?.message||error)}}
+}
+async function fixedTextProbe(url){
+ try{
+  const r=await fetch(url,{headers:{'User-Agent':BROWSER_UA,'Accept':'application/xml,text/xml,text/plain,text/html,*/*','Accept-Language':'cs-CZ,cs;q=0.9,en;q=0.7'},redirect:'follow',cache:'no-store'});
+  const text=await r.text();
+  return{url:r.url,status:r.status,ok:r.ok,contentType:r.headers.get('content-type'),bytes:text.length,looksLikeOdds:/kurz|odds|match|zapas|sazk|event|offer/i.test(text),head:text.slice(0,500)};
+ }catch(error){return{url,status:null,ok:false,error:String(error?.message||error)}}
+}
+async function chanceShellProbe(){
+ const target='https://www.chance.cz/';
+ try{
+  const r=await fetch(target,{headers:{'User-Agent':BROWSER_UA,'Accept':'text/html,application/xhtml+xml','Accept-Language':'cs-CZ,cs;q=0.9,en;q=0.7'},redirect:'follow',cache:'no-store'});
+  const text=await r.text();
+  const scripts=unique([...text.matchAll(/<script[^>]+src=["']([^"']+)["']/gi)].map(m=>absolutize(r.url,m[1]))).slice(0,30);
+  const endpointHints=unique([...text.matchAll(/https?:\\?\/\\?\/[A-Za-z0-9._~:/?#[\]@!$&'()*+,;=%-]+/g)].map(m=>String(m[0]).replaceAll('\\/','/')).filter(x=>/chance|api|sport|bet|offer|event|odds/i.test(x))).slice(0,40);
+  return{status:r.status,ok:r.ok,url:r.url,contentType:r.headers.get('content-type'),bytes:text.length,scripts,endpointHints};
+ }catch(error){return{status:null,ok:false,error:String(error?.message||error)}}
+}
+async function oddsProbe692(req,res){
+ res.setHeader('Cache-Control','no-store');
+ if(req.method!=='GET')return res.status(405).json({ok:false,error:'METHOD_NOT_ALLOWED'});
+ const key=String(process.env.API_FOOTBALL_KEY||process.env.API_SPORTS_KEY||'').trim();
+ const [chanceBook,tipsportBook,tipsportXml,tipsportFeed,chanceShell]=await Promise.all([
+  apiFootballBookmakers(key,'Chance'),
+  apiFootballBookmakers(key,'Tipsport'),
+  fixedTextProbe('https://ban.tipsport.cz/f/oddsFeed.xml'),
+  fixedTextProbe('https://ban.tipsport.cz/f/feed.xml'),
+  chanceShellProbe()
+ ]);
+ const bookmakerHit=[...chanceBook.items,...tipsportBook.items].length>0;
+ const publicFeedHit=tipsportXml.ok&&tipsportXml.looksLikeOdds||tipsportFeed.ok&&tipsportFeed.looksLikeOdds;
+ return res.status(200).json({ok:true,version:'692-probe-1',fetchedAt:new Date().toISOString(),apiFootball:{configured:!!key,chance:chanceBook,tipsport:tipsportBook,usable:bookmakerHit},tipsportPublic:{oddsFeed:tipsportXml,feed:tipsportFeed,usable:publicFeedHit},chanceShell,decision:bookmakerHit?'API_FOOTBALL_BOOKMAKER':publicFeedHit?'TIPSPORT_PUBLIC_FEED':'NO_DIRECT_SOURCE_FOUND'});
+}
 export default async function handler(req,res){
  const u=requestUrl(req),source=String(u.searchParams.get('source')||'').toLowerCase();
  res.setHeader('Content-Type','application/json; charset=utf-8');
@@ -33,6 +76,7 @@ export default async function handler(req,res){
   res.setHeader('Allow','GET, POST, PUT');return res.status(405).json({ok:false,error:'METHOD_NOT_ALLOWED'});
  }
  if(source==='bet_results')return bettingResults(req,res,u);
+ if(source==='odds_probe692')return oddsProbe692(req,res);
  res.setHeader('Cache-Control','public, s-maxage=600, stale-while-revalidate=1800');
  if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({ok:false,error:'METHOD_NOT_ALLOWED'})}
  const ss=symbols(req),range=ranges.has(u.searchParams.get('range'))?u.searchParams.get('range'):'1mo';if(!ss.length)return res.status(400).json({ok:false,error:'NO_SYMBOLS'});const series=[],errors=[];for(const s of ss){try{series.push(await one(s,range))}catch(e){errors.push({symbol:s,error:String(e?.message||e).slice(0,80)})}}return res.status(series.length?200:502).json({ok:series.length>0,provider:'Yahoo Finance chart',range,fetchedAt:new Date().toISOString(),series,errors})}

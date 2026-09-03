@@ -1,0 +1,32 @@
+name: OS692 Betting Odds Feed QA
+
+on:
+  push:
+    paths:
+      - 'api/market-history.js'
+      - 'lib/betting-odds692.js'
+      - 'js/betting*.js'
+      - 'betting_odds_692_guard.mjs'
+      - 'package.json'
+      - '.github/workflows/betting692.yml'
+  pull_request:
+    paths:
+      - 'api/market-history.js'
+      - 'lib/betting-odds692.js'
+      - 'js/betting*.js'
+      - 'betting_odds_692_guard.mjs'
+      - 'package.json'
+      - '.github/workflows/betting692.yml'
+
+jobs:
+  betting-odds-feed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Validate consolidated betting API syntax
+        run: node --check api/market-history.js
+      - name: Validate complete Kamil OS release chain
+        run: npm run test:release
