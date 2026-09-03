@@ -1,3 +1,3 @@
-export const APP_VERSION='691.0.0';
-export const APP_RELEASE='691.0.0';
-// OS691: Betting reliability hardening — provider quota stop, source-only DOM observers, stable bet identity, slower automatic scans and canonical ledger updates.
+export const APP_VERSION='693.0.0';
+export const APP_RELEASE='693.0.0';
+// OS693: Betting feed provider switch — Odds-API.io Chance.cz adapter with batch caching and PulseScore fallback.
