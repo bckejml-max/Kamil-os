@@ -24,7 +24,8 @@ assert.ok(budget.includes("return syntheticBudgetError(s)"),'exhausted PulseScor
 const timing=read('js/bettingTiming564.js');
 assert.ok(timing.includes("8*3600000"),'normal autoscan cooldown must be 8h');
 assert.ok(timing.includes("mode==='exhausted'?Infinity"),'PulseScore fallback autoscan must stop when its quota is exhausted');
-assert.ok(timing.includes("mode==='alternate'"),'OS692 exact feed must supersede PulseScore STOP state');
+assert.ok(timing.includes("feed?.live===true&&feed?.operational===true"),'OS692 timing may supersede PulseScore only after a verified live scan');
+assert.ok(timing.includes("mode==='alternate'"),'OS692 exact feed must have a separate timing mode');
 
 const bootstrap=read('js/bettingBootstrap543.js');
 assert.ok(bootstrap.includes("const REV='os692'"),'OS692 bootstrap cache-bust revision missing');
@@ -34,6 +35,7 @@ assert.ok(!bootstrap.includes('if(!boot())'),'broken Promise truthiness bootstra
 const feed=read('js/bettingFeed692.js');
 assert.ok(feed.includes("source=bet_odds692"),'OS692 exact feed endpoint missing');
 assert.ok(feed.includes("bookmaker:'Chance.cz'"),'OS692 must identify exact Chance bookmaker');
+assert.ok(feed.includes("s?.live===true&&s?.operational===true"),'legacy PulseScore scanner may hide only after the exact feed is live and operational');
 
 const control=read('js/bettingControl586.js');assert.ok(control.includes("b.sport||'Nezařazeno'"),'unknown sports must stay Nezařazeno');
 const missed=read('js/bettingMissed566.js');assert.ok(missed.includes('freshObservation'),'missed-bet observations must be deduplicated');
