@@ -1,5 +1,7 @@
+import {bettingSourceMutation691} from './bettingDomGuard691.js';
+
 const STORAGE_KEY='kamil_betting_confirmed_542';
-const VERSION='542.0.0';
+const VERSION='542.1.0';
 
 const parseNumber=value=>{
  const m=String(value||'').replace(/\s/g,'').replace(',','.').match(/-?\d+(?:\.\d+)?/);
@@ -18,8 +20,13 @@ function writeConfirmed(value){
  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(value));return true}catch{return false}
 }
 function normalize(value){return String(value||'').replace(/\s+/g,' ').trim().toLowerCase()}
+function cleanStrongText(card){
+ const strong=card.querySelector('.bet144-pickmain strong');if(!strong)return'';
+ const clone=strong.cloneNode(true);clone.querySelectorAll('.bet560-corr,.bet564-urgency,.bet565-flag').forEach(x=>x.remove());
+ return clone.textContent||'';
+}
 function fingerprint(card){
- const title=card.querySelector('.bet144-pickmain strong')?.textContent||'';
+ const title=cleanStrongText(card);
  const detail=card.querySelector('.bet144-pickmain span')?.textContent||'';
  return normalize(`${title}|${detail}`);
 }
@@ -29,7 +36,7 @@ function metric(card,label){
  return parseNumber(node?.querySelector('b')?.textContent);
 }
 function currentOdds(card){
- const text=card.querySelector('.bet144-pickmain strong')?.textContent||'';
+ const text=cleanStrongText(card);
  const match=text.match(/@\s*([0-9]+(?:[,.][0-9]+)?)/);
  return match?Number(match[1].replace(',','.')):null;
 }
@@ -56,6 +63,7 @@ function pickInfo(card){
 function ensureStyles(){
  if(document.querySelector('style[data-bet542]'))return;
  const style=document.createElement('style');
+ style.dataset.betting542='1';
  style.dataset.bet542='1';
  style.textContent=`
  .bet542-command{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(0,1.9fr);gap:12px;padding:14px;border:1px solid rgba(103,167,255,.18);border-radius:16px;background:linear-gradient(135deg,rgba(14,34,52,.96),rgba(7,20,32,.97));box-shadow:0 14px 36px rgba(0,0,0,.14)}
@@ -104,7 +112,7 @@ function renderCommander(root){
  else if(cards.length){verdict=`DNES ${cards.length} ${cards.length===1?'SÁZKA':cards.length<5?'SÁZKY':'SÁZEK'}`;sub='Seřazeno podle EV. Ověř kurz proti minimálnímu kurzu a potvrď až po skutečném vsazení.'}
  const mini=top.length?top.map((card,index)=>{
   const info=pickInfo(card);
-  const title=card.querySelector('.bet144-pickmain strong')?.textContent||'Value tip';
+  const title=cleanStrongText(card)||'Value tip';
   const detail=card.querySelector('.bet144-pickmain span')?.textContent||'';
   return `<article class="bet542-mini"><b>${index+1}. ${escapeHtml(title)}</b><small>${escapeHtml(detail)}</small><div class="bet542-minirow"><span>${info.grade} · ${info.confidence}/100</span><strong>${info.units}u · min ${info.minOdds?.toFixed(2)||'—'}</strong></div></article>`;
  }).join(''):'<div class="bet542-empty">TOP 3 se objeví po value skenu.</div>';
@@ -122,7 +130,7 @@ function enhanceCards(root){
   rail.innerHTML=`<div class="bet542-decision"><span>Min. kurz</span><b>${info.minOdds?.toFixed(2)||'—'}</b></div><div class="bet542-decision"><span>Stake</span><b>${info.units}u</b></div><div class="bet542-decision"><span>Confidence</span><b>${info.grade} · ${info.confidence}/100</b></div><button class="bet542-confirm" type="button">✓ VSADIL JSEM</button>`;
   rail.querySelector('button')?.addEventListener('click',()=>{
    const confirmed=readConfirmed();
-   confirmed[key]={at:new Date().toISOString(),title:card.querySelector('.bet144-pickmain strong')?.textContent||'',detail:card.querySelector('.bet144-pickmain span')?.textContent||'',odds:info.odds,minOdds:info.minOdds,units:info.units,confidence:info.confidence};
+   confirmed[key]={at:new Date().toISOString(),title:cleanStrongText(card),detail:card.querySelector('.bet144-pickmain span')?.textContent||'',odds:info.odds,minOdds:info.minOdds,units:info.units,confidence:info.confidence};
    writeConfirmed(confirmed);
    card.remove();
    renderCommander(root);
@@ -151,8 +159,8 @@ export function installBettingCommander542(){
  const root=document.querySelector('#bettingView');
  if(!root)return;
  if(root.__bet542Observer)return;
- const observer=new MutationObserver(refresh);
- observer.observe(root,{childList:true,subtree:true,characterData:true});
+ const observer=new MutationObserver(records=>{if(bettingSourceMutation691(records))refresh()});
+ observer.observe(root,{childList:true,subtree:true});
  root.__bet542Observer=observer;
  window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY)refresh()});
 }
