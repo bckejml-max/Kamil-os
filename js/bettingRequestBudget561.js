@@ -1,0 +1,36 @@
+const VERSION='561.0.0';
+const LIMIT=500;
+const WARN=400;
+const CRITICAL=470;
+const STORE='kamil_pulse_budget_561';
+const CACHE='kamil-pulse-cache-561';
+const originalFetch=window.fetch.bind(window);
+
+const now=()=>Date.now();
+const monthKey=()=>new Date().toISOString().slice(0,7);
+const esc=v=>String(v??'').replace(/[&<>'\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch]));
+function read(){try{const x=JSON.parse(localStorage.getItem(STORE)||'{}');if(x.month!==monthKey())return{month:monthKey(),used:0,log:[]};return{month:x.month,used:Number(x.used||0),log:Array.isArray(x.log)?x.log:[]}}catch{return{month:monthKey(),used:0,log:[]}}}
+function write(s){localStorage.setItem(STORE,JSON.stringify({...s,updatedAt:new Date().toISOString(),log:(s.log||[]).slice(-120)}))}
+function mode(used){if(used>=LIMIT)return'exhausted';if(used>=CRITICAL)return'critical';if(used>=WARN)return'economy';return'normal'}
+function state(){const s=read();return{...s,limit:LIMIT,remaining:Math.max(0,LIMIT-s.used),mode:mode(s.used)}}
+function addUsage(cost,kind,url){if(!cost)return;const s=read();s.used=Math.max(0,Number(s.used||0)+Number(cost||0));s.log.push({at:new Date().toISOString(),cost:Number(cost||0),kind,url:String(url||'').slice(0,180)});write(s);publish()}
+function isManaged(url){try{const u=new URL(String(url),location.href);if(u.pathname==='/api/chance-model-pages')return'discovery';if(u.pathname==='/api/core70-health'&&u.searchParams.get('source')==='chance')return'scan';return null}catch{return null}}
+function normalizedRequest(input){const raw=typeof input==='string'?input:input?.url;const u=new URL(String(raw),location.href);u.searchParams.delete('_');return new Request(u.toString(),{method:'GET',headers:{Accept:'application/json'}})}
+function baseTtl(kind,m){if(kind==='discovery')return m==='critical'?24*3600000:m==='economy'?12*3600000:6*3600000;return m==='critical'?6*3600000:m==='economy'?2*3600000:45*60000}
+function staleAllowance(kind,m){if(m==='exhausted')return kind==='discovery'?7*86400000:48*3600000;if(m==='critical')return kind==='discovery'?72*3600000:24*3600000;if(m==='economy')return kind==='discovery'?24*3600000:8*3600000;return 0}
+function dynamicScanTtl(payload,m){const starts=[];for(const e of Array.isArray(payload?.events)?payload.events:[]){const t=Date.parse(e?.startTime||e?.startsAt||e?.start||'');if(Number.isFinite(t)&&t>now())starts.push(t)}if(!starts.length)return baseTtl('scan',m);const hours=(Math.min(...starts)-now())/3600000;if(hours<=6)return m==='critical'?90*60000:m==='economy'?45*60000:20*60000;if(hours<=24)return m==='critical'?4*3600000:m==='economy'?2*3600000:45*60000;return m==='critical'?12*3600000:m==='economy'?8*3600000:4*3600000}
+async function cached(kind,req,m){try{const c=await caches.open(CACHE),r=await c.match(req);if(!r)return null;const saved=Number(r.headers.get('x-kamil-saved-at')||0),ttl=Number(r.headers.get('x-kamil-ttl')||baseTtl(kind,m)),age=now()-saved;const fresh=age<=ttl,staleOk=age<=ttl+staleAllowance(kind,m);if(fresh||(m!=='normal'&&staleOk)){const h=new Headers(r.headers);h.set('x-kamil-cache','HIT');h.set('x-kamil-cache-age',String(age));return new Response(await r.clone().arrayBuffer(),{status:r.status,statusText:r.statusText,headers:h})}return null}catch{return null}}
+async function saveCache(kind,req,res,payload,m){try{if(!res.ok)return;const ttl=kind==='scan'?dynamicScanTtl(payload,m):baseTtl(kind,m);const h=new Headers(res.headers);h.set('x-kamil-saved-at',String(now()));h.set('x-kamil-ttl',String(ttl));h.set('x-kamil-cache','MISS');const body=await res.clone().arrayBuffer();const c=await caches.open(CACHE);await c.put(req,new Response(body,{status:res.status,statusText:res.statusText,headers:h}))}catch{}}
+function syntheticBudgetError(){return new Response(JSON.stringify({ok:false,error:'PULSE_BUDGET_GUARD',message:'OS561 chrání měsíční limit PulseScore. Použijeme poslední cache; nový discovery sken je v kritickém režimu zablokovaný.'}),{status:429,headers:{'content-type':'application/json','cache-control':'no-store'}})}
+function costOf(kind,payload){if(kind==='discovery'){const n=Number(payload?.scannedPages||payload?.totalPages||0);return Number.isFinite(n)&&n>0?Math.max(1,Math.min(60,n)):1}return 1}
+async function managedFetch(input,init){const kind=isManaged(typeof input==='string'?input:input?.url);if(!kind)return originalFetch(input,init);const s=state(),req=normalizedRequest(input);const hit=await cached(kind,req,s.mode);if(hit){publish({lastCache:'HIT',lastKind:kind});return hit}
+ if(s.mode==='exhausted'||(s.mode==='critical'&&kind==='discovery')){publish({lastCache:'BLOCKED',lastKind:kind});return syntheticBudgetError()}
+ const res=await originalFetch(input,init);let payload=null;try{payload=await res.clone().json()}catch{}
+ if(res.ok&&payload?.ok!==false){addUsage(costOf(kind,payload),kind,req.url);await saveCache(kind,req,res,payload,state().mode)}
+ publish({lastCache:'MISS',lastKind:kind});return res}
+function budgetColor(m){return m==='normal'?'#8fe0ad':m==='economy'?'#f0c979':m==='critical'?'#f29d75':'#f28c8c'}
+function label(m){return m==='normal'?'NORMAL':m==='economy'?'ÚSPORNÝ':m==='critical'?'KRITICKÝ':'STOP'}
+function render(extra={}){const root=document.querySelector('#bettingView');if(!root)return;const s=state();let box=root.querySelector('[data-bet561]');if(!box){box=document.createElement('section');box.dataset.bet561='1';box.style.cssText='display:grid;gap:6px;padding:10px 12px;border:1px solid rgba(135,164,194,.14);border-radius:10px;background:rgba(7,19,31,.55);font-size:10px;color:#8198ab';const anchor=root.querySelector('[data-bet560]')||root.querySelector('[data-bet543]')||root.querySelector('.bet144-metrics');anchor?.insertAdjacentElement('afterend',box)}if(!box)return;const c=budgetColor(s.mode);box.innerHTML=`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b style="color:#dce8f1">🛡 OS561 PulseScore Budget</b><b style="color:${c}">${s.used} / ${LIMIT} · ${label(s.mode)}</b></div><div style="height:5px;border-radius:99px;background:rgba(135,164,194,.08);overflow:hidden"><i style="display:block;height:100%;width:${Math.min(100,s.used/LIMIT*100)}%;background:${c}"></i></div><div>Zbývá odhadem <b style="color:#dce8f1">${s.remaining}</b> requestů. Discovery cache: ${s.mode==='normal'?'6 h':s.mode==='economy'?'12 h':'24 h+'}; sken stránek se cacheuje podle času do zápasu.${s.mode==='critical'?' Nový discovery sken je blokovaný a OS preferuje stale cache.':''}${extra.lastCache?` · Poslední: ${esc(extra.lastKind)} ${esc(extra.lastCache)}`:''}</div>`;window.__KAMIL_PULSE_BUDGET561__={version:VERSION,...s,...extra,at:Date.now()}}
+function publish(extra={}){render(extra)}
+export function installBettingRequestBudget561(){if(window.__KAMIL_PULSE_BUDGET_FETCH_PATCHED__)return publish();window.__KAMIL_PULSE_BUDGET_FETCH_PATCHED__=true;window.fetch=managedFetch;publish();const root=document.querySelector('#bettingView');if(root&&!root.__bet561Observer){let busy=false;const o=new MutationObserver(()=>{if(busy)return;busy=true;setTimeout(()=>{busy=false;render()},150)});o.observe(root,{childList:true,subtree:true});root.__bet561Observer=o}setInterval(render,60000);return true}
+installBettingRequestBudget561();
