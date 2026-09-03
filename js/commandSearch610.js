@@ -28,6 +28,7 @@ function navIntent(raw){const q=norm(raw);const map=[
  [['co musím zaplatit','co musim zaplatit','co zaplatit','jaké platby čekají','jake platby cekaji'],['inbox','inbox-pay']],
  [['jaké mám termíny','jake mam terminy','co má termín','co ma termin','blížící termíny','blizici terminy'],['inbox','inbox-deadline']],
  [['jaké dokumenty řešit','jake dokumenty resit','co doložit','co dolozit','co podepsat','dokumenty k vyřízení','dokumenty k vyrizeni'],['inbox','inbox-document']],
+ [['money 2.0','money 2','peníze 2.0','penize 2.0','peníze 2','penize 2','finance 2.0','finance 2','moje finance','kolik mám peněz','kolik mam penez','kolik mám volného cash','kolik mam volneho cash','co mám ve financích','co mam ve financich'],['money','money-hub']],
  [['ukaž reality','ukaz reality','ukaž byty','ukaz byty','investiční byty','investicni byty','reality 2.0','reality 2','property hub','porovnej byty','srovnej byty'],['money','property-hub']],
  [['hypoteční scénáře','hypotecni scenare','financování bytu','financovani bytu'],['money','property']],
  [['historie majetku','net worth historie','vývoj majetku','vyvoj majetku'],['money','wealth-history']],
