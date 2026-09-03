@@ -17,15 +17,15 @@ export function searchExtended610(raw){
  for(const x of A(s.personalSpending?.transactions).slice(0,250))addMatch(out,q,'Výdaj / transakce',x.merchant||x.title||x.name||x.category||'Transakce',[x.category,x.amount!=null?money(Math.abs(Number(x.amount||0))):'',x.date||x.bookedAt].filter(Boolean).join(' · '),'money',x.id,'spending');
  for(const x of A(s.personalInbox?.items))addMatch(out,q,'Inbox 2.0',x.title||x.subject||x.name||'Inbox položka',[x.category,x.description||x.notes||x.summary,x.due||x.deadline].filter(Boolean).join(' · '),'inbox',x.id,'inbox-hub');
  for(const x of A(s.inbox))addMatch(out,q,'Inbox 2.0',x.title||x.subject||x.name||'Inbox položka',[x.category,x.description||x.notes||x.summary,x.due||x.deadline].filter(Boolean).join(' · '),'inbox',x.id,'inbox-hub');
- for(const x of A(s.delegations))addMatch(out,q,'Čekám na',x.title||x.name||x.waitingFor||'Čekající věc',[x.waitingFor,x.due||x.followUpAt].filter(Boolean).join(' · '),'inbox',x.id,'inbox-waiting');
+ for(const x of A(s.delegations))addMatch(out,q,'Waiting Center 2.0',x.title||x.name||x.waitingFor||'Čekající věc',[x.waitingOn||x.person||x.owner,x.expected||x.waitingForWhat,x.due||x.followUpAt].filter(Boolean).join(' · '),'inbox',x.id,'waiting-center');
  return out.slice(0,15)
 }
 function navIntent(raw){const q=norm(raw);const map=[
  [['dnes 2.0','dnes 2','today 2.0','today 2','co mám dnes udělat','co mam dnes udelat','co dnes udělat','co dnes udelat','hlavní priorita','hlavni priorita','co je dnes priorita'],['today',null]],
  [['inbox 2.0','inbox 2','central inbox','centrální inbox','centralni inbox','co je v inboxu','co mě čeká v inboxu','co me ceka v inboxu'],['inbox','inbox-hub']],
+ [['waiting center 2.0','waiting center 2','waiting center','čekání 2.0','cekani 2.0','čekání 2','cekani 2','na koho čekám','na koho cekam','co čekám','co cekam','follow-upy','follow upy','koho urgovat','co urgovat'],['inbox','waiting-center']],
  [['co musím odpovědět','co musim odpovedet','komu odpovědět','komu odpovedet','co odepsat','na co odpovědět','na co odpovedet'],['inbox','inbox-reply']],
  [['co musím zaplatit','co musim zaplatit','co zaplatit','jaké platby čekají','jake platby cekaji'],['inbox','inbox-pay']],
- [['na koho čekám','na koho cekam','co čekám','co cekam','follow-upy','follow upy'],['inbox','inbox-waiting']],
  [['jaké mám termíny','jake mam terminy','co má termín','co ma termin','blížící termíny','blizici terminy'],['inbox','inbox-deadline']],
  [['jaké dokumenty řešit','jake dokumenty resit','co doložit','co dolozit','co podepsat','dokumenty k vyřízení','dokumenty k vyrizeni'],['inbox','inbox-document']],
  [['ukaž reality','ukaz reality','ukaž byty','ukaz byty','investiční byty','investicni byty','reality 2.0','reality 2','property hub','porovnej byty','srovnej byty'],['money','property-hub']],
