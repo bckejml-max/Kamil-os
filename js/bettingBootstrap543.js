@@ -5,6 +5,7 @@ let budgetStarted=false;
 let timingStarted=false;
 let performanceStarted=false;
 let missedStarted=false;
+let controlStarted=false;
 async function ensureBudget(){
  if(budgetStarted)return true;
  try{const budget=await import('./bettingRequestBudget561.js?rev=os561');budget.installBettingRequestBudget561?.();budgetStarted=true;return true}catch{return false}
@@ -21,6 +22,10 @@ async function ensureMissed(){
  if(missedStarted)return true;
  try{const missed=await import('./bettingMissed566.js?rev=os566');missed.installBettingMissed566?.();missedStarted=true;return true}catch{return false}
 }
+async function ensureControl(){
+ if(controlStarted)return true;
+ try{const control=await import('./bettingControl586.js?rev=os586');control.installBettingControl586?.();controlStarted=true;return true}catch{return false}
+}
 async function boot(){
  const root=document.querySelector('#bettingView');
  if(!root)return false;
@@ -31,6 +36,7 @@ async function boot(){
   await ensureTiming();
   await ensurePerformance();
   await ensureMissed();
+  await ensureControl();
   return true;
  }
  started=true;
@@ -43,7 +49,8 @@ async function boot(){
   await ensureTiming();
   await ensurePerformance();
   await ensureMissed();
-  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'566.0.0',budget:true,timing:true,performance:true,missed:true,at:Date.now()};
+  await ensureControl();
+  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'586.0.0',budget:true,timing:true,performance:true,missed:true,control:true,at:Date.now()};
   return true;
  }catch(error){window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:false,error:String(error?.message||error),at:Date.now()};return false}
 }
