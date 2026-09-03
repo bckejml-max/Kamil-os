@@ -1,3 +1,3 @@
-export const APP_VERSION='600.0.0';
-export const APP_RELEASE='600.0.0';
-// OS600: unified personal cockpit, change digest, grounded Kamil Assistant, ticket actions and property Deal Score signals.
+export const APP_VERSION='610.0.0';
+export const APP_RELEASE='610.0.0';
+// OS610: wealth history, property financing scenarios, family weekly hub, extended Ctrl+K search and ticket exposure summary.
