@@ -1,0 +1,28 @@
+name: OS691 Betting Reliability QA
+
+on:
+  push:
+    paths:
+      - 'js/betting*.js'
+      - 'betting_reliability_691_guard.mjs'
+      - 'package.json'
+      - '.github/workflows/betting691.yml'
+  pull_request:
+    paths:
+      - 'js/betting*.js'
+      - 'betting_reliability_691_guard.mjs'
+      - 'package.json'
+      - '.github/workflows/betting691.yml'
+
+jobs:
+  betting-reliability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Validate betting architecture and syntax
+        run: node betting_reliability_691_guard.mjs
+      - name: Validate complete Kamil OS release chain
+        run: npm run test:release

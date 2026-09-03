@@ -1,6 +1,8 @@
+import {bettingSourceMutation691} from './bettingDomGuard691.js';
+
 const LEDGER_STORE='kamil_betting_ledger_543';
 const SNAP_STORE='kamil_betting_snapshots_545';
-const VERSION='560.0.0';
+const VERSION='560.1.0';
 const MAX_EXPOSURE_PCT=0.08;
 const MAX_EVENT_PICKS=2;
 
@@ -11,9 +13,10 @@ const esc=v=>String(v??'').replace(/[&<>'\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':
 function readJson(key,fallback){try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch{return fallback}}
 function writeJson(key,value){localStorage.setItem(key,JSON.stringify(value))}
 function ledger(){const s=readJson(LEDGER_STORE,{bets:[],bankrollCzk:0,unitCzk:0});s.bets=Array.isArray(s.bets)?s.bets:[];return s}
-function fingerprint(card){const title=card.querySelector('.bet144-pickmain strong')?.textContent?.trim()||'';const detail=card.querySelector('.bet144-pickmain span')?.textContent?.trim()||'';return `${detail}|${title.replace(/@\s*[0-9.,]+/,'')}`.toLowerCase()}
+function cleanStrongText(card){const strong=card.querySelector('.bet144-pickmain strong');if(!strong)return'';const clone=strong.cloneNode(true);clone.querySelectorAll('.bet560-corr,.bet564-urgency,.bet565-flag').forEach(x=>x.remove());return clone.textContent?.trim()||''}
+function fingerprint(card){const title=cleanStrongText(card);const detail=card.querySelector('.bet144-pickmain span')?.textContent?.trim()||'';return `${detail}|${title.replace(/@\s*[0-9.,]+/,'')}`.toLowerCase()}
 function cardData(card){
- const title=card.querySelector('.bet144-pickmain strong')?.textContent?.trim()||'';
+ const title=cleanStrongText(card);
  const detail=card.querySelector('.bet144-pickmain span')?.textContent?.trim()||'';
  const stats=Object.fromEntries([...card.querySelectorAll('.bet144-stat')].map(x=>[(x.querySelector('span')?.textContent||'').trim(),num(x.querySelector('b')?.textContent)]));
  const decisions=Object.fromEntries([...card.querySelectorAll('.bet542-decision')].map(x=>[(x.querySelector('span')?.textContent||'').trim(),num(x.querySelector('b')?.textContent)]));
@@ -65,7 +68,7 @@ function ensureStyles(){if(document.querySelector('style[data-bet560]'))return;c
 function decorateCards(ranked){
  for(const row of ranked){const card=row.card;card.dataset.bet560Key=row.d.key;let note=card.querySelector('.bet560-card-stake');if(!note){note=document.createElement('div');note.className='bet560-card-stake';card.querySelector('.bet144-pickmain')?.appendChild(note)}
   if(row.stake.blocked||row.eventRank>MAX_EVENT_PICKS){note.className='bet560-card-stake blocked';note.textContent=row.eventRank>MAX_EVENT_PICKS?'⚠ Korelace: SKIP':'⚠ Limit expozice: SKIP';}
-  else note.textContent=`Doporučený vklad: ${row.stake.units.toFixed(2)}u${row.stake.stakeCzk?` · ${money(row.stake.stakeCzk)}`:''}`;
+  else{note.className='bet560-card-stake';note.textContent=`Doporučený vklad: ${row.stake.units.toFixed(2)}u${row.stake.stakeCzk?` · ${money(row.stake.stakeCzk)}`:''}`}
   const btn=card.querySelector('.bet542-confirm');if(btn){btn.disabled=row.stake.blocked||row.eventRank>MAX_EVENT_PICKS;btn.dataset.bet560Stake=String(row.stake.stakeCzk||0);btn.dataset.bet560Units=String(row.stake.units||0)}
   if(row.eventRank===2&&!card.querySelector('.bet560-corr')){const t=document.createElement('span');t.className='bet560-corr';t.textContent='korelace ×0,5';card.querySelector('.bet144-pickmain strong')?.appendChild(t)}
  }
@@ -79,5 +82,5 @@ function commanderHtml(ranked){
 function render(){const root=document.querySelector('#bettingView');if(!root)return;const cards=[...root.querySelectorAll('.bet144-pick')];snapshotCards(cards);enrichLedgerWithClv();const ranked=rankCards(cards);decorateCards(ranked);const html=commanderHtml(ranked);const old=root.querySelector('[data-bet560]');if(old)old.outerHTML=html;else{const anchor=root.querySelector('[data-bet542-command]')||root.querySelector('.bet144-metrics');anchor?.insertAdjacentHTML('afterend',html)}window.__KAMIL_BETTING_INTELLIGENCE560__={version:VERSION,picks:ranked.length,approved:ranked.filter(r=>!r.stake.blocked&&r.eventRank<=MAX_EVENT_PICKS).length,calibration:calibration(),at:Date.now()}}
 function captureStake(event){const btn=event.target?.closest?.('.bet542-confirm');if(!btn||btn.disabled)return;const card=btn.closest('.bet144-pick');if(!card)return;const d=cardData(card),stakeCzk=Number(btn.dataset.bet560Stake||0),units=Number(btn.dataset.bet560Units||0);setTimeout(()=>{const state=ledger();const candidates=state.bets.filter(b=>String(b.status||'OPEN').toUpperCase()==='OPEN');const b=candidates.slice().reverse().find(x=>String(x.label||x.selection||'').toLowerCase().includes(d.title.toLowerCase())||String(x.event||'').toLowerCase().includes(d.event.toLowerCase()));if(b){b.stakeCzk=stakeCzk||b.stakeCzk||0;b.units=units||b.units;b.event=d.event;b.market=b.market||d.market;b.modelProbability=b.modelProbability||(d.modelPct!=null?Number(d.modelPct)/100:null);b.edgePctPoints=b.edgePctPoints??d.edgePp;b.evPct=b.evPct??d.evPct;b.lastObservedOdds=d.odds;b.lastOddsObservedAt=new Date().toISOString();writeJson(LEDGER_STORE,state)}render()},80)}
 let timer=null;
-export function installBettingIntelligence560(){ensureStyles();const root=document.querySelector('#bettingView');if(!root)return false;if(!root.__bet560Observer){let scheduled=false;const o=new MutationObserver(()=>{if(scheduled)return;scheduled=true;setTimeout(()=>{scheduled=false;render()},120)});o.observe(root,{childList:true,subtree:true});root.__bet560Observer=o;root.addEventListener('click',captureStake,true)}render();if(!timer)timer=setInterval(render,60*1000);return true}
+export function installBettingIntelligence560(){ensureStyles();const root=document.querySelector('#bettingView');if(!root)return false;if(!root.__bet560Observer){let scheduled=false;const o=new MutationObserver(records=>{if(!bettingSourceMutation691(records)||scheduled)return;scheduled=true;setTimeout(()=>{scheduled=false;render()},100)});o.observe(root,{childList:true,subtree:true});root.__bet560Observer=o;root.addEventListener('click',captureStake,true)}if(!root.__bet560LedgerBound){root.__bet560LedgerBound=true;window.addEventListener('kamil:betting-ledger543-updated',render)}render();if(!timer)timer=setInterval(()=>{if(document.querySelector('#view-betting.on'))render()},60*1000);return true}
 installBettingIntelligence560();

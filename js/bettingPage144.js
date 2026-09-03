@@ -1,6 +1,6 @@
 const LEDGER_API='/api/core70-health?source=ledger';
 const HEALTH_API='/api/core70-health';
-const DISCOVERY_API='/api/chance-model-pages?days=5&maxPages=40';
+const DISCOVERY_API='/api/chance-model-pages?days=5&maxPages=12';
 const SCAN_BASE='/api/core70-health?source=chance&sport=soccer&days=5&main=1&limit=100&maxMarkets=12&minOdds=1.45&maxOdds=3.20&value=1&autoModel=1&autoModelLimit=3&poissonLimit=15&betsOnly=1';
 const SCAN_PAGE_PAUSE_MS=1100;
 const HEALTH_CLIENT_TTL_MS=30000;
@@ -32,8 +32,12 @@ const marketLabel=market=>{
 };
 const hasBuiltInModel=health=>health?.checks?.football_data_poisson_model===true||health?.checks?.api_football_key===true;
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const budgetState=()=>window.__KAMIL_PULSE_BUDGET561__||null;
+function monthlyQuotaPayload(payload){const raw=String(payload?.auth?.message||payload?.details?.message||payload?.message||payload?.error||'');return /monthly quota|requests\/month|měsíční kv[oó]t|mesicni kvot/i.test(raw)}
 
 function chanceFeedState(health){
+ const budget=budgetState();
+ if(budget?.providerExhausted===true||budget?.mode==='exhausted')return{level:'bad',metric:'🔴 Kvóta',badge:'● Chance feed · měsíční kvóta vyčerpána',verified:false,status:429,quota:true};
  const configured=health?.checks?.pulsescore_configured===true||health?.pulse?.configured===true;
  const rawStatus=health?.checks?.pulsescore_status??health?.pulse?.status;
  const status=Number(rawStatus);
@@ -127,11 +131,12 @@ function renderScannerResults(host,state){
  const rows=renderPickRows(state.events);
  publishScanState(state,rows);
  if(btn){
-  btn.disabled=state.loading||!state.modelReady;
-  btn.textContent=state.loading?(state.relevantPages?`Skenuji ${state.pagesScanned}/${state.relevantPages}…`:'Skenuji Chance…'):'Spustit value sken';
+  const quotaStopped=budgetState()?.mode==='exhausted';
+  btn.disabled=state.loading||!state.modelReady||quotaStopped;
+  btn.textContent=quotaStopped?'Chance kvóta vyčerpaná':state.loading?(state.relevantPages?`Skenuji ${state.pagesScanned}/${state.relevantPages}…`:'Skenuji Chance…'):'Spustit value sken';
  }
  if(state.loading){
-  const intro=`<div class="bet144-scanempty"><strong>${rows.length?`Průběžně nalezeno ${rows.length} tipů`:'Procházím Chance + vlastní model…'}</strong>Na BASIC feedu jedu bezpečně po jedné stránce. Výsledky níže jsou už ověřené a zůstávají viditelné i během pokračujícího skenu.</div>`;
+  const intro=`<div class="bet144-scanempty"><strong>${rows.length?`Průběžně nalezeno ${rows.length} tipů`:'Procházím Chance + vlastní model…'}</strong>Na BASIC feedu jedu po jedné stránce a hlídám měsíční kvótu. Výsledky níže jsou už ověřené a zůstávají viditelné i během pokračujícího skenu.</div>`;
   body.innerHTML=intro+(rows.length?pickRowsHtml(rows):'');
   if(meta)meta.textContent=state.progress||'Hledám relevantní stránky Chance…';
   return;
@@ -139,7 +144,7 @@ function renderScannerResults(host,state){
  if(state.error){
   const partial=rows.length||state.pagesScanned>0;
   body.innerHTML=`<div class="bet144-error"><b>${partial?'Sken skončil částečně.':'Sken se nepodařil.'}</b><div class="muted" style="margin-top:6px">${escapeHtml(state.error)}</div>${partial?'<div class="muted" style="margin-top:5px">Už ověřené výsledky zachovávám.</div>':''}</div>`+(rows.length?pickRowsHtml(rows):'');
-  if(meta)meta.textContent=partial?`Částečný sken ${state.pagesScanned||0}/${state.relevantPages||'?'} · ${rows.length} tipů zachováno`:'Sken selhal';
+  if(meta)meta.textContent=budgetState()?.mode==='exhausted'?'PulseScore BASIC: měsíční kvóta vyčerpána · nové requesty STOP':partial?`Částečný sken ${state.pagesScanned||0}/${state.relevantPages||'?'} · ${rows.length} tipů zachováno`:'Sken selhal';
   return;
  }
  if(!state.modelReady){
@@ -168,8 +173,9 @@ function renderScannerResults(host,state){
 
 async function readJson(response){try{return await response.json()}catch{return null}}
 function apiError(payload,fallback){
- const raw=payload?.message||payload?.details?.message||payload?.error||fallback;
- if(String(payload?.error||'').includes('RATE_LIMIT')||String(raw).includes('Too many requests'))return'Chance feed narazil na limit 1 požadavek/s. OS automaticky počká a zkusí stránku znovu.';
+ const raw=payload?.auth?.message||payload?.message||payload?.details?.message||payload?.error||fallback;
+ if(monthlyQuotaPayload(payload))return'Chance feed má vyčerpanou měsíční kvótu PulseScore BASIC (500 requestů). Nový sken je zastavený; historie a ledger fungují dál.';
+ if(String(payload?.error||'').includes('RATE_LIMIT')||String(raw).includes('Too many requests'))return'Chance feed je dočasně omezený. OS šetří další requesty a přednostně použije cache.';
  if(String(payload?.error||'').includes('AUTH'))return'Chance feed odmítl přístupový klíč. Zkontroluj PulseScore API klíč.';
  return String(raw||fallback);
 }
@@ -196,10 +202,11 @@ async function fetchScanPage(page,signal){
    const payload=await readJson(response);
    if(response.ok&&payload?.ok)return payload;
    const message=apiError(payload,`Chance scanner HTTP ${response.status}`);
+   if(response.status===429&&monthlyQuotaPayload(payload)){const error=new Error(message);error.code='MONTHLY_QUOTA';throw error}
    if(response.status<500&&response.status!==429)throw new Error(message);
    lastError=new Error(message);
   }catch(error){
-   if(error?.name==='AbortError')throw error;
+   if(error?.name==='AbortError'||error?.code==='MONTHLY_QUOTA')throw error;
    lastError=error;
   }
   if(attempt<2)await wait(1300*(attempt+1));
@@ -215,6 +222,9 @@ async function runValueScan(host){
  const health=window.__KAMIL_BETTING_HEALTH_144__||{};
  const modelReady=hasBuiltInModel(health);
  const state={loading:true,modelReady,events:[],pagesScanned:0,relevantPages:0,totalPages:0,modeledEvents:0,dataRequests:0,apiRequests:0,cacheHits:0,error:null,partial:false,failedPages:[],progress:'Hledám relevantní stránky Chance…'};
+ if(budgetState()?.mode==='exhausted'){
+  state.loading=false;state.error='Chance feed má vyčerpanou měsíční kvótu PulseScore BASIC (500 requestů). Nové value tipy bez živého feedu nevymýšlím.';renderScannerResults(host,state);activeScan=null;return;
+ }
  renderScannerResults(host,state);
  if(!modelReady){
   state.loading=false;
@@ -247,6 +257,7 @@ async function runValueScan(host){
     if(payload?.value?.autoModel?.configured===false){state.modelReady=false;break}
    }catch(error){
     if(error?.name==='AbortError')return;
+    if(error?.code==='MONTHLY_QUOTA')throw error;
     const message=String(error?.message||error);
     if(/klíč|AUTH|401/i.test(message))throw error;
     state.partial=true;
@@ -271,8 +282,10 @@ async function runValueScan(host){
 function scannerHtml(health){
  const modelReady=hasBuiltInModel(health);
  const feed=chanceFeedState(health);
+ const providerBlocked=budgetState()?.mode==='exhausted';
+ const scanReady=modelReady&&!providerBlocked;
  const apiBoost=health?.checks?.api_football_key===true;
- return `<section class="bet144-scanner"><div class="bet144-scanhead"><div><h2>🎯 Value scanner</h2><p>Chance kurzy → nezávislý model → fair kurz → edge → EV → VSADIT / NIC.</p></div><button class="btn" type="button" data-bet144-scan ${modelReady?'':'disabled'}>Spustit value sken</button></div><div class="bet144-statusrow"><span class="bet144-status ${feed.level}">${feed.badge}</span><span class="bet144-status ${modelReady?'ok':'warn'}">${modelReady?'● Vlastní Poisson model':'○ Model nedostupný'}</span>${apiBoost?'<span class="bet144-status ok">● API-Football 1X2 boost</span>':''}<span class="bet144-status">EV ≥ 5 %</span><span class="bet144-status">Edge ≥ 4 pp</span><span class="bet144-status">Pre-match only</span></div><div class="bet144-modelhelp"><span><b>Bez bookmakerového modelu.</b> Bezpečně modeluju full-time 1X2, BTTS, půlgólové gólové a týmové totaly, full-time O/U rohy, full-time O/U žluté karty a půlgólové handicapy. Poločasové rohy/karty a čtvrtkové nebo celé handicapové linie automatický BET nedostanou.</span></div><div class="bet144-scanbody" data-bet144-scanbody><div class="bet144-scanempty"><strong>${modelReady?'Připraveno ke skenu.':'Model není dostupný.'}</strong>${modelReady?'Klikni na Spustit value sken. Výsledky se budou zobrazovat průběžně, nemusíš čekat až na konec.':'Bez nezávislého modelu nic nedoporučím.'}</div></div><div class="bet144-scinfo" data-bet144-scanmeta>${modelReady?'Discovery se cacheuje 5 minut; bookmaker odds nejsou vstupem modelu.':'Bez modelu = 0 BET'}</div></section>`;
+ return `<section class="bet144-scanner"><div class="bet144-scanhead"><div><h2>🎯 Value scanner</h2><p>Chance kurzy → nezávislý model → fair kurz → edge → EV → VSADIT / NIC.</p></div><button class="btn" type="button" data-bet144-scan ${scanReady?'':'disabled'}>${providerBlocked?'Chance kvóta vyčerpaná':'Spustit value sken'}</button></div><div class="bet144-statusrow"><span class="bet144-status ${feed.level}">${feed.badge}</span><span class="bet144-status ${modelReady?'ok':'warn'}">${modelReady?'● Vlastní Poisson model':'○ Model nedostupný'}</span>${apiBoost?'<span class="bet144-status ok">● API-Football 1X2 boost</span>':''}<span class="bet144-status">EV ≥ 5 %</span><span class="bet144-status">Edge ≥ 4 pp</span><span class="bet144-status">Pre-match only</span></div><div class="bet144-modelhelp"><span><b>Bez bookmakerového modelu.</b> Bezpečně modeluju full-time 1X2, BTTS, půlgólové gólové a týmové totaly, full-time O/U rohy, full-time O/U žluté karty a půlgólové handicapy. Poločasové rohy/karty a čtvrtkové nebo celé handicapové linie automatický BET nedostanou.</span></div><div class="bet144-scanbody" data-bet144-scanbody><div class="bet144-scanempty"><strong>${providerBlocked?'Chance kvóta je vyčerpaná.':modelReady?'Připraveno ke skenu.':'Model není dostupný.'}</strong>${providerBlocked?'Ledger, historie a vyhodnocení fungují dál. Nové value tipy bez živého feedu nevymýšlím.':modelReady?'Klikni na Spustit value sken. Výsledky se budou zobrazovat průběžně, nemusíš čekat až na konec.':'Bez nezávislého modelu nic nedoporučím.'}</div></div><div class="bet144-scinfo" data-bet144-scanmeta>${providerBlocked?'PulseScore BASIC: 500 requestů/měsíc vyčerpáno · STOP':modelReady?'Discovery cache OS561 drží 24 h; automatický sken běží nejvýš přibližně 3× denně.':'Bez modelu = 0 BET'}</div></section>`;
 }
 
 function renderData(host,payload,health){
@@ -285,11 +298,12 @@ function renderData(host,payload,health){
    const payout=Number(b.stakeCzk||0)*Number(b.odds||0);
    return `<article class="bet144-ticket" data-bet-id="${escapeHtml(b.id)}"><div><div class="bet144-title"><strong>${escapeHtml(b.label||b.event)}</strong><span class="bet144-lock">🔒 OTEVŘENO</span></div><div class="bet144-event">${escapeHtml(b.event||'')}</div><div class="bet144-meta"><span class="bet144-chip">Chance</span><span class="bet144-chip">${escapeHtml(marketLabel(b.market))}</span>${b.line!=null?`<span class="bet144-chip">linie ${escapeHtml(String(b.line).replace('.',','))}</span>`:''}</div></div><div class="bet144-numbers"><div class="bet144-number"><span>Kurz</span><b>${decimal(b.odds)}</b></div><div class="bet144-number"><span>Vklad</span><b>${money(b.stakeCzk)}</b></div><div class="bet144-number"><span>Výplata</span><b>${money(Math.round(payout))}</b></div></div></article>`;
  }).join('');
- host.innerHTML=`<div class="bet144"><section class="bet144-hero"><div><div class="eyebrow">SÁZENÍ · CHANCE</div><h1>Betting centrum</h1><p>Kurzy už tahá OS sám. Value tip se zobrazí jen tehdy, když ho potvrdí nezávislý model a projde EV/edge filtrem; už vsazené tikety znovu nenabízím.</p></div><button class="btn bet144-refresh" type="button" data-bet144-refresh>↻ Aktualizovat</button></section><section class="bet144-metrics"><div class="bet144-metric"><span>Otevřené tikety</span><b>${bets.length}</b></div><div class="bet144-metric"><span>Celkem vsazeno</span><b>${money(exposure)}</b></div><div class="bet144-metric"><span>Možná výplata</span><b>${money(Math.round(totalReturn))}</b></div><div class="bet144-metric"><span>Chance feed</span><b>${feed.metric}</b></div></section>${scannerHtml(health)}<div class="bet144-section-title">Otevřené tikety</div><section class="bet144-list">${rows||'<div class="bet144-note">Nemáš žádnou otevřenou potvrzenou sázku.</div>'}</section><div class="bet144-note">🔒 Zamčený tiket už znovu nedoporučuju ani nepřepisuju. Aktuálně eviduju ${bets.length} otevřené tikety za ${money(exposure)}. Automatická fotbalová vrstva umí full-time 1X2 a BTTS, půlgólové gólové/týmové totaly, full-time O/U rohy a žluté karty a půlgólové handicapy. Poločasové rohy/karty a čtvrtkové či celé handicapové linie zůstávají bez automatického BET; tenis zatím modelovaný není.</div></div>`;
+ const heroText=feed.level==='bad'?'Ledger a historie sázek jsou dostupné. Živý Chance feed je teď nedostupný, takže nové value tipy nevymýšlím.':'Chance kurzy porovnávám s nezávislým modelem; tip se zobrazí jen pokud projde EV/edge filtrem a už vsazené tikety znovu nenabízím.';
+ host.innerHTML=`<div class="bet144"><section class="bet144-hero"><div><div class="eyebrow">SÁZENÍ · CHANCE</div><h1>Betting centrum</h1><p>${heroText}</p></div><button class="btn bet144-refresh" type="button" data-bet144-refresh>↻ Aktualizovat</button></section><section class="bet144-metrics"><div class="bet144-metric"><span>Otevřené tikety</span><b>${bets.length}</b></div><div class="bet144-metric"><span>Celkem vsazeno</span><b>${money(exposure)}</b></div><div class="bet144-metric"><span>Možná výplata</span><b>${money(Math.round(totalReturn))}</b></div><div class="bet144-metric"><span>Chance feed</span><b>${feed.metric}</b></div></section>${scannerHtml(health)}<div class="bet144-section-title">Otevřené tikety</div><section class="bet144-list">${rows||'<div class="bet144-note">Nemáš žádnou otevřenou potvrzenou sázku.</div>'}</section><div class="bet144-note">🔒 Zamčený tiket už znovu nedoporučuju ani nepřepisuju. Aktuálně eviduju ${bets.length} otevřené tikety za ${money(exposure)}. Automatická fotbalová vrstva umí full-time 1X2 a BTTS, půlgólové gólové/týmové totaly, full-time O/U rohy a žluté karty a půlgólové handicapy. Poločasové rohy/karty a čtvrtkové či celé handicapové linie zůstávají bez automatického BET; tenis zatím modelovaný není.</div></div>`;
  host.querySelector('[data-bet144-refresh]')?.addEventListener('click',()=>loadBetting(host,true));
  host.querySelector('[data-bet144-scan]')?.addEventListener('click',()=>runValueScan(host));
  window.__KAMIL_BETTING_HEALTH_144__=health||{};
- window.__KAMIL_BETTING_144__={ok:true,openCount:bets.length,exposureCzk:exposure,modelReady:hasBuiltInModel(health),chanceFeed:health?.checks?.pulsescore_api===true,chanceFeedState:feed.level,chanceFeedVerified:feed.verified,chanceFeedStatus:feed.status,bets:bets.map(b=>({id:b.id,label:b.label,odds:b.odds,stakeCzk:b.stakeCzk,status:b.status}))};
+ window.__KAMIL_BETTING_144__={ok:true,openCount:bets.length,exposureCzk:exposure,modelReady:hasBuiltInModel(health),chanceFeed:feed.level!=='bad',chanceFeedState:feed.level,chanceFeedVerified:feed.verified,chanceFeedStatus:feed.status,bets:bets.map(b=>({id:b.id,label:b.label,odds:b.odds,stakeCzk:b.stakeCzk,status:b.status}))};
 }
 
 async function getHealth(){
