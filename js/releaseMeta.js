@@ -1,3 +1,3 @@
-export const APP_VERSION='610.0.0';
-export const APP_RELEASE='610.0.0';
-// OS610: wealth history, property financing scenarios, family weekly hub, extended Ctrl+K search and ticket exposure summary.
+export const APP_VERSION='620.0.0';
+export const APP_RELEASE='620.0.0';
+// OS620: Reality 2.0 property decision hub with ranking, top-two comparison, financing cash-flow, price per m2 and editable candidate inputs.
