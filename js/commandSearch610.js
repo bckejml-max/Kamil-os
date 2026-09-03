@@ -19,6 +19,7 @@ export function searchExtended610(raw){
  return out.slice(0,15)
 }
 function navIntent(raw){const q=norm(raw);const map=[
+ [['dnes 2.0','dnes 2','today 2.0','today 2','co mám dnes udělat','co mam dnes udelat','co dnes udělat','co dnes udelat','hlavní priorita','hlavni priorita','co je dnes priorita'],['today',null]],
  [['ukaž reality','ukaz reality','ukaž byty','ukaz byty','investiční byty','investicni byty','reality 2.0','reality 2','property hub','porovnej byty','srovnej byty'],['money','property-hub']],
  [['hypoteční scénáře','hypotecni scenare','financování bytu','financovani bytu'],['money','property']],
  [['historie majetku','net worth historie','vývoj majetku','vyvoj majetku'],['money','wealth-history']],
