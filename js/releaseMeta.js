@@ -1,3 +1,3 @@
-export const APP_VERSION='660.0.0';
-export const APP_RELEASE='660.0.0';
-// OS660: Inbox 2.0 central action queue with authenticated Gmail action feed, reply/pay/do/wait/deadline/document triage and Today 2.0 integration.
+export const APP_VERSION='670.0.0';
+export const APP_RELEASE='670.0.0';
+// OS670: Waiting Center 2.0 with counterparties, aging, expected outputs, follow-up history, next-check discipline and canonical delegation actions.
