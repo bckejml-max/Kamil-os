@@ -1,3 +1,3 @@
-export const APP_VERSION='620.0.1';
-export const APP_RELEASE='620.0.1';
-// OS620.0.1: Reality 2.0 property decision hub plus refreshed offline cache for the complete production bundle.
+export const APP_VERSION='630.0.0';
+export const APP_RELEASE='630.0.0';
+// OS630: Betting 2.0 command center with OS586 verdicts, bankroll exposure guard, open bets and sport/market ROI + CLV performance.
