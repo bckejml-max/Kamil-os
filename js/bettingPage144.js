@@ -1,6 +1,6 @@
 const LEDGER_API='/api/core70-health?source=ledger';
 const HEALTH_API='/api/core70-health';
-const DISCOVERY_API='/api/chance-model-pages?days=5&maxPages=12';
+const DISCOVERY_API='/api/chance-model-pages?days=5&maxPages=2';
 const SCAN_BASE='/api/core70-health?source=chance&sport=soccer&days=5&main=1&limit=100&maxMarkets=12&minOdds=1.45&maxOdds=3.20&value=1&autoModel=1&autoModelLimit=3&poissonLimit=15&betsOnly=1';
 const SCAN_PAGE_PAUSE_MS=1100;
 const HEALTH_CLIENT_TTL_MS=30000;
