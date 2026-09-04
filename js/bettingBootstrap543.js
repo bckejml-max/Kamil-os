@@ -8,7 +8,7 @@ let timingStarted=false;
 let performanceStarted=false;
 let missedStarted=false;
 let controlStarted=false;
-const REV='os694';
+const REV='os695';
 async function ensureBrowserFeed(){
  if(browserFeedStarted)return true;
  try{const browser=await import(`./bettingBrowserFeed694.js?rev=${REV}`);browser.installBettingBrowserFeed694?.();browserFeedStarted=true;return true}catch{return false}
@@ -63,7 +63,7 @@ async function boot(){
   await ensurePerformance();
   await ensureMissed();
   await ensureControl();
-  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'694.0.0',browserFeed:true,feed:true,budget:true,timing:true,performance:true,missed:true,control:true,at:Date.now()};
+  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'695.0.0',browserFeed:true,feed:true,budget:true,timing:true,performance:true,missed:true,control:true,at:Date.now()};
   return true;
  }catch(error){started=false;window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:false,error:String(error?.message||error),at:Date.now()};return false}
 }
