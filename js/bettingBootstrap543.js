@@ -1,13 +1,18 @@
 let started=false;
 let autoSettleStarted=false;
 let intelligenceStarted=false;
+let browserFeedStarted=false;
 let feedStarted=false;
 let budgetStarted=false;
 let timingStarted=false;
 let performanceStarted=false;
 let missedStarted=false;
 let controlStarted=false;
-const REV='os693';
+const REV='os694';
+async function ensureBrowserFeed(){
+ if(browserFeedStarted)return true;
+ try{const browser=await import(`./bettingBrowserFeed694.js?rev=${REV}`);browser.installBettingBrowserFeed694?.();browserFeedStarted=true;return true}catch{return false}
+}
 async function ensureFeed(){
  if(feedStarted)return true;
  try{const feed=await import(`./bettingOddsFeed693.js?rev=${REV}`);await feed.installBettingOddsFeed693?.();feedStarted=true;return true}catch{return false}
@@ -35,6 +40,7 @@ async function ensureControl(){
 async function boot(){
  const root=document.querySelector('#bettingView');
  if(!root)return false;
+ await ensureBrowserFeed();
  await ensureFeed();
  await ensureBudget();
  if(started&&root.__bet543Observer&&root.__bet542Observer){
@@ -57,15 +63,15 @@ async function boot(){
   await ensurePerformance();
   await ensureMissed();
   await ensureControl();
-  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'693.0.0',feed:true,budget:true,timing:true,performance:true,missed:true,control:true,at:Date.now()};
+  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'694.0.0',browserFeed:true,feed:true,budget:true,timing:true,performance:true,missed:true,control:true,at:Date.now()};
   return true;
  }catch(error){started=false;window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:false,error:String(error?.message||error),at:Date.now()};return false}
 }
 function installBootObserver(){
- if(window.__KAMIL_BETTING_BOOT_OBSERVER693__)return;
- const observer=new MutationObserver(async()=>{if(await boot()){observer.disconnect();window.__KAMIL_BETTING_BOOT_OBSERVER693__=null}});
+ if(window.__KAMIL_BETTING_BOOT_OBSERVER694__)return;
+ const observer=new MutationObserver(async()=>{if(await boot()){observer.disconnect();window.__KAMIL_BETTING_BOOT_OBSERVER694__=null}});
  observer.observe(document.documentElement,{childList:true,subtree:true});
- window.__KAMIL_BETTING_BOOT_OBSERVER693__=observer;
+ window.__KAMIL_BETTING_BOOT_OBSERVER694__=observer;
 }
 boot().then(ok=>{if(!ok)installBootObserver()}).catch(()=>installBootObserver());
 document.addEventListener('click',()=>setTimeout(()=>{boot().catch(()=>{})},0),true);
