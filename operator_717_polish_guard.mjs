@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+const read=p=>fs.readFileSync(p,'utf8');
+execFileSync(process.execPath,['--check','js/operator717.js'],{stdio:'pipe'});
+const op=read('js/operator717.js');
+const release=read('js/releaseMeta.js');
+assert.ok(op.includes("propertyBook?.candidates||s.propertyBook?.items"),'Operator must read canonical Property Book candidates first');
+assert.ok(op.includes("const closeOperator=()=>document.dispatchEvent(new KeyboardEvent('keydown'"),'Operator modal close helper missing');
+assert.ok(op.includes("closeOperator();setTimeout(()=>nav(target),0)"),'Operator navigation must close modal before changing view');
+assert.ok(op.includes("closeOperator();setTimeout(openOperator717,100)"),'Inbox conversion must close old Operator before reopening');
+assert.ok(op.includes("document.querySelector('#modalHost [data-operator717]')"),'Operator event binding must target mounted modal DOM');
+assert.ok(release.includes("APP_VERSION='717.0.0'"),'Release must remain on canonical OS717 identity');
+console.log('OS717 POLISH GUARD PASS');
