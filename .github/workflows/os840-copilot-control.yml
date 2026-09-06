@@ -1,0 +1,23 @@
+name: OS840 Copilot and Control QA
+on:
+  pull_request:
+    paths:
+      - 'js/copilot840.js'
+      - 'js/commandCopilot840.js'
+      - 'js/personalMore640.js'
+      - 'js/bettingBootstrap543.js'
+      - 'copilot_840_guard.mjs'
+      - '.github/workflows/os840-copilot-control.yml'
+  workflow_dispatch:
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node copilot_840_guard.mjs
+      - run: node strategy_command_790_guard.mjs
+      - run: node strategy_788_guard.mjs
+      - run: node strategy_789_guard.mjs
