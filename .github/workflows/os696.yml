@@ -1,0 +1,28 @@
+name: OS696 Priority Cockpit QA
+
+on:
+  push:
+    paths:
+      - 'js/todayPriority696.js'
+      - 'js/todayPage101.js'
+      - 'todayPriority696.css'
+      - 'today_priority_696_guard.mjs'
+      - '.github/workflows/os696.yml'
+  pull_request:
+    paths:
+      - 'js/todayPriority696.js'
+      - 'js/todayPage101.js'
+      - 'todayPriority696.css'
+      - 'today_priority_696_guard.mjs'
+      - '.github/workflows/os696.yml'
+
+jobs:
+  priority-cockpit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Validate OS696 priority cockpit
+        run: node today_priority_696_guard.mjs
