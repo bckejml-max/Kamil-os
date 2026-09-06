@@ -53,12 +53,13 @@ async function feedbackChoice842(choice,{raw,answer,item}){
  return true;
 }
 async function run(raw){
- const q=normalizeShortcut(raw);saveHistory(raw);
+ const q=normalizeShortcut(raw);saveHistory(raw);void import('./usage892.js').then(m=>m.recordUsage892('copilot-command',{query:raw})).catch(()=>{});
  try{
   const model=await buildCopilot842();
   const answer=constrainedAnswer841(q,model)||answer840(q,model);
   if(!answer)return false;
   const follow=contextualFollowups795(q),item=model.nextBest||null;
+  void import('./selfImproving892.js').then(m=>m.updateContext853(item?.area||'GENERAL',{lastQuery:raw,lastAnswer:answer})).catch(()=>{});
   const body=`<div class="card"><div class="eyebrow">OS840 · COPILOT · OS842 FEEDBACK</div><h2>${h(answer)}</h2><div class="row"><span>Confidence</span><b>${Number(model.confidence.overall||0).toFixed(0)} %</b></div><div class="row"><span>OS Health</span><b>${Number(model.health||0).toFixed(0)} %</b></div><div class="row"><span>Feedback historie</span><b>${Number(model.feedback842?.count||0)}</b></div><p class="muted">Read-only odpověď. Feedback může změnit pořadí maximálně o ±5 bodů.</p></div><div class="card"><div class="eyebrow">NAVAZUJÍCÍ DOTAZY</div>${follow.map(x=>`<div class="row"><span>${h(x)}</span></div>`).join('')}</div>`;
   const choice=await modal('Kamil OS Copilot',body,[{label:'👍 Užitečné',value:'up',primary:true},{label:'👎 Neužitečné',value:'down'},{label:'Otevřít Copilot & Control',value:'open'},{label:'Zavřít',value:null}]);
   if(choice==='open'){const m=await import('./copilotFeedback842.js');return m.openCopilot842()}
