@@ -10,5 +10,5 @@ assert.ok(op.includes("const closeOperator=()=>document.dispatchEvent(new Keyboa
 assert.ok(op.includes("closeOperator();setTimeout(()=>nav(target),0)"),'Operator navigation must close modal before changing view');
 assert.ok(op.includes("closeOperator();setTimeout(openOperator717,100)"),'Inbox conversion must close old Operator before reopening');
 assert.ok(op.includes("document.querySelector('#modalHost [data-operator717]')"),'Operator event binding must target mounted modal DOM');
-assert.ok(release.includes("APP_VERSION='717.0.1'"),'Release version must be 717.0.1');
+assert.ok(release.includes("APP_VERSION='717.0.0'"),'Release must remain on canonical OS717 identity');
 console.log('OS717 POLISH GUARD PASS');
