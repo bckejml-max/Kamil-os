@@ -1,0 +1,23 @@
+name: OS943 Autonomous Improvement QA
+on:
+  pull_request:
+    paths:
+      - 'js/autonomous943.js'
+      - 'js/personalMore640.js'
+      - 'autonomous_943_guard.mjs'
+      - '.github/workflows/os943-autonomous-proposals.yml'
+  workflow_dispatch:
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node autonomous_943_guard.mjs
+      - run: node self_improving_892_guard.mjs
+      - run: node copilot_842_guard.mjs
+      - run: node copilot_841_guard.mjs
+      - run: node copilot_840_guard.mjs
+      - run: node strategy_command_790_guard.mjs
