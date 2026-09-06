@@ -1,3 +1,3 @@
-export const APP_VERSION='697.0.0';
-export const APP_RELEASE='697.0.0';
-// OS697: Direct Today Actions — complete or postpone safe personal work directly from the Priority Cockpit while keeping financial opportunities open-only.
+export const APP_VERSION='717.0.0';
+export const APP_RELEASE='717.0.0';
+// OS717: Operator bundle — OS698–717 unified into one canonical operator layer for day planning, waiting, inbox, money, property, tickets, betting, timelines, search and data trust.
