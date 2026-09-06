@@ -1,3 +1,3 @@
-export const APP_VERSION='695.0.0';
-export const APP_RELEASE='695.0.0';
-// OS695: Cleanup and stabilization — canonical five-item mobile navigation, secondary life areas under More, and consistent release identity.
+export const APP_VERSION='696.0.0';
+export const APP_RELEASE='696.0.0';
+// OS696: Priority Cockpit — separates obligations, waiting states and optional opportunities into one canonical Today decision surface.
