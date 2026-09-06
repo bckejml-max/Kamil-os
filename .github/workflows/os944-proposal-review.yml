@@ -12,6 +12,6 @@ jobs:
         with:
           node-version: 20
       - run: node scripts/proposal_review_944_guard.mjs
-      - run: node scripts/autonomous_943_guard.mjs
-      - run: node scripts/self_improving_892_guard.mjs
-      - run: node scripts/copilot_842_guard.mjs
+      - run: node autonomous_943_guard.mjs
+      - run: node self_improving_892_guard.mjs
+      - run: node copilot_842_guard.mjs
