@@ -24,11 +24,19 @@ export async function executeStrategyCommand790(q=''){
     const m=await import('./strategy788.js');
     const model=await m.buildStrategy788();
     const answer=m.universalAnswer786(q,model)||model.strategy?.monthFocus?.[0]?.reason||'Nemám dost aktuálních dat pro jistou odpověď.';
-    await modal(`OS790 · ${titleFor(q)}`,`<div class="card"><div class="eyebrow">STRATEGY COMMAND</div><h2>${h(answer)}</h2><div class="row"><span>Decision confidence</span><b>${Number(model.confidence||0).toFixed(0)} %</b></div><div class="row"><span>Datové mezery</span><b>${Number(model.audit?.gaps?.length||model.audit?.issues?.length||0)}</b></div><p class="muted">Pouze read-only vyhodnocení. Žádná finanční, ticket ani betting akce se automaticky neprovedla.</p></div>`,[{label:'Otevřít Strategy & Control',value:'open'},{label:'Zavřít',value:null,primary:true}]).then(async choice=>{if(choice==='open')await m.openStrategy788()});
+    const choice=await modal(`OS790 · ${titleFor(q)}`,`<div class="card"><div class="eyebrow">STRATEGY COMMAND</div><h2>${h(answer)}</h2><div class="row"><span>Decision confidence</span><b>${Number(model.confidence||0).toFixed(0)} %</b></div><div class="row"><span>Datové mezery</span><b>${Number(model.audit?.gaps?.length||model.audit?.issues?.length||0)}</b></div><p class="muted">Pouze read-only vyhodnocení. Žádná finanční, ticket ani betting akce se automaticky neprovedla.</p></div>`,[{label:'Otevřít Strategy & Control',value:'open'},{label:'Zavřít',value:null,primary:true}]);
+    if(choice==='open')await m.openStrategy788();
     return true;
   }catch(err){
     console.error('[OS790] strategy command failed',err);
     await modal('Strategy Command',`<div class="card"><h2>Strategy odpověď se nepodařila načíst.</h2><p class="muted">${h(err?.message||String(err||'Neznámá chyba'))}</p></div>`,[{label:'Zavřít',value:null,primary:true}]);
     return true;
   }
+}
+export function installStrategyCommand790(){
+  if(window.__KAMIL_STRATEGY_COMMAND790__)return;
+  const run=(event,input)=>{const q=String(input?.value||'').trim();if(!isStrategyQuestion790(q))return false;event.preventDefault();event.stopImmediatePropagation();input.value='';document.querySelector('#commandResults')?.classList.add('hidden');void executeStrategyCommand790(q);return true};
+  document.addEventListener('keydown',event=>{if(event.key!=='Enter')return;const input=event.target?.closest?.('#commandInput');if(input)run(event,input)},true);
+  document.addEventListener('click',event=>{const btn=event.target?.closest?.('#commandGo');if(!btn)return;const input=document.querySelector('#commandInput');run(event,input)},true);
+  window.__KAMIL_STRATEGY_COMMAND790__={installed:true,readOnly:true,at:Date.now()};
 }
