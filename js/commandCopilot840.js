@@ -51,7 +51,7 @@ async function run(raw){
   const answer=constrainedAnswer841(q,model)||answer840(q,model);
   if(!answer)return false;
   const follow=contextualFollowups795(q);
-  const body=`<div class="card"><div class="eyebrow">OS841 · COPILOT</div><h2>${h(answer)}</h2><div class="row"><span>Confidence</span><b>${Number(model.confidence.overall||0).toFixed(0)} %</b></div><div class="row"><span>OS Health</span><b>${Number(model.health||0).toFixed(0)} %</b></div><p class="muted">Read-only odpověď. Nic finančního ani sázkového se automaticky neprovedlo.</p></div><div class="card"><div class="eyebrow">NAVAZUJÍCÍ DOTAZY</div>${follow.map(x=>`<div class="row"><span>${h(x)}</span></div>`).join('')}</div>`;
+  const body=`<div class="card"><div class="eyebrow">OS840 · COPILOT · OS841 POLISH</div><h2>${h(answer)}</h2><div class="row"><span>Confidence</span><b>${Number(model.confidence.overall||0).toFixed(0)} %</b></div><div class="row"><span>OS Health</span><b>${Number(model.health||0).toFixed(0)} %</b></div><p class="muted">Read-only odpověď. Nic finančního ani sázkového se automaticky neprovedlo.</p></div><div class="card"><div class="eyebrow">NAVAZUJÍCÍ DOTAZY</div>${follow.map(x=>`<div class="row"><span>${h(x)}</span></div>`).join('')}</div>`;
   const choice=await modal('Kamil OS Copilot',body,[{label:'Otevřít Copilot & Control',value:'open'},{label:'Zavřít',value:null,primary:true}]);
   if(choice==='open'){const m=await import('./copilot840.js');return m.openCopilot840()}
   return true;
