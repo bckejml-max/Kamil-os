@@ -1,0 +1,19 @@
+name: OS946 Preview PR Builder QA
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/preview_pr_946_guard.mjs
+      - run: node scripts/safe_change_plan_945_guard.mjs
+      - run: node scripts/proposal_review_944_guard.mjs
+      - run: node autonomous_943_guard.mjs
+      - run: node self_improving_892_guard.mjs
+      - run: node copilot_842_guard.mjs
