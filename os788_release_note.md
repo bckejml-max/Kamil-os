@@ -1,0 +1,1 @@
+OS788 Strategy & Control is intentionally lazy-loaded on the stable OS737/738 release foundation. It adds no new canonical datastore and performs no automatic financial or betting execution.
