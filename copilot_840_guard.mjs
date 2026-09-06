@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+const files=['js/copilot840.js','js/commandCopilot840.js','js/personalMore640.js','js/bettingBootstrap543.js'];
+for(const f of files)if(!fs.existsSync(f))throw new Error(`missing ${f}`);
+const c=fs.readFileSync('js/copilot840.js','utf8');
+const q=fs.readFileSync('js/commandCopilot840.js','utf8');
+const more=fs.readFileSync('js/personalMore640.js','utf8');
+const boot=fs.readFileSync('js/bettingBootstrap543.js','utf8');
+const must=['840.0.0','autocomplete791','contextualFollowups795','priorityConflicts','capitalAllocation','purchaseWhatIf','leakageCandidates','propertyControl','ticketControl','bettingControl','workControl','universalTimeline','notificationBrain','buildCopilot840','answer840','noAutoFinancialExecution','noInventedExternalRates','noInventedCLV'];
+for(const x of must)if(!c.includes(x))throw new Error(`copilot missing ${x}`);
+for(const x of ['kamil.command.history.840','installCommandCopilot840','OS840 · COPILOT','read-only'])if(!q.includes(x))throw new Error(`command missing ${x}`);
+if(!more.includes('Copilot & Control')||!more.includes("import('./copilot840.js')"))throw new Error('More integration missing');
+if(!boot.includes("import('./commandCopilot840.js')"))throw new Error('bootstrap integration missing');
+if(/auto.*(buy|sell|bet)/i.test(c))throw new Error('unsafe auto execution wording detected');
+console.log('OS840 Copilot & Control guard OK');
