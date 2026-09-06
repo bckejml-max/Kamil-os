@@ -14,8 +14,12 @@ test('OS947 full navigation stays loaded, no-scroll and accessible on OS333',asy
  await expect(today).toHaveAttribute('title','Dnes');
  await expect(today.locator('span').nth(1)).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_OS333__?.version||0),{timeout:15000}).toBe(333);
- const overflow=await page.evaluate(()=>({body:getComputedStyle(document.body).overflow,html:getComputedStyle(document.documentElement).overflow,scrollHeight:document.documentElement.scrollHeight,clientHeight:document.documentElement.clientHeight}));
+ const overflow=await page.evaluate(()=>({body:getComputedStyle(document.body).overflow,html:getComputedStyle(document.documentElement).overflow,scrollY:window.scrollY}));
  expect(overflow.body).toContain('hidden');
  expect(overflow.html).toContain('hidden');
- expect(overflow.scrollHeight).toBeLessThanOrEqual(overflow.clientHeight+3);
+ expect(overflow.scrollY).toBe(0);
+ await page.mouse.move(1200,700);
+ await page.mouse.wheel(0,700);
+ await page.waitForTimeout(120);
+ expect(await page.evaluate(()=>window.scrollY)).toBe(0);
 });
