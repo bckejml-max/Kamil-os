@@ -1,3 +1,3 @@
-export const APP_VERSION='737.0.0';
-export const APP_RELEASE='737.0.0';
-// OS737: Truth + Learning — canonical ticket/property/money/work truth layers, inbox/follow-up intelligence, document/recurring search, decision history and learning loop.
+export const APP_VERSION='788.0.0';
+export const APP_RELEASE='788.0.0';
+// OS788: Strategy & Control — data quality, finance, property, tickets, betting, work, weekly CEO review and personal strategy engine on canonical OS737/738 sources.
