@@ -1,0 +1,19 @@
+name: OS841 Copilot Polish QA
+on:
+  pull_request:
+    paths:
+      - 'js/commandCopilot840.js'
+      - 'copilot_841_guard.mjs'
+      - '.github/workflows/os841-copilot-polish.yml'
+  workflow_dispatch:
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node copilot_841_guard.mjs
+      - run: node copilot_840_guard.mjs
+      - run: node strategy_command_790_guard.mjs
