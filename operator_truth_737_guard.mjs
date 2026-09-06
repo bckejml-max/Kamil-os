@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+const read=p=>fs.readFileSync(p,'utf8');
+execFileSync(process.execPath,['--check','js/operatorTruth737.js'],{stdio:'pipe'});
+execFileSync(process.execPath,['--check','js/personalMore640.js'],{stdio:'pipe'});
+const mod=read('js/operatorTruth737.js'),more=read('js/personalMore640.js');
+for(const token of ['ticketTruth718','propertyTruth723','moneyTruth726','classifyInbox','followups730','workTruth731','documents733','recurring734','universalEntitySearch735','recordDecision736','learning737','buildTruth737','openTruthCenter737'])assert.ok(mod.includes(token),`OS737 missing ${token}`);
+for(const token of ['ticket_cloud','netPnl','concentration','scenarios','bankComparator','needsExternalRates','decisionJournal737'])assert.ok(mod.includes(token),`OS737 truth guard missing ${token}`);
+assert.ok(more.includes("import('./operatorTruth737.js')"),'Truth Center must lazy load from More');
+assert.ok(more.includes('Truth & Learning'),'Truth Center entry missing');
+assert.ok(read('truth737.css').includes('@media(max-width:850px)'),'Truth Center mobile CSS missing');
+console.log('OS737 TRUTH + LEARNING GUARD PASS');

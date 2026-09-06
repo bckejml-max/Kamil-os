@@ -1,0 +1,48 @@
+name: OS737 Release Diagnose
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'js/releaseMeta.js'
+      - 'operator_717_guard.mjs'
+      - 'operator_truth_737_guard.mjs'
+      - '.github/workflows/os737-release-diagnose.yml'
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - name: release333
+        run: node release_guard_333.mjs
+      - name: ticket466
+        run: node ticket_release_guard_466.mjs
+      - name: command467
+        run: node command_center_467_guard.mjs
+      - name: cashflow468
+        run: node cashflow_468_guard.mjs
+      - name: capital469
+        run: node capital_plan_469_guard.mjs
+      - name: forecast470
+        run: node free_cash_forecast_470_guard.mjs
+      - name: property472
+        run: node property_decision_472_guard.mjs
+      - name: investment480
+        run: node investment_battle_480_guard.mjs
+      - name: manager481
+        run: node manager_deadlines_481_guard.mjs
+      - name: morning483
+        run: node morning_director_483_guard.mjs
+      - name: current350
+        run: node ci_current_350_test.mjs
+      - name: betting691
+        run: node betting_reliability_691_guard.mjs
+      - name: today696
+        run: node today_priority_696_guard.mjs
+      - name: today697
+        run: node today_actions_697_guard.mjs
+      - name: operator717
+        run: node operator_717_guard.mjs
+      - name: truth737
+        run: node operator_truth_737_guard.mjs
