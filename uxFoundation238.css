@@ -23,7 +23,7 @@ html[data-density238="compact"] .card,html[data-density238="compact"] .metric{pa
 @media(max-width:850px){
  #bottomNav.bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}
  #bottomNav.bottom-nav [data-view="family"],#bottomNav.bottom-nav [data-view="home"],#bottomNav.bottom-nav [data-view="money"],#bottomNav.bottom-nav [data-personal-more]{display:flex!important}
- #bottomNav.bottom-nav [data-view="more"]{display:none!important}
+ #bottomNav.bottom-nav [data-view="more"],#bottomNav.bottom-nav [data-view="inbox"]{display:none!important}
  #bottomNav.bottom-nav button{font-size:8.5px!important}
  .ux238-palette{padding-top:8vh}.ux238-palette-head span{display:none}.ux238-add-grid{grid-template-columns:1fr 1fr}.ux238-add-grid button{min-height:84px}
 }
