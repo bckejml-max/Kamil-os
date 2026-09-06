@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+const read=p=>fs.readFileSync(p,'utf8');
+execFileSync(process.execPath,['--check','js/personalMore640.js'],{stdio:'pipe'});
+const more=read('js/personalMore640.js');
+const strategy=read('js/strategy788.js');
+assert.ok(more.includes("data-strategy788-css"),'Strategy CSS marker missing');
+assert.ok(more.includes("l.href='./strategy788.css'"),'Strategy CSS must lazy-load on open');
+assert.ok(more.includes('openStrategySafe789'),'Strategy safe opener missing');
+assert.ok(more.includes("console.error('[OS789] Strategy open failed'"),'Strategy failure must be logged');
+assert.ok(more.includes('SAFE FALLBACK'),'User-safe Strategy fallback missing');
+assert.ok(more.includes("import('./strategy788.js')"),'Strategy must remain lazy-loaded');
+assert.ok(strategy.includes("noAutoFinancialExecution:true"),'Financial guardrail missing');
+assert.ok(strategy.includes("noInventedExternalRates:true"),'External-rate guardrail missing');
+console.log('OS789 STRATEGY POLISH GUARD PASS');
