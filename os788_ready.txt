@@ -1,1 +1,2 @@
 OS788 Strategy & Control bundle ready for QA.
+Validation trigger: compatibility with OS737/738 required before merge.
