@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+for(const f of ['js/copilotFeedback842.js','js/commandCopilot840.js','js/personalMore640.js'])if(!fs.existsSync(f))throw new Error(`missing ${f}`);
+const f=fs.readFileSync('js/copilotFeedback842.js','utf8');
+const c=fs.readFileSync('js/commandCopilot840.js','utf8');
+const m=fs.readFileSync('js/personalMore640.js','utf8');
+for(const x of ['842.0.0','kamil.copilot.feedback.842','recordFeedback842','feedbackBias842','applyFeedback842','maxAdjustment:5','buildCopilot842','openCopilot842'])if(!f.includes(x))throw new Error(`feedback contract missing ${x}`);
+for(const x of ['👍 Užitečné','👎 Neužitečné','OS842 FEEDBACK','buildCopilot842','recordFeedback842'])if(!c.includes(x))throw new Error(`command feedback missing ${x}`);
+if(!m.includes("import('./copilotFeedback842.js')")||!m.includes('OS842'))throw new Error('More OS842 integration missing');
+if(!f.includes('noAutoFinancialExecution')&&!c.includes('Read-only'))throw new Error('read-only safety contract missing');
+console.log('OS842 Copilot Feedback guard OK');
