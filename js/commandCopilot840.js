@@ -75,5 +75,5 @@ export function installCommandCopilot840(){
   e.preventDefault();e.stopImmediatePropagation();el.value='';document.querySelector('#commandResults')?.classList.add('hidden');
   void run(raw).then(handled=>{if(!handled){void modal('Kamil OS Copilot','<div class="card"><h2>Copilot odpověď se nepodařila načíst.</h2><p class="muted">Původní Command Bar zůstává funkční pro ostatní dotazy.</p></div>',[{label:'Zavřít',value:null,primary:true}])}});
  },true);
- window.__KAMIL_COMMAND_COPILOT840__={installed:true,readOnly:true,polish:'842',feedback:true,history:readHistory,at:Date.now()};
+ window.__KAMIL_COMMAND_COPILOT840__={installed:true,readOnly:true,polish:'841',feedbackRelease:'842',feedback:true,history:readHistory,at:Date.now()};
 }
