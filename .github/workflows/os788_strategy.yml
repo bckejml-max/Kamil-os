@@ -1,0 +1,20 @@
+name: OS788 Strategy and Control QA
+on:
+  pull_request:
+    paths:
+      - 'js/strategy788.js'
+      - 'strategy788.css'
+      - 'strategy_788_guard.mjs'
+      - 'js/personalMore640.js'
+      - 'package.json'
+      - '.github/workflows/os788_strategy.yml'
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: node strategy_788_guard.mjs
+      - run: node operator_truth_737_guard.mjs
+      - run: node data_truth_738_guard.mjs
