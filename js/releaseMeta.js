@@ -1,3 +1,3 @@
-export const APP_VERSION='696.0.0';
-export const APP_RELEASE='696.0.0';
-// OS696: Priority Cockpit — separates obligations, waiting states and optional opportunities into one canonical Today decision surface.
+export const APP_VERSION='697.0.0';
+export const APP_RELEASE='697.0.0';
+// OS697: Direct Today Actions — complete or postpone safe personal work directly from the Priority Cockpit while keeping financial opportunities open-only.
