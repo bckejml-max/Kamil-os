@@ -1,5 +1,6 @@
 import {qs,qsa} from './utils.js';
 import {markPersonalUsage650} from './personalUsage650.js';
+import {trackMainView893} from './usageBridge893.js';
 
 const TITLES={today:'DNES',inbox:'INBOX',tickets:'VSTUPENKY',betting:'SÁZENÍ',family:'RODINA',home:'DOMOV',money:'PENÍZE',more:'DOKUMENTY'};
 const SHELL344={version:695,lazyLoaded:[],idleMarketStarted:false,healthy:true,at:Date.now()};
@@ -33,7 +34,7 @@ function apply(view='today',track=true){
  const title=TITLES[currentView]||'KAMIL OS',page=qs('#pageTitle');
  if(page&&page.textContent!==title)page.textContent=title;
  document.title='Kamil OS';
- if(track)markPersonalUsage650('view',title);
+ if(track){markPersonalUsage650('view',title);trackMainView893(currentView)}
  qsa('.version').forEach(x=>x.classList.add('hidden'));
 }
 
