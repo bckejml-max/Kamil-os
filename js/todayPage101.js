@@ -3,6 +3,7 @@ import {enhanceXtbReview110} from './xtbReview110.js';
 import {renderPersonalToday640} from './personalToday640.js';
 import {appendTodayHub650} from './todayHub650.js';
 import {appendTodayPriority696,refreshTodayPriority696} from './todayPriority696.js';
+import {appendTodayActions697,refreshTodayActions697} from './todayActions697.js';
 
 const styles=[
  ['dashboard110','./dashboard110.css'],
@@ -29,11 +30,12 @@ async function loadCanonicalAddons(){
   try{const mod=await import(path);if(typeof mod?.[fn]==='function'){await mod[fn]();loaded.push(path)}}
   catch(error){console.error(`[today canonical addon failed] ${path}`,error)}
  }
- window.__KAMIL_TODAY_696__={healthy:loaded.length===addons.length,loaded,priorityCockpit:true,legacyAddonsRemoved:true,at:Date.now()};
+ window.__KAMIL_TODAY_697__={healthy:loaded.length===addons.length,loaded,priorityCockpit:true,directActions:true,legacyAddonsRemoved:true,at:Date.now()};
 }
 function mountPriority(){
  try{appendTodayPriority696()}catch(error){console.error('[today696]',error)}
- for(const ms of [80,260,700])setTimeout(()=>{try{refreshTodayPriority696()}catch(error){console.error('[today696 refresh]',error)}},ms);
+ try{appendTodayActions697()}catch(error){console.error('[today697]',error)}
+ for(const ms of [80,260,700])setTimeout(()=>{try{refreshTodayPriority696()}catch(error){console.error('[today696 refresh]',error)};setTimeout(()=>{try{refreshTodayActions697()}catch(error){console.error('[today697 refresh]',error)}},35)},ms);
 }
 export function renderTodayPage101(){
  ensureStyle();
