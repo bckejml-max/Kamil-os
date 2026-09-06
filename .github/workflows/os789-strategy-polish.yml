@@ -1,0 +1,19 @@
+name: OS789 Strategy Polish QA
+on:
+  pull_request:
+    paths:
+      - 'js/personalMore640.js'
+      - 'js/strategy788.js'
+      - 'strategy788.css'
+      - 'strategy_789_guard.mjs'
+      - '.github/workflows/os789-strategy-polish.yml'
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node strategy_789_guard.mjs
+      - run: node strategy_788_guard.mjs
