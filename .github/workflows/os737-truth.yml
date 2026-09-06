@@ -1,0 +1,22 @@
+name: OS737 Truth and Learning QA
+on:
+  pull_request:
+    paths:
+      - 'js/operatorTruth737.js'
+      - 'truth737.css'
+      - 'js/personalMore640.js'
+      - 'operator_truth_737_guard.mjs'
+      - 'operator_717_guard.mjs'
+      - 'package.json'
+      - 'js/releaseMeta.js'
+      - '.github/workflows/os737-truth.yml'
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node operator_truth_737_guard.mjs
+      - run: node operator_717_guard.mjs
