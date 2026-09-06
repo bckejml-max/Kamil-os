@@ -17,4 +17,4 @@ jobs:
           node-version: 20
       - run: node strategy_command_790_guard.mjs
       - run: node strategy_788_guard.mjs
-      - run: node strategy_polish_789_guard.mjs
+      - run: node strategy_789_guard.mjs
