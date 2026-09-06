@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+const fail=m=>{console.error(`OS717 guard: ${m}`);process.exitCode=1};
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
+const mod=read('./js/operator717.js'),today=read('./js/todayPage101.js'),more=read('./js/personalMore640.js'),release=read('./js/releaseMeta.js'),sw=read('./sw.js'),pkg=JSON.parse(read('./package.json'));
+const v=release.match(/APP_VERSION='([^']+)'/)?.[1]||'';
+if(v!=='717.0.0')fail(`release is ${v||'unknown'}, expected 717.0.0`);
+if(pkg.version!=='717.0.0')fail(`package is ${pkg.version}`);
+for(const token of ['buildOperator717','openOperator717','appendOperatorSummary717','captureInboxTask717','Next best action','Smart snooze','ČEKÁNÍ A INBOX','PENÍZE A REALITY','VSTUPENKY','SÁZENÍ','TERMÍNY / RODINA / DOMOV','SEARCH / DATA TRUST','freeCashDecision','property','tickets','betting','deadlines','family','home','health','universalSearch'])if(!mod.includes(token))fail(`operator missing ${token}`);
+for(const token of ['./operator717.js','appendOperatorSummary717','__KAMIL_TODAY_717__'])if(!today.includes(token))fail(`Today wiring missing ${token}`);
+for(const token of ['./operator717.js','Operator Center','openOperator717'])if(!more.includes(token))fail(`More wiring missing ${token}`);
+for(const token of ["const CACHE='kamil-os-717.0.0-core-r1'",'operator717.css','operator717.js'])if(!sw.includes(token))fail(`service worker missing ${token}`);
+if(!String(pkg.scripts?.['test:release']||'').includes('operator_717_guard.mjs'))fail('release chain missing operator_717_guard.mjs');
+if(!process.exitCode)console.log('OS717 operator bundle guard OK · OS698–717 covered');
