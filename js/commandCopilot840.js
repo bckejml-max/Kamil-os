@@ -1,8 +1,61 @@
 import {h,modal} from './utils.js';
 import {autocomplete791,contextualFollowups795,buildCopilot840,answer840} from './copilot840.js';
 const KEY='kamil.command.history.840';
+const SHORTCUTS={
+ '/today':'co mám teď řešit',
+ '/cash':'kolik mám volný cash',
+ '/tickets':'kolik mám ve vstupenkách',
+ '/property':'který byt je nejlepší',
+ '/bets':'jaké je riziko sázek',
+ '/week':'weekly ceo review'
+};
 const readHistory=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}};
 const saveHistory=q=>{try{const n=[q,...readHistory().filter(x=>x!==q)].slice(0,20);localStorage.setItem(KEY,JSON.stringify(n))}catch{}};
-function renderSuggestions(input){const box=document.querySelector('#commandResults');if(!box)return;const q=String(input?.value||'').trim(),items=autocomplete791(q);if(!items.length)return;box.classList.remove('hidden');box.innerHTML=items.map((x,i)=>`<button class="search-row" data-copilot-suggestion840="${i}"><div><b>${h(x.key?`${x.key} · ${x.label}`:x.label)}</b><div class="muted">OS840 Copilot návrh</div></div></button>`).join('');box.querySelectorAll('[data-copilot-suggestion840]').forEach((el,i)=>el.addEventListener('click',()=>{input.value=items[i].query;input.focus()}));}
-async function run(q){saveHistory(q);const model=await buildCopilot840(),answer=answer840(q,model)||'Nemám dost canonical dat pro jistou odpověď.';const follow=contextualFollowups795(q);const body=`<div class="card"><div class="eyebrow">OS840 · COPILOT</div><h2>${h(answer)}</h2><div class="row"><span>Confidence</span><b>${Number(model.confidence.overall||0).toFixed(0)} %</b></div><div class="row"><span>OS Health</span><b>${Number(model.health||0).toFixed(0)} %</b></div><p class="muted">Read-only odpověď. Nic finančního ani sázkového se automaticky neprovedlo.</p></div><div class="card"><div class="eyebrow">NAVAZUJÍCÍ DOTAZY</div>${follow.map(x=>`<div class="row"><span>${h(x)}</span></div>`).join('')}</div>`;const choice=await modal('Kamil OS Copilot',body,[{label:'Otevřít Copilot & Control',value:'open'},{label:'Zavřít',value:null,primary:true}]);if(choice==='open'){const m=await import('./copilot840.js');return m.openCopilot840()}return true;}
-export function installCommandCopilot840(){if(window.__KAMIL_COMMAND_COPILOT840__)return;const input=()=>document.querySelector('#commandInput');document.addEventListener('input',e=>{if(e.target?.matches?.('#commandInput'))renderSuggestions(e.target)},true);document.addEventListener('keydown',e=>{const el=e.target?.closest?.('#commandInput');if(!el||e.key!=='Enter')return;const q=String(el.value||'').trim();if(!q)return;if(q.startsWith('/')||autocomplete791(q).length||/mam dnes|mám dnes|majet|rizik|co mam|co mám|weekly|strategie|strategy/i.test(q)){e.preventDefault();e.stopImmediatePropagation();el.value='';document.querySelector('#commandResults')?.classList.add('hidden');void run(q)}},true);window.__KAMIL_COMMAND_COPILOT840__={installed:true,readOnly:true,history:readHistory,at:Date.now()}}
+const normalizeShortcut=q=>SHORTCUTS[String(q||'').trim().toLowerCase()]||String(q||'').trim();
+export function canHandleCopilot841(q=''){
+ const raw=String(q||'').trim(),n=raw.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ if(SHORTCUTS[raw.toLowerCase()])return true;
+ return /(kolik.*(cash|hotov|vstupenk|ticket|majet)|ktery.*(byt|realit)|nejlepsi.*(byt|realit)|co mam.*(ted|dnes)|co mám.*(teď|dnes)|mam dnes|mám dnes|nejvetsi riz|největší riz|weekly|strategie|strategy|stop.*(rule|saz)|ticket.*(prodat|expoz)|cilov.*cen|cílov.*cen|30\s*minut)/i.test(n);
+}
+function renderSuggestions(input){
+ const box=document.querySelector('#commandResults');if(!box)return;
+ const q=String(input?.value||'').trim(),items=autocomplete791(q);
+ if(!items.length){box.classList.add('hidden');return;}
+ box.classList.remove('hidden');
+ box.innerHTML=items.map((x,i)=>`<button class="search-row" data-copilot-suggestion840="${i}"><div><b>${h(x.key?`${x.key} · ${x.label}`:x.label)}</b><div class="muted">OS840 Copilot návrh</div></div></button>`).join('');
+ box.querySelectorAll('[data-copilot-suggestion840]').forEach((el,i)=>el.addEventListener('click',()=>{input.value=items[i].query;input.focus()}));
+}
+function constrainedAnswer841(q,model){
+ const n=String(q||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ if(/30\s*minut/.test(n)){
+  const noSpend=/nechci.*(utracet|utratit)|bez.*(utraceni|nakupu)|neutracet/.test(n);
+  const candidates=[...(model.notifications||[])].filter(x=>!noSpend||!['MONEY','TICKETS','BETTING'].includes(String(x.area||'').toUpperCase()));
+  const x=candidates[0]||model.nextBest;
+  return x?`Na příštích 30 minut: ${x.title||x.action}. ${x.detail||x.reason||''}`:'Na 30 minut teď nemám dost kvalitních dat pro lepší doporučení.';
+ }
+ return null;
+}
+async function run(raw){
+ const q=normalizeShortcut(raw);saveHistory(raw);
+ try{
+  const model=await buildCopilot840();
+  const answer=constrainedAnswer841(q,model)||answer840(q,model);
+  if(!answer)return false;
+  const follow=contextualFollowups795(q);
+  const body=`<div class="card"><div class="eyebrow">OS841 · COPILOT</div><h2>${h(answer)}</h2><div class="row"><span>Confidence</span><b>${Number(model.confidence.overall||0).toFixed(0)} %</b></div><div class="row"><span>OS Health</span><b>${Number(model.health||0).toFixed(0)} %</b></div><p class="muted">Read-only odpověď. Nic finančního ani sázkového se automaticky neprovedlo.</p></div><div class="card"><div class="eyebrow">NAVAZUJÍCÍ DOTAZY</div>${follow.map(x=>`<div class="row"><span>${h(x)}</span></div>`).join('')}</div>`;
+  const choice=await modal('Kamil OS Copilot',body,[{label:'Otevřít Copilot & Control',value:'open'},{label:'Zavřít',value:null,primary:true}]);
+  if(choice==='open'){const m=await import('./copilot840.js');return m.openCopilot840()}
+  return true;
+ }catch(err){console.error('[OS841] copilot command failed',err);return false;}
+}
+export function installCommandCopilot840(){
+ if(window.__KAMIL_COMMAND_COPILOT840__)return;
+ document.addEventListener('input',e=>{if(e.target?.matches?.('#commandInput'))renderSuggestions(e.target)},true);
+ document.addEventListener('keydown',e=>{
+  const el=e.target?.closest?.('#commandInput');if(!el||e.key!=='Enter')return;
+  const raw=String(el.value||'').trim();if(!raw||!canHandleCopilot841(raw))return;
+  e.preventDefault();e.stopImmediatePropagation();el.value='';document.querySelector('#commandResults')?.classList.add('hidden');
+  void run(raw).then(handled=>{if(!handled){el.value=raw;el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}))}});
+ },true);
+ window.__KAMIL_COMMAND_COPILOT840__={installed:true,readOnly:true,polish:'841',history:readHistory,at:Date.now()};
+}
