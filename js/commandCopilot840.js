@@ -5,8 +5,8 @@ const SHORTCUTS={
  '/today':'co mám teď řešit',
  '/cash':'kolik mám volný cash',
  '/tickets':'kolik mám ve vstupenkách',
- '/property':'který byt je nejlepší',
- '/bets':'jaké je riziko sázek',
+ '/property':'nejlepší byt',
+ '/bets':'riziko sázek',
  '/week':'weekly ceo review'
 };
 const readHistory=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}};
@@ -15,14 +15,14 @@ const normalizeShortcut=q=>SHORTCUTS[String(q||'').trim().toLowerCase()]||String
 export function canHandleCopilot841(q=''){
  const raw=String(q||'').trim(),n=raw.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  if(SHORTCUTS[raw.toLowerCase()])return true;
- return /(kolik.*(cash|hotov|vstupenk|ticket|majet)|ktery.*(byt|realit)|nejlepsi.*(byt|realit)|co mam.*(ted|dnes)|co mám.*(teď|dnes)|mam dnes|mám dnes|nejvetsi riz|největší riz|weekly|strategie|strategy|stop.*(rule|saz)|ticket.*(prodat|expoz)|cilov.*cen|cílov.*cen|30\s*minut)/i.test(n);
+ return /(kolik.*(cash|hotov|vstupenk|ticket|majet)|ktery.*(byt|realit)|nejlepsi.*(byt|realit)|co mam.*(ted|dnes)|co mám.*(teď|dnes)|mam dnes|mám dnes|nejvetsi riz|největší riz|weekly|strategie|strategy|stop.*(rule|saz)|ticket.*(prodat|expoz)|cilov.*cen|cílov.*cen|riziko.*saz|30\s*minut)/i.test(n);
 }
 function renderSuggestions(input){
  const box=document.querySelector('#commandResults');if(!box)return;
  const q=String(input?.value||'').trim(),items=autocomplete791(q);
  if(!items.length){box.classList.add('hidden');return;}
  box.classList.remove('hidden');
- box.innerHTML=items.map((x,i)=>`<button class="search-row" data-copilot-suggestion840="${i}"><div><b>${h(x.key?`${x.key} · ${x.label}`:x.label)}</b><div class="muted">OS840 Copilot návrh</div></div></button>`).join('');
+ box.innerHTML=items.map((x,i)=>`<button class="search-row" data-copilot-suggestion840="${i}"><div><b>${h(x.key?`${x.key} · ${x.label}`:x.label)}</b><div class="muted">OS841 Copilot návrh</div></div></button>`).join('');
  box.querySelectorAll('[data-copilot-suggestion840]').forEach((el,i)=>el.addEventListener('click',()=>{input.value=items[i].query;input.focus()}));
 }
 function constrainedAnswer841(q,model){
@@ -32,6 +32,15 @@ function constrainedAnswer841(q,model){
   const candidates=[...(model.notifications||[])].filter(x=>!noSpend||!['MONEY','TICKETS','BETTING'].includes(String(x.area||'').toUpperCase()));
   const x=candidates[0]||model.nextBest;
   return x?`Na příštích 30 minut: ${x.title||x.action}. ${x.detail||x.reason||''}`:'Na 30 minut teď nemám dost kvalitních dat pro lepší doporučení.';
+ }
+ if(/riziko.*saz|saz.*riziko|betting.*risk/.test(n)){
+  const b=model.control?.betting;
+  if(!b)return'Nemám dost betting dat pro posouzení rizika.';
+  return b.stop?`Betting STOP: ${b.stopReason}.`:`Betting stop rule není aktivní; korelovaných skupin je ${b.correlated?.length||0}.`;
+ }
+ if(/weekly/.test(n)){
+  const w=model.weekly||{};
+  return `Weekly review: cash ${Math.round(Number(w.money?.cash||0)).toLocaleString('cs-CZ')} Kč, pracovní overdue ${Number(w.work?.overdue||0)}, datová confidence ${Number(w.data?.confidence||0).toFixed(0)} %.`;
  }
  return null;
 }
@@ -55,7 +64,7 @@ export function installCommandCopilot840(){
   const el=e.target?.closest?.('#commandInput');if(!el||e.key!=='Enter')return;
   const raw=String(el.value||'').trim();if(!raw||!canHandleCopilot841(raw))return;
   e.preventDefault();e.stopImmediatePropagation();el.value='';document.querySelector('#commandResults')?.classList.add('hidden');
-  void run(raw).then(handled=>{if(!handled){el.value=raw;el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}))}});
+  void run(raw).then(handled=>{if(!handled){void modal('Kamil OS Copilot','<div class="card"><h2>Copilot odpověď se nepodařila načíst.</h2><p class="muted">Původní Command Bar zůstává funkční pro ostatní dotazy.</p></div>',[{label:'Zavřít',value:null,primary:true}])}});
  },true);
  window.__KAMIL_COMMAND_COPILOT840__={installed:true,readOnly:true,polish:'841',history:readHistory,at:Date.now()};
 }
