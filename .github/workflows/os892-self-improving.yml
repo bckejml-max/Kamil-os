@@ -1,0 +1,18 @@
+name: OS892 Self-Improving QA
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node self_improving_892_guard.mjs
+      - run: node copilot_842_guard.mjs
+      - run: node copilot_841_guard.mjs
+      - run: node copilot_840_guard.mjs
+      - run: node strategy_command_790_guard.mjs
