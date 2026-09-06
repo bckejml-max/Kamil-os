@@ -10,5 +10,5 @@ for(const x of must)if(!c.includes(x))throw new Error(`copilot missing ${x}`);
 for(const x of ['kamil.command.history.840','installCommandCopilot840','OS840 · COPILOT','read-only'])if(!q.includes(x))throw new Error(`command missing ${x}`);
 if(!more.includes('Copilot & Control')||!more.includes("import('./copilot840.js')"))throw new Error('More integration missing');
 if(!boot.includes("import('./commandCopilot840.js')"))throw new Error('bootstrap integration missing');
-if(/auto.*(buy|sell|bet)/i.test(c))throw new Error('unsafe auto execution wording detected');
+for(const pattern of [/executeBet\s*\(/i,/buyTicket\s*\(/i,/sellTicket\s*\(/i,/placeBet\s*\(/i])if(pattern.test(c)||pattern.test(q))throw new Error(`unsafe automatic execution hook detected: ${pattern}`);
 console.log('OS840 Copilot & Control guard OK');
