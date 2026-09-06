@@ -1,0 +1,11 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';import {execFileSync} from 'node:child_process';
+const read=p=>fs.readFileSync(p,'utf8');
+execFileSync(process.execPath,['--check','js/strategyCommand790.js'],{stdio:'pipe'});
+const m=read('js/strategyCommand790.js'),boot=read('js/bettingBootstrap543.js');
+for(const token of ['isStrategyQuestion790','executeStrategyCommand790','installStrategyCommand790','readOnly:true','data-strategy-command790','Decision confidence','Datové mezery'])assert.ok(m.includes(token),`missing ${token}`);
+for(const q of ['ticket|vstupenk','cash|hotov','byt|realit','co.*(ted|teď).*resit','strategie|strategy'])assert.ok(m.includes(q),`missing query family ${q}`);
+assert.ok(m.includes('event.stopImmediatePropagation()'),'capture isolation missing');
+assert.ok(m.includes('Žádná finanční, ticket ani betting akce se automaticky neprovedla.'),'read-only safety copy missing');
+assert.ok(!/store\.mutate|recordDecision|placeBet|buyTicket|sellTicket/.test(m),'strategy command must not mutate or execute finance/betting actions');
+assert.ok(boot.includes("import('./strategyCommand790.js')"),'bootstrap wiring missing');
+console.log('OS790 STRATEGY COMMAND GUARD PASS');

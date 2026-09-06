@@ -75,3 +75,4 @@ function installBootObserver(){
 }
 boot().then(ok=>{if(!ok)installBootObserver()}).catch(()=>installBootObserver());
 document.addEventListener('click',()=>setTimeout(()=>{boot().catch(()=>{})},0),true);
+import('./strategyCommand790.js').then(m=>m.installStrategyCommand790?.()).catch(err=>console.warn('[OS790] command adapter unavailable',err));
