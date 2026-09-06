@@ -22,6 +22,7 @@ test('OS947 desktop shell uses unified premium visual system',async({page})=>{
  expect(shell.commandHeight).toBeGreaterThanOrEqual(44);
  expect(shell.activeBg).toContain('linear-gradient');
  expect(shell.overflow).toBeLessThanOrEqual(2);
+ await page.waitForFunction(()=>!!window.__KAMIL_UX_FOUNDATION238__?.openQuickAdd,{timeout:10000});
  await page.locator('#quickAddBtn').click();
  await expect(page.locator('.ux238-addmenu')).toBeVisible({timeout:4000});
  const add=await page.locator('.ux238-add-card').evaluate(el=>({radius:parseFloat(getComputedStyle(el).borderRadius),bg:getComputedStyle(el).backgroundImage,width:el.getBoundingClientRect().width}));
@@ -36,6 +37,11 @@ test('OS947 mobile shell has stable six-item navigation and no overflow',async({
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect(page.locator('#appView')).toBeVisible({timeout:10000});
  await page.waitForFunction(()=>window.__KAMIL_MOBILE_NAV238__?.mobile===true);
+ await page.waitForFunction(()=>{
+  const nav=document.querySelector('#bottomNav');if(!nav)return false;
+  const buttons=[...nav.querySelectorAll('button')].filter(b=>getComputedStyle(b).display!=='none');
+  return buttons.length===6&&buttons.some(b=>b.hasAttribute('data-personal-more'))&&!buttons.some(b=>b.dataset.view==='more');
+ },{timeout:10000});
  const mobile=await page.evaluate(()=>{
   const nav=document.querySelector('#bottomNav'),buttons=[...nav.querySelectorAll('button')].filter(b=>getComputedStyle(b).display!=='none');
   const labels=buttons.map(b=>b.textContent.trim());const s=getComputedStyle(nav);
