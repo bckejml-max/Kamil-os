@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+for(const f of ['js/usageBridge893.js','js/selfImproving893.js','js/personalShell640.js','js/personalMore640.js'])if(!fs.existsSync(f))throw new Error(`missing ${f}`);
+const bridge=fs.readFileSync('js/usageBridge893.js','utf8');
+const out=fs.readFileSync('js/selfImproving893.js','utf8');
+const shell=fs.readFileSync('js/personalShell640.js','utf8');
+const more=fs.readFileSync('js/personalMore640.js','utf8');
+for(const x of ['893.0.0','trackMainView893','main-nav'])if(!bridge.includes(x))throw new Error(`usage bridge missing ${x}`);
+for(const x of ['openSelfImproving893','recordOutcome851','Dopadlo dobře','Dopadlo špatně'])if(!out.includes(x))throw new Error(`outcome UI missing ${x}`);
+if(!shell.includes('trackMainView893(currentView)'))throw new Error('main view usage tracking missing');
+if(!more.includes("import('./selfImproving893.js')")||!more.includes('OS893'))throw new Error('OS893 More integration missing');
+if(/buyTicket|placeBet|sendMoney|executeTrade/.test(out))throw new Error('autonomous execution forbidden');
+console.log('OS893 Outcome + Usage QA OK');
