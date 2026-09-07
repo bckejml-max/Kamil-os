@@ -1,11 +1,11 @@
 import fs from 'node:fs';
-const files=['js/autonomous943.js','js/personalMore640.js'];
+const files=['js/autonomous943.js','js/oneOS977.js'];
 for(const f of files)if(!fs.existsSync(f))throw new Error(`missing ${f}`);
 const c=fs.readFileSync('js/autonomous943.js','utf8');
-const more=fs.readFileSync('js/personalMore640.js','utf8');
+const legacy=fs.readFileSync('js/oneOS977.js','utf8');
 const names=['outcomeReviewQueue894','queueOutcomeReview895','outcomeByDomain896','recommendationPrecision897','recommendationRecall898','falseAlarmDetector899','missedOpportunity900','confidenceVsReality901','confidenceAutoCorrection902','domainReliabilityFloor903','sourceReliability904','recordSourceState905','sourceFallbackRanking906','sourceConflictResolution907','humanVerificationQueue908','smartVerificationOrder909','decisionDependencyMap910','brokenDecisionDetector911','automaticRecompute912','decisionVersion913','decisionTimeline914','forecastConfidence915','forecastError916','forecastModelSelection917','scenarioProbability918','scenarioOutcomeReview919','recordTimeAllocation920','timeAllocation921','attentionBudget922','overloadDetector923','wipLimit924','finishBeforeStart925','lifeAreaBalance926','neglectedAreaDetector927','strategicGoalTracker928','goalContribution929','goalDrift930','monthlyGoalReset931','killList932','simplifyMyOS933','adaptiveNavigation934','adaptiveMoreMenu935','adaptiveCommandSuggestions936','personalShortcutLearning937','smartDefaults938','decisionTemplates939','personalPlaybooks940','playbookSuccessRate941','monthlyOSReview942','autonomousImprovementProposal943'];
 for(const x of names)if(!c.includes(x))throw new Error(`missing OS943 contract ${x}`);
 for(const x of ["AUTONOMOUS943_VERSION='943.0.0'","mode:'PROPOSAL_ONLY'","requiresApproval:true","autoApply:false","noAutonomousFinancialExecution:true","noAutonomousBettingExecution:true","noAutomaticUiMutation:true","noAutomaticStrategyMutation:true"]){if(!c.includes(x))throw new Error(`guardrail missing ${x}`)}
-if(!more.includes('Autonomous Improvement Proposals')||!more.includes("import('./autonomous943.js')"))throw new Error('More integration missing');
+for(const x of ["autonomous:['./autonomous943.js','openAutonomous943']",'Autonomous proposals · OS943–945','Pokročilé / legacy'])if(!legacy.includes(x))throw new Error(`OS943 legacy gateway missing ${x}`);
 if(/autoApply:true|executeBet|placeBet|buyTicket|sellTicket|sendMoney|transferMoney/.test(c))throw new Error('unsafe autonomous execution pattern detected');
-console.log('OS943 Autonomous Improvement Proposal guard OK');
+console.log('OS943 Autonomous Improvement Proposal guard OK · gateway OS977');
