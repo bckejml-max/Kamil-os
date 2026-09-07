@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+const js=fs.readFileSync('js/controlOperations1047.js','utf8');
+const boot=fs.readFileSync('js/controlOperations1047Boot.js','utf8');
+const betting=fs.readFileSync('js/bettingBootstrap543.js','utf8');
+const need=(ok,msg)=>{if(!ok)throw new Error(`OS1047 guard: ${msg}`)};
+need(js.includes("CONTROL_OPERATIONS1047_VERSION='1047.0.0'"),'version missing');
+const contracts={1038:'operationsOverview1038',1039:'snapshotDiff1039',1040:'confirmedRestore1040',1041:'createWatch1041',1042:'watchManager1042',1043:'createAutomation1043',1044:'runAutomations1044',1045:'resolveConflict1045',1046:'installHealthRibbon1046',1047:'openOperations1047'};
+for(const [v,name] of Object.entries(contracts))need(js.includes(`function ${name}`)||js.includes(`async function ${name}`),`OS${v} ${name} missing`);
+need(js.includes('features:[1038,1039,1040,1041,1042,1043,1044,1045,1046,1047]'),'feature registry missing');
+need(js.includes("String(confirmation).trim()!=='RESTORE'"),'typed restore confirmation missing');
+need(js.includes("condition:'CHANGED'"),'watch change-only policy missing');
+need(js.includes("enabled:false"),'new automations must start disabled');
+need(js.includes("x.applied=false"),'sync conflict decision must not silently apply');
+need(js.includes('noExternalWrites:true')&&js.includes('noFinancialExecution:true')&&js.includes('noBettingExecution:true')&&js.includes('noTicketExecution:true'),'operations safety policy missing');
+for(const token of ['fetch(','XMLHttpRequest','sendMoney(','placeBet(','buyTicket(','sellTicket(','autoMerge('])need(!js.includes(token),`forbidden execution/network pattern ${token}`);
+need(boot.includes('installControlOperations1047'),'boot installer missing');
+need(betting.includes("import('./controlOperations1047Boot.js')"),'operations bootstrap not wired');
+console.log('OS1047 control operations guard OK');
