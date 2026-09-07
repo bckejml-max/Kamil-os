@@ -80,3 +80,4 @@ import('./commandCopilot840.js').then(m=>m.installCommandCopilot840?.()).catch(e
 import('./oneOS967Boot.js').catch(err=>console.warn('[OS967] One OS bootstrap unavailable',err));
 import('./oneOS977Boot.js').catch(err=>console.warn('[OS977] consolidation bootstrap unavailable',err));
 import('./legacyCleanup987Boot.js').catch(err=>console.warn('[OS987] legacy cleanup bootstrap unavailable',err));
+import('./controlPlane1037Boot.js').catch(err=>console.warn('[OS1037] control plane bootstrap unavailable',err));
