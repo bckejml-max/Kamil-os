@@ -1,8 +1,23 @@
 name: OS944 Proposal Review QA
 on:
   pull_request:
+    paths:
+      - 'js/proposalReview944.js'
+      - 'scripts/proposal_review_944_guard.mjs'
+      - 'autonomous_943_guard.mjs'
+      - 'self_improving_892_guard.mjs'
+      - 'copilot_842_guard.mjs'
+      - '.github/workflows/os944-proposal-review.yml'
   push:
     branches: [main]
+    paths:
+      - 'js/proposalReview944.js'
+      - 'scripts/proposal_review_944_guard.mjs'
+      - 'autonomous_943_guard.mjs'
+      - 'self_improving_892_guard.mjs'
+      - 'copilot_842_guard.mjs'
+      - '.github/workflows/os944-proposal-review.yml'
+  workflow_dispatch:
 jobs:
   guard:
     runs-on: ubuntu-latest

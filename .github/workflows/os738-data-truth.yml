@@ -3,9 +3,10 @@ on:
   pull_request:
     paths:
       - 'js/dataTruthAudit738.js'
-      - 'js/personalMore640.js'
       - 'data_truth_738_guard.mjs'
+      - 'operator_truth_737_guard.mjs'
       - '.github/workflows/os738-data-truth.yml'
+  workflow_dispatch:
 jobs:
   guard:
     runs-on: ubuntu-latest

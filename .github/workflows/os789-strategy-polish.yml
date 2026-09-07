@@ -2,11 +2,12 @@ name: OS789 Strategy Polish QA
 on:
   pull_request:
     paths:
-      - 'js/personalMore640.js'
       - 'js/strategy788.js'
       - 'strategy788.css'
       - 'strategy_789_guard.mjs'
+      - 'strategy_788_guard.mjs'
       - '.github/workflows/os789-strategy-polish.yml'
+  workflow_dispatch:
 jobs:
   guard:
     runs-on: ubuntu-latest

@@ -1,12 +1,14 @@
 import fs from 'node:fs';
-const files=['js/copilot840.js','js/commandCopilot840.js','js/personalMore640.js','js/bettingBootstrap543.js'];
+const files=['js/copilot840.js','js/commandCopilot840.js','js/copilotFeedback842.js','js/oneOS977.js','js/bettingBootstrap543.js'];
 for(const f of files)if(!fs.existsSync(f))throw new Error(`missing ${f}`);
 const c=fs.readFileSync('js/copilot840.js','utf8');
 const q=fs.readFileSync('js/commandCopilot840.js','utf8');
-const more=fs.readFileSync('js/personalMore640.js','utf8');
+const feedback=fs.readFileSync('js/copilotFeedback842.js','utf8');
+const legacy=fs.readFileSync('js/oneOS977.js','utf8');
 const boot=fs.readFileSync('js/bettingBootstrap543.js','utf8');
 for(const x of ['840.0.0','buildCopilot840','openCopilot840','readOnlyByDefault','noAutoFinancialExecution','noInventedExternalRates','noInventedCLV','canonicalSourcesOnly'])if(!c.includes(x))throw new Error(`copilot contract missing ${x}`);
 for(const x of ['installCommandCopilot840','kamil.command.history.840','OS840 · COPILOT'])if(!q.includes(x))throw new Error(`command contract missing ${x}`);
-if(!more.includes('Copilot & Control')||!more.includes("import('./copilot840.js')"))throw new Error('More integration missing');
+if(!feedback.includes('buildCopilot840')&&!feedback.includes("import('./copilot840.js')"))throw new Error('OS842 must retain OS840 compatibility');
+for(const x of ["copilot:['./copilotFeedback842.js','openCopilot842']",'Copilot & Control · OS842','Pokročilé / legacy'])if(!legacy.includes(x))throw new Error(`Copilot legacy gateway missing ${x}`);
 if(!boot.includes("import('./commandCopilot840.js')"))throw new Error('bootstrap integration missing');
-console.log('OS840 Copilot & Control guard OK');
+console.log('OS840 Copilot & Control guard OK · One OS gateway compatible');

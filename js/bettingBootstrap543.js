@@ -79,3 +79,4 @@ import('./strategyCommand790.js').then(m=>m.installStrategyCommand790?.()).catch
 import('./commandCopilot840.js').then(m=>m.installCommandCopilot840?.()).catch(err=>console.warn('[OS840] Copilot command layer unavailable',err));
 import('./oneOS967Boot.js').catch(err=>console.warn('[OS967] One OS bootstrap unavailable',err));
 import('./oneOS977Boot.js').catch(err=>console.warn('[OS977] consolidation bootstrap unavailable',err));
+import('./legacyCleanup987Boot.js').catch(err=>console.warn('[OS987] legacy cleanup bootstrap unavailable',err));

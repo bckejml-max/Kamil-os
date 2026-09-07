@@ -1,8 +1,25 @@
 name: OS717 Operator Bundle QA
 on:
   pull_request:
+    paths:
+      - 'js/operator717.js'
+      - 'js/todayPage101.js'
+      - 'operator_717_guard.mjs'
+      - 'operator_717_polish_guard.mjs'
+      - 'sw.js'
+      - 'package.json'
+      - '.github/workflows/os717-operator.yml'
   push:
     branches: [main]
+    paths:
+      - 'js/operator717.js'
+      - 'js/todayPage101.js'
+      - 'operator_717_guard.mjs'
+      - 'operator_717_polish_guard.mjs'
+      - 'sw.js'
+      - 'package.json'
+      - '.github/workflows/os717-operator.yml'
+  workflow_dispatch:
 jobs:
   guard:
     runs-on: ubuntu-latest

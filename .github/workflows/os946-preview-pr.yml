@@ -1,8 +1,29 @@
 name: OS946 Preview PR Builder QA
 on:
   pull_request:
+    paths:
+      - 'js/previewPr946.js'
+      - 'js/safeChangePlan945.js'
+      - 'scripts/preview_pr_946_guard.mjs'
+      - 'scripts/safe_change_plan_945_guard.mjs'
+      - 'scripts/proposal_review_944_guard.mjs'
+      - 'autonomous_943_guard.mjs'
+      - 'self_improving_892_guard.mjs'
+      - 'copilot_842_guard.mjs'
+      - '.github/workflows/os946-preview-pr.yml'
   push:
     branches: [main]
+    paths:
+      - 'js/previewPr946.js'
+      - 'js/safeChangePlan945.js'
+      - 'scripts/preview_pr_946_guard.mjs'
+      - 'scripts/safe_change_plan_945_guard.mjs'
+      - 'scripts/proposal_review_944_guard.mjs'
+      - 'autonomous_943_guard.mjs'
+      - 'self_improving_892_guard.mjs'
+      - 'copilot_842_guard.mjs'
+      - '.github/workflows/os946-preview-pr.yml'
+  workflow_dispatch:
 jobs:
   guard:
     runs-on: ubuntu-latest
