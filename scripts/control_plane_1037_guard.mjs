@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+const read=p=>fs.readFileSync(p,'utf8');
+for(const f of ['js/controlPlane1037.js','js/controlPlane1037Boot.js','js/personalMore640.js','js/bettingBootstrap543.js'])assert.ok(fs.existsSync(f),`missing ${f}`);
+for(const f of ['js/controlPlane1037.js','js/controlPlane1037Boot.js','js/personalMore640.js','js/bettingBootstrap543.js'])execFileSync(process.execPath,['--check',f],{stdio:'pipe'});
+const c=read('js/controlPlane1037.js'),boot=read('js/bettingBootstrap543.js'),more=read('js/personalMore640.js');
+const names=['systemHealth988','errorInbox989','errorDeduplication990','selfDiagnostics991','recoveryActions992','dataIntegrityScanner993','canonicalSourceRegistry994','duplicateStoreDetector995','safeDataMigrationPlan996','dataSchemaVersions997','automaticBackupSnapshot998','restoreCenter999','oneOSMilestone1000','performanceProfiler1001','jsDependencyMap1002','deadImportDetector1003','deadCssDetector1004','bundleBudget1005','lazyLoadPolicy1006','bootPriorityEngine1007','instantResume1008','offlineMode1009','syncQueue1010','syncConflictCenter1011','dataProvenance1012','freshnessBadges1013','trustAwareDecisions1014','actionExecutionFramework1015','approvalLevels1016','dryRun1017','undoFramework1018','auditTrail1019','safeAutomationRules1020','gmailActionBridge1021','calendarBridge1022','contactResolution1023','documentToAction1024','workProjectSync1025','financialImportCenter1026','ticketMarketFeedContract1027','bettingOddsFeedContract1028','propertyFeedContract1029','unifiedWatchEngine1030','changeDetection1031','smartNotificationDelivery1032','dailyDigest1033','weeklyCeoReview1034','personalAutomationBuilder1035','automationSafetySimulator1036','controlPlane1037'];
+for(const name of names)assert.ok(c.includes(name),`OS1037 missing ${name}`);
+for(const token of ["CONTROL_PLANE1037_VERSION='1037.0.0'",'noInventedExternalData:true','noAutomaticFinancialExecution:true','noAutomaticBettingExecution:true','externalWritesRequireExplicitUser:true','requiresExplicitImport:true',"status:'ADAPTER_REQUIRED'",'requiresConfirmation:true','DRY_RUN','PLAN_ONLY'])assert.ok(c.includes(token),`OS1037 guardrail missing ${token}`);
+for(const token of ['PAY','TRANSFER','BUY_TICKET','SELL_TICKET','PLACE_BET','CANCEL_BET'])assert.ok(c.includes(token),`OS1037 blocked action missing ${token}`);
+assert.ok(boot.includes("import('./controlPlane1037Boot.js')"),'OS1037 bootstrap missing');
+assert.ok(more.includes("import('./controlPlane1037.js')"),'Control Plane must lazy-load from More');
+assert.ok(more.includes('Kamil OS Control Plane'),'Control Plane primary More entry missing');
+assert.ok(c.includes("features:Array.from({length:50},(_,i)=>988+i)"),'OS988–1037 feature range missing');
+assert.ok(!/noAutomaticFinancialExecution\s*:\s*false|noAutomaticBettingExecution\s*:\s*false|externalWritesRequireExplicitUser\s*:\s*false/.test(c),'unsafe OS1037 policy override');
+console.log('OS988–1037 CONTROL PLANE GUARD PASS');
