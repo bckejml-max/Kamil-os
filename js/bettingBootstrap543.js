@@ -21,7 +21,9 @@ async function ensureControl(){if(controlStarted)return true;try{const m=await i
 
 async function boot(){
  const root=document.querySelector('#bettingView');if(!root)return false;
- await Promise.all([ensureBrowserFeed(),ensureFeed(),ensureBudget()]);
+ await ensureBrowserFeed();
+ await ensureFeed();
+ await ensureBudget();
  if(started&&root.__bet543Observer&&root.__bet542Observer){
   if(!autoSettleStarted){try{const m=await import(`./bettingAutoSettle544.js?rev=${REV}`);m.runBettingAutoSettle544?.();autoSettleStarted=true}catch{}}
   if(!intelligenceStarted){try{const m=await import(`./bettingIntelligence560.js?rev=${REV}`);m.installBettingIntelligence560?.();intelligenceStarted=true}catch{}}
@@ -39,9 +41,6 @@ async function boot(){
  }catch(error){started=false;window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:false,scoped:true,error:String(error?.message||error),at:Date.now()};return false}
 }
 
-export function installBettingBootstrap543(){
- if(bootPromise)return bootPromise;bootPromise=boot().finally(()=>{bootPromise=null});return bootPromise;
-}
-
+export function installBettingBootstrap543(){if(bootPromise)return bootPromise;bootPromise=boot().finally(()=>{bootPromise=null});return bootPromise}
 if(document.querySelector('#bettingView'))queueMicrotask(()=>installBettingBootstrap543().catch(()=>{}));
 window.addEventListener('kamil:view-change',e=>{if(e.detail==='betting')void installBettingBootstrap543().catch(()=>{})});
