@@ -1,8 +1,25 @@
 name: OS945 Safe Change Plan QA
 on:
   pull_request:
+    paths:
+      - 'js/safeChangePlan945.js'
+      - 'scripts/safe_change_plan_945_guard.mjs'
+      - 'scripts/proposal_review_944_guard.mjs'
+      - 'autonomous_943_guard.mjs'
+      - 'self_improving_892_guard.mjs'
+      - 'copilot_842_guard.mjs'
+      - '.github/workflows/os945-safe-change-plan.yml'
   push:
     branches: [main]
+    paths:
+      - 'js/safeChangePlan945.js'
+      - 'scripts/safe_change_plan_945_guard.mjs'
+      - 'scripts/proposal_review_944_guard.mjs'
+      - 'autonomous_943_guard.mjs'
+      - 'self_improving_892_guard.mjs'
+      - 'copilot_842_guard.mjs'
+      - '.github/workflows/os945-safe-change-plan.yml'
+  workflow_dispatch:
 jobs:
   guard:
     runs-on: ubuntu-latest
