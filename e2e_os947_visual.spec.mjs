@@ -8,7 +8,11 @@ test('OS947 desktop shell uses unified premium visual system',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e?.message||e)));
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect(page.locator('#appView')).toBeVisible({timeout:10000});
- await page.waitForFunction(()=>document.documentElement.classList.contains('theme-dark')&&getComputedStyle(document.querySelector('.sidebar')).position==='sticky');
+ await page.waitForFunction(()=>{
+  const side=document.querySelector('.sidebar'),active=document.querySelector('#mainNav button.on');if(!side||!active)return false;
+  const ss=getComputedStyle(side),as=getComputedStyle(active);
+  return document.documentElement.classList.contains('theme-dark')&&ss.position==='sticky'&&ss.backgroundImage.includes('linear-gradient')&&as.backgroundImage.includes('linear-gradient');
+ },{timeout:10000});
  const shell=await page.evaluate(()=>{
   const style=s=>getComputedStyle(document.querySelector(s));
   const side=style('.sidebar'),cmd=style('.command-field'),active=style('#mainNav button.on');
