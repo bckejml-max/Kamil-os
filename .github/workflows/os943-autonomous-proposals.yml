@@ -3,8 +3,11 @@ on:
   pull_request:
     paths:
       - 'js/autonomous943.js'
-      - 'js/personalMore640.js'
       - 'autonomous_943_guard.mjs'
+      - 'self_improving_892_guard.mjs'
+      - 'copilot_842_guard.mjs'
+      - 'copilot_841_guard.mjs'
+      - 'copilot_840_guard.mjs'
       - '.github/workflows/os943-autonomous-proposals.yml'
   workflow_dispatch:
 jobs:
