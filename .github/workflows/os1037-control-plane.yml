@@ -44,8 +44,20 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: OS1037 browser smoke
+        id: browser
+        continue-on-error: true
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-os1037-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_control_plane_1037.spec.mjs e2e_legacy_cleanup_987.spec.mjs e2e_one_os_977.spec.mjs e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=line
+          npx playwright test e2e_control_plane_1037.spec.mjs e2e_legacy_cleanup_987.spec.mjs e2e_one_os_977.spec.mjs e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=json > os1037-playwright.json
+      - name: Upload OS1037 browser report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: os1037-playwright-report
+          path: os1037-playwright.json
+          retention-days: 3
+      - name: Browser QA gate
+        if: steps.browser.outcome != 'success'
+        run: exit 1
