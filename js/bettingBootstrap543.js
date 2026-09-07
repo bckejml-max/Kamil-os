@@ -77,3 +77,4 @@ boot().then(ok=>{if(!ok)installBootObserver()}).catch(()=>installBootObserver())
 document.addEventListener('click',()=>setTimeout(()=>{boot().catch(()=>{})},0),true);
 import('./strategyCommand790.js').then(m=>m.installStrategyCommand790?.()).catch(err=>console.warn('[OS790] command adapter unavailable',err));
 import('./commandCopilot840.js').then(m=>m.installCommandCopilot840?.()).catch(err=>console.warn('[OS840] Copilot command layer unavailable',err));
+import('./oneOS967Boot.js').catch(err=>console.warn('[OS967] One OS bootstrap unavailable',err));
