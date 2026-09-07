@@ -4,7 +4,7 @@ test('OS967 One OS replaces Today surface and opens core centers',async({page})=
  await page.setViewportSize({width:1440,height:900});
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_ONE_OS967__?.version||''),{timeout:20000}).toBe('967.0.0');
- const one=page.locator('[data-oneos967]');
+ const one=page.locator('#todayView > section[data-oneos967]');
  await expect(one).toBeVisible();
  await expect(one.getByRole('heading',{name:'Dnes'})).toBeVisible();
  await expect(one.getByRole('button',{name:'Action Center'})).toBeVisible();
@@ -22,7 +22,7 @@ test('OS967 mobile exposes one dominant next-action control',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_ONE_OS967__?.version||''),{timeout:20000}).toBe('967.0.0');
- await expect(page.locator('[data-oneos967]')).toBeVisible();
+ await expect(page.locator('#todayView > section[data-oneos967]')).toBeVisible();
  const mobile=page.locator('[data-oneos-mobile965]');
  await expect(mobile).toBeVisible();
  const visibleNav=await page.locator('#bottomNav button').evaluateAll(btns=>btns.filter(b=>getComputedStyle(b).display!=='none').length);
