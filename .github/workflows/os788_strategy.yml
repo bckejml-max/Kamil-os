@@ -5,9 +5,9 @@ on:
       - 'js/strategy788.js'
       - 'strategy788.css'
       - 'strategy_788_guard.mjs'
-      - 'js/personalMore640.js'
       - 'package.json'
       - '.github/workflows/os788_strategy.yml'
+  workflow_dispatch:
 jobs:
   guard:
     runs-on: ubuntu-latest
