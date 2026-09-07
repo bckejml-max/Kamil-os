@@ -29,8 +29,22 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: One OS desktop and mobile smoke
+        id: browser
+        continue-on-error: true
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-os967-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=line
+          npx playwright test e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=json > os967-playwright.json
+      - name: Upload browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: os967-playwright-${{ github.run_id }}
+          path: |
+            os967-playwright.json
+            test-results
+          if-no-files-found: warn
+      - name: Enforce browser result
+        if: steps.browser.outcome != 'success'
+        run: exit 1
