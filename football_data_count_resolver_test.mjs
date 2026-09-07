@@ -17,9 +17,9 @@ const fetchImpl=async()=>({ok:true,status:200,text:async()=>csv});
 const events=[{
  id:'e1',league:'1. anglická liga',home:'Fulham',away:'Crystal Palace',startTime:'2026-09-05T14:00:00Z',
  markets:[
-  {type:'CORNERS_OVER_UNDER',name:'Počet rohů',line:9.5,selections:[{id:'corners-over',outcome:'OVER',line:9.5},{id:'corners-under',outcome:'UNDER',line:9.5}]},
-  {type:'YELLOW_CARDS_OVER_UNDER',name:'Žluté karty',line:3.5,selections:[{id:'cards-over',outcome:'OVER',line:3.5}]},
-  {type:'TOTAL_CARDS',name:'Karty celkem',line:3.5,selections:[{id:'unsafe-general-cards',outcome:'OVER',line:3.5}]}
+  {type:'CORNERS_OVER_UNDER',name:'Počet rohů',period:'FULL_TIME',line:9.5,selections:[{id:'corners-over',outcome:'OVER',line:9.5},{id:'corners-under',outcome:'UNDER',line:9.5}]},
+  {type:'YELLOW_CARDS_OVER_UNDER',name:'Žluté karty',period:'FULL_TIME',line:3.5,selections:[{id:'cards-over',outcome:'OVER',line:3.5},{id:'cards-under',outcome:'UNDER',line:3.5}]},
+  {type:'TOTAL_CARDS',name:'Karty celkem',period:'FULL_TIME',line:3.5,selections:[{id:'unsafe-general-cards',outcome:'OVER',line:3.5},{id:'unsafe-general-cards-under',outcome:'UNDER',line:3.5}]}
  ]
 }];
 const resolved=await resolveFootballDataCountModels(events,{fetchImpl,useCache:false,now:Date.parse('2026-09-02T12:00:00Z'),limit:5,baseUrl:'https://example.test'});
