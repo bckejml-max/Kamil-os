@@ -1,64 +1,22 @@
 import fs from 'node:fs';
-
 const fail=message=>{console.error(`Ticket canonical guard 466: ${message}`);process.exitCode=1};
 const read=path=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
 const count=(text,needle)=>text.split(needle).length-1;
+const release=read('./js/releaseMeta.js'),page=read('./js/ticketPage100.js'),ui=read('./js/ticketUi421.js'),commander=read('./js/ticketCommander465.js'),consolidation=read('./js/ticketConsolidation466.js'),layout=read('./js/ticketLayoutGuard458.js'),health=read('./js/ticketMarketHealth397.js');
+const appVersion=release.match(/APP_VERSION='([^']+)'/)?.[1]||'',appRelease=release.match(/APP_RELEASE='([^']+)'/)?.[1]||'',major=Number(appVersion.split('.')[0]||0);
+if(appVersion!==appRelease)fail(`APP_VERSION ${appVersion||'unknown'} != APP_RELEASE ${appRelease||'unknown'}`);if(major<466){if(!process.exitCode)console.log(`Ticket canonical guard skipped · release ${appVersion}`);process.exit()}
 
-const release=read('./js/releaseMeta.js');
-const page=read('./js/ticketPage100.js');
-const ui=read('./js/ticketUi421.js');
-const commander=read('./js/ticketCommander465.js');
-const consolidation=read('./js/ticketConsolidation466.js');
-const layout=read('./js/ticketLayoutGuard458.js');
-const health=read('./js/ticketMarketHealth397.js');
-
-const appVersion=release.match(/APP_VERSION='([^']+)'/)?.[1]||'';
-const appRelease=release.match(/APP_RELEASE='([^']+)'/)?.[1]||'';
-const major=Number(appVersion.split('.')[0]||0);
-
-if(appVersion!==appRelease)fail(`APP_VERSION ${appVersion||'unknown'} != APP_RELEASE ${appRelease||'unknown'}`);
-if(major<466){if(!process.exitCode)console.log(`Ticket canonical guard skipped · release ${appVersion}`);process.exit()}
-
-const criticalStart=page.indexOf('const CRITICAL=[');
-const essentialStart=page.indexOf('const ESSENTIAL_ANALYTICS=[');
-const legacyStart=page.indexOf('const MODULES=[');
-if(criticalStart<0)fail('ticketPage100 missing CRITICAL boot list');
-if(essentialStart<0)fail('ticketPage100 missing ESSENTIAL_ANALYTICS list');
-if(legacyStart<0)fail('ticketPage100 missing legacy MODULES list');
-if(criticalStart>=0&&essentialStart>=0&&criticalStart>essentialStart)fail('critical boot must be declared before essential analytics');
-if(essentialStart>=0&&legacyStart>=0&&essentialStart>legacyStart)fail('essential analytics must be declared before legacy modules');
-
-const criticalBlock=criticalStart>=0&&essentialStart>criticalStart?page.slice(criticalStart,essentialStart):'';
-for(const path of ['./ticketUi421.js','./ticketMarketEngine426.js','./ticketCommander465.js','./ticketConsolidation466.js']){if(!criticalBlock.includes(path))fail(`critical boot missing ${path}`);if(count(page,path)!==1)fail(`${path} must appear exactly once in ticketPage100`)}
-for(const token of ['state.criticalDone=true','state.legacyDone=true','BACKGROUND_MODULES','loadBackground','LEGACY_DELAY_MS=12000','healthMounted','alertsReady'])if(!page.includes(token))fail(`critical-first boot missing ${token}`);
+const criticalStart=page.indexOf('const CRITICAL=['),advancedStart=page.indexOf('const ADVANCED=[');if(criticalStart<0)fail('ticketPage100 missing CRITICAL boot list');if(advancedStart<0)fail('ticketPage100 missing ADVANCED on-demand list');if(criticalStart>=0&&advancedStart>=0&&criticalStart>advancedStart)fail('critical boot must be declared before advanced analytics');
+const criticalBlock=criticalStart>=0&&advancedStart>criticalStart?page.slice(criticalStart,advancedStart):'';
+for(const path of ['./ticketUi421.js','./ticketMarketEngine426.js','./ticketCommander465.js','./ticketConsolidation466.js','./ticketHub640.js']){if(!criticalBlock.includes(path))fail(`critical boot missing ${path}`);if(count(page,path)!==1)fail(`${path} must appear exactly once in ticketPage100`)}
+for(const retired of ['./ticketUi420.js','./ticketUi422.js','./ticketUi423.js','./ticketUi424.js','./ticketUi425.js','./ticketEngineUi427.js','./ticketPredictUi436.js','./ticketUi457.js'])if(page.includes(retired))fail(`retired ticket UI returned to canonical adapter: ${retired}`);
+for(const token of ['loadTicketAdvancedAnalytics','advancedStarted','advancedDone','Načíst analytiku','mountAdvancedButton','mountSourceBadge'])if(!page.includes(token))fail(`on-demand ticket architecture missing ${token}`);
+for(const forbidden of ['LEGACY_DELAY_MS','LEGACY_RETRY_MS','setTimeout(()=>loadBackground','BACKGROUND_MODULES','ESSENTIAL_ANALYTICS'])if(page.includes(forbidden))fail(`legacy background orchestration returned: ${forbidden}`);
 if(/\.refresh\?\.\(/.test(page))fail('canonical adapter must not call renderer refresh methods directly');
-const essentialBlock=essentialStart>=0&&legacyStart>essentialStart?page.slice(essentialStart,legacyStart):'';
-for(const path of ['./ticketMarketHealth397.js','./ticketAlerts413.js'])if(!essentialBlock.includes(path))fail(`essential analytics missing ${path}`);
-if(page.includes("kick('boot466-critical')"))fail('canonical critical boot must not schedule a delayed view rerender');
+for(const path of ['./ticketMarketHealth397.js','./ticketAlerts413.js','./ticketSettlement411.js','./ticketBacktest434.js']){if(!page.slice(advancedStart).includes(path))fail(`advanced analytics missing ${path}`);if(criticalBlock.includes(path))fail(`advanced analytics leaked into critical boot: ${path}`)}
 
-const settlementPath='./ticketSettlement411.js';
-if(criticalBlock.includes(settlementPath))fail('settlement analytics must stay out of critical ticket boot');
-if(!page.slice(legacyStart).includes(settlementPath))fail(`deferred analytics missing ${settlementPath}`);
-if(count(page,settlementPath)!==1)fail(`${settlementPath} must appear exactly once in ticketPage100`);
-if(!page.includes('setTimeout(()=>loadBackground(state)'))fail('background analytics scheduling missing after canonical analytics readiness');
-
-for(const token of ['__KAMIL_TICKET_COMMANDER454__','__KAMIL_TICKET_COMMANDER439__','__KAMIL_TICKET_COMMANDER435__','__KAMIL_TICKET_ENGINE426__',"source:'WAIT'",'čekám na model'])if(!commander.includes(token))fail(`Commander 6 fallback missing ${token}`);
-if(commander.includes('if(!c?.rows?.length)return null'))fail('Commander 6 must not disappear when OS454 has no rows');
-if(commander.includes('setTimeout(()=>schedule(0),900)'))fail('Commander 6 must not use delayed critical rerender');
-
-for(const token of ['normalizeHero','moveDiagnostics','data-bridge-system466','data-analytics466','canonical-466','refresh:render'])if(!ui.includes(token))fail(`canonical UI bridge missing ${token}`);
-const canonicalKicker=ui.includes("kicker.textContent='Kamil OS · Ticket Portfolio'")||ui.includes("setText(kicker,'Kamil OS · Ticket Portfolio')");
-const canonicalHeading=ui.includes("h1.textContent='Ticket Trading Desk'")||ui.includes("setText(h1,'Ticket Trading Desk')");
-if(!canonicalKicker)fail('canonical hero title normalization missing');
-if(!canonicalHeading)fail('canonical hero H1 normalization missing');
-if(ui.includes('function setText')&&!ui.includes('if(el&&el.textContent!==next)'))fail('idempotent hero normalization guard missing');
-if(ui.includes('setTimeout(()=>schedule(0),700)'))fail('canonical UI must not use delayed critical rerender');
-
-for(const token of ['lastMarkup','render();window.__KAMIL_TICKET_MARKET_HEALTH397__'])if(!health.includes(token))fail(`Market Health idempotence missing ${token}`);
-if(health.includes('observe(document.body'))fail('Market Health must not observe the whole body and create DOM feedback loops');
-
-for(const forbidden of ['function reorder(','function moveAnalytics(','host.appendChild(drawer)'])if(consolidation.includes(forbidden))fail(`logic-only consolidation must not own page DOM: ${forbidden}`);
-for(const token of ['logicOnly:true','decorateCommander','data-c466-more'])if(!consolidation.includes(token))fail(`execution consolidation missing ${token}`);
-for(const token of ['canonicalSystem','data-bridge-system466','data-system466'])if(!layout.includes(token))fail(`Layout Guard 458.1 missing canonical bridge support: ${token}`);
-
-if(!process.exitCode)console.log(`Ticket canonical guard OK · ${appVersion}`);
+for(const token of ['__KAMIL_TICKET_COMMANDER454__','__KAMIL_TICKET_COMMANDER439__','__KAMIL_TICKET_COMMANDER435__','__KAMIL_TICKET_ENGINE426__',"source:'WAIT'",'čekám na model'])if(!commander.includes(token))fail(`Commander fallback missing ${token}`);if(commander.includes('if(!c?.rows?.length)return null'))fail('Commander must not disappear when OS454 has no rows');if(commander.includes('setTimeout(()=>schedule(0),900)'))fail('Commander must not use delayed critical rerender');
+for(const token of ['normalizeHero','moveDiagnostics','data-bridge-system466','data-analytics466','canonical-466','refresh:render'])if(!ui.includes(token))fail(`canonical UI bridge missing ${token}`);const canonicalKicker=ui.includes("kicker.textContent='Kamil OS · Ticket Portfolio'")||ui.includes("setText(kicker,'Kamil OS · Ticket Portfolio')"),canonicalHeading=ui.includes("h1.textContent='Ticket Trading Desk'")||ui.includes("setText(h1,'Ticket Trading Desk')");if(!canonicalKicker)fail('canonical hero title normalization missing');if(!canonicalHeading)fail('canonical hero H1 normalization missing');if(ui.includes('function setText')&&!ui.includes('if(el&&el.textContent!==next)'))fail('idempotent hero normalization guard missing');if(ui.includes('setTimeout(()=>schedule(0),700)'))fail('canonical UI must not use delayed critical rerender');
+for(const token of ['lastMarkup','render();window.__KAMIL_TICKET_MARKET_HEALTH397__'])if(!health.includes(token))fail(`Market Health idempotence missing ${token}`);if(health.includes('observe(document.body'))fail('Market Health must not observe the whole body and create DOM feedback loops');
+for(const forbidden of ['function reorder(','function moveAnalytics(','host.appendChild(drawer)'])if(consolidation.includes(forbidden))fail(`logic-only consolidation must not own page DOM: ${forbidden}`);for(const token of ['logicOnly:true','decorateCommander','data-c466-more'])if(!consolidation.includes(token))fail(`execution consolidation missing ${token}`);for(const token of ['canonicalSystem','data-bridge-system466','data-system466'])if(!layout.includes(token))fail(`Layout Guard 458.1 missing canonical bridge support: ${token}`);
+if(!process.exitCode)console.log(`Ticket canonical guard OK · ${appVersion} · explicit advanced analytics`);
