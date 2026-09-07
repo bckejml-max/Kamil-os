@@ -4,7 +4,7 @@ import {searchGlobalIndex,openSearchHit} from './searchIndex.js';
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 const slashKey=q=>norm(q).split(/\s+/)[0].replace(/^\//,'');
 const ONE_KEYS=new Set(['os','one','inbox','cash','money','tickets','bets','betting','property','byt','family','home','docs','timeline','opportunities','find','health','gaps','legacy']);
-const OPS_KEYS=new Set(['ops','operations','watches','snapshots']),CONTROL_KEYS=new Set(['system','health2','backup','automations']),CLEANUP_KEYS=new Set(['cleanup','retire','legacy-status']);
+const OPS_KEYS=new Set(['ops','operations','watches','snapshots']),CONTROL_KEYS=new Set(['control','system','health2','backup','automations']),CLEANUP_KEYS=new Set(['cleanup','retire','legacy-status']);
 let installed=false;
 async function openOne(raw){const key=slashKey(raw),m=await import('./oneOS967.js'),map={os:'autopilot',one:'autopilot',inbox:'inbox',cash:'money',money:'money',tickets:'tickets',bets:'betting',betting:'betting',property:'property',byt:'property',family:'family',home:'home',docs:'docs',timeline:'timeline',opportunities:'opportunities',find:'search',health:'health',gaps:'gaps',legacy:'control'};return m.openFeature?.(map[key]||'autopilot')}
 async function openOps(){const m=await import('./controlOperations1047.js');return m.openOperations1047?.()}
