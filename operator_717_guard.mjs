@@ -6,8 +6,9 @@ const v=release.match(/APP_VERSION='([^']+)'/)?.[1]||'',major=Number(v.split('.'
 if(major<717)fail(`release is ${v||'unknown'}, expected OS717 or later`);
 if(Number(String(pkg.version||'0').split('.')[0])<717)fail(`package is ${pkg.version}`);
 for(const token of ['buildOperator717','openOperator717','appendOperatorSummary717','captureInboxTask717','Next best action','Smart snooze','ČEKÁNÍ A INBOX','PENÍZE A REALITY','VSTUPENKY','SÁZENÍ','TERMÍNY / RODINA / DOMOV','SEARCH / DATA TRUST','freeCashDecision','property','tickets','betting','deadlines','family','home','health','universalSearch'])if(!mod.includes(token))fail(`operator missing ${token}`);
-for(const token of ['./operator717.js','appendOperatorSummary717','__KAMIL_TODAY_717__'])if(!today.includes(token))fail(`Today wiring missing ${token}`);
+if(today.includes("from './operator717.js'")||today.includes('appendOperatorSummary717('))fail('Operator717 must stay out of the canonical Today hot path');
+if(!today.includes('__KAMIL_TODAY_717__'))fail('Today compatibility health marker missing');
 for(const token of ["operator:['./operator717.js','openOperator717']",'Operator Center · OS717','Pokročilé / legacy'])if(!legacy.includes(token))fail(`Legacy gateway missing ${token}`);
 for(const token of ['operator717.css','operator717.js'])if(!sw.includes(token))fail(`service worker missing ${token}`);
 if(!String(pkg.scripts?.['test:release']||'').includes('operator_717_guard.mjs'))fail('release chain missing operator_717_guard.mjs');
-if(!process.exitCode)console.log(`OS717 operator compatibility guard OK · ${v} · gateway OS977`);
+if(!process.exitCode)console.log(`OS717 retired-hot-path compatibility guard OK · ${v} · gateway OS977`);

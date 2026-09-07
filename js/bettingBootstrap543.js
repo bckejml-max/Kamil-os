@@ -1,4 +1,5 @@
 let started=false;
+let bootPromise=null;
 let autoSettleStarted=false;
 let intelligenceStarted=false;
 let browserFeedStarted=false;
@@ -9,48 +10,24 @@ let performanceStarted=false;
 let missedStarted=false;
 let controlStarted=false;
 const REV='os695';
-async function ensureBrowserFeed(){
- if(browserFeedStarted)return true;
- try{const browser=await import(`./bettingBrowserFeed694.js?rev=${REV}`);browser.installBettingBrowserFeed694?.();browserFeedStarted=true;return true}catch{return false}
-}
-async function ensureFeed(){
- if(feedStarted)return true;
- try{const feed=await import(`./bettingOddsFeed693.js?rev=${REV}`);await feed.installBettingOddsFeed693?.();feedStarted=true;return true}catch{return false}
-}
-async function ensureBudget(){
- if(budgetStarted)return true;
- try{const budget=await import(`./bettingRequestBudget561.js?rev=${REV}`);budget.installBettingRequestBudget561?.();budgetStarted=true;return true}catch{return false}
-}
-async function ensureTiming(){
- if(timingStarted)return true;
- try{const timing=await import(`./bettingTiming564.js?rev=${REV}`);timing.installBettingTiming564?.();timingStarted=true;return true}catch{return false}
-}
-async function ensurePerformance(){
- if(performanceStarted)return true;
- try{const performance=await import(`./bettingPerformance565.js?rev=${REV}`);performance.installBettingPerformance565?.();performanceStarted=true;return true}catch{return false}
-}
-async function ensureMissed(){
- if(missedStarted)return true;
- try{const missed=await import(`./bettingMissed566.js?rev=${REV}`);missed.installBettingMissed566?.();missedStarted=true;return true}catch{return false}
-}
-async function ensureControl(){
- if(controlStarted)return true;
- try{const control=await import(`./bettingControl586.js?rev=${REV}`);control.installBettingControl586?.();controlStarted=true;return true}catch{return false}
-}
+
+async function ensureBrowserFeed(){if(browserFeedStarted)return true;try{const m=await import(`./bettingBrowserFeed694.js?rev=${REV}`);m.installBettingBrowserFeed694?.();browserFeedStarted=true;return true}catch{return false}}
+async function ensureFeed(){if(feedStarted)return true;try{const m=await import(`./bettingOddsFeed693.js?rev=${REV}`);await m.installBettingOddsFeed693?.();feedStarted=true;return true}catch{return false}}
+async function ensureBudget(){if(budgetStarted)return true;try{const m=await import(`./bettingRequestBudget561.js?rev=${REV}`);m.installBettingRequestBudget561?.();budgetStarted=true;return true}catch{return false}}
+async function ensureTiming(){if(timingStarted)return true;try{const m=await import(`./bettingTiming564.js?rev=${REV}`);m.installBettingTiming564?.();timingStarted=true;return true}catch{return false}}
+async function ensurePerformance(){if(performanceStarted)return true;try{const m=await import(`./bettingPerformance565.js?rev=${REV}`);m.installBettingPerformance565?.();performanceStarted=true;return true}catch{return false}}
+async function ensureMissed(){if(missedStarted)return true;try{const m=await import(`./bettingMissed566.js?rev=${REV}`);m.installBettingMissed566?.();missedStarted=true;return true}catch{return false}}
+async function ensureControl(){if(controlStarted)return true;try{const m=await import(`./bettingControl586.js?rev=${REV}`);m.installBettingControl586?.();controlStarted=true;return true}catch{return false}}
+
 async function boot(){
- const root=document.querySelector('#bettingView');
- if(!root)return false;
+ const root=document.querySelector('#bettingView');if(!root)return false;
  await ensureBrowserFeed();
  await ensureFeed();
  await ensureBudget();
  if(started&&root.__bet543Observer&&root.__bet542Observer){
-  if(!autoSettleStarted){try{const auto=await import(`./bettingAutoSettle544.js?rev=${REV}`);auto.runBettingAutoSettle544?.();autoSettleStarted=true}catch{}}
-  if(!intelligenceStarted){try{const intelligence=await import(`./bettingIntelligence560.js?rev=${REV}`);intelligence.installBettingIntelligence560?.();intelligenceStarted=true}catch{}}
-  await ensureTiming();
-  await ensurePerformance();
-  await ensureMissed();
-  await ensureControl();
-  return true;
+  if(!autoSettleStarted){try{const m=await import(`./bettingAutoSettle544.js?rev=${REV}`);m.runBettingAutoSettle544?.();autoSettleStarted=true}catch{}}
+  if(!intelligenceStarted){try{const m=await import(`./bettingIntelligence560.js?rev=${REV}`);m.installBettingIntelligence560?.();intelligenceStarted=true}catch{}}
+  await Promise.all([ensureTiming(),ensurePerformance(),ensureMissed(),ensureControl()]);return true;
  }
  started=true;
  try{
@@ -59,26 +36,11 @@ async function boot(){
   if(!root.__bet543Observer)ledger.installBettingLedger543?.();
   auto.runBettingAutoSettle544?.();autoSettleStarted=true;
   intelligence.installBettingIntelligence560?.();intelligenceStarted=true;
-  await ensureTiming();
-  await ensurePerformance();
-  await ensureMissed();
-  await ensureControl();
-  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'695.0.0',browserFeed:true,feed:true,budget:true,timing:true,performance:true,missed:true,control:true,at:Date.now()};
-  return true;
- }catch(error){started=false;window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:false,error:String(error?.message||error),at:Date.now()};return false}
+  await Promise.all([ensureTiming(),ensurePerformance(),ensureMissed(),ensureControl()]);
+  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'695.1.0',scoped:true,browserFeed:browserFeedStarted,feed:feedStarted,budget:budgetStarted,timing:timingStarted,performance:performanceStarted,missed:missedStarted,control:controlStarted,at:Date.now()};return true;
+ }catch(error){started=false;window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:false,scoped:true,error:String(error?.message||error),at:Date.now()};return false}
 }
-function installBootObserver(){
- if(window.__KAMIL_BETTING_BOOT_OBSERVER694__)return;
- const observer=new MutationObserver(async()=>{if(await boot()){observer.disconnect();window.__KAMIL_BETTING_BOOT_OBSERVER694__=null}});
- observer.observe(document.documentElement,{childList:true,subtree:true});
- window.__KAMIL_BETTING_BOOT_OBSERVER694__=observer;
-}
-boot().then(ok=>{if(!ok)installBootObserver()}).catch(()=>installBootObserver());
-document.addEventListener('click',()=>setTimeout(()=>{boot().catch(()=>{})},0),true);
-import('./strategyCommand790.js').then(m=>m.installStrategyCommand790?.()).catch(err=>console.warn('[OS790] command adapter unavailable',err));
-import('./commandCopilot840.js').then(m=>m.installCommandCopilot840?.()).catch(err=>console.warn('[OS840] Copilot command layer unavailable',err));
-import('./oneOS967Boot.js').catch(err=>console.warn('[OS967] One OS bootstrap unavailable',err));
-import('./oneOS977Boot.js').catch(err=>console.warn('[OS977] consolidation bootstrap unavailable',err));
-import('./legacyCleanup987Boot.js').catch(err=>console.warn('[OS987] legacy cleanup bootstrap unavailable',err));
-import('./controlPlane1037Boot.js').catch(err=>console.warn('[OS1037] control plane bootstrap unavailable',err));
-import('./controlOperations1047Boot.js').catch(err=>console.warn('[OS1047] control operations bootstrap unavailable',err));
+
+export function installBettingBootstrap543(){if(bootPromise)return bootPromise;bootPromise=boot().finally(()=>{bootPromise=null});return bootPromise}
+if(document.querySelector('#bettingView'))queueMicrotask(()=>installBettingBootstrap543().catch(()=>{}));
+window.addEventListener('kamil:view-change',e=>{if(e.detail==='betting')void installBettingBootstrap543().catch(()=>{})});
