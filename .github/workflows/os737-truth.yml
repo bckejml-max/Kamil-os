@@ -4,12 +4,12 @@ on:
     paths:
       - 'js/operatorTruth737.js'
       - 'truth737.css'
-      - 'js/personalMore640.js'
       - 'operator_truth_737_guard.mjs'
       - 'operator_717_guard.mjs'
       - 'package.json'
       - 'js/releaseMeta.js'
       - '.github/workflows/os737-truth.yml'
+  workflow_dispatch:
 jobs:
   guard:
     runs-on: ubuntu-latest
