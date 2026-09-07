@@ -3,8 +3,11 @@ for(const f of ['js/copilotFeedback842.js','js/commandCopilot840.js','js/persona
 const f=fs.readFileSync('js/copilotFeedback842.js','utf8');
 const c=fs.readFileSync('js/commandCopilot840.js','utf8');
 const m=fs.readFileSync('js/personalMore640.js','utf8');
+const one977=fs.existsSync('js/oneOS977.js')?fs.readFileSync('js/oneOS977.js','utf8'):'';
 for(const x of ['842.0.0','kamil.copilot.feedback.842','recordFeedback842','feedbackBias842','applyFeedback842','maxAdjustment:5','buildCopilot842','openCopilot842'])if(!f.includes(x))throw new Error(`feedback contract missing ${x}`);
 for(const x of ['👍 Užitečné','👎 Neužitečné','OS842 FEEDBACK','buildCopilot842','recordFeedback842'])if(!c.includes(x))throw new Error(`command feedback missing ${x}`);
-if(!m.includes("import('./copilotFeedback842.js')")||!m.includes('OS842'))throw new Error('More OS842 integration missing');
+const directMore=m.includes("import('./copilotFeedback842.js')")&&m.includes('OS842');
+const legacyGateway=m.includes('Pokročilé / legacy')&&one977.includes("copilot:['./copilotFeedback842.js','openCopilot842']");
+if(!(directMore||legacyGateway))throw new Error('OS842 must remain reachable from More directly or through OS977 legacy gateway');
 if(!f.includes('noAutoFinancialExecution')&&!c.includes('Read-only'))throw new Error('read-only safety contract missing');
 console.log('OS842 Copilot Feedback guard OK');
