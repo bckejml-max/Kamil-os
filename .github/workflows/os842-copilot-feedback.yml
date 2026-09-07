@@ -1,6 +1,13 @@
 name: OS842 Copilot Feedback QA
 on:
   pull_request:
+    paths:
+      - 'js/copilotFeedback842.js'
+      - 'js/commandCopilot840.js'
+      - 'copilot_842_guard.mjs'
+      - 'copilot_841_guard.mjs'
+      - 'copilot_840_guard.mjs'
+      - '.github/workflows/os842-copilot-feedback.yml'
   workflow_dispatch:
 jobs:
   guard:
