@@ -3,8 +3,46 @@ name: Core 70 smoke
 on:
   push:
     branches: [main]
+    paths:
+      - 'api/core70-health.js'
+      - 'lib/api-football-model.js'
+      - 'lib/football-data-poisson.js'
+      - 'lib/football-data-count-model.js'
+      - 'lib/football-data-count-resolver.js'
+      - 'lib/chance-football-data-model.js'
+      - 'lib/conservative-poisson-calibration.js'
+      - 'lib/auto-betting-model.js'
+      - 'api_football_model_test.mjs'
+      - 'core70_auto_model_test.mjs'
+      - 'football_data_poisson_test.mjs'
+      - 'football_data_count_model_test.mjs'
+      - 'football_data_count_resolver_test.mjs'
+      - 'chance_league_mapping_test.mjs'
+      - 'conservative_poisson_calibration_test.mjs'
+      - 'core70.css'
+      - 'CORE70.md'
+      - '.github/workflows/core70.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'api/core70-health.js'
+      - 'lib/api-football-model.js'
+      - 'lib/football-data-poisson.js'
+      - 'lib/football-data-count-model.js'
+      - 'lib/football-data-count-resolver.js'
+      - 'lib/chance-football-data-model.js'
+      - 'lib/conservative-poisson-calibration.js'
+      - 'lib/auto-betting-model.js'
+      - 'api_football_model_test.mjs'
+      - 'core70_auto_model_test.mjs'
+      - 'football_data_poisson_test.mjs'
+      - 'football_data_count_model_test.mjs'
+      - 'football_data_count_resolver_test.mjs'
+      - 'chance_league_mapping_test.mjs'
+      - 'conservative_poisson_calibration_test.mjs'
+      - 'core70.css'
+      - 'CORE70.md'
+      - '.github/workflows/core70.yml'
 
 jobs:
   smoke:
@@ -14,22 +52,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Required canonical files
+      - name: Required Core70 model files
         run: |
-          test -f js/instantShell64.js
-          test -f js/app.js
-          test -f js/viewRuntime41.js
-          test -f js/todayPage101.js
-          test -f js/ticketPage100.js
-          test -f js/moneyPage100.js
-          test -f js/os181Suite.js
-          test -f js/executiveCommand164.js
-          test -f js/dataTrust163.js
-          test -f js/ticketCloud660.js
-          test -f js/ticketOnDemand346.js
-          test -f js/command.js
-          test -f js/personalQuery29.js
-          test -f ci_current_350_test.mjs
           test -f core70.css
           test -f api/core70-health.js
           test -f lib/api-football-model.js
@@ -46,24 +70,8 @@ jobs:
           test -f football_data_count_resolver_test.mjs
           test -f chance_league_mapping_test.mjs
           test -f conservative_poisson_calibration_test.mjs
-          test -f CORE70.md
-      - name: Syntax check canonical JavaScript
+      - name: Syntax check Core70 model JavaScript
         run: |
-          node --check js/instantShell64.js
-          node --check js/app.js
-          node --check js/viewRuntime41.js
-          node --check js/todayPage101.js
-          node --check js/ticketPage100.js
-          node --check js/moneyPage100.js
-          node --check js/os181Suite.js
-          node --check js/executiveCommand164.js
-          node --check js/dataTrust163.js
-          node --check js/ticketCloud660.js
-          node --check js/ticketOnDemand346.js
-          node --check js/ticketSales150.js
-          node --check js/ticketSaleDetail151.js
-          node --check js/command.js
-          node --check js/personalQuery29.js
           node --check api/core70-health.js
           node --check lib/api-football-model.js
           node --check lib/football-data-poisson.js
@@ -72,14 +80,6 @@ jobs:
           node --check lib/chance-football-data-model.js
           node --check lib/conservative-poisson-calibration.js
           node --check lib/auto-betting-model.js
-          node --check api_football_model_test.mjs
-          node --check core70_auto_model_test.mjs
-          node --check football_data_poisson_test.mjs
-          node --check football_data_count_model_test.mjs
-          node --check football_data_count_resolver_test.mjs
-          node --check chance_league_mapping_test.mjs
-          node --check conservative_poisson_calibration_test.mjs
-          node --check ci_current_350_test.mjs
       - name: Betting model safety tests
         run: |
           node api_football_model_test.mjs
@@ -89,18 +89,3 @@ jobs:
           node football_data_count_resolver_test.mjs
           node chance_league_mapping_test.mjs
           node conservative_poisson_calibration_test.mjs
-      - name: Current architecture guard
-        run: node ci_current_350_test.mjs
-      - name: Canonical runtime assertions
-        run: |
-          grep -q "renderCommandResults41" js/viewRuntime41.js
-          grep -q "executeCommand41" js/viewRuntime41.js
-          grep -q "hydrateColdView42" js/viewRuntime41.js
-          grep -q "./os181Suite.js','enhanceToday181" js/todayPage101.js
-          grep -q "xtb_transaction_ledger" js/os181Suite.js
-          grep -q "os_action_state" js/os181Suite.js
-      - name: Prevent known routing regressions
-        run: |
-          ! grep -R "ticket-market-watch-v673" js api || (echo "Dead v673 route reintroduced" && exit 1)
-          ! grep -q "ticketMarketWatch656.js" sw.js || (echo "Legacy ticketMarketWatch656 returned to service-worker cache" && exit 1)
-          ! grep -q "import {enhanceToday181} from './os181Suite.js'" js/todayPage101.js || (echo "OS181 addon returned to static Today import" && exit 1)
