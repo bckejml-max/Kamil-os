@@ -1,0 +1,36 @@
+name: OS967 One OS QA
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  one-os:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: One OS contracts
+        run: node scripts/one_os_967_guard.mjs
+      - name: Syntax
+        run: |
+          node --check js/oneOS967.js
+          node --check js/oneOS967Boot.js
+          node --check js/bettingBootstrap543.js
+      - name: Existing compatibility
+        run: |
+          node scripts/visual_rebuild_947_guard.mjs
+          node scripts/preview_pr_946_guard.mjs
+          node self_improving_892_guard.mjs
+          node copilot_842_guard.mjs
+      - name: Install browser QA
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: One OS desktop and mobile smoke
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-os967-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          npx playwright test e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=line
