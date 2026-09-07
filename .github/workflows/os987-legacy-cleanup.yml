@@ -1,0 +1,62 @@
+name: OS987 Legacy Cleanup QA
+on:
+  pull_request:
+    paths:
+      - 'js/legacyCleanup987.js'
+      - 'js/legacyCleanup987Boot.js'
+      - 'js/bettingBootstrap543.js'
+      - '*_guard.mjs'
+      - 'scripts/*_guard.mjs'
+      - '.github/workflows/os7*.yml'
+      - '.github/workflows/os8*.yml'
+      - '.github/workflows/os9*.yml'
+      - 'e2e_legacy_cleanup_987.spec.mjs'
+      - '.github/workflows/os987-legacy-cleanup.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'js/legacyCleanup987.js'
+      - 'js/legacyCleanup987Boot.js'
+      - 'js/bettingBootstrap543.js'
+      - 'scripts/legacy_cleanup_987_guard.mjs'
+      - '.github/workflows/os987-legacy-cleanup.yml'
+  workflow_dispatch:
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: OS987 contracts and CI policy
+        run: node scripts/legacy_cleanup_987_guard.mjs
+      - name: Modernized legacy compatibility
+        run: |
+          node operator_717_guard.mjs
+          node operator_truth_737_guard.mjs
+          node data_truth_738_guard.mjs
+          node strategy_788_guard.mjs
+          node strategy_789_guard.mjs
+          node copilot_840_guard.mjs
+          node copilot_842_guard.mjs
+          node self_improving_892_guard.mjs
+          node autonomous_943_guard.mjs
+          node scripts/proposal_review_944_guard.mjs
+          node scripts/safe_change_plan_945_guard.mjs
+          node scripts/preview_pr_946_guard.mjs
+      - name: One OS compatibility
+        run: |
+          node scripts/one_os_977_guard.mjs
+          node scripts/one_os_967_guard.mjs
+          node scripts/visual_rebuild_947_guard.mjs
+      - name: Install browser QA
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: OS987 browser smoke
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-os987-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          npx playwright test e2e_legacy_cleanup_987.spec.mjs e2e_one_os_977.spec.mjs e2e_one_os_967.spec.mjs --reporter=line
