@@ -1,8 +1,22 @@
 name: Personal Assistant 53 QA
 on:
   pull_request:
+    paths:
+      - 'js/personalAssistant530.js'
+      - 'js/personalAsk640.js'
+      - 'js/personalShell640.js'
+      - 'assistant_53_static_test.mjs'
+      - 'e2e_assistant_53_0.spec.mjs'
+      - '.github/workflows/assistant53.yml'
   push:
     branches: [main]
+    paths:
+      - 'js/personalAssistant530.js'
+      - 'js/personalAsk640.js'
+      - 'js/personalShell640.js'
+      - 'assistant_53_static_test.mjs'
+      - 'e2e_assistant_53_0.spec.mjs'
+      - '.github/workflows/assistant53.yml'
 jobs:
   assistant53:
     runs-on: ubuntu-latest
