@@ -1,8 +1,27 @@
 name: OS892 Self-Improving QA
 on:
   pull_request:
+    paths:
+      - 'js/selfImproving892.js'
+      - 'js/usage892.js'
+      - 'js/commandCopilot840.js'
+      - 'self_improving_892_guard.mjs'
+      - 'copilot_842_guard.mjs'
+      - 'copilot_841_guard.mjs'
+      - 'copilot_840_guard.mjs'
+      - '.github/workflows/os892-self-improving.yml'
   push:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - 'js/selfImproving892.js'
+      - 'js/usage892.js'
+      - 'js/commandCopilot840.js'
+      - 'self_improving_892_guard.mjs'
+      - 'copilot_842_guard.mjs'
+      - 'copilot_841_guard.mjs'
+      - 'copilot_840_guard.mjs'
+      - '.github/workflows/os892-self-improving.yml'
+  workflow_dispatch:
 jobs:
   guard:
     runs-on: ubuntu-latest
