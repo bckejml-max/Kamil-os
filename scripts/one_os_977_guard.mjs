@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 const read=p=>fs.readFileSync(p,'utf8');
-const one=read('js/oneOS977.js'),more=read('js/personalMore640.js'),boot=read('js/bettingBootstrap543.js');
+const one=read('js/oneOS977.js'),more=read('js/personalMore640.js'),boot=read('js/bettingBootstrap543.js'),control=fs.existsSync('js/controlPlane1037.js')?read('js/controlPlane1037.js'):'';
 const need=(ok,msg)=>{if(!ok){console.error('OS977 guard:',msg);process.exitCode=1}};
 need(one.includes("ONE_OS977_VERSION='977.0.0'"),'version missing');
 for(const name of ['readPreferences968','retirementRegistry969','commandOwnership970','sourceConfidence972','dataGaps973','actionOutcomes974','usage975','safePerformance976','consolidationHealth977','openConsolidation977'])need(one.includes(name),`${name} missing`);
@@ -9,7 +9,8 @@ need(one.includes("noAutoFinancialExecution:true"),'financial execution guard mi
 need(one.includes("policy:'explicit-only'"),'explicit command ownership missing');
 need(!one.includes('fetch('),'consolidation layer must not invent external data fetches');
 need(!one.includes('store.mutate('),'OS977 diagnostics must not mutate canonical state');
-need(more.includes('One OS Control'),'One OS not primary in More');
+const primary=more.includes('One OS Control')||(more.includes('Kamil OS Control Plane')&&control.includes("import('./oneOS977.js')")&&control.includes('openConsolidation977'));
+need(primary,'One OS / Control Plane not primary in More');
 need(more.includes('Pokročilé / legacy'),'legacy gateway missing');
 need(!more.includes("import {openOperator717}"),'Operator must not be direct More dependency');
 need(!more.includes('Safe Change Plan</span>'),'old direct More dashboard still present');
