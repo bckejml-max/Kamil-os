@@ -3,89 +3,26 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 
 const read=f=>fs.readFileSync(f,'utf8');
-const meta=read('js/releaseMeta.js');
-const config=read('js/config.js');
-const index=read('index.html');
-const sw=read('sw.js');
-const state=read('js/state.js');
-const cloud=read('js/cloudPayload32.js');
-const app=read('js/app.js');
-const runtime=read('js/viewRuntime41.js');
-const lazy=read('js/lazyBoot41.js');
-const instant=read('js/instantShell64.js');
-const personalShell=read('js/personalShell640.js');
-const personalAssistant=read('js/personalAssistant650.js');
-const hardening=read('js/personalHardening650.js');
-const todayPage=read('js/todayPage101.js');
-const ticketPage=read('js/ticketPage100.js');
-const ticketLoader=read('js/ticketOnDemand346.js');
-const moneyPage=read('js/moneyPage100.js');
-const os181=read('js/os181Suite.js');
-const ticketCommander=read('js/ticketCommander660.js');
-const ticketCloud=read('js/ticketCloud660.js');
-const marketDecision=read('js/marketDecision534.js');
-const actionQueue=read('js/actionQueue559.js');
-const ticketSeed=read('js/currentTickets33.js');
-const investmentSeed=read('js/externalInvestments33.js');
-const platform43=read('js/platform43.js');
-const stability431=read('js/platform431Stability.js');
-const diagnostics=read('js/systemDiagnostics421.js');
-const rootPackage=JSON.parse(read('package.json'));
+const meta=read('js/releaseMeta.js'),config=read('js/config.js'),index=read('index.html'),sw=read('sw.js'),state=read('js/state.js'),cloud=read('js/cloudPayload32.js'),app=read('js/app.js'),runtime=read('js/viewRuntime41.js'),manifest=read('js/runtimeManifest.js'),consolidation=read('js/consolidationRuntime.js'),commandRouter=read('js/commandRouter.js'),lazy=read('js/lazyBoot41.js'),instant=read('js/instantShell64.js'),personalShell=read('js/personalShell640.js'),personalAssistant=read('js/personalAssistant650.js'),hardening=read('js/personalHardening650.js'),todayPage=read('js/todayPage101.js'),ticketPage=read('js/ticketPage100.js'),ticketLoader=read('js/ticketOnDemand346.js'),moneyPage=read('js/moneyPage100.js'),os181=read('js/os181Suite.js'),ticketCommander=read('js/ticketCommander660.js'),ticketCloud=read('js/ticketCloud660.js'),marketDecision=read('js/marketDecision534.js'),actionQueue=read('js/actionQueue559.js'),ticketSeed=read('js/currentTickets33.js'),investmentSeed=read('js/externalInvestments33.js'),platform43=read('js/platform43.js'),stability431=read('js/platform431Stability.js'),diagnostics=read('js/systemDiagnostics421.js'),source=read('js/sourceRegistry.js'),contracts=read('js/stateContracts.js'),marketAdapter=read('js/ticketMarketAdapter.js'),rootPackage=JSON.parse(read('package.json'));
 
-const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
-const release=meta.match(/APP_RELEASE='([^']+)'/)?.[1];
+const version=meta.match(/APP_VERSION='([^']+)'/)?.[1],release=meta.match(/APP_RELEASE='([^']+)'/)?.[1],build=meta.match(/APP_BUILD='([^']+)'/)?.[1];
 assert.ok(version&&/^\d+\.\d+\.\d+$/.test(version)&&Number(version.split('.')[0])>=181,'OS 181+ release metadata required');
-assert.ok(release&&/^\d+\.\d+\.\d+$/.test(release)&&release===version,'APP_RELEASE must equal full APP_VERSION');
-assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
-assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
+assert.equal(release,version,'APP_RELEASE must equal full APP_VERSION');assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');assert.equal(build,'consolidation-repair-50','current consolidation build marker missing');assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 
-const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage101.js','js/ticketPage100.js','js/ticketOnDemand346.js','js/moneyPage100.js','js/os181Suite.js','js/executiveCommand164.js','js/dataTrust163.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','js/commandCenter467.js','js/cashflow468.js'];
-for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
+const syntaxFiles=['js/instantShell64.js','js/runtimeManifest.js','js/consolidationRuntime.js','js/commandRouter.js','js/viewRuntime41.js','js/todayPage101.js','js/ticketPage100.js','js/moneyPage100.js','js/stateContracts.js','js/sourceRegistry.js','js/ticketMarketAdapter.js','js/app.js','js/ticketOnDemand346.js','js/os181Suite.js','js/executiveCommand164.js','js/dataTrust163.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','js/commandCenter467.js','js/cashflow468.js'];for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 
-assert.ok(index.includes('./js/instantShell64.js'),'instant startup shell must remain wired');
-assert.ok(index.includes('./personal65.css'),'personal assistant styles must remain wired');
-for(const label of ['Dnes','Vstupenky','Rodina','Domov','Peníze','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
-assert.ok(!index.includes('Personal Home')&&!index.includes('Pohledávka'),'legacy shell labels must not return');
-assert.ok(instant.includes("import('./app.js')")&&instant.includes('async function optionalImport')&&instant.includes("['./personalShell640.js','bindPersonalShell640']")&&instant.includes("['./personalHardening650.js','bindPersonalHardening650']"),'bootstrap core/addon isolation missing');
-assert.ok(personalAssistant.includes('personalDailyAssistant650')&&personalAssistant.includes('personalWaitingCenter650')&&personalAssistant.includes('personalSearch650'),'personal assistant engines missing');
-assert.ok(personalShell.includes('Najít / zeptat se')&&personalShell.includes('openVaultRecord640'),'global search/assistant integration missing');
-assert.ok(hardening.includes('primary<=1')&&hardening.includes('dataHealth===0'),'personal preflight guard missing');
+assert.ok(index.includes('./js/instantShell64.js')&&index.includes('./js/consolidationRuntime.js'),'canonical startup shell/runtime must remain wired');assert.ok(index.includes('./personal65.css'),'personal assistant styles must remain wired');for(const label of ['Dnes','Vstupenky','Rodina','Domov','Peníze','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);assert.ok(index.includes('id="view-inbox"')&&index.includes('id="view-betting"'),'static Inbox/Betting views missing');assert.ok(!index.includes('Personal Home')&&!index.includes('Pohledávka'),'legacy shell labels must not return');assert.ok(!index.includes('src="./js/bettingBootstrap543.js'),'betting bootstrap must not own global startup');
+assert.ok(instant.includes("import('./app.js')")&&instant.includes("runPhase('critical'")&&instant.includes('runtimePhase(phase)'),'manifest startup isolation missing');assert.ok((manifest.match(/phase:'critical'/g)||[]).length<=6,'critical boot budget exceeded');assert.ok(manifest.includes("'./personalShell640.js'")&&manifest.includes("'./personalHardening650.js'"),'critical personal shell/hardening missing');assert.ok(consolidation.includes('installStateContracts();installCommandRouter();'),'central state/command contracts missing');
+assert.ok(personalAssistant.includes('personalDailyAssistant650')&&personalAssistant.includes('personalWaitingCenter650')&&personalAssistant.includes('personalSearch650'),'personal assistant engines missing');assert.ok(personalShell.includes('Najít / zeptat se')&&personalShell.includes('openVaultRecord640'),'global search/assistant integration missing');assert.ok(hardening.includes('primary<=1')&&hardening.includes('dataHealth===0'),'personal preflight guard missing');
 
-assert.ok(todayPage.includes("import {renderDashboard1103}")&&todayPage.includes("import {enhanceXtbReview110}")&&todayPage.includes("import {renderPersonalToday640}"),'Today core imports changed unexpectedly');
-assert.ok(todayPage.includes("['./os181Suite.js','enhanceToday181']"),'OS 181 Today command center missing');
-assert.ok(todayPage.includes('await import(path)')&&todayPage.includes('[today addon failed]'),'Today addon isolation missing');
-assert.ok(!todayPage.includes("import {enhanceToday181} from './os181Suite.js'"),'OS 181 addon must not become a static Today import');
+assert.ok(todayPage.includes("import {renderDashboard1103}")&&todayPage.includes("import {enhanceXtbReview110}")&&todayPage.includes("import {renderPersonalToday640}"),'Today core imports changed unexpectedly');assert.ok(todayPage.includes("['./os181Suite.js','enhanceToday181']")&&todayPage.includes('Promise.allSettled'),'Today addon isolation missing');assert.ok(!todayPage.includes('setTimeout(')&&!todayPage.includes("operator717"),'Today must remain a single canonical render path');
+assert.ok(ticketPage.includes('let bootPromise=null,advancedPromise=null')&&ticketPage.includes('const CRITICAL=[')&&ticketPage.includes('const ADVANCED=[')&&ticketPage.includes('loadTicketAdvancedAnalytics')&&ticketPage.includes('Načíst analytiku'),'Ticket canonical critical/on-demand split missing');assert.ok(ticketPage.includes("await import('./ticketDesk331.js')")&&ticketPage.includes("dataset.ticketDesk331!=='1'"),'Ticket Desk canonical base missing');assert.ok(ticketLoader.includes("import('./ticketDesk331.js')")&&ticketLoader.includes('if(promise)return promise')&&ticketLoader.includes('kamil:view-change'),'Ticket Desk on-demand compatibility integration missing');assert.ok(!instant.includes("ticketDesk331.js"),'Ticket Desk must not return to eager startup');for(const retired of ['ticketUi420.js','ticketUi422.js','ticketUi423.js','ticketUi424.js','ticketUi425.js','ticketEngineUi427.js','ticketPredictUi436.js','ticketUi457.js'])assert.ok(!ticketPage.includes(retired),`retired ticket UI returned to hot path: ${retired}`);
+assert.ok(moneyPage.includes('loadMoneyAdvanced100')&&moneyPage.includes('Načíst detail')&&moneyPage.includes('appendMoneyHub680')&&moneyPage.includes('appendCashflowHub690'),'Money canonical base/on-demand split missing');assert.ok(!moneyPage.includes('setTimeout(')&&!moneyPage.includes('timers='),'Money timer enhancement must not return');assert.ok(os181.includes("from('xtb_transaction_ledger')")&&os181.includes("from('os_action_state')")&&os181.includes('truthfulAccounting:true'),'OS 181 truthful accounting/action layer missing');assert.ok(ticketCommander.includes('TICKET PROFIT COMMANDER 66.')&&ticketCloud.includes("from('ticket_inventory')")&&!/service[_-]?role/i.test(ticketCloud),'private Ticket Intelligence missing or unsafe');
 
-assert.ok(ticketPage.includes('let bootPromise=null')&&ticketPage.includes('const CRITICAL=[')&&ticketPage.includes('const MODULES=[')&&ticketPage.includes("await import('./ticketDesk331.js')")&&ticketPage.includes("dataset.ticketDesk331!=='1'")&&ticketPage.includes('state.criticalDone=true')&&ticketPage.includes('if(!bootPromise)bootPromise=desk()'),'Ticket canonical critical-first single-flight adapter missing');
-assert.ok(ticketLoader.includes("import('./ticketDesk331.js')")&&ticketLoader.includes('if(promise)return promise')&&ticketLoader.includes('kamil:view-change'),'Ticket Desk on-demand single-flight integration missing');
-assert.ok(!instant.includes("optionalImport('./ticketDesk331.js'"),'Ticket Desk must not return to eager startup');
-assert.ok(moneyPage.includes('enhanceMoney181')&&moneyPage.includes('if(running){rerun=true;return}'),'Money OS 181 integration/single-flight guard missing');
-assert.ok(os181.includes("from('xtb_transaction_ledger')")&&os181.includes("from('os_action_state')")&&os181.includes('truthfulAccounting:true'),'OS 181 truthful accounting/action layer missing');
-assert.ok(ticketCommander.includes('TICKET PROFIT COMMANDER 66.')&&ticketCloud.includes("from('ticket_inventory')")&&!/service[_-]?role/i.test(ticketCloud),'private Ticket Intelligence missing or unsafe');
+assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');assert.ok(app.includes('requestAnimationFrame(()=>{const runForce='),'UI renders must remain coalesced');assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateColdView42(key)'),'lazy view hydration/cache missing');assert.ok(runtime.includes("from './viewRegistry.js'")&&runtime.includes("from './commandRouter.js'"),'canonical view/command registries missing');for(const fn of ['prefetchView41','renderExtras41','refreshRiskBadge41','scheduleNotifications41','warmRuntime41'])assert.ok(runtime.includes(`function ${fn}`),`runtime function missing: ${fn}`);assert.ok(commandRouter.includes("owner:'central'")&&commandRouter.includes('Příkazu nerozumím'),'central safe command ownership missing');
+assert.ok(source.includes('SOURCE_REGISTRY')&&source.includes('freshness'),'source/freshness registry missing');assert.ok(contracts.includes('rollbackInvalidMutation:true')&&contracts.includes('validateEntityContracts'),'mutation-time state contracts missing');assert.ok(marketAdapter.includes('noInventedMarketPrice:true')&&marketAdapter.includes('missingIsNull:true'),'ticket market adapter safety missing');
 
-assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
-assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js'),'service-worker shell/cache missing');
-assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must never prefer stale cache');
-assert.ok(state.includes('export const store=new Store()'),'state store export missing');
-assert.ok(cloud.includes('mergeColdState42'),'cloud payload must restore cold history before upload');
-assert.ok(!cloud.includes('autoTrade:true'),'cloud payload must never enable automatic trading');
-assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');
-assert.ok(app.includes('requestAnimationFrame(()=>{const runForce='),'UI renders must remain coalesced');
-assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateColdView42(key)'),'lazy view hydration/cache missing');
-assert.ok(runtime.includes("load('./qa143.js').catch"),'optional QA addon isolation missing');
-for(const fn of ['prefetchView41','renderExtras41','refreshRiskBadge41','scheduleNotifications41','warmRuntime41'])assert.ok(runtime.includes(`function ${fn}`),`runtime function missing: ${fn}`);
-
-for(const [name,file] of [['Market Decision',marketDecision],['Action Queue',actionQueue]]){
- for(const bad of ['setInterval(','requestIdleCallback','store.subscribe('])assert.ok(!file.includes(bad),`${name} must stay click-only: ${bad}`);
- assert.ok(!file.includes('store.update(')&&!file.includes('store.patch('),`${name} must stay read-only`);
-}
-assert.ok(marketDecision.includes("from './xtbPlanner24.js'")&&marketDecision.includes("from './ticketCockpit24.js'"),'market compatibility engines missing');
-assert.ok(!ticketSeed.includes('store.subscribe(')&&!ticketSeed.includes('queueMicrotask(ensure)'),'ticket seed must never mutate on import');
-assert.ok(!investmentSeed.includes('store.subscribe(')&&!investmentSeed.includes('queueMicrotask(ensure)'),'investment seed must never mutate on import');
-
-assert.ok(platform43.includes('export const ROADMAP43=['),'platform registry missing');
-assert.ok(stability431.includes("entryTypes:['longtask']")&&stability431.includes('setSafeMode43(true)'),'freeze detector/Safe Mode missing');
-assert.ok(lazy.includes("STABILITY_MEMORY_KEY='kamil-os-stability-memory-43-7'")&&lazy.includes('refreshStabilityMemory'),'stability memory missing');
-assert.ok(diagnostics.includes('43.7 STABILITY MEMORY'),'stability diagnostics missing');
-
-console.log(`KAMIL OS RELEASE QA PASS · ${version} · CURRENT ARCHITECTURE`);
+for(const [name,file] of [['Market Decision',marketDecision],['Action Queue',actionQueue]]){for(const bad of ['setInterval(','requestIdleCallback','store.subscribe('])assert.ok(!file.includes(bad),`${name} must stay click-only: ${bad}`);assert.ok(!file.includes('store.update(')&&!file.includes('store.patch('),`${name} must stay read-only`)}assert.ok(marketDecision.includes("from './xtbPlanner24.js'")&&marketDecision.includes("from './ticketCockpit24.js'"),'market compatibility engines missing');assert.ok(!ticketSeed.includes('store.subscribe(')&&!ticketSeed.includes('queueMicrotask(ensure)'),'ticket seed must never mutate on import');assert.ok(!investmentSeed.includes('store.subscribe(')&&!investmentSeed.includes('queueMicrotask(ensure)'),'investment seed must never mutate on import');
+assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js'),'service-worker shell/cache missing');assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must never prefer stale cache');assert.ok(state.includes('export const store=new Store()'),'state store export missing');assert.ok(cloud.includes('mergeColdState42')&&!cloud.includes('autoTrade:true'),'cloud payload safety/history merge missing');
+assert.ok(platform43.includes('export const ROADMAP43=['),'platform registry missing');assert.ok(stability431.includes("entryTypes:['longtask']")&&stability431.includes('setSafeMode43(true)'),'freeze detector/Safe Mode missing');assert.ok(lazy.includes("STABILITY_MEMORY_KEY='kamil-os-stability-memory-43-7'")&&lazy.includes('refreshStabilityMemory'),'stability memory missing');assert.ok(diagnostics.includes('43.7 STABILITY MEMORY'),'stability diagnostics missing');
+console.log(`KAMIL OS RELEASE QA PASS · ${version} · CONSOLIDATED ARCHITECTURE`);
