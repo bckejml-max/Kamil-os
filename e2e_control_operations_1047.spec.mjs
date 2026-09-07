@@ -10,7 +10,7 @@ test('OS1047 exposes a health ribbon and practical Operations center',async({pag
  const input=page.locator('#commandInput');
  await input.fill('/ops');await input.press('Enter');
  await expect(page.getByText('Control Plane Operations · OS1047')).toBeVisible();
- await expect(page.getByText('OPERATIONS')).toBeVisible();
+ await expect(page.getByText('OPERATIONS',{exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'Watch pravidla'})).toBeVisible();
  await expect(page.getByRole('button',{name:'Snapshot / Restore'})).toBeVisible();
 });
