@@ -4,9 +4,12 @@ on:
     paths:
       - 'js/copilot840.js'
       - 'js/commandCopilot840.js'
-      - 'js/personalMore640.js'
+      - 'js/copilotFeedback842.js'
       - 'js/bettingBootstrap543.js'
       - 'copilot_840_guard.mjs'
+      - 'strategy_command_790_guard.mjs'
+      - 'strategy_788_guard.mjs'
+      - 'strategy_789_guard.mjs'
       - '.github/workflows/os840-copilot-control.yml'
   workflow_dispatch:
 jobs:
