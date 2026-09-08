@@ -12,6 +12,11 @@ function labelWorkspace212(root=document){
  root.querySelectorAll('.ticket-workspace210-pager button').forEach((b,i)=>{if(!b.getAttribute('aria-label')){const label=i===0?'Předchozí panel':'Další panel';b.title=label;b.setAttribute('aria-label',label)}});
  const add=document.querySelector('#quickAddBtn');if(add){add.title='Rychle přidat';add.setAttribute('aria-label','Rychle přidat')}
 }
+function syncWorkspaceReserve212(){
+ const workspace=document.querySelector('.workspace');if(!workspace)return;
+ if(matchMedia('(max-width:850px)').matches)workspace.style.removeProperty('padding-bottom');
+ else workspace.style.setProperty('padding-bottom','0','important');
+}
 function ensureStyle212(){
  let link=document.querySelector('link[data-compactnavigation212]');
  if(link?.sheet)return Promise.resolve(link);
@@ -29,6 +34,6 @@ function ensureStyle212(){
 }
 export async function installCompactNavigation212(){
  await ensureStyle212();
- labelWorkspace212();let timer=0;const rerun=()=>{clearTimeout(timer);timer=setTimeout(()=>labelWorkspace212(),60)};
- new MutationObserver(rerun).observe(document.body,{childList:true,subtree:true});window.addEventListener('kamil:view-change',rerun);window.__KAMIL_COMPACT_NAV212__={version:212,refresh:labelWorkspace212,styleReady:true};
+ syncWorkspaceReserve212();labelWorkspace212();let timer=0;const rerun=()=>{clearTimeout(timer);timer=setTimeout(()=>{syncWorkspaceReserve212();labelWorkspace212()},60)};
+ new MutationObserver(rerun).observe(document.body,{childList:true,subtree:true});window.addEventListener('kamil:view-change',rerun);window.addEventListener('resize',rerun,{passive:true});window.__KAMIL_COMPACT_NAV212__={version:212,refresh:()=>{syncWorkspaceReserve212();labelWorkspace212()},styleReady:true};
 }
