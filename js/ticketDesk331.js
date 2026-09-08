@@ -28,7 +28,7 @@ function publishCanonical331(extra={}){
   const previous=window.__KAMIL_TICKET_DESK331__||{};
   const healthy=extra.healthy??previous.healthy??true;
   const loading=extra.loading??previous.loading??false;
-  window.__KAMIL_TICKET_DESK331__={...previous,version:331,healthy,loading,stable:healthy&&!loading,renderer:'redesign500',portfolioVersion:window.__KAMIL_TICKET_PORTFOLIO340__?.version||previous.portfolioVersion||340,at:Date.now(),...extra};
+  window.__KAMIL_TICKET_DESK331__={...previous,version:331,healthy,loading,stable:!loading,renderer:'redesign500',portfolioVersion:window.__KAMIL_TICKET_PORTFOLIO340__?.version||previous.portfolioVersion||340,at:Date.now(),...extra};
 }
 
 async function loadRedesign(){
@@ -86,7 +86,7 @@ export function installTicketDesk331(){
     window.__KAMIL_TICKET_REDESIGN500__={version:'500.0.1',healthy:true,assetRevision:ASSET_REV,at:Date.now(),source:'exact-approved-patch'};
     window.__KAMIL_TICKET_POLISH501__={version:'501.0.0',healthy:!allFailures.some(x=>x.label==='OS501'||x.label==='OS501 CSS'),at:Date.now()};
     window.__KAMIL_TICKET_DESK526__={version:'526.0.1',healthy,failures:allFailures,optionalTotal:installers.length,optionalLoaded:installers.filter(x=>!!x.install).length,assetRevision:ASSET_REV,at:Date.now()};
-    publishCanonical331({healthy,loading:false,stable:healthy,failures:allFailures});
+    publishCanonical331({healthy,loading:false,stable:true,failures:allFailures});
     keepStyleLast();return result
   }).catch(error=>{installPromise=null;document.documentElement.dataset.ticketDesk331Health='fatal';publishCanonical331({healthy:false,loading:false,stable:false,error:String(error?.message||error)});console.error('[ticketRedesign500/526] activation failed',error);throw error});
   return installPromise;
