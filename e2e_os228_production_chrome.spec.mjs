@@ -14,6 +14,13 @@ test('production chrome stays clean and no-scroll on OS333',async({page})=>{
  await expect(page.locator('#quickAddBtn')).toHaveAttribute('aria-label','Rychle přidat');
  await expect(page.locator('#quickAddBtn')).toHaveAttribute('data-ux238-owned','1');
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_PRODUCTION_CHROME228__?.version||0)).toBe(228);
- const body=await page.evaluate(()=>({client:document.documentElement.clientHeight,scroll:document.documentElement.scrollHeight}));
- expect(body.scroll).toBeLessThanOrEqual(body.client+3);
+ const diag=await page.evaluate(()=>{
+  const label=el=>el.id?`#${el.id}`:el.classList?.length?`${el.tagName.toLowerCase()}.${[...el.classList].slice(0,3).join('.')}`:el.tagName.toLowerCase();
+  const snap=el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return{el:label(el),top:Math.round(r.top),bottom:Math.round(r.bottom),height:Math.round(r.height),display:s.display,position:s.position,overflow:s.overflow,overflowY:s.overflowY,boxSizing:s.boxSizing,paddingBottom:s.paddingBottom,marginBottom:s.marginBottom,cssHeight:s.height,minHeight:s.minHeight,maxHeight:s.maxHeight}};
+  const core=['html','body','#appView','.workspace','.sidebar','.topbar','.command-wrap','main','#bottomNav','#modalHost','#toastHost'].map(x=>document.querySelector(x)).filter(Boolean).map(snap);
+  const offenders=[...document.body.querySelectorAll('*')].filter(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return s.display!=='none'&&s.visibility!=='hidden'&&r.height>0&&r.bottom>innerHeight+3&&s.position!=='fixed'}).map(snap).sort((a,b)=>b.bottom-a.bottom).slice(0,18);
+  return{innerHeight,client:document.documentElement.clientHeight,scroll:document.documentElement.scrollHeight,bodyScroll:document.body.scrollHeight,core,offenders};
+ });
+ console.log('OS228_OVERFLOW_DIAG',JSON.stringify(diag));
+ expect(diag.scroll).toBeLessThanOrEqual(diag.client+3);
 });
