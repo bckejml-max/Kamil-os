@@ -1,6 +1,7 @@
 name: OS333 Chromium Smoke
 
 on:
+  pull_request:
   push:
     branches: [main, feat/os361-ticket-stability, release/os469-final, release/os470, release/os472, release/os480, release/os481, release/os483]
   workflow_dispatch:
