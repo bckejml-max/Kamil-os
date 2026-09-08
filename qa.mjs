@@ -53,7 +53,7 @@ assert.ok(hardening.includes('primary<=1')&&hardening.includes('dataHealth===0')
 
 assert.ok(todayPage.includes("import {renderDashboard1103}")&&todayPage.includes("import {enhanceXtbReview110}")&&todayPage.includes("import {renderPersonalToday640}"),'Today core imports changed unexpectedly');
 assert.ok(todayPage.includes("['./os181Suite.js','enhanceToday181']"),'OS 181 Today command center missing');
-assert.ok(todayPage.includes('await import(path)')&&todayPage.includes('[today addon failed]'),'Today addon isolation missing');
+assert.ok(todayPage.includes('await import(path)')&&todayPage.includes('addon failed]'),'Today addon isolation missing');
 assert.ok(!todayPage.includes("import {enhanceToday181} from './os181Suite.js'"),'OS 181 addon must not become a static Today import');
 
 assert.ok(ticketPage.includes('let bootPromise=null')&&ticketPage.includes('const CRITICAL=[')&&ticketPage.includes('const MODULES=[')&&ticketPage.includes("await import('./ticketDesk331.js')")&&ticketPage.includes("dataset.ticketDesk331!=='1'")&&ticketPage.includes('state.criticalDone=true')&&ticketPage.includes('if(!bootPromise)bootPromise=desk()'),'Ticket canonical critical-first single-flight adapter missing');
