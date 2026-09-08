@@ -1,7 +1,7 @@
 import {loadTicketCloud660} from './ticketCloud660.js';
 import {buildTicketActionPriority209} from './ticketActionPriorityModel209.js';
 
-const VERSION='510.0.1';
+const VERSION='510.0.2';
 const ACTIVE=new Set(['LISTED','NOT_LISTED']);
 const SOLD=new Set(['SOLD_UNDELIVERED','SOLD_WAITING_PAYMENT','PAYOUT_RECEIVED','PAID']);
 let bound=false;
@@ -62,8 +62,12 @@ function render(m){
   let box=hero.querySelector(':scope > [data-executive510]');
   if(!box){box=document.createElement('section');box.dataset.executive510='1';box.className='td510-brief';hero.appendChild(box)}
   const primary=m.primary,primaryScore=primary?.riskAdjusted?.rankScore,actionCount=m.actionable.length,briefing=sentence(m);
-  box.innerHTML=`<div class="td510-icon" aria-hidden="true">✦</div><div class="td510-copy"><small>EXECUTIVE BRIEFING</small><p data-executive510-text></p></div><div class="td510-chips"><span class="${actionCount?'warn':'ok'}">Dnes ${actionCount}</span><span class="${m.due7?'warn':''}">≤7 dní ${m.due7}</span><span>Payout ${m.settled.length}/${m.sold.length}</span>${Number.isFinite(Number(primaryScore))?`<span>D${Math.round(primaryScore)}</span>`:''}</div>`;
-  const text=box.querySelector('[data-executive510-text]');if(text)text.textContent=briefing;
+  const key=[briefing,actionCount,m.due7,m.settled.length,m.sold.length,Number.isFinite(Number(primaryScore))?Math.round(primaryScore):''].join('|');
+  if(box.dataset.executive510Key!==key){
+    box.innerHTML=`<div class="td510-icon" aria-hidden="true">✦</div><div class="td510-copy"><small>EXECUTIVE BRIEFING</small><p data-executive510-text></p></div><div class="td510-chips"><span class="${actionCount?'warn':'ok'}">Dnes ${actionCount}</span><span class="${m.due7?'warn':''}">≤7 dní ${m.due7}</span><span>Payout ${m.settled.length}/${m.sold.length}</span>${Number.isFinite(Number(primaryScore))?`<span>D${Math.round(primaryScore)}</span>`:''}</div>`;
+    const text=box.querySelector('[data-executive510-text]');if(text)text.textContent=briefing;
+    box.dataset.executive510Key=key;
+  }
   if(primary)box.title=`Nejvyšší priorita: ${eventName(primary)} · ${actionLabel(primary)}`;else box.removeAttribute('title');
   document.documentElement.dataset.ticketExecutive510='1';
   window.__KAMIL_TICKET_EXECUTIVE510__={version:VERSION,healthy:true,text:briefing,active:m.active.length,invested:m.invested,actions:actionCount,due7:m.due7,sold:m.sold.length,settled:m.settled.length,actualNet:m.actualNet,primary:primary?{id:primary.id,name:eventName(primary),action:actionLabel(primary),decision:Number.isFinite(Number(primaryScore))?Math.round(primaryScore):null}:null,at:Date.now()};
@@ -76,8 +80,9 @@ async function refresh(force=false){
 }
 function schedule(ms=100,{reload=false}={}){clearTimeout(timer);timer=setTimeout(()=>{timer=0;reload?refresh(true):refresh()},ms)}
 export function installTicketExecutive510(){
-  refresh();setTimeout(()=>refresh(),600);if(bound)return;bound=true;
+  const first=refresh();if(bound)return first;bound=true;
   for(const event of ['kamil:view-change','kamil:ticket-desk331-updated','kamil:ticket-economics506-updated','kamil:ticket-grouping508-updated'])window.addEventListener(event,()=>schedule(140));
   for(const event of ['kamil:ticket-refresh397-done','kamil:ticket-payout154-updated'])window.addEventListener(event,()=>schedule(80,{reload:true}));
   const root=document.querySelector('#ticketIntelView');if(root){observer=new MutationObserver(records=>{if(records.some(r=>r.type==='childList'&&(r.target===root||r.target?.matches?.('.td331'))))schedule(160)});observer.observe(root,{childList:true,subtree:true})}
+  return first;
 }
