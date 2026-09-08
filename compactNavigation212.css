@@ -1,6 +1,7 @@
 :root{--os212-rail:252px;--os212-top:74px;--os212-radius:18px}
 html,body,#appView,.app,.workspace,.sidebar,.topbar,.command-wrap,main{box-sizing:border-box!important}
-#undoBtn:disabled{opacity:.35!important}
+#syncStatus{display:none!important}
+#undoBtn:disabled{display:none!important}
 @media(min-width:851px){
  .app{grid-template-columns:var(--os212-rail) minmax(0,1fr)!important}
  .sidebar{height:100vh!important;padding:18px 14px 16px!important;gap:8px!important;align-items:stretch!important;overflow:hidden!important}
