@@ -1,0 +1,49 @@
+/* OS1060 — final visual contract for Ticket Desk. Loaded last by ticketDesk331. */
+html[data-ticket-desk331="1"] #view-tickets.on,
+html[data-ticket-desk331="1"] #ticketIntelView{
+  color:#f8fafc!important;
+  background:radial-gradient(900px 420px at 8% -12%,rgba(37,99,235,.14),transparent 66%),radial-gradient(760px 420px at 92% 0,rgba(124,58,237,.11),transparent 64%),#070b12!important;
+}
+html[data-ticket-desk331="1"] #ticketIntelView{padding:0!important;min-height:0!important;overflow:auto!important}
+html[data-ticket-desk331="1"] #ticketIntelView :where(.td331,.td331-shell,.td331-body,[class*="c46"],[class*="bridge466"]){box-sizing:border-box}
+html[data-ticket-desk331="1"] :where(.td331,.td331-shell,.td331-body){background:transparent!important;color:#f8fafc!important}
+html[data-ticket-desk331="1"] :where(.td331-hero,.td331-card,.td331-kpi,.td331-panel,.td331-section,[class*="bridge466-card"],[class*="c466-card"]){
+  background:linear-gradient(180deg,rgba(17,24,39,.96),rgba(10,16,28,.96))!important;
+  color:#f8fafc!important;
+  border-color:rgba(148,163,184,.16)!important;
+  box-shadow:0 16px 42px rgba(0,0,0,.20)!important;
+}
+html[data-ticket-desk331="1"] :where(.td331-title,.td331 h1,.td331 h2,.td331 h3,.td331 strong,.td331 b){color:#f8fafc!important}
+html[data-ticket-desk331="1"] :where(.td331 p,.td331 small,.td331-subtitle,.td331-meta,.td331-label,.bridge466-build,.bridge466-band,.bridge466-label,.bridge466-health-meta,.c465-wait){color:#94a3b8!important}
+html[data-ticket-desk331="1"] :where(.td331-btn,.td331-tab,.td331-tabs button,.c466-btn,[class*="bridge466"] button){
+  min-height:38px!important;
+  border:1px solid rgba(148,163,184,.20)!important;
+  border-radius:10px!important;
+  background:rgba(15,23,42,.78)!important;
+  color:#e5edf8!important;
+  font-size:12px!important;
+  line-height:1.2!important;
+  font-weight:700!important;
+  box-shadow:none!important;
+}
+html[data-ticket-desk331="1"] :where(.td331-btn,.td331-tab,.td331-tabs button,.c466-btn,[class*="bridge466"] button):hover{background:#172033!important;border-color:rgba(148,163,184,.34)!important}
+html[data-ticket-desk331="1"] :where(.td331-tab.on,.td331-tab[aria-selected="true"],.td331-tabs button.on,.td331-btn.primary,.c466-btn.on){background:#2563eb!important;border-color:#3b82f6!important;color:#fff!important}
+html[data-ticket-desk331="1"] :where(input,select,textarea){background:#0b1220!important;color:#f8fafc!important;border-color:rgba(148,163,184,.22)!important}
+html[data-ticket-desk331="1"] :where(.td331-table,.td331 table){color:#dbe6f5!important}
+html[data-ticket-desk331="1"] :where(.td331-table th,.td331 th){color:#94a3b8!important;border-color:rgba(148,163,184,.14)!important}
+html[data-ticket-desk331="1"] :where(.td331-table td,.td331 td){border-color:rgba(148,163,184,.11)!important}
+html[data-ticket-desk331="1"] :where(.bridge466-build,.bridge466-band,.bridge466-label,.bridge466-health-meta,.c465-wait){font-size:11px!important;line-height:1.35!important}
+html[data-ticket-desk331="1"] :where(.bridge466-value){font-size:12px!important;line-height:1.35!important;color:#e5edf8!important}
+html[data-ticket-desk331="1"] .td331-eyebrow{font-size:11px!important;line-height:1.25!important;letter-spacing:.08em!important}
+html[data-ticket-desk331="1"] :where(.td331-subtitle,.td331-card p,.td331-hero p){font-size:13px!important;line-height:1.45!important}
+html[data-ticket-desk331="1"] :where(.td331-pill,.td331-badge,.td331-chip){font-size:11px!important;line-height:1.25!important}
+html[data-ticket-desk331="1"] .td331-canvas{background:radial-gradient(circle at 50% 0,rgba(37,99,235,.16),transparent 50%),#0a101c!important;border-color:rgba(148,163,184,.16)!important}
+@media(max-width:760px){
+  html[data-ticket-desk331="1"] #ticketIntelView{padding:0!important}
+  html[data-ticket-desk331="1"] :where(.td331-btn,.td331-tab,.td331-tabs button,.c466-btn,[class*="bridge466"] button){min-height:44px!important;font-size:12px!important;padding:10px 12px!important}
+  html[data-ticket-desk331="1"] :where(.td331 p,.td331-card p,.td331-hero p,.td331-subtitle){font-size:13px!important;line-height:1.45!important}
+  html[data-ticket-desk331="1"] :where(.td331-eyebrow,.td331-label,.td331-meta,.td331-pill,.td331-badge,.td331-chip,.bridge466-build,.bridge466-band,.bridge466-label,.bridge466-health-meta,.c465-wait){font-size:11px!important;line-height:1.35!important}
+  html[data-ticket-desk331="1"] :where(.bridge466-value){font-size:12px!important}
+  html[data-ticket-desk331="1"] .td331{padding-inline:10px!important}
+  html[data-ticket-desk331="1"] :where(.td331-hero,.td331-card,.td331-panel,.td331-section){border-radius:14px!important}
+}

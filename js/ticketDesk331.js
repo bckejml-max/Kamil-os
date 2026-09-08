@@ -5,7 +5,7 @@ let installPromise=null;
 let styleNode=null;
 let styleObserver=null;
 
-const ASSET_REV='os540-ticket500-fix1';
+const ASSET_REV='os1060-visual-unification';
 const revised=url=>{const u=new URL(url);u.searchParams.set('rev',ASSET_REV);return u};
 const ungzip=async url=>{
   const requestUrl=revised(url);
@@ -42,7 +42,9 @@ async function loadRedesign(){
     const cssSpecs=[
       ['../ticketPolish501.css','OS501 CSS'],['../ticketLayout502.css','OS502 CSS'],['../ticketRail503.css','OS503 CSS'],
       ['../ticketEconomics506.css','OS506 CSS'],['../ticketDecision507.css','OS507 CSS'],['../ticketGrouping508.css','OS508 CSS'],
-      ['../ticketEventDetail509.css','OS509 CSS'],['../ticketExecutive510.css','OS510 CSS'],['../ticketOperations524.css','OS511-524 CSS']
+      ['../ticketEventDetail509.css','OS509 CSS'],['../ticketExecutive510.css','OS510 CSS'],['../ticketOperations524.css','OS511-524 CSS'],
+      ['../ticketDesk353.css','OS353 dark desk CSS'],['../ticketDesk355.css','OS355 layout CSS'],['../ticketDesk356.css','OS356 seatmap CSS'],
+      ['../ticketVisualUnification1060.css','OS1060 visual unification CSS']
     ];
     const jsSpecs=[
       ['./ticketRecoveryHydration188.js','installTicketRecoveryHydration188','OS188'],
