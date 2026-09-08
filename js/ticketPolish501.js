@@ -1,4 +1,4 @@
-const VERSION='501.0.0';
+const VERSION='501.0.1';
 let bound=false;
 let timer=0;
 
@@ -15,6 +15,8 @@ function fallbackCapital(host){
   return parseCzk(bought?.querySelector('small')?.textContent||'');
 }
 
+function setText(el,text){if(el&&el.textContent!==text)el.textContent=text}
+
 function polishRisk(host){
   const card=host.querySelector(':scope > .td331-overview [data-kpi-risk466]');
   if(!card)return;
@@ -24,8 +26,8 @@ function polishRisk(host){
   if(!value)return;
   const b=card.querySelector('b');
   const small=card.querySelector('small');
-  if(b)b.textContent=`${Math.round(value).toLocaleString('cs-CZ')} Kč`;
-  if(small)small.textContent=modeled?'heuristický downside proxy':'aktivně vložený kapitál';
+  setText(b,`${Math.round(value).toLocaleString('cs-CZ')} Kč`);
+  setText(small,modeled?'heuristický downside proxy':'aktivně vložený kapitál');
 }
 
 function polish(){
