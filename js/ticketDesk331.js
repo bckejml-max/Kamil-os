@@ -42,6 +42,7 @@ async function loadRedesign(){
       ['../ticketEventDetail509.css','OS509 CSS'],['../ticketExecutive510.css','OS510 CSS'],['../ticketOperations524.css','OS511-524 CSS']
     ];
     const jsSpecs=[
+      ['./ticketRecoveryHydration188.js','installTicketRecoveryHydration188','OS188'],
       ['./ticketPolish501.js','installTicketPolish501','OS501'],['./ticketLayout502.js','installTicketLayout502','OS502'],
       ['./ticketRail503.js','installTicketRail503','OS503'],['./ticketStability504.js','installTicketStability504','OS504'],
       ['./ticketAnchor505.js','installTicketAnchor505','OS505'],['./ticketEconomics506.js','installTicketEconomics506','OS506'],
