@@ -25,6 +25,7 @@ test('OS346 loads Ticket Desk on first Tickets navigation',async({page})=>{
  await expect(page.locator('#view-tickets')).toHaveClass(/on/);
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_TICKET_ON_DEMAND346__?.loaded),{timeout:7000}).toBe(true);
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_TICKET_DESK331__?.version),{timeout:7000}).toBe(331);
+ await expect.poll(()=>page.evaluate(()=>window.__KAMIL_TICKET_DESK331__?.stable===true),{timeout:15000}).toBe(true);
  const s=await page.evaluate(()=>({loader:window.__KAMIL_TICKET_ON_DEMAND346__,desk:window.__KAMIL_TICKET_DESK331__}));
  expect(s.loader.failures).toHaveLength(0);
  expect(s.loader.loads).toBe(1);
