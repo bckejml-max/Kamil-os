@@ -12,6 +12,7 @@ async function boot(page){
 
 async function record(page){await page.evaluate(()=>{window.__nav342Events=[];window.addEventListener('kamil:view-change',e=>window.__nav342Events.push(e.detail))})}
 function canonicalCount(page,view){return page.evaluate(v=>window.__nav342Events.filter(x=>x===v).length,view)}
+async function enableLegacyToday(page){await page.addInitScript(()=>localStorage.setItem('kamil.oneos.preferences.968',JSON.stringify({legacyToday:true,mobileAction:true})))}
 
 test('OS342 emits exactly one canonical transition and does not bounce back',async({page})=>{
  await boot(page);await record(page);
@@ -46,8 +47,8 @@ test('OS342 keeps legacy kamil:navigate compatible with one transition',async({p
  expect(await canonicalCount(page,'tickets')).toBe(1);
 });
 
-test('OS342 routes dynamic Executive buttons through the same owner',async({page})=>{
- await boot(page);await expect(page.locator('#todayView [data-os333-exec]')).toBeVisible({timeout:10000});await record(page);
+test('OS342 routes legacy Executive buttons through the same owner when enabled',async({page})=>{
+ await enableLegacyToday(page);await boot(page);await expect(page.locator('#todayView [data-os333-exec]')).toBeVisible({timeout:10000});await record(page);
  await page.locator('#todayView [data-os333-exec] [data-view="tickets"]').click();
  await expect(page.locator('#view-tickets')).toHaveClass(/on/);
  await expect.poll(()=>canonicalCount(page,'tickets')).toBe(1);

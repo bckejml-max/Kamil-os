@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 const js=fs.readFileSync('js/uxFoundation238.js','utf8');
 const css=fs.readFileSync('uxFoundation238.css','utf8');
+const shell=fs.readFileSync('js/personalShell640.js','utf8');
 const boot=fs.readFileSync('js/instantShell64.js','utf8');
 const release=fs.readFileSync('js/releaseMeta.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
@@ -10,7 +11,7 @@ assert(js.includes('Command Palette'),'OS230 palette missing');
 assert(js.includes('openQuickAdd'),'OS231 universal quick add missing');
 assert(js.includes('kamil-os-last-view-232'),'OS232 nav memory missing');
 assert(js.includes("e.altKey")&&js.includes("Shift+D"),'OS233 shortcuts missing');
-assert(css.includes('repeat(6,minmax(0,1fr))')&&css.includes('repeat(5,minmax(0,1fr))'),'OS234 mobile nav cleanup missing');
+assert(css.includes('repeat(6,minmax(0,1fr))')&&shell.includes('repeat(5,minmax(0,1fr))'),'OS234 mobile nav cleanup missing');
 assert(css.includes('@media(min-width:851px) and (max-width:1180px)'),'OS235 responsive engine missing');
 assert(js.includes('kamil-os-density-236')&&css.includes('data-density238'),'OS236 density modes missing');
 assert(js.includes("kamil:detail-drawer")&&css.includes('.ux238-drawer'),'OS237 detail drawer missing');

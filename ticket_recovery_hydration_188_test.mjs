@@ -13,6 +13,6 @@ assert.match(hydration,/\[data-ticket-recovery\]/);
 assert.match(hydration,/stopImmediatePropagation\(\)/);
 assert.match(page,/import\('\.\/ticketDesk331\.js'\)/);
 assert.doesNotMatch(page,/installTicketRecoveryHydration188\(\)/);
-assert.match(desk,/openTicketRecoveryCenter185/);
-assert.match(desk,/data-recovery/);
+assert.match(desk,/ticketRecoveryHydration188\.js/);
+assert.match(desk,/installTicketRecoveryHydration188/);
 console.log('OS 188 TICKET RECOVERY HYDRATION COMPATIBILITY PASS');

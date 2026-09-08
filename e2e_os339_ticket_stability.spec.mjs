@@ -7,7 +7,6 @@ async function boot(page){
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
   await expect.poll(()=>page.evaluate(()=>window.__KAMIL_OS333__?.version),{timeout:10000}).toBe(333);
 }
-const nodeLabel=n=>n?.nodeType===1?`${n.tagName.toLowerCase()}.${String(n.className||'').replace(/\s+/g,'.').slice(0,90)}`:`#${n?.nodeName||'node'}`;
 
 test('Tickets settle without continuous DOM replacement',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(String(e?.message||e)));
@@ -17,7 +16,7 @@ test('Tickets settle without continuous DOM replacement',async({page})=>{
   const host=page.locator('#ticketIntelView');
   await expect(section).toHaveClass(/on/);
   await expect(host).toBeVisible();
-  await page.waitForTimeout(1400);
+  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_TICKET_DESK331__?.stable===true),{timeout:15000}).toBe(true);
   const result=await page.evaluate(async()=>{
     const host=document.querySelector('#ticketIntelView');
     if(!host)return {missing:true};
@@ -39,6 +38,6 @@ test('Tickets settle without continuous DOM replacement',async({page})=>{
   expect(result.missing).toBe(false);
   expect(result.desk).toBe(true);
   expect(result.legacy).toBe(false);
-  if(result.childMutations>1||result.htmlChanges>1)throw new Error(`Ticket root unstable: ${JSON.stringify(result)}`);
+  if(result.childMutations>1||result.htmlChanges>1)throw new Error(`Ticket root unstable after settled marker: ${JSON.stringify(result)}`);
   expect(errors.filter(x=>/SyntaxError|Unexpected token/i.test(x))).toEqual([]);
 });

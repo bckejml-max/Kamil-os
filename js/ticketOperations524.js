@@ -1,7 +1,7 @@
 import {loadTicketCloud660} from './ticketCloud660.js';
 import {buildTicketRepricingGuardDesk194} from './ticketRepricingGuardModel194.js';
 
-const VERSION='524.0.1';
+const VERSION='524.0.2';
 const ACTIVE=new Set(['LISTED','NOT_LISTED']);
 const SOLD=new Set(['SOLD_UNDELIVERED','SOLD_WAITING_PAYMENT','PAYOUT_RECEIVED','PAID']);
 const ACTIONS=new Set(['DROP TO','RAISE TO','LIST AT']);
@@ -24,6 +24,7 @@ const parseDate=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?t:null};
 const ageHours=v=>{const t=parseDate(v);return t===null?null:Math.max(0,(Date.now()-t)/36e5)};
 const ageDays=v=>{const h=ageHours(v);return h===null?null:Math.floor(h/24)};
 const today=()=>{const d=new Date(),pad=v=>String(v).padStart(2,'0');return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const setText=(el,text)=>{if(el&&el.textContent!==text)el.textContent=text};
 
 function latest(r){return cloud?.latest?.get?.(r.id)||cloud?.latest?.get?.(String(r.id))||null}
 function checkedAt(s){return s?.checked_at||s?.market_checked_at||s?.fetched_at||s?.observed_at||null}
@@ -95,9 +96,9 @@ function decorateRows(){
   for(const el of host.querySelectorAll('.td500-ticket-row[data-ticket-id]')){
     const r=inv.get(String(el.dataset.ticketId));if(!r||!ACTIVE.has(status(r)))continue;active++;
     const g=gm.get(String(r.id))||{},f=freshness(r),trust=trustFor(r,g);trustSum+=trust.score;if(['stale','expired','missing','unknown'].includes(f.tone))stale++;
-    const sell=el.querySelector('[data-col="sell"]');if(sell){let box=sell.querySelector('[data-target514]');if(!box){box=document.createElement('span');box.dataset.target514='1';box.className='td514-levels';sell.appendChild(box)}const target=n(g.recommendedAsk),floor=n(g.neverBelow),be=n(g.emergencyFloor);box.innerHTML=target?`<b>Cíl ${money(target)}</b><small>${floor?`floor ${money(floor)}`:be?`BE ${money(be)}`:'floor bez payout dat'}</small>`:`<b>Cíl —</b><small>${g.action==='PAYOUT DATA NEEDED'?'doplň payout historii':'bez market cíle'}</small>`;box.title=[target?`Target ${money(target)}`:'Target není bezpečně dostupný',floor?`Normální chráněný floor ${money(floor)}`:null,be?`Emergency break-even ${money(be)}`:null,g.reason].filter(Boolean).join(' · ')}
-    const plat=el.querySelector('[data-col="platform"]');if(plat){let badge=plat.querySelector('[data-freshness516]');if(!badge){badge=document.createElement('span');badge.dataset.freshness516='1';badge.className='td516-freshness';plat.appendChild(badge)}badge.dataset.tone=f.tone;badge.textContent=f.label;badge.title=f.stamp?`Poslední market kontrola ${new Date(f.stamp).toLocaleString('cs-CZ')}`:'Čas poslední market kontroly není dostupný.'}
-    const stat=el.querySelector('[data-col="status"]');if(stat){let badge=stat.querySelector('[data-trust517]');if(!badge){badge=document.createElement('span');badge.dataset.trust517='1';badge.className='td517-trust';stat.appendChild(badge)}badge.dataset.tone=trust.tone;badge.textContent=`Data ${trust.score}`;badge.title=`Data Trust ${trust.score}/100${trust.missing.length?` · chybí: ${trust.missing.join(', ')}`:''}. Skóre měří úplnost a čerstvost dat, ne šanci na prodej.`}
+    const sell=el.querySelector('[data-col="sell"]');if(sell){let box=sell.querySelector('[data-target514]');if(!box){box=document.createElement('span');box.dataset.target514='1';box.className='td514-levels';sell.appendChild(box)}const target=n(g.recommendedAsk),floor=n(g.neverBelow),be=n(g.emergencyFloor),key=`${target}|${floor}|${be}|${g.action||''}`,markup=target?`<b>Cíl ${money(target)}</b><small>${floor?`floor ${money(floor)}`:be?`BE ${money(be)}`:'floor bez payout dat'}</small>`:`<b>Cíl —</b><small>${g.action==='PAYOUT DATA NEEDED'?'doplň payout historii':'bez market cíle'}</small>`;if(box.dataset.target514Key!==key){box.innerHTML=markup;box.dataset.target514Key=key}const title=[target?`Target ${money(target)}`:'Target není bezpečně dostupný',floor?`Normální chráněný floor ${money(floor)}`:null,be?`Emergency break-even ${money(be)}`:null,g.reason].filter(Boolean).join(' · ');if(box.title!==title)box.title=title}
+    const plat=el.querySelector('[data-col="platform"]');if(plat){let badge=plat.querySelector('[data-freshness516]');if(!badge){badge=document.createElement('span');badge.dataset.freshness516='1';badge.className='td516-freshness';plat.appendChild(badge)}badge.dataset.tone=f.tone;setText(badge,f.label);badge.title=f.stamp?`Poslední market kontrola ${new Date(f.stamp).toLocaleString('cs-CZ')}`:'Čas poslední market kontroly není dostupný.'}
+    const stat=el.querySelector('[data-col="status"]');if(stat){let badge=stat.querySelector('[data-trust517]');if(!badge){badge=document.createElement('span');badge.dataset.trust517='1';badge.className='td517-trust';stat.appendChild(badge)}badge.dataset.tone=trust.tone;setText(badge,`Data ${trust.score}`);badge.title=`Data Trust ${trust.score}/100${trust.missing.length?` · chybí: ${trust.missing.join(', ')}`:''}. Skóre měří úplnost a čerstvost dat, ne šanci na prodej.`}
     adjustDecision(el,r);
     el.dataset.trust517=trust.tone;el.dataset.freshness516=f.tone;
   }
@@ -137,13 +138,14 @@ function installControls(){
   if(!tools.querySelector('[data-repricing523]')){const b=document.createElement('button');b.type='button';b.className='td500-icon-btn tdops-control';b.dataset.repricing523='1';b.textContent='Repricing';b.title='OS523 · otevřít frontu cenových akcí';b.addEventListener('click',openRepricing);tools.prepend(b)}
 }
 function publish(){const p=payoutSummary(),rows=repricingRows(),logs=readLog(),waiting=p.waiting.length+p.delivery.length;window.__KAMIL_TICKET_PAYOUT511__={version:'511.0.1',healthy:true,waiting,pendingGross:p.pendingGross,paid:p.paid.length,actualPayout:p.payout,actualNet:p.net,at:Date.now()};window.__KAMIL_TICKET_REPRICING523__={version:'523.0.1',healthy:true,active:rows.length,actionable:rows.filter(x=>ACTIONS.has(x.action)).length,confirmedToday:rows.filter(x=>ACTIONS.has(x.action)&&confirmed(x)).length,at:Date.now()};window.__KAMIL_TICKET_ACTION524__={version:VERSION,healthy:true,count:logs.filter(x=>!x.undoneAt).length,localOnly:true,at:Date.now()}}
-function paint(){if(painting||!cloud?.ok)return false;painting=true;try{installControls();decorateRows();publish();return true}finally{painting=false}}
+function paint(){if(painting||!cloud?.ok)return false;painting=true;try{installControls();decorateRows();publish();return true}finally{observer?.takeRecords();painting=false}}
 async function refresh(force=false){if(loading&&!force)return loading;loading=(async()=>{try{const next=await loadTicketCloud660();if(!next?.ok)return false;cloud=next;guardDesk=buildTicketRepricingGuardDesk194(next.inventory||[],next.latest||new Map());paint();if(document.querySelector('[data-ticket-ops524-shell].open [data-ops-title]')?.textContent==='Smart repricing')renderRepricing();return true}catch(error){console.warn('[ticketOperations524]',error);return false}finally{loading=null}})();return loading}
 function schedule(ms=100,{reload=false}={}){clearTimeout(timer);timer=setTimeout(()=>{timer=0;reload?refresh(true):paint()},ms)}
 export function installTicketOperations524(){
-  refresh();setTimeout(()=>paint(),500);setTimeout(()=>paint(),1400);if(bound)return;bound=true;
+  const first=refresh();if(bound)return first;bound=true;
   for(const ev of ['kamil:view-change','kamil:ticket-desk331-updated','kamil:ticket-economics506-updated','kamil:ticket-grouping508-updated'])window.addEventListener(ev,()=>schedule(140));
   for(const ev of ['kamil:ticket-refresh397-done','kamil:ticket-payout154-updated'])window.addEventListener(ev,()=>schedule(80,{reload:true}));
   window.addEventListener('keydown',e=>{if(e.key==='Escape')closeShell()});
   const root=document.querySelector('#ticketIntelView');if(root){observer=new MutationObserver(records=>{if(painting)return;if(records.some(r=>r.type==='childList'&&(r.target===root||r.target?.matches?.('.td331,.td331-grid'))))schedule(160)});observer.observe(root,{childList:true,subtree:true})}
+  return first;
 }

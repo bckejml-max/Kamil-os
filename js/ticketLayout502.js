@@ -1,4 +1,4 @@
-const VERSION='502.0.0';
+const VERSION='502.0.1';
 let bound=false;
 let timer=0;
 
@@ -16,6 +16,8 @@ function relTop(el,root){
   return Math.max(0,Math.round(a.top-b.top));
 }
 
+function setText(el,text){if(el&&el.textContent!==text)el.textContent=text}
+
 function setCapitalLabel(host){
   const card=host.querySelector(':scope > .td331-overview [data-kpi-risk466]');
   if(!card)return;
@@ -24,12 +26,12 @@ function setCapitalLabel(host){
   const fallback=money(investedCard?.querySelector('small')?.textContent||'');
   const label=card.querySelector('span:not(.td500-kpi-icon):not(.ticket-kpi-compat500)');
   const value=modeled||fallback;
-  if(label)label.textContent=modeled?'Capital at Risk':'Vložený kapitál';
+  setText(label,modeled?'Capital at Risk':'Vložený kapitál');
   if(value){
     const b=card.querySelector('b');
     const small=card.querySelector('small');
-    if(b)b.textContent=`${Math.round(value).toLocaleString('cs-CZ')} Kč`;
-    if(small)small.textContent=modeled?'heuristický downside proxy':'aktivně vložený kapitál';
+    setText(b,`${Math.round(value).toLocaleString('cs-CZ')} Kč`);
+    setText(small,modeled?'heuristický downside proxy':'aktivně vložený kapitál');
   }
 }
 
@@ -50,7 +52,6 @@ function layout(){
   const side=host.querySelector(':scope > [data-ticket-side500]');
   if(!overview||!commander)return false;
 
-  // Capture the current right-column width before absolute positioning changes flow.
   const width=Math.max(300,Math.round(commander.getBoundingClientRect().width||360));
   const top=relTop(overview,host);
   host.style.setProperty('--td502-right-width',`${width}px`);

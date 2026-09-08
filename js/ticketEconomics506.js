@@ -1,7 +1,7 @@
 import {loadTicketCloud660} from './ticketCloud660.js';
 import {buildTicketPayoutLearning192} from './ticketPayoutLearningModel192.js';
 
-const VERSION='506.0.1';
+const VERSION='506.0.2';
 const ACTIVE=new Set(['LISTED','NOT_LISTED']);
 const SOLD=new Set(['SOLD_UNDELIVERED','SOLD_WAITING_PAYMENT','PAYOUT_RECEIVED','PAID']);
 let bound=false;
@@ -202,11 +202,11 @@ function addModelBadge(){
   }
   const stats=learning.knownGlobal?.count?learning.knownGlobal:learning.global;
   if(stats?.count&&stats.ratio){
-    badge.textContent=`NET model · ${stats.count} payoutů · ${(stats.ratio*100).toFixed(1)} % payout`;
+    setText(badge,`NET model · ${stats.count} payoutů · ${(stats.ratio*100).toFixed(1)} % payout`);
     badge.title='Poměr vychází pouze ze skutečně uzavřených payoutů. Nejde o pevně zadaný marketplace fee.';
     badge.dataset.ready='1';
   }else{
-    badge.textContent='NET model · čeká na payout historii';
+    setText(badge,'NET model · čeká na payout historii');
     badge.title='Až bude dost skutečných settlementů, OS dopočítá break-even po marketplace fee.';
     badge.dataset.ready='0';
   }

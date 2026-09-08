@@ -24,6 +24,13 @@ function noteFailure(list,label,error,phase='load'){const item={label,phase,mess
 async function optionalText(url,label,failures){try{return await text(url)}catch(error){noteFailure(failures,label,error,'css');return''}}
 async function optionalInstaller(url,fn,label,failures){try{const mod=await import(url);if(typeof mod?.[fn]!=='function')throw new Error(`Chybí export ${fn}`);return{label,fn,install:mod[fn]}}catch(error){noteFailure(failures,label,error,'module');return{label,fn,install:null}}}
 
+function publishCanonical331(extra={}){
+  const previous=window.__KAMIL_TICKET_DESK331__||{};
+  const healthy=extra.healthy??previous.healthy??true;
+  const loading=extra.loading??previous.loading??false;
+  window.__KAMIL_TICKET_DESK331__={...previous,version:331,healthy,loading,stable:!loading,renderer:'redesign500',portfolioVersion:window.__KAMIL_TICKET_PORTFOLIO340__?.version||previous.portfolioVersion||340,at:Date.now(),...extra};
+}
+
 async function loadRedesign(){
   if(loadPromise)return loadPromise;
   loadPromise=(async()=>{
@@ -38,12 +45,13 @@ async function loadRedesign(){
       ['../ticketEventDetail509.css','OS509 CSS'],['../ticketExecutive510.css','OS510 CSS'],['../ticketOperations524.css','OS511-524 CSS']
     ];
     const jsSpecs=[
+      ['./ticketRecoveryHydration188.js','installTicketRecoveryHydration188','OS188'],
       ['./ticketPolish501.js','installTicketPolish501','OS501'],['./ticketLayout502.js','installTicketLayout502','OS502'],
       ['./ticketRail503.js','installTicketRail503','OS503'],['./ticketStability504.js','installTicketStability504','OS504'],
       ['./ticketAnchor505.js','installTicketAnchor505','OS505'],['./ticketEconomics506.js','installTicketEconomics506','OS506'],
-      ['./ticketDecision507.js','installTicketDecision507','OS507'],['./ticketGrouping508.js','installTicketGrouping508','OS508'],
-      ['./ticketEventDetail509.js','installTicketEventDetail509','OS509'],['./ticketExecutive510.js','installTicketExecutive510','OS510'],
-      ['./ticketOperations524.js','installTicketOperations524','OS511-524']
+      ['./ticketDecision507.js','installTicketDecision507','OS507'],['./ticketOperations524.js','installTicketOperations524','OS511-524'],
+      ['./ticketGrouping508.js','installTicketGrouping508','OS508'],['./ticketEventDetail509.js','installTicketEventDetail509','OS509'],
+      ['./ticketExecutive510.js','installTicketExecutive510','OS510']
     ];
     const overlayCss=await Promise.all(cssSpecs.map(([path,label])=>optionalText(new URL(path,import.meta.url),label,failures)));
     const installers=await Promise.all(jsSpecs.map(([path,fn,label])=>optionalInstaller(new URL(path,import.meta.url).href,fn,label,failures)));
@@ -66,6 +74,7 @@ async function loadRedesign(){
 
 export function installTicketDesk331(){
   if(installPromise)return installPromise;
+  publishCanonical331({loading:true,stable:false});
   installPromise=loadRedesign().then(async({renderer,installers,failures})=>{
     document.documentElement.dataset.ticketRedesign500='1';
     const result=renderer.installTicketDesk331();if(result&&typeof result.then==='function')await result;
@@ -77,7 +86,8 @@ export function installTicketDesk331(){
     window.__KAMIL_TICKET_REDESIGN500__={version:'500.0.1',healthy:true,assetRevision:ASSET_REV,at:Date.now(),source:'exact-approved-patch'};
     window.__KAMIL_TICKET_POLISH501__={version:'501.0.0',healthy:!allFailures.some(x=>x.label==='OS501'||x.label==='OS501 CSS'),at:Date.now()};
     window.__KAMIL_TICKET_DESK526__={version:'526.0.1',healthy,failures:allFailures,optionalTotal:installers.length,optionalLoaded:installers.filter(x=>!!x.install).length,assetRevision:ASSET_REV,at:Date.now()};
+    publishCanonical331({healthy,loading:false,stable:true,failures:allFailures});
     keepStyleLast();return result
-  }).catch(error=>{installPromise=null;document.documentElement.dataset.ticketDesk331Health='fatal';console.error('[ticketRedesign500/526] activation failed',error);throw error});
+  }).catch(error=>{installPromise=null;document.documentElement.dataset.ticketDesk331Health='fatal';publishCanonical331({healthy:false,loading:false,stable:false,error:String(error?.message||error)});console.error('[ticketRedesign500/526] activation failed',error);throw error});
   return installPromise;
 }

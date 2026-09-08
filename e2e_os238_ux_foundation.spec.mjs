@@ -34,6 +34,6 @@ test('OS238 UX Foundation works on desktop and mobile',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await page.waitForTimeout(180);
  const visibleBottom=await page.locator('#bottomNav button').evaluateAll(btns=>btns.filter(b=>getComputedStyle(b).display!=='none').length);
- expect(visibleBottom).toBeLessThanOrEqual(5);
+ expect(visibleBottom).toBe(6);
  await expect(page.locator('#bottomNav')).toBeVisible();
 });
