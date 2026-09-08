@@ -14,8 +14,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Install test dependency
-        run: npm install
+          cache: npm
+      - name: Install locked test dependency
+        run: npm ci
       - name: Canonical domain syntax
         run: |
           node --check js/domainOS328.js
