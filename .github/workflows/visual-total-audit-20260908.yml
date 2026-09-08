@@ -22,7 +22,7 @@ jobs:
       - name: Capture live production visual audit
         env:
           KAMIL_AUDIT_URL: https://kamil-os-smoke.vercel.app/
-        run: npx playwright test e2e_visual_total_audit_20260908.spec.mjs --workers=1 --reporter=line
+        run: npx playwright test e2e_visual_total_audit_20260908.spec.mjs e2e_visual_extras_audit_20260908.spec.mjs --workers=1 --reporter=line
       - name: Upload visual audit
         if: always()
         uses: actions/upload-artifact@v4
