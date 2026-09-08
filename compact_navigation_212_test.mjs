@@ -10,8 +10,9 @@ const hostPad=Number(css.match(/\.app-host211\{padding-top:(\d+)px!important\}/)
 assert.ok(hostPad>=120&&hostPad<=150,`desktop workspace offset must fit full OS947 chrome, got ${hostPad}px`);
 const topbar=Number(css.match(/--os212-top:(\d+)px/)?.[1]||0);
 assert.ok(topbar>=68&&topbar<=80,`desktop topbar must fit OS947 hierarchy, got ${topbar}px`);
-const command=Number(css.match(/\.command-wrap\{height:(\d+)px!important/)?.[1]||0);
+const command=Number(css.match(/--os212-command:(\d+)px/)?.[1]||0);
 assert.ok(command>=56&&command<=68,`desktop command bar must fit OS947 search, got ${command}px`);
+assert.match(css,/\.command-wrap\{height:var\(--os212-command\)!important/,'desktop command bar must use the shared command height variable');
 assert.match(css,/min-height:40px/,'mobile controls keep touch-sized targets');
 assert.match(css,/repeat\(6,minmax\(0,1fr\)\)/,'mobile navigation keeps six stable destinations');
 assert.doesNotMatch(css,/data-personal-more[^\n]*display:none/,'More must not be hidden on mobile');
