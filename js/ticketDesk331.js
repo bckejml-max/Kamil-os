@@ -49,9 +49,9 @@ async function loadRedesign(){
       ['./ticketPolish501.js','installTicketPolish501','OS501'],['./ticketLayout502.js','installTicketLayout502','OS502'],
       ['./ticketRail503.js','installTicketRail503','OS503'],['./ticketStability504.js','installTicketStability504','OS504'],
       ['./ticketAnchor505.js','installTicketAnchor505','OS505'],['./ticketEconomics506.js','installTicketEconomics506','OS506'],
-      ['./ticketDecision507.js','installTicketDecision507','OS507'],['./ticketGrouping508.js','installTicketGrouping508','OS508'],
-      ['./ticketEventDetail509.js','installTicketEventDetail509','OS509'],['./ticketExecutive510.js','installTicketExecutive510','OS510'],
-      ['./ticketOperations524.js','installTicketOperations524','OS511-524']
+      ['./ticketDecision507.js','installTicketDecision507','OS507'],['./ticketOperations524.js','installTicketOperations524','OS511-524'],
+      ['./ticketGrouping508.js','installTicketGrouping508','OS508'],['./ticketEventDetail509.js','installTicketEventDetail509','OS509'],
+      ['./ticketExecutive510.js','installTicketExecutive510','OS510']
     ];
     const overlayCss=await Promise.all(cssSpecs.map(([path,label])=>optionalText(new URL(path,import.meta.url),label,failures)));
     const installers=await Promise.all(jsSpecs.map(([path,fn,label])=>optionalInstaller(new URL(path,import.meta.url).href,fn,label,failures)));
