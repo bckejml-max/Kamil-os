@@ -11,6 +11,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       - name: Visual design contracts
         run: node scripts/visual_rebuild_947_guard.mjs
       - name: Navigation contract
@@ -28,8 +29,8 @@ jobs:
           node autonomous_943_guard.mjs
           node self_improving_892_guard.mjs
           node copilot_842_guard.mjs
-      - name: Install browser QA
-        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install locked browser QA
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: OS947 desktop and mobile browser smoke

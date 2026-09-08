@@ -11,6 +11,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       - name: One OS contracts
         run: node scripts/one_os_967_guard.mjs
       - name: Syntax
@@ -24,8 +25,8 @@ jobs:
           node scripts/preview_pr_946_guard.mjs
           node self_improving_892_guard.mjs
           node copilot_842_guard.mjs
-      - name: Install browser QA
-        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install locked browser QA
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: One OS desktop and mobile smoke
