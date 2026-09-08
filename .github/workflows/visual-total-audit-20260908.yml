@@ -5,6 +5,7 @@ on:
     branches: [audit/visual-total-20260908]
   workflow_dispatch:
 
+# rerun after OS1060 production visual unification
 jobs:
   audit:
     runs-on: ubuntu-latest
