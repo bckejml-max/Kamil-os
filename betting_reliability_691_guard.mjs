@@ -4,7 +4,7 @@ import {execFileSync} from 'node:child_process';
 
 const read=p=>fs.readFileSync(p,'utf8');
 const syntaxFiles=[
- 'api/market-history.js','api/core70-health.js','lib/browser-chance-model694.js','chance-feeder694.user.js','js/bettingBrowserFeed694.js','js/bettingDomGuard691.js','js/bettingOddsFeed693.js','js/bettingPage144.js','js/bettingBootstrap543.js','js/bettingRequestBudget561.js','js/bettingCommander542.js','js/bettingLedger543.js','js/bettingIntelligence560.js','js/bettingTiming564.js','js/bettingPerformance565.js','js/bettingMissed566.js','js/bettingControl586.js'
+ 'api/market-history.js','api/core70-health.js','lib/browser-chance-model694.js','js/state.js','js/cloud.js','chance-feeder694.user.js','js/bettingBrowserFeed694.js','js/bettingDomGuard691.js','js/bettingOddsFeed693.js','js/bettingPage144.js','js/bettingBootstrap543.js','js/bettingRequestBudget561.js','js/bettingCommander542.js','js/bettingLedger543.js','js/bettingIntelligence560.js','js/bettingTiming564.js','js/bettingPerformance565.js','js/bettingMissed566.js','js/bettingControl586.js'
 ];
 for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 const observerFiles=['js/bettingRequestBudget561.js','js/bettingCommander542.js','js/bettingIntelligence560.js','js/bettingTiming564.js','js/bettingPerformance565.js','js/bettingMissed566.js','js/bettingControl586.js'];
@@ -22,5 +22,7 @@ const timing=read('js/bettingTiming564.js');assert.ok(timing.includes("8*3600000
 const control=read('js/bettingControl586.js');assert.ok(control.includes("b.sport||'Nezařazeno'"),'unknown sports must stay Nezařazeno');
 const missed=read('js/bettingMissed566.js');assert.ok(missed.includes('freshObservation'),'missed-bet observations must be deduplicated');
 const ledger=read('js/bettingLedger543.js');assert.ok(ledger.includes('kamil:betting-ledger543-updated'),'canonical ledger update event missing');assert.ok(ledger.includes("import {store} from './state.js'"),'betting ledger must use the canonical Kamil OS state');assert.ok(ledger.includes('s.bettingLedger=next'),'betting ledger writes must persist into canonical OS state');
-const state=read('js/state.js');assert.ok(state.includes('bettingLedger:{bets:[]'),'canonical state must define bettingLedger');
-console.log('OS695 BETTING RELIABILITY PASS');
+const state=read('js/state.js');assert.ok(state.includes('bettingLedger:{bets:[]'),'canonical state must define bettingLedger');assert.ok(state.includes("scan(input.bettingLedger?.bets,'bet')"),'betting ledger IDs must participate in canonical state validation');
+const cloud=read('js/cloud.js');assert.ok(cloud.includes("count(local,'bettingLedger.bets')"),'cloud conflict summary must include betting history');
+const oldPulseKey=process.env.PULSESCORE_API_KEY;process.env.PULSESCORE_API_KEY='os1061-test-key';const {default:healthHandler}=await import(`./api/core70-health.js?os1061=${Date.now()}`);let healthStatus=0,healthBody=null;const healthRes={setHeader(){},set statusCode(v){healthStatus=v},get statusCode(){return healthStatus},end(v){healthBody=JSON.parse(v)}};await healthHandler({method:'GET',url:'/api/core70-health'},healthRes);assert.equal(healthStatus,200);assert.equal(healthBody.checks.pulsescore_configured,true);assert.equal(healthBody.checks.pulsescore_verified,false);assert.equal(healthBody.checks.pulsescore_api,false);assert.equal(healthBody.pulse.message,'PULSESCORE_UNVERIFIED');if(oldPulseKey===undefined)delete process.env.PULSESCORE_API_KEY;else process.env.PULSESCORE_API_KEY=oldPulseKey;
+console.log('OS1061 BETTING RELIABILITY PASS');
