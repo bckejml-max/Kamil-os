@@ -49,7 +49,7 @@ test('OS466 canonical Ticket Desk owns the upper page and moves diagnostics into
  await expect(system).toHaveCount(1);
  await expect(system).toBeVisible();
  await expect(host.locator(':scope > .td331-overview .td331-stat')).toHaveCount(5);
- await expect(host.locator(':scope > .td331-overview')).toContainText('Capital at Risk');
+ await expect(host.locator(':scope > .td331-overview')).toContainText('Vložený kapitál');
  const order=await host.evaluate(el=>{const children=[...el.children],idx=selector=>children.findIndex(x=>x.matches(selector));return{hero:idx('.td331-hero'),commander:idx('[data-c465]'),system:children.findIndex(x=>x.matches('[data-system466],[data-bridge-system466],.bridge466-system')),overview:idx('.td331-overview')}});
  expect(order.hero).toBeGreaterThanOrEqual(0);expect(order.commander).toBe(order.hero+1);expect(order.system).toBe(order.commander+1);expect(order.overview).toBe(order.system+1);
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_TICKET_BOOT466__?.legacyDone===true),{timeout:25000}).toBe(true);
