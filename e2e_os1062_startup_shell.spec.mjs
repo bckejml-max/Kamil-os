@@ -5,8 +5,6 @@ async function withoutJavaScript(page){
  await page.route(/\.js(?:\?.*)?$/,route=>route.abort());
 }
 
-const visibleButtons=()=>[...document.querySelectorAll('#bottomNav button')].filter(b=>getComputedStyle(b).display!=='none');
-
 test('OS1062 desktop first frame is dark before application JavaScript runs',async({page})=>{
  await page.setViewportSize({width:1440,height:900});
  await withoutJavaScript(page);
@@ -46,7 +44,7 @@ test('OS1062 mobile first frame already exposes canonical six-item navigation',a
  await withoutJavaScript(page);
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  const mobile=await page.evaluate(()=>{
-  const nav=document.querySelector('#bottomNav'),buttons=visibleButtons(),rect=nav.getBoundingClientRect(),style=getComputedStyle(nav);
+  const nav=document.querySelector('#bottomNav'),buttons=[...document.querySelectorAll('#bottomNav button')].filter(b=>getComputedStyle(b).display!=='none'),rect=nav.getBoundingClientRect(),style=getComputedStyle(nav);
   return{
    count:buttons.length,
    labels:buttons.map(b=>b.textContent.trim()),
