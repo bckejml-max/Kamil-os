@@ -97,6 +97,7 @@ export function conflictSummary(local,cloud){
   {label:'Net Worth historie',local:count(local,'netWorthBook.history'),cloud:count(cloud,'netWorthBook.history')},
   {label:'Osobní úkoly',local:personalTasks(local),cloud:personalTasks(cloud)},
   {label:'Vstupenky',local:count(local,'ticketBook.items'),cloud:count(cloud,'ticketBook.items')},
+  {label:'Sázky',local:count(local,'bettingLedger.bets'),cloud:count(cloud,'bettingLedger.bets')},
   {label:'Pohledávky',local:count(local,'debtBook.items'),cloud:count(cloud,'debtBook.items')}
  ];
 }

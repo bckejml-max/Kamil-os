@@ -12,11 +12,14 @@ const lifeFiles=['lifePlanner446.js','cashflow447.js','wealth448.js','ticketInte
 const version=(meta.match(/APP_VERSION='([^']+)'/)?.[1]||'0.0.0').split('.').map(Number);
 for(const bad of ['setInterval(','requestIdleCallback','store.subscribe('])assert.ok(!decision.includes(bad),`Decision 53.4 must stay click-only: ${bad}`);
 assert.ok(!decision.includes('store.update(')&&!decision.includes('store.patch('),'Decision 53.4 must stay read-only');
-assert.ok(runtime.includes('export function prefetchView41(){return Promise.resolve(null)}'),'hover/focus prefetch must stay disabled');
-assert.ok(runtime.includes('export function renderExtras41(){return Promise.resolve([])}'),'background extras must stay disabled');
+assert.ok(runtime.includes("export function prefetchView41(name='today'){return warmView(name)"),'interaction prefetch must reuse the single-flight warmView cache');
+assert.ok(runtime.includes("if(view==='today'){const m=await load('./personalWeekly700.js');return m.appendWeeklyReset700()}return null"),'post-render extras must stay scoped to Today');
 assert.ok(runtime.includes('export function refreshRiskBadge41(){return Promise.resolve(null)}'),'background risk calculation must stay disabled');
 assert.ok(runtime.includes('export function scheduleNotifications41(){return Promise.resolve(null)}'),'background notification calculations must stay disabled');
-assert.ok(runtime.includes('export function warmRuntime41(){return Promise.resolve(null)}'),'runtime warming must stay disabled');
+const warmBody=runtime.match(/export function warmRuntime41\(\)\{([\s\S]*?)return Promise\.resolve\(null\)\}/)?.[1]||'';
+assert.ok(warmBody.includes("load('./qa143.js')")&&warmBody.includes("load('./command.js')"),'bounded runtime warm-up contract missing');
+for(const heavy of ['./todayPage101.js','./ticketPage100.js','./bettingPage527.js','./moneyPage100.js','./homePage140.js'])assert.ok(!warmBody.includes(heavy),`runtime warm-up must not eagerly load heavy view: ${heavy}`);
+assert.ok(!warmBody.includes('warmView('),'runtime warm-up must not eagerly render views');
 assert.ok(!personalIntel.includes('setInterval(')&&!personalIntel.includes('requestIdleCallback')&&!personalIntel.includes('store.subscribe('),'Legacy Personal Intelligence must stay purely on-demand');
 for(const file of lifeFiles){assert.ok(!file.includes('setInterval(')&&!file.includes('requestIdleCallback')&&!file.includes('store.subscribe('),'Life OS engines must be purely click-only');assert.ok(!file.includes('store.update(')&&!file.includes('store.patch('),'Life OS engines must stay read-only')}
 assert.ok(lifeFiles[9].includes('export function lifeDashboard455'),'Legacy Life Dashboard compatibility module missing');
