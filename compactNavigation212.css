@@ -4,7 +4,7 @@ html,body,#appView,.app,.workspace,.sidebar,.topbar,.command-wrap,main{box-sizin
 #undoBtn:disabled{display:none!important}
 @media(min-width:851px){
  html,body{height:100%!important;max-height:100vh!important;overflow:hidden!important}
- html.theme-dark body::before,html[data-theme="dark"] body::before{content:none!important;display:none!important}
+ body{position:fixed!important;inset:0!important;width:100%!important;margin:0!important}
  #appView,.app{height:100vh!important;min-height:100vh!important;max-height:100vh!important;overflow:hidden!important}
  .app{grid-template-columns:var(--os212-rail) minmax(0,1fr)!important}
  .sidebar{height:100vh!important;padding:18px 14px 16px!important;gap:8px!important;align-items:stretch!important;overflow:hidden!important}
