@@ -1,10 +1,11 @@
 const VERSION='693.0.0';
 const HEALTH='/api/market-history?source=chance_odds_health693';
+const FALLBACK_HEALTH='/api/core70-health';
 const SCAN_SOURCE='chance_odds693';
 const PAGE_SOURCE='chance_odds_pages693';
 const PULSE_STORE='kamil_pulse_budget_561';
 const originalFetch=window.fetch.bind(window);
-let provider={checkedAt:0,configured:false,ready:false,checking:null};
+let provider={checkedAt:0,configured:false,ready:false,fallbackConfigured:false,fallbackVerified:false,fallbackReady:false,fallbackStatus:null,fallbackMessage:null,checking:null};
 
 function apiUrl(source,from){
  const input=new URL(String(from),location.href);
@@ -29,11 +30,30 @@ async function checkProvider(force=false){
  if(provider.checking)return provider.checking;
  provider.checking=(async()=>{
   try{
-   const r=await originalFetch(`${HEALTH}&_=${Date.now()}`,{cache:'no-store',headers:{Accept:'application/json'}});
-   const j=await r.json().catch(()=>null);
-   provider={checkedAt:Date.now(),configured:j?.configured===true,ready:r.ok&&j?.ready===true,provider:j?.provider||'odds-api.io',bookmaker:j?.bookmaker||'Chance.cz',checking:null};
+   const [primaryRes,fallbackRes]=await Promise.all([
+    originalFetch(HEALTH+'&_='+Date.now(),{cache:'no-store',headers:{Accept:'application/json'}}).catch(()=>null),
+    originalFetch(FALLBACK_HEALTH+'?_='+Date.now(),{cache:'no-store',headers:{Accept:'application/json'}}).catch(()=>null)
+   ]);
+   const primary=primaryRes?await primaryRes.json().catch(()=>null):null;
+   const fallback=fallbackRes?await fallbackRes.json().catch(()=>null):null;
+   const fallbackStatus=Number(fallback?.checks?.pulsescore_status||fallback?.pulse?.status||0)||null;
+   provider={
+    checkedAt:Date.now(),
+    configured:primary?.configured===true,
+    ready:primaryRes?.ok===true&&primary?.ready===true,
+    provider:primary?.provider||'odds-api.io',
+    bookmaker:primary?.bookmaker||'Chance.cz',
+    fallbackConfigured:fallback?.checks?.pulsescore_configured===true,
+    fallbackVerified:fallback?.checks?.pulsescore_verified===true||fallback?.pulse?.verified===true,
+    fallbackReady:fallback?.checks?.pulsescore_api===true,
+    fallbackStatus,
+    fallbackMessage:fallback?.pulse?.message||null,
+    checking:null
+   };
    if(provider.ready)resetPulseStop();
-  }catch{provider={checkedAt:Date.now(),configured:false,ready:false,checking:null}}
+  }catch{
+   provider={checkedAt:Date.now(),configured:false,ready:false,fallbackConfigured:false,fallbackVerified:false,fallbackReady:false,fallbackStatus:null,fallbackMessage:null,checking:null};
+  }
   publish();return provider;
  })();
  return provider.checking;
@@ -67,7 +87,11 @@ function publish(){
  if(!box){box=document.createElement('section');box.dataset.bet693='1';box.style.cssText='padding:10px 12px;border:1px solid rgba(135,164,194,.14);border-radius:10px;background:rgba(7,19,31,.55);font-size:11px;color:#91a7ba';const anchor=root.querySelector('.bet144-metrics');anchor?.insertAdjacentElement('afterend',box)}
  if(!box)return;
  if(provider.ready)box.innerHTML='<b style="color:#8fe0ad">🟢 Chance feed 693</b> · Odds-API.io aktivní · PulseScore pouze fallback';
- else box.innerHTML='<b style="color:#f0c979">🟠 Chance feed 693 připraven</b> · chybí serverový <code>ODDS_API_IO_KEY</code> · zatím běží PulseScore fallback';
+ else if(provider.fallbackStatus===429)box.innerHTML='<b style="color:#f28c8c">🔴 Chance feed nedostupný</b> · PulseScore BASIC kvóta vyčerpaná · čekám na nový limit nebo primární provider';
+ else if(provider.fallbackReady)box.innerHTML='<b style="color:#8fe0ad">🟢 Chance fallback aktivní</b> · PulseScore ověřený · Odds-API.io není nakonfigurovaný';
+ else if(provider.fallbackConfigured&&!provider.fallbackVerified)box.innerHTML='<b style="color:#f0c979">🟠 Chance fallback neověřený</b> · PulseScore je nakonfigurovaný, ale health ho bez reálného skenu už neoznačuje falešně zeleně';
+ else if(provider.fallbackConfigured)box.innerHTML='<b style="color:#f28c8c">🔴 Chance fallback není dostupný</b> · primární Odds-API.io není nakonfigurovaný';
+ else box.innerHTML='<b style="color:#f28c8c">🔴 Chance feed není nakonfigurovaný</b> · chybí primární i fallback serverový provider';
 }
 export async function installBettingOddsFeed693(){
  if(!window.__KAMIL_ODDS_FEED693_PATCHED__){window.__KAMIL_ODDS_FEED693_PATCHED__=true;window.fetch=fetch693}

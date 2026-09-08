@@ -60,9 +60,9 @@ async function pulseRequest(target,key){
 }
 
 async function pulseHealth(key){
- if(!key)return{configured:false,ok:false,status:null,authMode:null,message:'PULSESCORE_NOT_CONFIGURED'};
- if(Date.now()-Number(pulseHealthCache.checkedAt||0)<PULSE_HEALTH_TTL_MS&&pulseHealthCache.ok!==null)return{configured:true,...pulseHealthCache};
- return{configured:true,ok:true,status:null,authMode:null,message:null};
+ if(!key)return{configured:false,verified:false,ok:false,status:null,authMode:null,message:'PULSESCORE_NOT_CONFIGURED'};
+ if(Date.now()-Number(pulseHealthCache.checkedAt||0)<PULSE_HEALTH_TTL_MS&&pulseHealthCache.ok!==null)return{configured:true,verified:true,...pulseHealthCache};
+ return{configured:true,verified:false,ok:false,status:null,authMode:null,message:'PULSESCORE_UNVERIFIED'};
 }
 
 function compactEvent(event){
@@ -396,5 +396,5 @@ export default async function handler(req,res){
  const pulse=await pulseHealth(pulseKey);
  const apiFootball=!!(process.env.API_FOOTBALL_KEY||process.env.API_SPORTS_KEY);
  const fmd=!!process.env.FMD_API_KEY;
- return json(res,200,{ok:true,version:'70.13-candidate-scope',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulse.ok===true,pulsescore_configured:!!pulseKey,pulsescore_status:pulse.status,pulsescore_auth_mode:pulse.authMode,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},pulse:{ok:pulse.ok,status:pulse.status,authMode:pulse.authMode,message:pulse.message},ledger:ledgerSummary()});
+ return json(res,200,{ok:true,version:'70.14-truthful-provider-health',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulse.ok===true,pulsescore_configured:!!pulseKey,pulsescore_verified:pulse.verified===true,pulsescore_status:pulse.status,pulsescore_auth_mode:pulse.authMode,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},pulse:{configured:!!pulseKey,verified:pulse.verified===true,ok:pulse.ok,status:pulse.status,authMode:pulse.authMode,message:pulse.message},ledger:ledgerSummary()});
 }

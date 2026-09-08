@@ -12,6 +12,7 @@ const blank=()=>({
  xtbReport:{czkValue:0,eurValue:0,czkProfit:0,eurProfit:0,asOf:null},
  xtbHub:{},xtbStrategy:{overrides:{}},tradeJournal:{trades:[]},
  ticketBook:{items:[],watchlist:[],history:[],review:[]},
+ bettingLedger:{bets:[],bankrollCzk:0,unitCzk:0,updatedAt:null},
  debtBook:{items:[],review:[]},
  personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true,notificationMode:'IMPORTANT'},emergencyFile:{contacts:[],assets:[]},
  personalInbox:{items:[]},assetBook:{items:[]},personalGoals:{items:[]},
@@ -46,6 +47,7 @@ export function migrate(input){
  s.xtbReport={czkValue:0,eurValue:0,czkProfit:0,eurProfit:0,...(s.xtbReport||{})};
  s.xtbStrategy={overrides:{},...(s.xtbStrategy||{})};s.xtbStrategy.overrides=s.xtbStrategy.overrides&&typeof s.xtbStrategy.overrides==='object'?s.xtbStrategy.overrides:{};
  s.ticketBook=s.ticketBook||{items:[],watchlist:[],history:[],review:[]};s.ticketBook.items=Array.isArray(s.ticketBook.items)?s.ticketBook.items:[];s.ticketBook.watchlist=Array.isArray(s.ticketBook.watchlist)?s.ticketBook.watchlist:[];
+ s.bettingLedger={bets:[],bankrollCzk:0,unitCzk:0,updatedAt:null,...(s.bettingLedger||{})};s.bettingLedger.bets=Array.isArray(s.bettingLedger.bets)?s.bettingLedger.bets:[];
  s.debtBook=s.debtBook||{items:[],review:[]};s.debtBook.items=Array.isArray(s.debtBook.items)?s.debtBook.items:[];
  s.personalAdmin={items:[],...(s.personalAdmin||{})};s.personalAdmin.items=Array.isArray(s.personalAdmin.items)?s.personalAdmin.items:[];
  s.familyHome={members:[],...(s.familyHome||{})};s.familyHome.members=Array.isArray(s.familyHome.members)?s.familyHome.members:[];
@@ -89,6 +91,8 @@ export function validateState(input){
  const arrays=['tasks','projects','inbox','delegations','audit','undo'];
  for(const k of arrays)if(input[k]!==undefined&&!Array.isArray(input[k]))issues.push(`${k} nebylo pole`);
  if(input.ticketBook!==undefined&&typeof input.ticketBook!=='object')fatal.push('ticketBook má neplatný formát');
+ if(input.bettingLedger!==undefined&&typeof input.bettingLedger!=='object')fatal.push('bettingLedger má neplatný formát');
+ if(input.bettingLedger?.bets!==undefined&&!Array.isArray(input.bettingLedger.bets))issues.push('bettingLedger.bets nebylo pole');
  if(input.debtBook!==undefined&&typeof input.debtBook!=='object')fatal.push('debtBook má neplatný formát');
  if(input.financePlan!==undefined&&typeof input.financePlan!=='object')issues.push('financePlan má neplatný formát');
  if(input.personalAdmin!==undefined&&typeof input.personalAdmin!=='object')issues.push('personalAdmin má neplatný formát');
@@ -113,7 +117,7 @@ export function validateState(input){
  if(input.netWorthBook?.history!==undefined&&!Array.isArray(input.netWorthBook.history))issues.push('netWorthBook.history nebylo pole');
  const ids=new Set(),dupIds=[];
  const scan=(a,label)=>Array.isArray(a)&&a.forEach(x=>{if(x?.id){if(ids.has(x.id))dupIds.push(`${label}:${x.id}`);ids.add(x.id)}});
- scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');scan(input.personalInbox?.items,'personal-inbox');scan(input.assetBook?.items,'asset');scan(input.personalGoals?.items,'goal');scan(input.personalSpending?.transactions,'txn');scan(input.importCenter?.history,'import');scan(input.netWorthBook?.items,'networth');scan(input.netWorthBook?.history,'networth-snapshot');
+ scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.bettingLedger?.bets,'bet');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');scan(input.personalInbox?.items,'personal-inbox');scan(input.assetBook?.items,'asset');scan(input.personalGoals?.items,'goal');scan(input.personalSpending?.transactions,'txn');scan(input.importCenter?.history,'import');scan(input.netWorthBook?.items,'networth');scan(input.netWorthBook?.history,'networth-snapshot');
  if(dupIds.length)issues.push(`Duplicitní ID: ${dupIds.slice(0,5).join(', ')}`);
  return {ok:!fatal.length,issues,fatal};
 }
@@ -121,7 +125,7 @@ export function repairState(input){
  const report=validateState(input),fixed=migrate(input);
  const dedupe=a=>{const seen=new Set();return (Array.isArray(a)?a:[]).filter(x=>{if(!x?.id)return true;if(seen.has(x.id))return false;seen.add(x.id);return true})};
  fixed.tasks=dedupe(fixed.tasks);fixed.projects=dedupe(fixed.projects);
- fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.ticketBook.watchlist=dedupe(fixed.ticketBook.watchlist);fixed.debtBook.items=dedupe(fixed.debtBook.items);
+ fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.ticketBook.watchlist=dedupe(fixed.ticketBook.watchlist);fixed.bettingLedger.bets=dedupe(fixed.bettingLedger.bets);fixed.debtBook.items=dedupe(fixed.debtBook.items);
  fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);fixed.personalGoals.items=dedupe(fixed.personalGoals.items);fixed.personalSpending.transactions=dedupe(fixed.personalSpending.transactions);fixed.importCenter.history=dedupe(fixed.importCenter.history);fixed.netWorthBook.items=dedupe(fixed.netWorthBook.items);fixed.netWorthBook.history=dedupe(fixed.netWorthBook.history);
  return {state:fixed,report};
 }

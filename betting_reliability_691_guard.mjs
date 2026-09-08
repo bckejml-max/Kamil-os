@@ -4,7 +4,7 @@ import {execFileSync} from 'node:child_process';
 
 const read=p=>fs.readFileSync(p,'utf8');
 const syntaxFiles=[
- 'api/market-history.js','lib/browser-chance-model694.js','chance-feeder694.user.js','js/bettingBrowserFeed694.js','js/bettingDomGuard691.js','js/bettingOddsFeed693.js','js/bettingPage144.js','js/bettingBootstrap543.js','js/bettingRequestBudget561.js','js/bettingCommander542.js','js/bettingLedger543.js','js/bettingIntelligence560.js','js/bettingTiming564.js','js/bettingPerformance565.js','js/bettingMissed566.js','js/bettingControl586.js'
+ 'api/market-history.js','api/core70-health.js','lib/browser-chance-model694.js','chance-feeder694.user.js','js/bettingBrowserFeed694.js','js/bettingDomGuard691.js','js/bettingOddsFeed693.js','js/bettingPage144.js','js/bettingBootstrap543.js','js/bettingRequestBudget561.js','js/bettingCommander542.js','js/bettingLedger543.js','js/bettingIntelligence560.js','js/bettingTiming564.js','js/bettingPerformance565.js','js/bettingMissed566.js','js/bettingControl586.js'
 ];
 for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 const observerFiles=['js/bettingRequestBudget561.js','js/bettingCommander542.js','js/bettingIntelligence560.js','js/bettingTiming564.js','js/bettingPerformance565.js','js/bettingMissed566.js','js/bettingControl586.js'];
@@ -15,10 +15,12 @@ const browser=read('js/bettingBrowserFeed694.js');assert.ok(browser.includes('KA
 const user=read('chance-feeder694.user.js');assert.ok(user.includes('@match        https://www.chance.cz/*'),'Chance userscript match missing');assert.ok(user.includes('/rest/offer/'),'Chance offer capture missing');assert.ok(user.includes('chance_browser_model694'),'browser model endpoint missing');assert.ok(user.includes('GM_setValue'),'cross-origin userscript relay storage missing');
 const model=read('lib/browser-chance-model694.js');assert.ok(model.includes('resolveAutoBettingModels'),'browser odds must reuse canonical auto model');assert.ok(model.includes('decorateLedgerSelection'),'browser model must reuse ledger lock logic');
 const backend=read('api/market-history.js');assert.ok(backend.includes("source==='chance_browser_model694'"),'browser model route missing');assert.ok(backend.includes("import('../lib/browser-chance-model694.js')"),'browser model adapter import missing');assert.ok(backend.includes("ODDS_BASE='https://api.odds-api.io/v3'"),'Odds-API fallback missing');
-const feed=read('js/bettingOddsFeed693.js');assert.ok(feed.includes('resetPulseStop()'),'provider fallback must release stale PulseScore STOP state');
+const coreHealth=read('api/core70-health.js');assert.ok(coreHealth.includes('PULSESCORE_UNVERIFIED'),'PulseScore health must expose an unverified state instead of assuming healthy');assert.ok(coreHealth.includes('pulsescore_verified:pulse.verified===true'),'provider verification flag missing from health contract');assert.ok(!coreHealth.includes("return{configured:true,ok:true,status:null,authMode:null,message:null}"),'configured PulseScore must never be assumed healthy without evidence');
+const feed=read('js/bettingOddsFeed693.js');assert.ok(feed.includes('resetPulseStop()'),'provider fallback must release stale PulseScore STOP state');assert.ok(feed.includes("FALLBACK_HEALTH='/api/core70-health'"),'Chance feed must read truthful fallback health');assert.ok(feed.includes('PulseScore BASIC kvóta vyčerpaná'),'Chance UI must surface provider quota exhaustion');
 const budget=read('js/bettingRequestBudget561.js');assert.ok(budget.includes('providerExhausted'),'provider-side quota state missing');
 const timing=read('js/bettingTiming564.js');assert.ok(timing.includes("8*3600000"),'normal autoscan cooldown must be 8h');
 const control=read('js/bettingControl586.js');assert.ok(control.includes("b.sport||'Nezařazeno'"),'unknown sports must stay Nezařazeno');
 const missed=read('js/bettingMissed566.js');assert.ok(missed.includes('freshObservation'),'missed-bet observations must be deduplicated');
-const ledger=read('js/bettingLedger543.js');assert.ok(ledger.includes('kamil:betting-ledger543-updated'),'canonical ledger update event missing');
+const ledger=read('js/bettingLedger543.js');assert.ok(ledger.includes('kamil:betting-ledger543-updated'),'canonical ledger update event missing');assert.ok(ledger.includes("import {store} from './state.js'"),'betting ledger must use the canonical Kamil OS state');assert.ok(ledger.includes('s.bettingLedger=next'),'betting ledger writes must persist into canonical OS state');
+const state=read('js/state.js');assert.ok(state.includes('bettingLedger:{bets:[]'),'canonical state must define bettingLedger');
 console.log('OS695 BETTING RELIABILITY PASS');
