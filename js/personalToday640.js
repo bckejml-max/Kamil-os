@@ -10,7 +10,9 @@ import {personalDailyRhythm651,openDailyClose651} from './personalDailyRhythm651
 import {openPersonalTomorrow653,openPersonalNext7Days653} from './personalTomorrow653.js';
 import {personalMorningLaunch655,openMorningLaunch655} from './personalMorning655.js';
 import {appendTicketBriefing660} from './personalTicketBriefing660.js';
+import {installRuntimeOwnership1100,ownEvent1100,schedule1100,activateDomain1100} from './runtimeOwnership1100.js';
 
+const OWNER='core.personal-today640';
 const LAST_SEEN_KEY='kamil-os-68-last-seen-today';
 const hour=()=>new Date().getHours();
 const greeting=()=>hour()<11?'Dobré ráno.':hour()<18?'Dobré odpoledne.':'Dobrý večer.';
@@ -29,22 +31,34 @@ async function appendSystemHealth684(host){
  try{
   const [sess,cloud,vr,core]=await Promise.all([session(),loadTicketCloud660(),fetch('/api/viagogo-official',{cache:'no-store'}).then(r=>r.json()).catch(()=>({configured:false})),fetch('/api/core70-health',{cache:'no-store'}).then(r=>r.json()).catch(()=>({ok:false}))]);
   const latest=newestMarketStamp(cloud),age=latest===null?null:Math.max(0,(Date.now()-latest)/36e5),issues=[];
-  // Local mode is a supported personal mode; lack of cloud session is not a health failure.
   if(age==null)issues.push(healthPill('warn','Tržní data','zatím bez úspěšné kontroly'));else if(age>24)issues.push(healthPill('warn','Tržní data',`poslední funkční stav před ${Math.round(age)} h`));
   if(!vr?.configured)issues.push(healthPill('warn','Viagogo API','nepřipojeno – používá se omezená záloha'));
   if(core?.ok===false)issues.push(healthPill('bad','Core 70','diagnostika našla chybějící modul'));
   if(!issues.length)return;
   const wrap=document.createElement('section');wrap.className='card os684-health';wrap.innerHTML=`<div class="os684-head"><div><div class="eyebrow">STAV OS · JEN PROBLÉMY</div><b>Něco potřebuje pozornost</b></div><div class="row-actions"><button class="btn" data-os684-inbox>Inbox</button><button class="btn" data-os684-tickets>Vstupenky</button></div></div><div class="os684-pills">${issues.join('')}</div>`;
-  host.querySelector('.ux65-today')?.appendChild(wrap);wrap.querySelector('[data-os684-inbox]')?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'inbox'})));wrap.querySelector('[data-os684-tickets]')?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'tickets'})));
+  host.querySelector('.ux65-today')?.appendChild(wrap);
   window.__KAMIL_TODAY_HEALTH526__={healthy:true,cloudSession:!!sess,localMode:!sess,marketAgeHours:age,issues:issues.length,at:Date.now()};
  }catch{}
 }
-
+function navigate(view){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:view}))}
+async function onTodayClick(host,e){
+ const target=e.target?.closest?.('button,[data-change-target],[data-ux65-action]');if(!target)return;
+ if(target.closest('[data-os684-inbox],[data-inbox-open]')){navigate('inbox');return}
+ if(target.closest('[data-os684-tickets]')){navigate('tickets');return}
+ if(target.closest('[data-waiting-open]')){openPersonalWaiting650();return}
+ if(target.closest('[data-tomorrow-open]')){openPersonalTomorrow653();return}
+ if(target.closest('[data-next7-open]')){openPersonalNext7Days653();return}
+ if(target.closest('[data-daily-close]')){openDailyClose651();return}
+ if(target.closest('[data-morning-open]')){openMorningLaunch655();return}
+ const ask=target.closest('[data-ask]');if(ask){const input=qs('#commandInput');if(input){input.value=ask.dataset.ask;input.focus();qs('#commandGo')?.click()}return}
+ const change=target.closest('[data-change-target]');if(change){navigate(change.dataset.changeTarget);return}
+ const action=target.closest('[data-ux65-action]');if(action){const fresh=personalDailyAssistant650(store.get()).top.find(x=>x.id===action.dataset.ux65Action);if(!fresh)return;await openPersonalAction641(fresh);renderPersonalToday640()}
+}
+function bindHost(host){if(host.dataset.personalTodayDelegated640==='1')return;installRuntimeOwnership1100();activateDomain1100('core',[OWNER]);host.dataset.personalTodayDelegated640='1';ownEvent1100(OWNER,host,'click',e=>{void onTodayClick(host,e)})}
 export function renderPersonalToday640(){
- ensurePersonalVault640();const s=store.get(),d=personalDailyAssistant650(s),rhythm=personalDailyRhythm651(s),morningData=personalMorningLaunch655(s),host=qs('#todayView');if(!host)return;
+ ensurePersonalVault640();const s=store.get(),d=personalDailyAssistant650(s),rhythm=personalDailyRhythm651(s),morningData=personalMorningLaunch655(s),host=qs('#todayView');if(!host)return;bindHost(host);
  const changes=changesSince685(s),late=rhythm.mode==='late',morning=rhythm.mode==='morning',primary=late?(rhythm.urgent[0]||null):d.primary,secondary=late?rhythm.urgent.slice(1,3):d.secondary,headline=late?rhythm.summary:d.headline;
  const quick=late?`<section class="ux65-quick"><button class="btn primary" data-daily-close>Uzavřít den</button><button class="btn" data-inbox-open>Inbox</button></section>`:morning?`<section class="ux65-quick"><button class="btn primary" data-morning-open>Ranní přehled</button><button class="btn" data-inbox-open>Inbox</button></section>`:`<section class="ux65-quick ux66-quick"><button class="btn" data-ask="Co mám dnes řešit?">Co dnes řešit?</button><button class="btn" data-ask="Co mi končí?">Co mi končí?</button><button class="btn" data-ask="Na co čekám?">Na co čekám?</button><button class="btn" data-inbox-open>Inbox</button><button class="btn" data-daily-close>${rhythm.mode==='evening'?'Uzavřít den':'Denní přehled'}</button></section>`;
  host.innerHTML=`<div class="ux64-page ux65-today"><section class="ux64-hero ux65-hero ux66-hero"><div class="eyebrow">DNES · TOP 3</div><h1>${greeting()}</h1><p>${h(headline)}</p></section>${changesHtml685(changes)}${primary?`<section class="ux66-priority"><div class="ux66-section-label">NEJDŘÍV</div>${primaryHtml(primary)}</section>`:`<section class="card ux64-clear ux66-clear"><b>${late?'Dnešek můžeš uzavřít.':'Všechno důležité je teď v pořádku.'}</b><p class="muted">${late?'Neurgentní věci nechávám na zítřek.':'Nemusíš nic spravovat jen proto, že je appka otevřená.'}</p></section>`}${secondary.length?`<section><div class="ux66-section-label">PAK</div><div class="ux66-secondary-grid">${secondary.map(secondaryHtml).join('')}</div></section>`:''}${late?tomorrowPreview(d.tomorrow):morning?morningPreview(morningData):''}<section class="ux65-context ux66-context"><button class="ux65-chip ux66-waiting" data-waiting-open><b>${d.waitingCount}</b><span>Čekám na odpověď</span></button><button class="ux65-chip ux66-tomorrow" data-tomorrow-open><b>${d.tomorrowCount}</b><span>Zítra</span></button><button class="ux65-chip ux66-week" data-next7-open><b>${d.next7Count}</b><span>Do 7 dní</span></button><button class="ux65-chip ux66-done" data-daily-close><b>${rhythm.done}</b><span>Dnes hotovo</span></button></section>${quick}</div>`;
- host.querySelector('[data-waiting-open]')?.addEventListener('click',()=>openPersonalWaiting650());host.querySelectorAll('[data-tomorrow-open]').forEach(b=>b.addEventListener('click',()=>openPersonalTomorrow653()));host.querySelector('[data-next7-open]')?.addEventListener('click',()=>openPersonalNext7Days653());host.querySelectorAll('[data-daily-close]').forEach(b=>b.addEventListener('click',()=>openDailyClose651()));host.querySelectorAll('[data-morning-open]').forEach(b=>b.addEventListener('click',()=>openMorningLaunch655()));host.querySelectorAll('[data-inbox-open]').forEach(b=>b.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'inbox'}))));host.querySelectorAll('[data-ask]').forEach(b=>b.addEventListener('click',()=>{const input=qs('#commandInput');if(input){input.value=b.dataset.ask;input.focus();qs('#commandGo')?.click()}}));host.querySelectorAll('[data-change-target]').forEach(b=>b.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:b.dataset.changeTarget}))));host.querySelectorAll('[data-ux65-action]').forEach(b=>b.addEventListener('click',async()=>{const fresh=personalDailyAssistant650(store.get()).top.find(x=>x.id===b.dataset.ux65Action);if(!fresh)return;await openPersonalAction641(fresh);renderPersonalToday640()}));
- if(morning)appendTicketBriefing660(host).catch(()=>null);appendSystemHealth684(host);setTimeout(()=>{try{localStorage.setItem(LAST_SEEN_KEY,String(Date.now()))}catch{}},1200);if(typeof window!=='undefined')window.__KAMIL_CORE70_TODAY__={at:Date.now(),primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,next7:d.next7Count,doneToday:rhythm.done,mode:rhythm.mode,changesSinceLastVisit:changes.length,inbox:true,selfDiagnostics:true};
+ if(morning)appendTicketBriefing660(host).catch(()=>null);appendSystemHealth684(host);schedule1100(OWNER,'last-seen',()=>{try{localStorage.setItem(LAST_SEEN_KEY,String(Date.now()))}catch{}},1200);if(typeof window!=='undefined')window.__KAMIL_CORE70_TODAY__={at:Date.now(),primary:primary?.title||null,secondary:secondary.map(x=>x.title),waiting:d.waitingCount,tomorrow:d.tomorrowCount,next7:d.next7Count,doneToday:rhythm.done,mode:rhythm.mode,changesSinceLastVisit:changes.length,inbox:true,selfDiagnostics:true};
 }
