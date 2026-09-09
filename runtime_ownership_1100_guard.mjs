@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const read=p=>readFile(new URL(p,import.meta.url),'utf8');
+const runtime=await read('./js/runtimeOwnership1100.js');
+const coordinator=await read('./js/runtimeCoordinator1050.js');
+const mod=await import('./js/runtimeOwnership1100.js');
+for(const token of ['ownEvent1100','ownTimeout1100','scheduleMicrotask1100','cancelScheduled1100','ownObserver1100','runSingleFlight1100','retry1100','beginAction1100','emit1100','disposeOwner1100','disposeDomain1100','activateDomain1100','runtimeSnapshot1100','installRuntimeOwnership1100'])assert.equal(typeof mod[token],'function',`OS1100 missing export ${token}`);
+const snapshot=mod.installRuntimeOwnership1100();
+assert.equal(snapshot.version,'1100.1.0','OS1100 version mismatch');
+assert.equal(snapshot.domains.core.active,true,'OS1100 core domain must activate');
+for(const domain of ['tickets','betting','finance','control'])assert.ok(snapshot.domains[domain],`OS1100 ${domain} domain missing`);
+assert.ok(runtime.includes('__KAMIL_RUNTIME1100__'),'OS1100 global diagnostics API missing');
+assert.ok(runtime.includes("'visibilitychange'"),'OS1100 background pause lifecycle missing');
+assert.ok(runtime.includes('event storm blocked'),'OS1100 event storm guard missing');
+assert.ok(coordinator.includes("['runtimeOwnership1100','./runtimeOwnership1100.js','installRuntimeOwnership1100'"),'OS1050 must install OS1100 before legacy runtime stages');
+assert.equal((runtime.match(/setInterval\s*\(/g)||[]).length,0,'OS1100 must not introduce polling');
+assert.ok((runtime.match(/setTimeout\s*\(/g)||[]).length<=1,'OS1100 scheduler must own at most one timeout primitive');
+console.log('Runtime ownership guard PASS: registry, coalescing, retry, correlation, storm guard, background pause, lifecycle and OS1050 wiring present');
