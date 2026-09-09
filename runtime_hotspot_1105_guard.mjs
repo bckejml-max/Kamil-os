@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const src=await readFile(new URL('./js/bettingTiming564.js',import.meta.url),'utf8');
+assert.ok(src.includes("OWNER='betting.timing564'"),'bettingTiming564 must declare betting.timing564 owner');
+assert.ok(src.includes('installRuntimeOwnership1100'),'bettingTiming564 must install OS1100 ownership');
+assert.ok(src.includes("activateDomain1100('betting',[OWNER])"),'bettingTiming564 must activate betting domain');
+assert.ok(src.includes("schedule1100(OWNER,'refresh-loop'"),'bettingTiming564 recurring refresh must use OS1100 scheduler');
+assert.ok(src.includes("schedule1100(OWNER,'mutation'"),'bettingTiming564 mutation debounce must use OS1100 scheduler');
+assert.equal((src.match(/setInterval\s*\(/g)||[]).length,0,'bettingTiming564 must not use raw setInterval');
+assert.equal((src.match(/setTimeout\s*\(/g)||[]).length,0,'bettingTiming564 must not use raw setTimeout');
+console.log('OS1105 betting timing guard PASS: polling and debounces are OS1100-owned');
