@@ -23,9 +23,13 @@ for(const file of files){
 }
 hotspots.sort((a,b)=>(b.timers+b.intervals+b.listeners+b.mutationObservers+b.resizeObservers)-(a.timers+a.intervals+a.listeners+a.mutationObservers+a.resizeObservers));
 const intervalHotspots=hotspots.filter(row=>row.intervals>0).sort((a,b)=>b.intervals-a.intervals||b.timers-a.timers||a.file.localeCompare(b.file));
-const budgets={timers:401,listeners:780,intervals:41};
-const targets={timers:375,listeners:700,intervals:0};
+const budgets={timers:401,listeners:769,intervals:41};
+const targets={timers:350,listeners:650,intervals:0};
 assert.ok(totals.timers<=budgets.timers,`OS1100 timer budget regression: ${totals.timers} > ${budgets.timers}`);
 assert.ok(totals.listeners<=budgets.listeners,`OS1100 listener budget regression: ${totals.listeners} > ${budgets.listeners}`);
 assert.ok(totals.intervals<=budgets.intervals,`OS1100 interval budget regression: ${totals.intervals} > ${budgets.intervals}`);
-console.log(JSON.stringify({name:'OS1100 runtime inventory',totals,budgets,targets,topHotspots:hotspots.slice(0,20),intervalHotspots},null,2));
+const today=await readFile(new URL('./js/todayLite43.js',root),'utf8');
+assert.equal((today.match(/addEventListener\s*\(/g)||[]).length,0,'OS1110 Today must keep a single delegated click router');
+assert.match(today,/confidenceFor/,'OS1110 Today must expose priority confidence');
+assert.match(today,/whyFor/,'OS1110 Today must explain priority ranking');
+console.log(JSON.stringify({name:'OS1110 runtime inventory',totals,budgets,targets,topHotspots:hotspots.slice(0,20),intervalHotspots},null,2));
