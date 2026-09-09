@@ -23,7 +23,7 @@ for(const file of files){
 }
 hotspots.sort((a,b)=>(b.timers+b.intervals+b.listeners+b.mutationObservers+b.resizeObservers)-(a.timers+a.intervals+a.listeners+a.mutationObservers+a.resizeObservers));
 const intervalHotspots=hotspots.filter(row=>row.intervals>0).sort((a,b)=>b.intervals-a.intervals||b.timers-a.timers||a.file.localeCompare(b.file));
-const budgets={timers:402,listeners:789,intervals:41};
+const budgets={timers:401,listeners:780,intervals:41};
 const targets={timers:375,listeners:700,intervals:0};
 assert.ok(totals.timers<=budgets.timers,`OS1100 timer budget regression: ${totals.timers} > ${budgets.timers}`);
 assert.ok(totals.listeners<=budgets.listeners,`OS1100 listener budget regression: ${totals.listeners} > ${budgets.listeners}`);
