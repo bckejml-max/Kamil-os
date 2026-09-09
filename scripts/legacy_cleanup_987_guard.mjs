@@ -11,6 +11,12 @@ need(boot.includes("import('./legacyCleanup987Boot.js')"),'OS987 bootstrap not w
 need(!/(deleteFile|delete_file|unlinkSync|rmSync|autoMerge:true|autoDeploy:true|placeBet|buyTicket|sellTicket|sendMoney)/.test(c),'OS987 destructive execution pattern detected');
 const gatewayGuards=['operator_717_guard.mjs','operator_truth_737_guard.mjs','data_truth_738_guard.mjs','strategy_788_guard.mjs','strategy_789_guard.mjs','copilot_840_guard.mjs','autonomous_943_guard.mjs','scripts/proposal_review_944_guard.mjs','scripts/safe_change_plan_945_guard.mjs'];
 for(const f of gatewayGuards){const x=read(f);need(x.includes('oneOS977.js'),`${f} must validate OS977 gateway`);need(!x.includes('js/personalMore640.js'),`${f} still depends on legacy More wiring`)}
-const scopedWorkflows=['.github/workflows/os717-operator.yml','.github/workflows/os737-truth.yml','.github/workflows/os738-data-truth.yml','.github/workflows/os788_strategy.yml','.github/workflows/os789-strategy-polish.yml','.github/workflows/os840-copilot-control.yml','.github/workflows/os842-copilot-feedback.yml','.github/workflows/os892-self-improving.yml','.github/workflows/os943-autonomous-proposals.yml','.github/workflows/os944-proposal-review.yml','.github/workflows/os945-safe-change-plan.yml','.github/workflows/os946-preview-pr.yml'];
-for(const f of scopedWorkflows){const x=read(f);need(/pull_request:\s*\n\s+paths:/.test(x),`${f} pull_request is not path-scoped`);need(!x.includes("'js/personalMore640.js'"),`${f} still fans out on personalMore640.js`)}
-console.log('OS987 Legacy Cleanup + CI Modernization guard OK');
+const workflows=fs.readdirSync('.github/workflows').filter(f=>/\.ya?ml$/i.test(f)).sort();
+const canonical=['desktop.yml','os1047-control-operations.yml','os333-browser.yml','qa.yml','vercel-production-333.yml'].sort();
+need(JSON.stringify(workflows)===JSON.stringify(canonical),`OS987 workflow inventory must be canonical five: ${workflows.join(', ')}`);
+const os333=read('.github/workflows/os333-browser.yml');
+for(const token of ['npm run test:release','e2e_legacy_cleanup_987.spec.mjs','e2e_one_os_977.spec.mjs','e2e_one_os_967.spec.mjs','e2e_os947_visual.spec.mjs'])need(os333.includes(token),`OS333 missing migrated legacy coverage ${token}`);
+const control=read('.github/workflows/os1047-control-operations.yml');
+need(control.includes('scripts/control_plane_1037_guard.mjs'),'Unified control workflow must preserve OS1037 guard');
+need(control.includes('scripts/control_operations_1047_guard.mjs'),'Unified control workflow must preserve OS1047 guard');
+console.log('OS987 Legacy Cleanup + canonical five-workflow guard OK');
