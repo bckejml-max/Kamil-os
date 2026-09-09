@@ -9,7 +9,7 @@ assert.ok(files.length>0,'Expected API files to guard');
 const banned=[
   {label:'legacy req.query',re:/\breq\.query\b/},
   {label:'legacy url.parse()',re:/\burl\.parse\s*\(/},
-  {label:'legacy querystring module',re:/\b(?:require\s*\(\s*['"]querystring['"]\s*\)|from\s+['"]querystring['"]) /},
+  {label:'legacy querystring module',re:/\b(?:require\s*\(\s*['"]querystring['"]\s*\)|from\s+['"]querystring['"])\b/},
 ];
 
 const violations=[];
