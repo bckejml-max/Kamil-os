@@ -27,6 +27,15 @@ async function installStep(name,modulePath,exportName,installed){
   return true;
  }catch(error){record(name,'failed',error);console.warn(`[OS1050] ${name} install failed`,error);return false}
 }
+async function stabilizeControlOperations1050(){
+ try{
+  const mod=await import('./controlOperations1047.js');
+  mod.installHealthRibbon1046?.();
+  const ribbon=document.querySelector('[data-os-health-1046],[data-os-health1046]');
+  if(ribbon){ribbon.setAttribute('data-os-health-1046','1');ribbon.removeAttribute('data-os-health1046')}
+  return !!ribbon;
+ }catch(error){record('controlOperationsUi','failed',error);return false}
+}
 export async function runRuntime1050(){
  if(state.complete)return true;
  if(bootPromise)return bootPromise;
@@ -42,7 +51,9 @@ export async function runRuntime1050(){
    ['controlOperations1047','./controlOperations1047.js','installControlOperations1047',()=>globalThis.__KAMIL_CONTROL_OPERATIONS1047__?.installed]
   ];
   for(const step of steps)await installStep(...step);
-  state.complete=steps.every(([name])=>['installed','already-installed'].includes(state.steps[name]?.status));
+  const uiStable=await stabilizeControlOperations1050();
+  record('controlOperationsUi',uiStable?'installed':'failed',uiStable?null:new Error('OS1047 health ribbon host unavailable'));
+  state.complete=steps.every(([name])=>['installed','already-installed'].includes(state.steps[name]?.status))&&uiStable;
   state.running=false;state.completedAt=Date.now();
   globalThis.dispatchEvent?.(new CustomEvent('kamil:runtime1050',{detail:{...state}}));
   return state.complete;
