@@ -14,8 +14,10 @@ function response(){
 
 for(const key of ['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN'])delete process.env[key];
 
+const req={method:'POST',url:'/api/ticket-gmail-sync?mode=tickets',headers:{}};
+Object.defineProperty(req,'query',{get(){throw new Error('ticket-gmail-sync must not access legacy req.query')}});
 const res=response();
-await handler({method:'POST',query:{mode:'tickets'},url:'/api/ticket-gmail-sync?mode=tickets',headers:{}},res);
+await handler(req,res);
 const payload=res.json();
 assert.equal(res.statusCode,200);
 assert.equal(payload.ok,true);
