@@ -1,4 +1,4 @@
-const RUNTIME_COORDINATOR1050_VERSION='1050.1.0';
+const RUNTIME_COORDINATOR1050_VERSION='1050.2.0';
 const state=globalThis.__KAMIL_RUNTIME_COORDINATOR1050__||(globalThis.__KAMIL_RUNTIME_COORDINATOR1050__={version:RUNTIME_COORDINATOR1050_VERSION,scheduled:false,running:false,complete:false,steps:{},errors:[],startedAt:null,completedAt:null});
 let bootPromise=null;
 
@@ -45,6 +45,7 @@ export async function runRuntime1050(){
   await bootBudgetReady();
   const steps=[
    ['runtimeOwnership1100','./runtimeOwnership1100.js','installRuntimeOwnership1100',()=>globalThis.__KAMIL_RUNTIME_OWNERSHIP1100__?.installed],
+   ['runtimeHealth1120','./runtimeHealth1120.js','installRuntimeHealth1120',()=>globalThis.__KAMIL_RUNTIME_HEALTH1120__?.installed],
    ['oneOS967','./oneOS967.js','installOneOS967',()=>globalThis.__KAMIL_ONE_OS967__?.installed],
    ['oneOS977','./oneOS977.js','installOneOS977',()=>globalThis.__KAMIL_ONE_OS977__?.installed],
    ['legacyCleanup987','./legacyCleanup987.js','installLegacyCleanup987',()=>globalThis.__KAMIL_LEGACY_CLEANUP987__?.installed],
@@ -66,4 +67,4 @@ export function scheduleRuntime1050(){
  state.scheduled=true;
  return runRuntime1050();
 }
-export function runtimeHealth1050(){return{version:RUNTIME_COORDINATOR1050_VERSION,scheduled:state.scheduled,running:state.running,complete:state.complete,steps:{...state.steps},errors:[...state.errors],startedAt:state.startedAt,completedAt:state.completedAt,runtimeOwnership:globalThis.__KAMIL_RUNTIME1100__?.snapshot?.()||null}}
+export function runtimeHealth1050(){return{version:RUNTIME_COORDINATOR1050_VERSION,scheduled:state.scheduled,running:state.running,complete:state.complete,steps:{...state.steps},errors:[...state.errors],startedAt:state.startedAt,completedAt:state.completedAt,runtimeOwnership:globalThis.__KAMIL_RUNTIME1100__?.snapshot?.()||null,runtimeHealth:globalThis.__KAMIL_RUNTIME_HEALTH1120_API__?.health?.()||null}}
