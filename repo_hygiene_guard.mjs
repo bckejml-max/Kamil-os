@@ -7,7 +7,10 @@ const workflows=(await readdir(workflowsDir)).filter(f=>/\.ya?ml$/i.test(f)).sor
 const retired=new Set([
   'assistant53.yml','command50.yml','betting691.yml','betting692.yml','os696.yml','os697_today_actions.yml',
   'os717-operator.yml','os717-polish.yml','os737-truth.yml','os738-data-truth.yml','os788_strategy.yml',
-  'os789-strategy-polish.yml','os790-strategy-command.yml'
+  'os789-strategy-polish.yml','os790-strategy-command.yml','os840-copilot-control.yml','os841-copilot-polish.yml',
+  'os842-copilot-feedback.yml','os892-self-improving.yml','os943-autonomous-proposals.yml','os944-proposal-review.yml',
+  'os945-safe-change-plan.yml','os946-preview-pr.yml','os947-visual-rebuild.yml','os967-one-os.yml','os977-consolidation.yml',
+  'os987-legacy-cleanup.yml'
 ]);
 const survivors=workflows.filter(f=>retired.has(f));
 assert.deepEqual(survivors,[],`Retired duplicate workflows returned: ${survivors.join(', ')}`);
@@ -19,7 +22,10 @@ for(const token of [
   'today_priority_696_guard.mjs','today_actions_697_guard.mjs','operator_717_guard.mjs',
   'operator_717_polish_guard.mjs','operator_truth_737_guard.mjs','data_truth_738_guard.mjs',
   'strategy_788_guard.mjs','strategy_789_guard.mjs','strategy_command_790_guard.mjs',
-  'api_runtime_guard.mjs','ticket_gmail_sync_health_guard.mjs'
+  'copilot_840_guard.mjs','copilot_841_guard.mjs','copilot_842_guard.mjs','self_improving_892_guard.mjs',
+  'autonomous_943_guard.mjs','scripts/proposal_review_944_guard.mjs','scripts/safe_change_plan_945_guard.mjs',
+  'scripts/preview_pr_946_guard.mjs','scripts/visual_rebuild_947_guard.mjs','scripts/one_os_967_guard.mjs',
+  'scripts/one_os_977_guard.mjs','scripts/legacy_cleanup_987_guard.mjs','api_runtime_guard.mjs','ticket_gmail_sync_health_guard.mjs'
 ]) assert.ok(release.includes(token),`Canonical release chain missing ${token}`);
 
 const jsDir=new URL('./js/',root);
@@ -31,5 +37,5 @@ for(const name of jsFiles){
   timeouts+=(src.match(/\bsetTimeout\s*\(/g)||[]).length;
   listeners+=(src.match(/\.addEventListener\s*\(/g)||[]).length;
 }
-assert.ok(workflows.length<=30,`Workflow fanout still too high: ${workflows.length} workflows (budget 30)`);
+assert.ok(workflows.length<=15,`Workflow fanout still too high: ${workflows.length} workflows (budget 15)`);
 console.log(`Repo hygiene PASS: ${workflows.length} workflows, ${jsFiles.length} JS modules, timers=${intervals+timeouts}, listeners=${listeners}`);
