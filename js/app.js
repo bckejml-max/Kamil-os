@@ -5,7 +5,10 @@ import {authCooldownSeconds32,authErrorMessage32,authConnectedLabel32} from './a
 import {qs,qsa,toast,modal} from './utils.js';
 import {validViews41,getViewRenderer41,prefetchView41,setMoreMode41,openCapture41,renderCommandResults41,executeCommand41,renderExtras41,refreshRiskBadge41,runPreflight41,scheduleNotifications41,warmRuntime41} from './viewRuntime41.js';
 import {markPerf41,markFirstView41} from './perf41.js';
+import {installRuntimeOwnership1100,ownEvent1100} from './runtimeOwnership1100.js';
 
+const OWNER='core.app41';
+installRuntimeOwnership1100();
 let actionLock=false;
 export async function withActionLock(fn){if(actionLock)return false;actionLock=true;try{return await fn()}finally{setTimeout(()=>{actionLock=false},250)}}
 
@@ -60,21 +63,22 @@ function navigate(v){
  if(viewRevision.get(current)!==stateRevision)scheduleRender();
  void prefetchView41(current);window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:current}));window.scrollTo({top:0,behavior:'auto'});
 }
-qsa('[data-view]').forEach(x=>{
- const warm=()=>{void prefetchView41(x.dataset.view)};
- x.onclick=()=>navigate(x.dataset.view);x.addEventListener('pointerenter',warm,{passive:true});x.addEventListener('pointerdown',warm,{passive:true});x.addEventListener('focus',warm,{passive:true});
-});
-window.addEventListener('kamil:navigate',e=>navigate(e.detail));
-window.addEventListener('kamil:more',async e=>{await setMoreMode41(e.detail);if(current==='more')scheduleRender(true)});
-window.addEventListener('kamil:logout',()=>withActionLock(async()=>{await logout();await handleSession(null)}).catch(error=>warnAction('logout',error)));
-window.addEventListener('kamil:capture',e=>openCapture(e.detail||null).catch(error=>warnAction('capture',error)));
-window.addEventListener('kamil:cloud-login',e=>showLoginView(e.detail?.reason==='recovery'?'Toto zařízení nemá tvoje uložená data. Připoj existující cloudový profil — nejjednodušší je e-mailový odkaz bez hesla.':'Cloud je volitelný. Kamil OS funguje i bez přihlášení.'));
+qsa('[data-view]').forEach(x=>{x.onclick=()=>navigate(x.dataset.view)});
+const warmNav=e=>{const x=e.target?.closest?.('[data-view]');if(x)void prefetchView41(x.dataset.view)};
+ownEvent1100(OWNER,document,'pointerover',warmNav,{passive:true});
+ownEvent1100(OWNER,document,'pointerdown',warmNav,{passive:true});
+ownEvent1100(OWNER,document,'focusin',warmNav,{passive:true});
+ownEvent1100(OWNER,window,'kamil:navigate',e=>navigate(e.detail));
+ownEvent1100(OWNER,window,'kamil:more',async e=>{await setMoreMode41(e.detail);if(current==='more')scheduleRender(true)});
+ownEvent1100(OWNER,window,'kamil:logout',()=>withActionLock(async()=>{await logout();await handleSession(null)}).catch(error=>warnAction('logout',error)));
+ownEvent1100(OWNER,window,'kamil:capture',e=>openCapture(e.detail||null).catch(error=>warnAction('capture',error)));
+ownEvent1100(OWNER,window,'kamil:cloud-login',e=>showLoginView(e.detail?.reason==='recovery'?'Toto zařízení nemá tvoje uložená data. Připoj existující cloudový profil — nejjednodušší je e-mailový odkaz bez hesla.':'Cloud je volitelný. Kamil OS funguje i bez přihlášení.'));
 
 store.subscribe(()=>{stateRevision++;if(document.visibilityState==='visible')scheduleRender();scheduleNotifications41()});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')scheduleNotifications41(0);else if(viewRevision.get(current)!==stateRevision)scheduleRender()});
+ownEvent1100(OWNER,document,'visibilitychange',()=>{if(document.visibilityState==='hidden')scheduleNotifications41(0);else if(viewRevision.get(current)!==stateRevision)scheduleRender()});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
 qs('#logoutBtn').onclick=()=>withActionLock(async()=>{await logout();await handleSession(null)}).catch(error=>warnAction('logout-button',error));
-qs('#quickAddBtn')?.addEventListener('click',()=>openCapture().catch(error=>warnAction('quick-add',error)));
+const quickAdd=qs('#quickAddBtn');if(quickAdd)ownEvent1100(OWNER,quickAdd,'click',()=>openCapture().catch(error=>warnAction('quick-add',error)));
 
 const input=qs('#commandInput');let commandSeq=0,commandTimer=0;
 function renderCommandSafe(value,seq){return renderCommandResults41(value).then(()=>{if(seq!==commandSeq){const next=++commandSeq;return renderCommandResults41(input.value).catch(error=>warnAction('command-refresh',error)).then(()=>next)}}).catch(error=>warnAction('command-results',error))}
@@ -82,12 +86,12 @@ function runCommand(value){const v=String(value||'').trim();if(!v){renderCommand
 input.oninput=()=>{clearTimeout(commandTimer);const seq=++commandSeq,value=input.value;commandTimer=setTimeout(()=>{commandTimer=0;renderCommandSafe(value,seq)},80)};
 input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(commandTimer);const v=input.value;input.value='';runCommand(v)}if(e.key==='Escape'){clearTimeout(commandTimer);input.value='';commandSeq++;renderCommandResults41('').catch(()=>{});input.blur()}};
 qs('#commandGo').onclick=()=>{clearTimeout(commandTimer);const v=input.value;input.value='';runCommand(v)};
-document.addEventListener('keydown',e=>{
+ownEvent1100(OWNER,document,'keydown',e=>{
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();input.focus();input.select();import('./command.js').catch(()=>{})}
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='n'){e.preventDefault();openCapture().catch(error=>warnAction('shortcut-add',error))}
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)){e.preventDefault();if(!store.undo())toast('Není co vrátit')}
 });
-document.addEventListener('click',e=>{if(!e.target.closest('.command-wrap')&&input.value)renderCommandResults41('').catch(()=>{})});
+ownEvent1100(OWNER,document,'click',e=>{if(!e.target.closest('.command-wrap')&&input.value)renderCommandResults41('').catch(()=>{})});
 
 onSyncStatus((s,detail)=>{const el=qs('#syncStatus');if(!el)return;el.className='sync '+(s==='ok'?'ok':s);el.innerHTML=`<i></i> ${s==='ok'?'Cloud • Uloženo':s==='saving'?'Cloud • Ukládám…':s==='offline'?'Offline – uložím později':s==='conflict'?'Konflikt dat':'Cloud'}`;el.onclick=null;el.onkeydown=null;el.removeAttribute('role');el.removeAttribute('tabindex');el.style.cursor='default';if(detail)el.title=detail});
 function setCloudConnectedStatus(sess,result={}){const el=qs('#syncStatus');if(!el||!sess)return;const x=authConnectedLabel32({email:sess.user?.email,lastCloudAt:result.updatedAt||store.meta().lastCloudAt});el.className='sync ok';el.innerHTML=`<i></i> ${x.short}`;el.title=x.detail}
@@ -118,7 +122,7 @@ async function startAuthWatch(){stopAuthWatch();stopAuthWatch=await watchAuth((e
 qs('#magicLinkBtn').onclick=async()=>{const email=qs('#loginEmail').value.trim(),msg=qs('#authMessage'),left=authCooldownSeconds32(store.meta().lastMagicLinkAt);if(left){msg.textContent=`Už jsem odkaz poslal. Použij nejnovější e-mail nebo počkej ${left} s.`;authCooldownRender();return}if(!email){msg.textContent='Nejdřív napiš e-mail cloudového účtu.';qs('#loginEmail').focus();return}store.setMeta({lastCloudEmail:email});msg.textContent='Posílám přihlašovací odkaz…';qs('#magicLinkBtn').disabled=true;try{const {error}=await sendMagicLink(email);if(error){if(error.status===429||String(error.message||'').toLowerCase().includes('rate limit'))store.setMeta({lastMagicLinkAt:new Date().toISOString()});msg.textContent=authErrorMessage32(error)}else{store.setMeta({lastMagicLinkAt:new Date().toISOString()});msg.textContent='Hotovo. Otevři vždy nejnovější e-mail. Odkaz tě vrátí na stabilní Kamil OS a načte cloudová data.'}}catch(error){msg.textContent=authErrorMessage32(error)}authCooldownRender()};
 qs('#loginBtn').onclick=async()=>{const email=qs('#loginEmail').value.trim(),password=qs('#loginPassword').value,msg=qs('#authMessage');if(!email||!password){msg.textContent='Pro přihlášení heslem vyplň e-mail i heslo. Nebo použij přihlašovací odkaz bez hesla.';return}store.setMeta({lastCloudEmail:email});msg.textContent='Připojuji cloud…';try{const {data,error}=await login(email,password);if(error){msg.textContent=authErrorMessage32(error);return}msg.textContent='';await handleSession(data?.session||await session());await startAuthWatch()}catch(error){msg.textContent=authErrorMessage32(error)}};
 qs('#loginPassword').onkeydown=e=>{if(e.key==='Enter')qs('#loginBtn').click()};
-qs('#skipLoginBtn')?.addEventListener('click',async()=>{recoveryMode=false;await handleSession(await session())});
+const skipLogin=qs('#skipLoginBtn');if(skipLogin)ownEvent1100(OWNER,skipLogin,'click',async()=>{recoveryMode=false;await handleSession(await session())});
 qs('#forgotPasswordBtn').onclick=async()=>{const email=qs('#loginEmail').value.trim(),msg=qs('#authMessage'),left=authCooldownSeconds32(store.meta().lastPasswordResetAt);if(left){msg.textContent=`Reset už byl odeslaný. Použij nejnovější e-mail nebo počkej ${left} s.`;authCooldownRender();return}if(!email){msg.textContent='Nejdřív napiš e-mail, na který mám poslat reset.';qs('#loginEmail').focus();return}store.setMeta({lastCloudEmail:email});msg.textContent='Posílám resetovací odkaz…';qs('#forgotPasswordBtn').disabled=true;try{const {error}=await sendPasswordReset(email);if(error){if(error.status===429||String(error.message||'').toLowerCase().includes('rate limit'))store.setMeta({lastPasswordResetAt:new Date().toISOString()});msg.textContent=authErrorMessage32(error)}else{store.setMeta({lastPasswordResetAt:new Date().toISOString()});msg.textContent='Hotovo. Otevři nejnovější resetovací e-mail; vrátí se na stabilní Kamil OS adresu.'}}catch(error){msg.textContent=authErrorMessage32(error)}authCooldownRender()};
 qs('#setPasswordBtn').onclick=async()=>{const p1=qs('#resetPassword1').value,p2=qs('#resetPassword2').value,msg=qs('#resetMessage');if(p1.length<8){msg.textContent='Heslo musí mít alespoň 8 znaků.';return}if(p1!==p2){msg.textContent='Hesla se neshodují.';return}msg.textContent='Ukládám nové heslo…';const {error}=await updatePassword(p1);if(error){msg.textContent=authErrorMessage32(error);return}msg.textContent='Cloudové heslo změněno.';recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search.replace(/([?&])type=recovery(&|$)/,'$1').replace(/[?&]$/,''));await handleSession(await session());await startAuthWatch()};
 qs('#resetPassword2').onkeydown=e=>{if(e.key==='Enter')qs('#setPasswordBtn').click()};
@@ -129,5 +133,5 @@ const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
 if(hashParams.get('error')){recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search);toast(hashParams.get('error_code')==='otp_expired'?'Přihlašovací/resetovací odkaz vypršel. Pošli si nový a otevři vždy nejnovější e-mail.':'Cloudové přihlášení se nepodařilo. Kamil OS běží lokálně.');await handleSession(await session())}else if(recoveryMode){await session();showResetView();await startAuthWatch()}else{const sess=await session();if(sess){await handleSession(sess);await startAuthWatch()}else{store.get().meta.cloudMode='local';schedulePreflight();markPerf41('session-check-complete')}}
 
 if('serviceWorker'in navigator){try{const reg=await (window.__KAMIL_SW_PROMISE__||(window.__KAMIL_SW_PROMISE__=navigator.serviceWorker.register('./sw.js')));if(reg){reg.addEventListener('updatefound',()=>{const w=reg.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)qs('#updateBanner').classList.remove('hidden')})});qs('#reloadAppBtn').onclick=()=>location.reload()}}catch(error){console.warn('[app41:service-worker]',error)}}
-window.addEventListener('beforeunload',()=>{if(store.dirty){store.queueSync(store.get());store.setMeta({pendingAt:new Date().toISOString()})}});
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();window.__installPrompt=e});
+ownEvent1100(OWNER,window,'beforeunload',()=>{if(store.dirty){store.queueSync(store.get());store.setMeta({pendingAt:new Date().toISOString()})}});
+ownEvent1100(OWNER,window,'beforeinstallprompt',e=>{e.preventDefault();window.__installPrompt=e});
