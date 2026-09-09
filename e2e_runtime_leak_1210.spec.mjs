@@ -5,20 +5,22 @@ test('OS1210 survives 20 navigation cycles without runtime ownership leaks',asyn
  await page.waitForFunction(()=>window.__KAMIL_RUNTIME_COORDINATOR1050__?.complete===true&&window.__KAMIL_RUNTIME_LEAK1210_API__?.begin,{timeout:20000});
  const sequence=['today','tickets','betting','money','today'];
  // Warm every lazy view once. Some legacy-compatible view layers intentionally
- // complete their first-load settle passes as late as ~2.6 s, so the baseline
- // must be taken after that one-time hydration window, not during it.
+ // complete their first-load settle passes asynchronously, so the baseline must
+ // be taken only after Money 2.0 confirms that its own canonical model rendered.
  for(const view of sequence){
   await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
   await page.waitForTimeout(100);
  }
- await page.waitForTimeout(3200);
- // One short confirmation cycle after late settle passes makes the baseline
+ await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'money'})));
+ await page.waitForFunction(()=>window.__KAMIL_MONEY_HUB680__?.healthy===true&&document.querySelector('#moneyView [data-money-hub680]'),{timeout:15000});
+ await page.waitForTimeout(400);
+ // One short confirmation cycle after all lazy modules are ready makes the baseline
  // represent steady-state navigation while preserving tight leak tolerances.
  for(const view of sequence){
   await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
-  await page.waitForTimeout(50);
+  await page.waitForTimeout(60);
  }
- await page.waitForTimeout(200);
+ await page.waitForTimeout(300);
  const before=await page.evaluate(()=>window.__KAMIL_RUNTIME_LEAK1210_API__.begin('20-cycle-navigation-steady-state'));
  for(let cycle=0;cycle<20;cycle++)for(const view of sequence){
   await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
