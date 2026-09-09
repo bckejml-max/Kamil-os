@@ -1,0 +1,10 @@
+import {store} from './state.js';
+import {linkGraph1150} from './linkGraph1150.js';
+
+const VERSION='1170.0.0';
+const A=v=>Array.isArray(v)?v:[];
+const timeOf=x=>x?.updatedAt||x?.completedAt||x?.resolvedAt||x?.createdAt||x?.created_at||x?.at||x?.date||x?.start||x?.when||null;
+const titleOf=x=>String(x?.title||x?.name||x?.subject||x?.event_name||x?.summary||'Položka');
+function push(out,kind,rows,extra={}){A(rows).forEach((x,i)=>{const at=timeOf(x),ts=Date.parse(at||'');out.push({kind,id:String(x?.id||i),title:titleOf(x),at:Number.isFinite(ts)?new Date(ts).toISOString():null,ts:Number.isFinite(ts)?ts:0,status:String(x?.status||x?.workflow||''),route:extra.route||kind,detail:String(x?.notes||x?.note||x?.description||x?.summary||'').slice(0,220)})})}
+export function universalTimeline1170(s=store.get(),{limit=120}={}){const rows=[];push(rows,'task',s.tasks,{route:'today'});push(rows,'inbox',s.personalInbox?.items,{route:'inbox'});push(rows,'waiting',s.delegations,{route:'today'});push(rows,'admin',s.personalAdmin?.items,{route:'home'});push(rows,'ticket',s.ticketBook?.items,{route:'tickets'});push(rows,'calendar',s.calendar?.events,{route:'today'});push(rows,'investment',s.investments||s.investmentPlan?.items,{route:'money'});rows.sort((a,b)=>b.ts-a.ts||a.title.localeCompare(b.title,'cs'));const graph=linkGraph1150(s),links=new Map();for(const link of graph.links){for(const side of ['a','b']){const x=link[side],key=`${x.kind}:${x.id}`,arr=links.get(key)||[];arr.push({score:link.score,other:link[side==='a'?'b':'a']});links.set(key,arr)}}const enriched=rows.slice(0,Math.max(1,Number(limit)||120)).map(x=>({...x,links:links.get(`${x.kind}:${x.id}`)||[]}));return{version:VERSION,count:rows.length,linked:enriched.filter(x=>x.links.length).length,latest:enriched[0]||null,rows:enriched,generatedAt:new Date().toISOString()}}
+export function installUniversalTimeline1170(){globalThis.__KAMIL_TIMELINE1170_API__={snapshot:universalTimeline1170};globalThis.__KAMIL_TIMELINE1170__=universalTimeline1170();return globalThis.__KAMIL_TIMELINE1170__}

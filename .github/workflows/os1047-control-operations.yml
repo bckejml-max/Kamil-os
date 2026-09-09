@@ -9,9 +9,13 @@ on:
       - 'js/runtimeCoordinator1050.js'
       - 'js/runtimeOwnership1100.js'
       - 'js/runtimeHealth1120.js'
+      - 'js/runtimeLeak1210.js'
+      - 'js/performanceBudget1220.js'
+      - 'js/viewLifecycle1230.js'
       - 'js/decisionCore1140.js'
       - 'js/linkGraph1150.js'
       - 'js/waitingIntelligence1160.js'
+      - 'js/universalTimeline1170.js'
       - 'js/financeRisk1180.js'
       - 'js/runtimeHealthUi1200.js'
       - 'js/oneOS967Boot.js'
@@ -27,6 +31,7 @@ on:
       - 'e2e_control_operations_1047.spec.mjs'
       - 'e2e_runtime_coordinator_1050.spec.mjs'
       - 'e2e_os1200_health.spec.mjs'
+      - 'e2e_runtime_leak_1210.spec.mjs'
       - '.github/workflows/os1047-control-operations.yml'
   push:
     branches: [main]
@@ -38,9 +43,13 @@ on:
       - 'js/runtimeCoordinator1050.js'
       - 'js/runtimeOwnership1100.js'
       - 'js/runtimeHealth1120.js'
+      - 'js/runtimeLeak1210.js'
+      - 'js/performanceBudget1220.js'
+      - 'js/viewLifecycle1230.js'
       - 'js/decisionCore1140.js'
       - 'js/linkGraph1150.js'
       - 'js/waitingIntelligence1160.js'
+      - 'js/universalTimeline1170.js'
       - 'js/financeRisk1180.js'
       - 'js/runtimeHealthUi1200.js'
       - 'js/oneOS967Boot.js'
@@ -52,6 +61,7 @@ on:
       - 'scripts/control_plane_1037_guard.mjs'
       - 'scripts/control_operations_1047_guard.mjs'
       - 'e2e_os1200_health.spec.mjs'
+      - 'e2e_runtime_leak_1210.spec.mjs'
       - '.github/workflows/os1047-control-operations.yml'
   workflow_dispatch:
 jobs:
@@ -67,15 +77,20 @@ jobs:
           node --check js/runtimeCoordinator1050.js
           node --check js/runtimeOwnership1100.js
           node --check js/runtimeHealth1120.js
+          node --check js/runtimeLeak1210.js
+          node --check js/performanceBudget1220.js
+          node --check js/viewLifecycle1230.js
           node --check js/decisionCore1140.js
           node --check js/linkGraph1150.js
           node --check js/waitingIntelligence1160.js
+          node --check js/universalTimeline1170.js
           node --check js/financeRisk1180.js
           node --check js/runtimeHealthUi1200.js
           node --check runtime_boot_guard.mjs
           node --check runtime_inventory_1100_guard.mjs
           node --check e2e_runtime_coordinator_1050.spec.mjs
           node --check e2e_os1200_health.spec.mjs
+          node --check e2e_runtime_leak_1210.spec.mjs
       - name: Control Plane and Operations contracts
         run: |
           node runtime_boot_guard.mjs
@@ -94,7 +109,7 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-control-http.log 2>&1 &
           SERVER_PID=$!
           set +e
-          npx playwright test e2e_runtime_coordinator_1050.spec.mjs e2e_os1200_health.spec.mjs e2e_control_operations_1047.spec.mjs e2e_control_plane_1037.spec.mjs e2e_legacy_cleanup_987.spec.mjs e2e_one_os_977.spec.mjs e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=json > control-playwright.json
+          npx playwright test e2e_runtime_coordinator_1050.spec.mjs e2e_os1200_health.spec.mjs e2e_runtime_leak_1210.spec.mjs e2e_control_operations_1047.spec.mjs e2e_control_plane_1037.spec.mjs e2e_legacy_cleanup_987.spec.mjs e2e_one_os_977.spec.mjs e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=json > control-playwright.json
           CODE=$?
           kill $SERVER_PID || true
           set -e

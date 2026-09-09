@@ -1,4 +1,4 @@
-const RUNTIME_COORDINATOR1050_VERSION='1050.3.0';
+const RUNTIME_COORDINATOR1050_VERSION='1050.4.0';
 const state=globalThis.__KAMIL_RUNTIME_COORDINATOR1050__||(globalThis.__KAMIL_RUNTIME_COORDINATOR1050__={version:RUNTIME_COORDINATOR1050_VERSION,scheduled:false,running:false,complete:false,steps:{},errors:[],startedAt:null,completedAt:null});
 let bootPromise=null;
 
@@ -46,9 +46,13 @@ export async function runRuntime1050(){
   const steps=[
    ['runtimeOwnership1100','./runtimeOwnership1100.js','installRuntimeOwnership1100',()=>globalThis.__KAMIL_RUNTIME_OWNERSHIP1100__?.installed],
    ['runtimeHealth1120','./runtimeHealth1120.js','installRuntimeHealth1120',()=>globalThis.__KAMIL_RUNTIME_HEALTH1120__?.installed],
+   ['runtimeLeak1210','./runtimeLeak1210.js','installRuntimeLeak1210',()=>!!globalThis.__KAMIL_RUNTIME_LEAK1210_API__],
+   ['performanceBudget1220','./performanceBudget1220.js','installPerformanceBudget1220',()=>globalThis.__KAMIL_PERF_BUDGET1220__?.installed===true],
+   ['viewLifecycle1230','./viewLifecycle1230.js','installViewLifecycle1230',()=>globalThis.__KAMIL_VIEW_LIFECYCLE1230__?.installed===true],
    ['decisionCore1140','./decisionCore1140.js','installDecisionCore1140',()=>globalThis.__KAMIL_DECISION1140_INSTALLED__===true],
    ['linkGraph1150','./linkGraph1150.js','installLinkGraph1150',()=>!!globalThis.__KAMIL_LINK_GRAPH1150_API__],
    ['waitingIntelligence1160','./waitingIntelligence1160.js','installWaitingIntelligence1160',()=>!!globalThis.__KAMIL_WAITING1160_API__],
+   ['universalTimeline1170','./universalTimeline1170.js','installUniversalTimeline1170',()=>!!globalThis.__KAMIL_TIMELINE1170_API__],
    ['financeRisk1180','./financeRisk1180.js','installFinanceRisk1180',()=>!!globalThis.__KAMIL_FINANCE_RISK1180_API__],
    ['oneOS967','./oneOS967.js','installOneOS967',()=>globalThis.__KAMIL_ONE_OS967__?.installed],
    ['oneOS977','./oneOS977.js','installOneOS977',()=>globalThis.__KAMIL_ONE_OS977__?.installed],
@@ -72,4 +76,4 @@ export function scheduleRuntime1050(){
  state.scheduled=true;
  return runRuntime1050();
 }
-export function runtimeHealth1050(){return{version:RUNTIME_COORDINATOR1050_VERSION,scheduled:state.scheduled,running:state.running,complete:state.complete,steps:{...state.steps},errors:[...state.errors],startedAt:state.startedAt,completedAt:state.completedAt,runtimeOwnership:globalThis.__KAMIL_RUNTIME1100__?.snapshot?.()||null,runtimeHealth:globalThis.__KAMIL_RUNTIME_HEALTH1120_API__?.health?.()||null,decision:globalThis.__KAMIL_DECISION1140__||null,linkGraph:globalThis.__KAMIL_LINK_GRAPH1150__||null,waiting:globalThis.__KAMIL_WAITING1160__||null,financeRisk:globalThis.__KAMIL_FINANCE_RISK1180__||null}}
+export function runtimeHealth1050(){return{version:RUNTIME_COORDINATOR1050_VERSION,scheduled:state.scheduled,running:state.running,complete:state.complete,steps:{...state.steps},errors:[...state.errors],startedAt:state.startedAt,completedAt:state.completedAt,runtimeOwnership:globalThis.__KAMIL_RUNTIME1100__?.snapshot?.()||null,runtimeHealth:globalThis.__KAMIL_RUNTIME_HEALTH1120_API__?.health?.()||null,runtimeLeak:globalThis.__KAMIL_RUNTIME_LEAK1210_API__?.snapshot?.()||null,performance:globalThis.__KAMIL_PERF_BUDGET1220_API__?.snapshot?.()||null,viewLifecycle:globalThis.__KAMIL_VIEW_LIFECYCLE1230_API__?.snapshot?.()||null,decision:globalThis.__KAMIL_DECISION1140__||null,linkGraph:globalThis.__KAMIL_LINK_GRAPH1150__||null,waiting:globalThis.__KAMIL_WAITING1160__||null,timeline:globalThis.__KAMIL_TIMELINE1170__||null,financeRisk:globalThis.__KAMIL_FINANCE_RISK1180__||null}}
