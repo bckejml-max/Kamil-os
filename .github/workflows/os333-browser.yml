@@ -20,7 +20,9 @@ jobs:
       - name: Canonical domain syntax
         run: |
           node --check api/ticket-gmail-sync.js
+          node --check api/market-history.js
           node --check api_runtime_guard.mjs
+          node --check repo_hygiene_guard.mjs
           node --check js/domainOS328.js
           node --check js/focusRadar334.js
           node --check js/focusQueue335.js
@@ -42,6 +44,8 @@ jobs:
           node --check js/investmentBattle480.js
           node --check js/managerDeadlines481.js
           node --check js/morningDirector483.js
+          node --check e2e_assistant_53_0.spec.mjs
+          node --check e2e_command_50_0.spec.mjs
           node --check e2e_os343_boot_budget.spec.mjs
           node --check e2e_os344_lazy_shell.spec.mjs
           node --check e2e_os345_deferred_boot.spec.mjs
@@ -85,7 +89,7 @@ jobs:
           node ticket_opportunity_198_test.mjs
           node ux_foundation_238_test.mjs
           node production_chrome_228_test.mjs
-      - name: OS333+ release guard
+      - name: OS333+ canonical release guard
         run: npm run test:release
       - name: OS338 ticket renderer ownership
         run: node ticket_flicker_338_test.mjs
@@ -101,4 +105,4 @@ jobs:
       - name: OS347 isolated critical-path performance gate
         run: npx playwright test e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
       - name: Canonical and migrated browser smoke
-        run: npx playwright test e2e_os181_current_smoke.spec.mjs e2e_os212_compact_navigation.spec.mjs e2e_os228_production_chrome.spec.mjs e2e_os238_ux_foundation.spec.mjs e2e_os278_megarelease.spec.mjs e2e_os298_operator.spec.mjs e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs e2e_os345_deferred_boot.spec.mjs e2e_os346_ticket_on_demand.spec.mjs e2e_os348_workspace_retirement.spec.mjs e2e_os349_manager_focus.spec.mjs e2e_os361_ticket_longlist.spec.mjs e2e_os467_command_center.spec.mjs e2e_os468_cashflow.spec.mjs e2e_os469_capital_plan.spec.mjs e2e_os470_free_cash_forecast.spec.mjs e2e_os472_property_decision.spec.mjs e2e_os480_investment_battle.spec.mjs e2e_os481_manager_deadlines.spec.mjs e2e_os483_morning_director.spec.mjs --reporter=line
+        run: npx playwright test e2e_assistant_53_0.spec.mjs e2e_command_50_0.spec.mjs e2e_os181_current_smoke.spec.mjs e2e_os212_compact_navigation.spec.mjs e2e_os228_production_chrome.spec.mjs e2e_os238_ux_foundation.spec.mjs e2e_os278_megarelease.spec.mjs e2e_os298_operator.spec.mjs e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs e2e_os345_deferred_boot.spec.mjs e2e_os346_ticket_on_demand.spec.mjs e2e_os348_workspace_retirement.spec.mjs e2e_os349_manager_focus.spec.mjs e2e_os361_ticket_longlist.spec.mjs e2e_os467_command_center.spec.mjs e2e_os468_cashflow.spec.mjs e2e_os469_capital_plan.spec.mjs e2e_os470_free_cash_forecast.spec.mjs e2e_os472_property_decision.spec.mjs e2e_os480_investment_battle.spec.mjs e2e_os481_manager_deadlines.spec.mjs e2e_os483_morning_director.spec.mjs --reporter=line
