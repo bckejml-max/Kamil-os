@@ -6,11 +6,13 @@ test('OS1210 survives 20 navigation cycles without runtime ownership leaks',asyn
  const sequence=['today','tickets','betting','money','today'];
  // Warm every lazy view once. Some legacy-compatible view layers intentionally
  // complete their first-load settle passes asynchronously, so the baseline must
- // be taken only after Money 2.0 confirms that its own canonical model rendered.
+ // be taken only after canonical Money and Betting boot paths are confirmed ready.
  for(const view of sequence){
   await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
   await page.waitForTimeout(100);
  }
+ await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'betting'})));
+ await page.waitForFunction(()=>window.__KAMIL_BETTING_BOOTSTRAP543__?.healthy===true,{timeout:20000});
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'money'})));
  await page.waitForFunction(()=>window.__KAMIL_MONEY_HUB680__?.healthy===true&&document.querySelector('#moneyView [data-money-hub680]'),{timeout:15000});
  await page.waitForTimeout(400);
