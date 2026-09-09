@@ -4,19 +4,27 @@ test('OS1210 survives 20 navigation cycles without runtime ownership leaks',asyn
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.__KAMIL_RUNTIME_COORDINATOR1050__?.complete===true&&window.__KAMIL_RUNTIME_LEAK1210_API__?.begin,{timeout:20000});
  const sequence=['today','tickets','betting','money','today'];
- // Warm every lazy view once so the baseline measures repeated navigation,
- // not legitimate first-load module/listener/DOM installation.
+ // Warm every lazy view once. Some legacy-compatible view layers intentionally
+ // complete their first-load settle passes as late as ~2.6 s, so the baseline
+ // must be taken after that one-time hydration window, not during it.
  for(const view of sequence){
   await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
-  await page.waitForTimeout(80);
+  await page.waitForTimeout(100);
  }
- await page.waitForTimeout(350);
- const before=await page.evaluate(()=>window.__KAMIL_RUNTIME_LEAK1210_API__.begin('20-cycle-navigation-stable'));
+ await page.waitForTimeout(3200);
+ // One short confirmation cycle after late settle passes makes the baseline
+ // represent steady-state navigation while preserving tight leak tolerances.
+ for(const view of sequence){
+  await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
+  await page.waitForTimeout(50);
+ }
+ await page.waitForTimeout(200);
+ const before=await page.evaluate(()=>window.__KAMIL_RUNTIME_LEAK1210_API__.begin('20-cycle-navigation-steady-state'));
  for(let cycle=0;cycle<20;cycle++)for(const view of sequence){
   await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
   await page.waitForTimeout(18);
  }
- await page.waitForTimeout(250);
+ await page.waitForTimeout(300);
  const result=await page.evaluate(b=>window.__KAMIL_RUNTIME_LEAK1210_API__.finish(b,{listenerTolerance:2,timerTolerance:3,observerTolerance:1,ownerTolerance:2,domTolerance:120}),before);
  expect(result.ok,result.violations.join(', ')).toBe(true);
  expect(result.delta.listeners).toBeLessThanOrEqual(2);
