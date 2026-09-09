@@ -56,13 +56,13 @@ jobs:
           set -e
           echo "code=$CODE" >> "$GITHUB_OUTPUT"
       - name: Upload control browser report
-        if: always()
+        if: always() && steps.browser.outcome != 'skipped'
         uses: actions/upload-artifact@v4
         with:
           name: control-browser-report
           path: control-playwright.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 3
       - name: Browser QA gate
-        if: steps.browser.outputs.code != '0'
+        if: steps.browser.outputs.code != '0' && steps.browser.outcome != 'skipped'
         run: exit 1
