@@ -16,7 +16,7 @@ function settleFromScore(bet,fixture){
  if(market==='MATCH_RESULT'||market==='MATCH_ODDS'){
   if(sel.includes('HOME')||sel.includes('DOM')||sel.includes('1'))return hg>ag?'WIN':'LOSS';
   if(sel.includes('DRAW')||sel.includes('REM')||sel==='X')return hg===ag?'WIN':'LOSS';
-  if(sel.includes('AWAY')||sel.includes('HOST'))return ag>hg?'WIN':'LOSS';
+  if(sel.includes('AWAY')||sel.includes('HOST')||sel.includes('2'))return ag>hg?'WIN':'LOSS';
  }
  if(market==='BOTH_TEAMS_TO_SCORE'){
   const yes=hg>0&&ag>0;if(sel.includes('YES')||sel.includes('ANO'))return yes?'WIN':'LOSS';if(sel.includes('NO')||sel.includes('NE'))return !yes?'WIN':'LOSS';
