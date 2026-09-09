@@ -27,7 +27,7 @@ assert.deepEqual(workflows.filter(f=>retired.has(f)),[],`Retired duplicate workf
 const pkg=JSON.parse(await readFile(new URL('./package.json',root),'utf8'));
 const release=String(pkg.scripts?.['test:release']||'');
 for(const token of [
-  'assistant_53_static_test.mjs','command_50_static_test.mjs','betting_reliability_691_guard.mjs',
+  'runtime_boot_guard.mjs','assistant_53_static_test.mjs','command_50_static_test.mjs','betting_reliability_691_guard.mjs',
   'today_priority_696_guard.mjs','today_actions_697_guard.mjs','operator_717_guard.mjs',
   'operator_717_polish_guard.mjs','operator_truth_737_guard.mjs','data_truth_738_guard.mjs',
   'strategy_788_guard.mjs','strategy_789_guard.mjs','strategy_command_790_guard.mjs',
