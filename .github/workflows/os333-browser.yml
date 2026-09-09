@@ -19,6 +19,8 @@ jobs:
         run: npm ci
       - name: Canonical domain syntax
         run: |
+          node --check api/ticket-gmail-sync.js
+          node --check api_runtime_guard.mjs
           node --check js/domainOS328.js
           node --check js/focusRadar334.js
           node --check js/focusQueue335.js
@@ -56,6 +58,33 @@ jobs:
           node --check e2e_os480_investment_battle.spec.mjs
           node --check e2e_os481_manager_deadlines.spec.mjs
           node --check e2e_os483_morning_director.spec.mjs
+      - name: Consolidated legacy contract syntax
+        run: |
+          node --check js/appWorkspace211.js
+          node --check js/app.js
+          node --check js/ticketWorkspace210.js
+          node --check js/compactNavigation212.js
+          node --check js/productionChrome228.js
+          node --check js/uxFoundation238.js
+          node --check js/dailyCommander248.js
+          node --check js/financeCommand258.js
+          node --check js/ticketCommand268.js
+          node --check js/managerAutopilot278.js
+          node --check js/lifeOperator298.js
+          node --check js/operatorHome299.js
+          node --check js/ticketPayoutLearningModel192.js
+          node --check js/ticketOpportunityModel198.js
+      - name: Consolidated legacy regression guards
+        run: |
+          node app_workspace_211_test.mjs
+          node ticket_workspace_210_test.mjs
+          node compact_navigation_212_test.mjs
+          node mega_278_test.mjs
+          node mega_298_test.mjs
+          node ticket_payout_learning_192_test.mjs
+          node ticket_opportunity_198_test.mjs
+          node ux_foundation_238_test.mjs
+          node production_chrome_228_test.mjs
       - name: OS333+ release guard
         run: npm run test:release
       - name: OS338 ticket renderer ownership
@@ -71,5 +100,5 @@ jobs:
           exit 1
       - name: OS347 isolated critical-path performance gate
         run: npx playwright test e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
-      - name: OS333 through OS483 functional browser smoke
-        run: npx playwright test e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs e2e_os345_deferred_boot.spec.mjs e2e_os346_ticket_on_demand.spec.mjs e2e_os348_workspace_retirement.spec.mjs e2e_os349_manager_focus.spec.mjs e2e_os361_ticket_longlist.spec.mjs e2e_os467_command_center.spec.mjs e2e_os468_cashflow.spec.mjs e2e_os469_capital_plan.spec.mjs e2e_os470_free_cash_forecast.spec.mjs e2e_os472_property_decision.spec.mjs e2e_os480_investment_battle.spec.mjs e2e_os481_manager_deadlines.spec.mjs e2e_os483_morning_director.spec.mjs --reporter=line
+      - name: Canonical and migrated browser smoke
+        run: npx playwright test e2e_os181_current_smoke.spec.mjs e2e_os212_compact_navigation.spec.mjs e2e_os228_production_chrome.spec.mjs e2e_os238_ux_foundation.spec.mjs e2e_os278_megarelease.spec.mjs e2e_os298_operator.spec.mjs e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs e2e_os345_deferred_boot.spec.mjs e2e_os346_ticket_on_demand.spec.mjs e2e_os348_workspace_retirement.spec.mjs e2e_os349_manager_focus.spec.mjs e2e_os361_ticket_longlist.spec.mjs e2e_os467_command_center.spec.mjs e2e_os468_cashflow.spec.mjs e2e_os469_capital_plan.spec.mjs e2e_os470_free_cash_forecast.spec.mjs e2e_os472_property_decision.spec.mjs e2e_os480_investment_battle.spec.mjs e2e_os481_manager_deadlines.spec.mjs e2e_os483_morning_director.spec.mjs --reporter=line
