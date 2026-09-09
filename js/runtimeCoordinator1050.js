@@ -1,4 +1,4 @@
-const RUNTIME_COORDINATOR1050_VERSION='1050.1.0';
+const RUNTIME_COORDINATOR1050_VERSION='1050.3.0';
 const state=globalThis.__KAMIL_RUNTIME_COORDINATOR1050__||(globalThis.__KAMIL_RUNTIME_COORDINATOR1050__={version:RUNTIME_COORDINATOR1050_VERSION,scheduled:false,running:false,complete:false,steps:{},errors:[],startedAt:null,completedAt:null});
 let bootPromise=null;
 
@@ -45,11 +45,17 @@ export async function runRuntime1050(){
   await bootBudgetReady();
   const steps=[
    ['runtimeOwnership1100','./runtimeOwnership1100.js','installRuntimeOwnership1100',()=>globalThis.__KAMIL_RUNTIME_OWNERSHIP1100__?.installed],
+   ['runtimeHealth1120','./runtimeHealth1120.js','installRuntimeHealth1120',()=>globalThis.__KAMIL_RUNTIME_HEALTH1120__?.installed],
+   ['decisionCore1140','./decisionCore1140.js','installDecisionCore1140',()=>globalThis.__KAMIL_DECISION1140_INSTALLED__===true],
+   ['linkGraph1150','./linkGraph1150.js','installLinkGraph1150',()=>!!globalThis.__KAMIL_LINK_GRAPH1150_API__],
+   ['waitingIntelligence1160','./waitingIntelligence1160.js','installWaitingIntelligence1160',()=>!!globalThis.__KAMIL_WAITING1160_API__],
+   ['financeRisk1180','./financeRisk1180.js','installFinanceRisk1180',()=>!!globalThis.__KAMIL_FINANCE_RISK1180_API__],
    ['oneOS967','./oneOS967.js','installOneOS967',()=>globalThis.__KAMIL_ONE_OS967__?.installed],
    ['oneOS977','./oneOS977.js','installOneOS977',()=>globalThis.__KAMIL_ONE_OS977__?.installed],
    ['legacyCleanup987','./legacyCleanup987.js','installLegacyCleanup987',()=>globalThis.__KAMIL_LEGACY_CLEANUP987__?.installed],
    ['controlPlane1037','./controlPlane1037.js','installControlPlane1037',()=>globalThis.__KAMIL_CONTROL_PLANE1037__?.installed],
-   ['controlOperations1047','./controlOperations1047.js','installControlOperations1047',()=>globalThis.__KAMIL_CONTROL_OPERATIONS1047__?.installed]
+   ['controlOperations1047','./controlOperations1047.js','installControlOperations1047',()=>globalThis.__KAMIL_CONTROL_OPERATIONS1047__?.installed],
+   ['runtimeHealthUi1200','./runtimeHealthUi1200.js','installRuntimeHealthUi1200',()=>globalThis.__KAMIL_RUNTIME_HEALTH_UI1200__?.installed===true]
   ];
   for(const step of steps)await installStep(...step);
   const uiStable=await stabilizeControlOperations1050();
@@ -66,4 +72,4 @@ export function scheduleRuntime1050(){
  state.scheduled=true;
  return runRuntime1050();
 }
-export function runtimeHealth1050(){return{version:RUNTIME_COORDINATOR1050_VERSION,scheduled:state.scheduled,running:state.running,complete:state.complete,steps:{...state.steps},errors:[...state.errors],startedAt:state.startedAt,completedAt:state.completedAt,runtimeOwnership:globalThis.__KAMIL_RUNTIME1100__?.snapshot?.()||null}}
+export function runtimeHealth1050(){return{version:RUNTIME_COORDINATOR1050_VERSION,scheduled:state.scheduled,running:state.running,complete:state.complete,steps:{...state.steps},errors:[...state.errors],startedAt:state.startedAt,completedAt:state.completedAt,runtimeOwnership:globalThis.__KAMIL_RUNTIME1100__?.snapshot?.()||null,runtimeHealth:globalThis.__KAMIL_RUNTIME_HEALTH1120_API__?.health?.()||null,decision:globalThis.__KAMIL_DECISION1140__||null,linkGraph:globalThis.__KAMIL_LINK_GRAPH1150__||null,waiting:globalThis.__KAMIL_WAITING1160__||null,financeRisk:globalThis.__KAMIL_FINANCE_RISK1180__||null}}

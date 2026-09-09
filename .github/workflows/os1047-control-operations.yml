@@ -7,17 +7,26 @@ on:
       - 'js/controlOperations1047.js'
       - 'js/controlOperations1047Boot.js'
       - 'js/runtimeCoordinator1050.js'
+      - 'js/runtimeOwnership1100.js'
+      - 'js/runtimeHealth1120.js'
+      - 'js/decisionCore1140.js'
+      - 'js/linkGraph1150.js'
+      - 'js/waitingIntelligence1160.js'
+      - 'js/financeRisk1180.js'
+      - 'js/runtimeHealthUi1200.js'
       - 'js/oneOS967Boot.js'
       - 'js/oneOS977Boot.js'
       - 'js/legacyCleanup987Boot.js'
       - 'js/personalMore640.js'
       - 'js/bettingBootstrap543.js'
       - 'runtime_boot_guard.mjs'
+      - 'runtime_inventory_1100_guard.mjs'
       - 'scripts/control_plane_1037_guard.mjs'
       - 'scripts/control_operations_1047_guard.mjs'
       - 'e2e_control_plane_1037.spec.mjs'
       - 'e2e_control_operations_1047.spec.mjs'
       - 'e2e_runtime_coordinator_1050.spec.mjs'
+      - 'e2e_os1200_health.spec.mjs'
       - '.github/workflows/os1047-control-operations.yml'
   push:
     branches: [main]
@@ -27,13 +36,22 @@ on:
       - 'js/controlOperations1047.js'
       - 'js/controlOperations1047Boot.js'
       - 'js/runtimeCoordinator1050.js'
+      - 'js/runtimeOwnership1100.js'
+      - 'js/runtimeHealth1120.js'
+      - 'js/decisionCore1140.js'
+      - 'js/linkGraph1150.js'
+      - 'js/waitingIntelligence1160.js'
+      - 'js/financeRisk1180.js'
+      - 'js/runtimeHealthUi1200.js'
       - 'js/oneOS967Boot.js'
       - 'js/oneOS977Boot.js'
       - 'js/legacyCleanup987Boot.js'
       - 'js/bettingBootstrap543.js'
       - 'runtime_boot_guard.mjs'
+      - 'runtime_inventory_1100_guard.mjs'
       - 'scripts/control_plane_1037_guard.mjs'
       - 'scripts/control_operations_1047_guard.mjs'
+      - 'e2e_os1200_health.spec.mjs'
       - '.github/workflows/os1047-control-operations.yml'
   workflow_dispatch:
 jobs:
@@ -47,11 +65,21 @@ jobs:
       - name: Runtime and control syntax
         run: |
           node --check js/runtimeCoordinator1050.js
+          node --check js/runtimeOwnership1100.js
+          node --check js/runtimeHealth1120.js
+          node --check js/decisionCore1140.js
+          node --check js/linkGraph1150.js
+          node --check js/waitingIntelligence1160.js
+          node --check js/financeRisk1180.js
+          node --check js/runtimeHealthUi1200.js
           node --check runtime_boot_guard.mjs
+          node --check runtime_inventory_1100_guard.mjs
           node --check e2e_runtime_coordinator_1050.spec.mjs
+          node --check e2e_os1200_health.spec.mjs
       - name: Control Plane and Operations contracts
         run: |
           node runtime_boot_guard.mjs
+          node runtime_inventory_1100_guard.mjs
           node scripts/control_plane_1037_guard.mjs
           node scripts/control_operations_1047_guard.mjs
       - name: Canonical compatibility
@@ -66,7 +94,7 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-control-http.log 2>&1 &
           SERVER_PID=$!
           set +e
-          npx playwright test e2e_runtime_coordinator_1050.spec.mjs e2e_control_operations_1047.spec.mjs e2e_control_plane_1037.spec.mjs e2e_legacy_cleanup_987.spec.mjs e2e_one_os_977.spec.mjs e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=json > control-playwright.json
+          npx playwright test e2e_runtime_coordinator_1050.spec.mjs e2e_os1200_health.spec.mjs e2e_control_operations_1047.spec.mjs e2e_control_plane_1037.spec.mjs e2e_legacy_cleanup_987.spec.mjs e2e_one_os_977.spec.mjs e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=json > control-playwright.json
           CODE=$?
           kill $SERVER_PID || true
           set -e
