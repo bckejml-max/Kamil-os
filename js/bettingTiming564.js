@@ -1,6 +1,8 @@
 import {bettingSourceMutation691} from './bettingDomGuard691.js';
+import {installRuntimeOwnership1100,schedule1100,activateDomain1100} from './runtimeOwnership1100.js';
 
-const VERSION='564.1.0';
+const VERSION='564.2.0';
+const OWNER='betting.timing564';
 const SNAP_STORE='kamil_betting_snapshots_545';
 const AUTO_STORE='kamil_betting_autoscan_562';
 const MIN_MOVE_PCT=2;
@@ -21,6 +23,6 @@ function cooldown(mode){return mode==='critical'?24*3600000:mode==='economy'?12*
 function autoState(){const s=read(AUTO_STORE,{lastAt:0,lastResult:null});const mode=budgetMode(),left=Math.max(0,cooldown(mode)-(Date.now()-Number(s.lastAt||0)));return{...s,mode,left,label:mode==='exhausted'?'STOP · kvóta':left>0?`cache/cooldown ${Math.ceil(left/3600000)} h`:'připraven'}}
 function ensureAutoBox(){const root=document.querySelector('#bettingView');if(!root)return;let box=root.querySelector('[data-bet564-auto]');if(!box){box=document.createElement('div');box.dataset.bet564Auto='1';box.className='bet564-auto';const anchor=root.querySelector('[data-bet561]')||root.querySelector('[data-bet560]');anchor?.insertAdjacentElement('afterend',box)}decorate()}
 function maybeAutoScan(){const root=document.querySelector('#bettingView');if(!root||!document.querySelector('#view-betting.on'))return false;const btn=root.querySelector('[data-bet144-scan]');if(!btn||btn.disabled)return false;const scan=window.__KAMIL_VALUE_SCAN_144__;if(scan?.loading)return false;const a=autoState();if(a.mode==='exhausted'||a.left>0)return false;write(AUTO_STORE,{lastAt:Date.now(),lastResult:'triggered',mode:a.mode});btn.click();window.__KAMIL_BETTING_AUTOSCAN562__={version:'562.1.0',triggered:true,mode:a.mode,at:Date.now()};return true}
-let timer=null;
-export function installBettingTiming564(){ensureStyles();const root=document.querySelector('#bettingView');if(!root)return false;if(!root.__bet564Observer){let busy=false;const o=new MutationObserver(records=>{if(!bettingSourceMutation691(records)||busy)return;busy=true;setTimeout(()=>{busy=false;ensureAutoBox();maybeAutoScan()},120)});o.observe(root,{childList:true,subtree:true});root.__bet564Observer=o}ensureAutoBox();setTimeout(maybeAutoScan,1200);if(!timer)timer=setInterval(()=>{if(document.querySelector('#view-betting.on')){ensureAutoBox();maybeAutoScan()}},60000);return true}
+function scheduleRefresh564(){schedule1100(OWNER,'refresh-loop',()=>{if(document.querySelector('#view-betting.on')){ensureAutoBox();maybeAutoScan()}scheduleRefresh564()},60000,{pauseWhenHidden:true})}
+export function installBettingTiming564(){ensureStyles();const root=document.querySelector('#bettingView');if(!root)return false;installRuntimeOwnership1100();activateDomain1100('betting',[OWNER]);if(!root.__bet564Observer){let busy=false;const o=new MutationObserver(records=>{if(!bettingSourceMutation691(records)||busy)return;busy=true;schedule1100(OWNER,'mutation',()=>{busy=false;ensureAutoBox();maybeAutoScan()},120)});o.observe(root,{childList:true,subtree:true});root.__bet564Observer=o}ensureAutoBox();schedule1100(OWNER,'initial-scan',maybeAutoScan,1200,{pauseWhenHidden:true});scheduleRefresh564();return true}
 installBettingTiming564();
