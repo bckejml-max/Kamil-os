@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 const js=fs.readFileSync('js/oneOS967.js','utf8');
 const boot=fs.readFileSync('js/oneOS967Boot.js','utf8');
+const runtime=fs.readFileSync('js/runtimeCoordinator1050.js','utf8');
 const css=fs.readFileSync('oneOS967.css','utf8');
 const betting=fs.readFileSync('js/bettingBootstrap543.js','utf8');
 const need=(ok,msg)=>{if(!ok)throw new Error(msg)};
@@ -12,8 +13,10 @@ need(js.includes("import('./selfImproving892.js')"),'OS892 learning integration 
 need(js.includes('store.get()'),'canonical store integration missing');
 need(js.includes('NEROZHODOVAT'),'missing-data decision blocker missing');
 need(css.includes('.oneos967-home')&&css.includes('.oneos967-mobile-action'),'One OS styles incomplete');
-need(boot.includes('installOneOS967'),'bootstrap installer missing');
-need(betting.includes("import('./oneOS967Boot.js')"),'One OS bootstrap not wired');
+need(boot.includes('scheduleRuntime1050'),'OS967 compatibility boot must delegate to runtime coordinator');
+need(runtime.includes("'./oneOS967.js','installOneOS967'"),'OS967 installer missing from runtime coordinator');
+need(betting.includes("import('./runtimeCoordinator1050.js')"),'runtime coordinator not wired');
+need(!betting.includes("import('./oneOS967Boot.js')"),'legacy OS967 direct bootstrap returned');
 const forbidden=[/executeBet\s*\(/,/placeBet\s*\(/,/sendMoney\s*\(/,/buyTicket\s*\(/,/sellTicket\s*\(/,/autoMerge\s*\(/];
 for(const re of forbidden)need(!re.test(js),`forbidden autonomous execution pattern: ${re}`);
 console.log('OS967 One OS guard OK');

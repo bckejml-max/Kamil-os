@@ -74,11 +74,17 @@ function installBootObserver(){
  window.__KAMIL_BETTING_BOOT_OBSERVER694__=observer;
 }
 boot().then(ok=>{if(!ok)installBootObserver()}).catch(()=>installBootObserver());
-document.addEventListener('click',()=>setTimeout(()=>{boot().catch(()=>{})},0),true);
+if(!window.__KAMIL_BETTING_NAV_BOOT_HANDLER695__){
+ let queued=false;
+ const handler=event=>{
+  if(!event.target?.closest?.('[data-view],[data-nav],[data-page],[role="tab"],a[href^="#"]'))return;
+  if(queued)return;
+  queued=true;
+  queueMicrotask(()=>{queued=false;if(document.querySelector('#bettingView'))boot().catch(()=>{})});
+ };
+ document.addEventListener('click',handler,true);
+ window.__KAMIL_BETTING_NAV_BOOT_HANDLER695__=handler;
+}
 import('./strategyCommand790.js').then(m=>m.installStrategyCommand790?.()).catch(err=>console.warn('[OS790] command adapter unavailable',err));
 import('./commandCopilot840.js').then(m=>m.installCommandCopilot840?.()).catch(err=>console.warn('[OS840] Copilot command layer unavailable',err));
-import('./oneOS967Boot.js').catch(err=>console.warn('[OS967] One OS bootstrap unavailable',err));
-import('./oneOS977Boot.js').catch(err=>console.warn('[OS977] consolidation bootstrap unavailable',err));
-import('./legacyCleanup987Boot.js').catch(err=>console.warn('[OS987] legacy cleanup bootstrap unavailable',err));
-import('./controlPlane1037Boot.js').catch(err=>console.warn('[OS1037] control plane bootstrap unavailable',err));
-import('./controlOperations1047Boot.js').catch(err=>console.warn('[OS1047] control operations bootstrap unavailable',err));
+import('./runtimeCoordinator1050.js').then(m=>m.scheduleRuntime1050?.()).catch(err=>console.warn('[OS1050] runtime coordinator unavailable',err));
