@@ -7,6 +7,9 @@ html[data-ticket-desk331="1"] #ticketIntelView{
 html[data-ticket-desk331="1"] #ticketIntelView{padding:0!important;min-height:0!important;overflow:auto!important}
 html[data-ticket-desk331="1"] #ticketIntelView :where(.td331,.td331-shell,.td331-body,[class*="c46"],[class*="bridge466"]){box-sizing:border-box}
 html[data-ticket-desk331="1"] #ticketIntelView :where(.td331,.td331>* ,.td331-section,.td331-grid,.td331-ticket,.analytics466,.analytics466-body){min-width:0;max-width:100%}
+html[data-ticket-desk331="1"] #ticketIntelView .analytics466{overflow:hidden!important}
+html[data-ticket-desk331="1"] #ticketIntelView .analytics466-body{min-width:0!important;max-width:100%!important;overflow-x:auto!important;overscroll-behavior-x:contain}
+html[data-ticket-desk331="1"] #ticketIntelView .analytics466-body>*{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
 html[data-ticket-desk331="1"] :where(.td331,.td331-shell,.td331-body){background:transparent!important;color:#f8fafc!important}
 html[data-ticket-desk331="1"] :where(.td331-hero,.td331-card,.td331-kpi,.td331-panel,.td331-section,[class*="bridge466-card"],[class*="c466-card"]){
   background:linear-gradient(180deg,rgba(17,24,39,.96),rgba(10,16,28,.96))!important;
