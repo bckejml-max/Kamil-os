@@ -1,0 +1,10 @@
+import {store} from './state.js';
+
+const VERSION='1160.0.0',DAY=86400000;
+const A=v=>Array.isArray(v)?v:[],U=v=>String(v||'').toUpperCase();
+const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED']);
+const age=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.max(0,Math.floor((Date.now()-t)/DAY)):null};
+const daysTo=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?Math.ceil((t-Date.now())/DAY):null};
+function row(x){const since=x?.since||x?.createdAt||x?.created_at||x?.at,follow=x?.followUpAt||x?.due||x?.deadline||null,a=age(since),d=daysTo(follow),count=Number(x?.followUpCount||x?.followUpHistory?.length||0),title=String(x?.title||x?.name||'Čekání'),who=String(x?.waitingOn||x?.person||x?.owner||x?.contact||x?.counterparty||'Druhá strana');let level='normal',nextDays=3;if(d!==null&&d<0||a!==null&&a>=14||count>=3){level='escalate';nextDays=1}else if(d===0||a!==null&&a>=7||count>=2){level='follow-up';nextDays=2}else if(d===null){level='schedule';nextDays=3}const score=(d!==null&&d<0?80:0)+(a||0)*2+count*12+(d===0?35:0);return{id:String(x?.id||title),title,who,ageDays:a,dueDays:d,followUpCount:count,level,score,nextFollowUpDays:nextDays,suggestedAt:new Date(Date.now()+nextDays*DAY).toISOString(),promiseAt:x?.promisedAt||x?.expectedAt||x?.commitmentAt||null,channel:x?.channel||null}}
+export function waitingIntelligence1160(s=store.get()){const rows=A(s.delegations).filter(x=>!CLOSED.has(U(x?.status))).map(row).sort((a,b)=>b.score-a.score);return{version:VERSION,count:rows.length,escalate:rows.filter(x=>x.level==='escalate'),followUp:rows.filter(x=>x.level==='follow-up'),unscheduled:rows.filter(x=>x.level==='schedule'),promises:rows.filter(x=>x.promiseAt),top:rows[0]||null,rows,generatedAt:new Date().toISOString()}}
+export function installWaitingIntelligence1160(){globalThis.__KAMIL_WAITING1160_API__={snapshot:waitingIntelligence1160};globalThis.__KAMIL_WAITING1160__=waitingIntelligence1160();return globalThis.__KAMIL_WAITING1160__}
