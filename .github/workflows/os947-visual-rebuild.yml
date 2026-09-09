@@ -33,14 +33,14 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS947 desktop and mobile browser smoke
+      - name: OS947 desktop, mobile and first-frame browser smoke
         id: browser
         continue-on-error: true
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-os947-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_os947_visual.spec.mjs e2e_os212_compact_navigation.spec.mjs e2e_os181_current_smoke.spec.mjs --reporter=json > os947-playwright.json
+          npx playwright test e2e_os947_visual.spec.mjs e2e_os1062_startup_shell.spec.mjs e2e_os212_compact_navigation.spec.mjs e2e_os181_current_smoke.spec.mjs --reporter=json > os947-playwright.json
       - name: Upload browser diagnostics
         if: always()
         uses: actions/upload-artifact@v4

@@ -71,3 +71,27 @@ html.theme-light .trade-plan-main p,html.theme-light .trade-plan-fact>small,html
 
 .theme-toggle33{min-width:84px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 @media(max-width:760px){.theme-toggle33{min-width:auto;padding-inline:9px}.theme-toggle33 .theme-label33{display:none}}
+
+/* OS1062 — first-frame contract before application JavaScript resolves the stored theme. */
+html.theme-light:not([data-theme]){color-scheme:dark;background:#070b12;--bg:#070b12;--bg2:#0a1019;--panel:#0f1622;--panel2:#121b29;--panel3:#172233;--line:#243044;--line2:#334158;--text:#f6f8fb;--muted:#7f8da1;--muted2:#aeb9c7;--accent:#7c8cff;--accent2:#5ec8ff;--good:#52d39a;--warn:#f5bd65;--bad:#ff747f;--shadow:0 18px 50px rgba(0,0,0,.22)}
+html.theme-light:not([data-theme]) body{background:radial-gradient(circle at 76% -8%,rgba(86,111,255,.10),transparent 28%),linear-gradient(180deg,#070b12 0%,#080d15 52%,#070b12 100%)!important;color:#f6f8fb!important}
+html.theme-light:not([data-theme]) .app{background:transparent!important}
+html.theme-light:not([data-theme]) .sidebar{background:linear-gradient(180deg,rgba(10,15,24,.98),rgba(7,11,18,.985))!important;border-right-color:rgba(151,170,196,.10)!important}
+html.theme-light:not([data-theme]) .topbar{background:linear-gradient(180deg,rgba(7,11,18,.98),rgba(7,11,18,.90))!important;border-bottom-color:rgba(151,170,196,.08)!important}
+html.theme-light:not([data-theme]) .command-wrap{background:linear-gradient(180deg,rgba(7,11,18,.97),rgba(7,11,18,.87),rgba(7,11,18,0))!important}
+html.theme-light:not([data-theme]) :where(.brand,.topbar-title,h1,h2,h3,b,strong){color:#f6f8fb!important}
+html.theme-light:not([data-theme]) :where(.sidebar-sub,.muted,small,.eyebrow,.page-kicker,.section-title){color:#7f8da1!important}
+html.theme-light:not([data-theme]) .brand-mark{background:linear-gradient(145deg,#8794ff,#6076ff 48%,#4eb7eb)!important;color:#fff!important;box-shadow:0 10px 30px rgba(88,107,255,.26)!important}
+html.theme-light:not([data-theme]) .account-avatar{background:#182335!important;border-color:rgba(151,170,196,.12)!important;color:#dce4ee!important}
+html.theme-light:not([data-theme]) .main-nav button{color:#8492a5!important;background:transparent!important}
+html.theme-light:not([data-theme]) .main-nav button.on{color:#f9fbff!important;background:linear-gradient(90deg,rgba(124,140,255,.16),rgba(124,140,255,.055))!important;border-color:rgba(124,140,255,.20)!important}
+html.theme-light:not([data-theme]) :where(.command-field,input,select,textarea){background:#0e1621!important;color:#f7f9fd!important;border-color:rgba(151,170,196,.17)!important}
+html.theme-light:not([data-theme]) .command-input::placeholder{color:#59687b!important}
+html.theme-light:not([data-theme]) :where(.btn,.icon-btn){background:#111a27!important;color:#e5edf8!important;border-color:rgba(151,170,196,.18)!important}
+html.theme-light:not([data-theme]) .btn.primary{background:#eef3f8!important;color:#081018!important;border-color:#eef3f8!important}
+html.theme-light:not([data-theme]) :where(.metric,.card,.decision-note,.auth-card,.modal-box,.command-results){background:linear-gradient(180deg,#0f1622,#0b121d)!important;color:#f6f8fb!important;border-color:rgba(151,170,196,.14)!important}
+html.theme-light:not([data-theme]) .update-banner{background:#111a27!important;color:#f6f8fb!important;border-color:rgba(151,170,196,.20)!important;box-shadow:0 18px 50px rgba(0,0,0,.28)!important}
+html.theme-light:not([data-theme]) .bottom-nav{background:rgba(10,15,24,.97)!important;border-color:rgba(151,170,196,.14)!important;color:#dbe4ee!important}
+html.theme-light:not([data-theme]) .bottom-nav button{color:#8492a5!important}
+html.theme-light:not([data-theme]) .bottom-nav button.on{color:#fff!important}
+@media(max-width:850px){html.theme-light:not([data-theme]) .bottom-nav{left:10px!important;right:10px!important;bottom:8px!important;width:auto!important;max-width:none!important;height:66px!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;border:1px solid rgba(151,170,196,.14)!important;border-radius:18px!important;overflow:hidden!important;box-shadow:0 18px 44px rgba(0,0,0,.34)!important}html.theme-light:not([data-theme]) .bottom-nav [data-view="family"],html.theme-light:not([data-theme]) .bottom-nav [data-personal-more]{display:grid!important}html.theme-light:not([data-theme]) .bottom-nav [data-view="more"]{display:none!important}html.theme-light:not([data-theme]) .bottom-nav button{min-width:0!important;max-width:100%!important;padding:4px 2px!important;font-size:8px!important;gap:2px!important}}
