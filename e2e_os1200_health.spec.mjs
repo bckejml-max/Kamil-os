@@ -29,7 +29,7 @@ test('OS1200 boots unified runtime intelligence and opens Personal OS Health',as
 
 test('OS1120 quarantines repeated module failures and OS1200 can clear them',async({page})=>{
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>window.__KAMIL_RUNTIME_HEALTH1120_API__?.recordFailure,{timeout:20000});
+ await page.waitForFunction(()=>window.__KAMIL_RUNTIME_COORDINATOR1050__?.complete===true&&window.__KAMIL_RUNTIME_HEALTH_UI1200__?.installed===true&&window.__KAMIL_RUNTIME_HEALTH1120_API__?.recordFailure,{timeout:20000});
  const result=await page.evaluate(()=>{
   const api=window.__KAMIL_RUNTIME_HEALTH1120_API__;
   api.recordFailure('demo-module.js',new Error('synthetic failure'));
@@ -39,7 +39,9 @@ test('OS1120 quarantines repeated module failures and OS1200 can clear them',asy
  });
  expect(result.quarantine.some(x=>x.module==='demo-module.js')).toBe(true);
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:open-runtime-health')));
- await expect(page.locator('[data-runtime-health1200]')).toContainText('demo-module.js');
+ const panel=page.locator('[data-runtime-health1200]');
+ await expect(panel).toBeVisible();
+ await expect(panel).toContainText('demo-module.js');
  await page.locator('[data-health1200-clear="demo-module.js"]').click();
  const after=await page.evaluate(()=>window.__KAMIL_RUNTIME_HEALTH1120_API__.health());
  expect(after.quarantine.some(x=>x.module==='demo-module.js')).toBe(false);
