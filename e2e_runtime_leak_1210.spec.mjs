@@ -3,8 +3,15 @@ import {test,expect} from '@playwright/test';
 test('OS1210 survives 20 navigation cycles without runtime ownership leaks',async({page})=>{
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.__KAMIL_RUNTIME_COORDINATOR1050__?.complete===true&&window.__KAMIL_RUNTIME_LEAK1210_API__?.begin,{timeout:20000});
- const before=await page.evaluate(()=>window.__KAMIL_RUNTIME_LEAK1210_API__.begin('20-cycle-navigation'));
  const sequence=['today','tickets','betting','money','today'];
+ // Warm every lazy view once so the baseline measures repeated navigation,
+ // not legitimate first-load module/listener/DOM installation.
+ for(const view of sequence){
+  await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
+  await page.waitForTimeout(80);
+ }
+ await page.waitForTimeout(350);
+ const before=await page.evaluate(()=>window.__KAMIL_RUNTIME_LEAK1210_API__.begin('20-cycle-navigation-stable'));
  for(let cycle=0;cycle<20;cycle++)for(const view of sequence){
   await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
   await page.waitForTimeout(18);
