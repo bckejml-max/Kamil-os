@@ -6,11 +6,13 @@ test('OS1210 survives 20 navigation cycles without runtime ownership leaks',asyn
  const sequence=['today','tickets','betting','money','today'];
  // Warm every lazy view once. Some legacy-compatible view layers intentionally
  // complete their first-load settle passes asynchronously, so the baseline must
- // be taken only after Money 2.0 confirms that its own canonical model rendered.
+ // be taken only after canonical Money and Betting boot paths are confirmed ready.
  for(const view of sequence){
   await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
   await page.waitForTimeout(100);
  }
+ await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'betting'})));
+ await page.waitForFunction(()=>window.__KAMIL_BETTING_BOOTSTRAP543__?.healthy===true,{timeout:20000});
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'money'})));
  await page.waitForFunction(()=>window.__KAMIL_MONEY_HUB680__?.healthy===true&&document.querySelector('#moneyView [data-money-hub680]'),{timeout:15000});
  await page.waitForTimeout(400);
@@ -48,4 +50,23 @@ test('OS1220 records per-view budgets and OS1230 tracks canonical lifecycle',asy
  expect(out.life?.current).toBe('today');
  expect(out.life?.history?.length).toBeGreaterThanOrEqual(4);
  expect(out.timeline?.rows?.length).toBeGreaterThanOrEqual(0);
+});
+
+test('OS1280 keeps migrated Betting recurring work single-owned',async({page})=>{
+ await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>window.__KAMIL_RUNTIME_COORDINATOR1050__?.complete===true,{timeout:20000});
+ await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'betting'})));
+ await page.waitForFunction(()=>window.__KAMIL_BETTING_BOOTSTRAP543__?.healthy===true,{timeout:20000});
+ await page.waitForTimeout(300);
+ const owners=['betting.request-budget561','betting.timing564','betting.performance565','betting.intelligence560','betting.missed566'];
+ const before=await page.evaluate(names=>{const s=window.__KAMIL_RUNTIME1100__?.snapshot?.().owners||{};return Object.fromEntries(names.map(n=>[n,s[n]?.timers||0]))},owners);
+ for(const name of owners){expect(before[name],`${name} should own one recurring timer`).toBeGreaterThanOrEqual(1);expect(before[name]).toBeLessThanOrEqual(1)}
+ for(let i=0;i<5;i++){
+  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'today'})));
+  await page.waitForTimeout(35);
+  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'betting'})));
+  await page.waitForTimeout(70);
+ }
+ const after=await page.evaluate(names=>{const s=window.__KAMIL_RUNTIME1100__?.snapshot?.().owners||{};return Object.fromEntries(names.map(n=>[n,s[n]?.timers||0]))},owners);
+ expect(after).toEqual(before);
 });

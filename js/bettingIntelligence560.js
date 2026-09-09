@@ -1,8 +1,10 @@
 import {bettingSourceMutation691} from './bettingDomGuard691.js';
+import {schedule1100} from './runtimeOwnership1100.js';
 
 const LEDGER_STORE='kamil_betting_ledger_543';
 const SNAP_STORE='kamil_betting_snapshots_545';
 const VERSION='560.1.0';
+const OWNER='betting.intelligence560';
 const MAX_EXPOSURE_PCT=0.08;
 const MAX_EVENT_PICKS=2;
 
@@ -81,6 +83,6 @@ function commanderHtml(ranked){
 }
 function render(){const root=document.querySelector('#bettingView');if(!root)return;const cards=[...root.querySelectorAll('.bet144-pick')];snapshotCards(cards);enrichLedgerWithClv();const ranked=rankCards(cards);decorateCards(ranked);const html=commanderHtml(ranked);const old=root.querySelector('[data-bet560]');if(old)old.outerHTML=html;else{const anchor=root.querySelector('[data-bet542-command]')||root.querySelector('.bet144-metrics');anchor?.insertAdjacentHTML('afterend',html)}window.__KAMIL_BETTING_INTELLIGENCE560__={version:VERSION,picks:ranked.length,approved:ranked.filter(r=>!r.stake.blocked&&r.eventRank<=MAX_EVENT_PICKS).length,calibration:calibration(),at:Date.now()}}
 function captureStake(event){const btn=event.target?.closest?.('.bet542-confirm');if(!btn||btn.disabled)return;const card=btn.closest('.bet144-pick');if(!card)return;const d=cardData(card),stakeCzk=Number(btn.dataset.bet560Stake||0),units=Number(btn.dataset.bet560Units||0);setTimeout(()=>{const state=ledger();const candidates=state.bets.filter(b=>String(b.status||'OPEN').toUpperCase()==='OPEN');const b=candidates.slice().reverse().find(x=>String(x.label||x.selection||'').toLowerCase().includes(d.title.toLowerCase())||String(x.event||'').toLowerCase().includes(d.event.toLowerCase()));if(b){b.stakeCzk=stakeCzk||b.stakeCzk||0;b.units=units||b.units;b.event=d.event;b.market=b.market||d.market;b.modelProbability=b.modelProbability||(d.modelPct!=null?Number(d.modelPct)/100:null);b.edgePctPoints=b.edgePctPoints??d.edgePp;b.evPct=b.evPct??d.evPct;b.lastObservedOdds=d.odds;b.lastOddsObservedAt=new Date().toISOString();writeJson(LEDGER_STORE,state)}render()},80)}
-let timer=null;
-export function installBettingIntelligence560(){ensureStyles();const root=document.querySelector('#bettingView');if(!root)return false;if(!root.__bet560Observer){let scheduled=false;const o=new MutationObserver(records=>{if(!bettingSourceMutation691(records)||scheduled)return;scheduled=true;setTimeout(()=>{scheduled=false;render()},100)});o.observe(root,{childList:true,subtree:true});root.__bet560Observer=o;root.addEventListener('click',captureStake,true)}if(!root.__bet560LedgerBound){root.__bet560LedgerBound=true;window.addEventListener('kamil:betting-ledger543-updated',render)}render();if(!timer)timer=setInterval(()=>{if(document.querySelector('#view-betting.on'))render()},60*1000);return true}
+function scheduleHeartbeat(){schedule1100(OWNER,'heartbeat',()=>{if(document.querySelector('#view-betting.on'))render();scheduleHeartbeat()},60000,{pauseWhenHidden:true})}
+export function installBettingIntelligence560(){ensureStyles();const root=document.querySelector('#bettingView');if(!root)return false;if(!root.__bet560Observer){let scheduled=false;const o=new MutationObserver(records=>{if(!bettingSourceMutation691(records)||scheduled)return;scheduled=true;setTimeout(()=>{scheduled=false;render()},100)});o.observe(root,{childList:true,subtree:true});root.__bet560Observer=o;root.addEventListener('click',captureStake,true)}if(!root.__bet560LedgerBound){root.__bet560LedgerBound=true;window.addEventListener('kamil:betting-ledger543-updated',render)}render();scheduleHeartbeat();return true}
 installBettingIntelligence560();
