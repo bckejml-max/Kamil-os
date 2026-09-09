@@ -1,62 +1,68 @@
-name: OS1047 Control Operations QA
+name: Kamil OS Control Plane + Operations QA
 on:
   pull_request:
     paths:
+      - 'js/controlPlane1037.js'
+      - 'js/controlPlane1037Boot.js'
       - 'js/controlOperations1047.js'
       - 'js/controlOperations1047Boot.js'
-      - 'js/controlPlane1037.js'
+      - 'js/personalMore640.js'
       - 'js/bettingBootstrap543.js'
+      - 'scripts/control_plane_1037_guard.mjs'
       - 'scripts/control_operations_1047_guard.mjs'
+      - 'e2e_control_plane_1037.spec.mjs'
       - 'e2e_control_operations_1047.spec.mjs'
       - '.github/workflows/os1047-control-operations.yml'
   push:
     branches: [main]
     paths:
+      - 'js/controlPlane1037.js'
+      - 'js/controlPlane1037Boot.js'
       - 'js/controlOperations1047.js'
       - 'js/controlOperations1047Boot.js'
+      - 'js/personalMore640.js'
       - 'js/bettingBootstrap543.js'
+      - 'scripts/control_plane_1037_guard.mjs'
       - 'scripts/control_operations_1047_guard.mjs'
       - '.github/workflows/os1047-control-operations.yml'
   workflow_dispatch:
 jobs:
-  operations:
+  control:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: OS1038-1047 contracts
-        run: node scripts/control_operations_1047_guard.mjs
-      - name: Control Plane compatibility
+      - name: Control Plane and Operations contracts
         run: |
           node scripts/control_plane_1037_guard.mjs
-          node scripts/legacy_cleanup_987_guard.mjs
-          node scripts/one_os_977_guard.mjs
-          node scripts/one_os_967_guard.mjs
-          node scripts/visual_rebuild_947_guard.mjs
+          node scripts/control_operations_1047_guard.mjs
+      - name: Canonical compatibility
+        run: npm run test:release
       - name: Install browser QA
-        run: npm install --ignore-scripts --no-audit --no-fund
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS1047 browser smoke
+      - name: Control browser smoke
         id: browser
         run: |
-          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-os1047-http.log 2>&1 &
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-control-http.log 2>&1 &
           SERVER_PID=$!
           set +e
-          npx playwright test e2e_control_operations_1047.spec.mjs e2e_control_plane_1037.spec.mjs e2e_os947_visual.spec.mjs --reporter=json > os1047-playwright.json
+          npx playwright test e2e_control_operations_1047.spec.mjs e2e_control_plane_1037.spec.mjs e2e_legacy_cleanup_987.spec.mjs e2e_one_os_977.spec.mjs e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=json > control-playwright.json
           CODE=$?
           kill $SERVER_PID || true
           set -e
           echo "code=$CODE" >> "$GITHUB_OUTPUT"
-      - name: Upload OS1047 browser report
-        if: always()
+      - name: Upload control browser report
+        if: always() && steps.browser.outcome != 'skipped'
         uses: actions/upload-artifact@v4
         with:
-          name: os1047-browser-report
-          path: os1047-playwright.json
-          if-no-files-found: error
+          name: control-browser-report
+          path: control-playwright.json
+          if-no-files-found: warn
+          retention-days: 3
       - name: Browser QA gate
-        if: steps.browser.outputs.code != '0'
+        if: steps.browser.outputs.code != '0' && steps.browser.outcome != 'skipped'
         run: exit 1

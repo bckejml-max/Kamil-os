@@ -1,4 +1,4 @@
-name: OS333 Chromium Smoke
+name: OS333 Canonical Release + Browser QA
 
 on:
   pull_request:
@@ -20,7 +20,17 @@ jobs:
       - name: Canonical domain syntax
         run: |
           node --check api/ticket-gmail-sync.js
+          node --check api/market-history.js
+          node --check api/core70-health.js
           node --check api_runtime_guard.mjs
+          node --check repo_hygiene_guard.mjs
+          node --check lib/api-football-model.js
+          node --check lib/football-data-poisson.js
+          node --check lib/football-data-count-model.js
+          node --check lib/football-data-count-resolver.js
+          node --check lib/chance-football-data-model.js
+          node --check lib/conservative-poisson-calibration.js
+          node --check lib/auto-betting-model.js
           node --check js/domainOS328.js
           node --check js/focusRadar334.js
           node --check js/focusQueue335.js
@@ -32,8 +42,15 @@ jobs:
           node --check js/navigation302.js
           node --check js/ticketPage100.js
           node --check js/personalShell640.js
+          node --check js/personalAssistant650.js
+          node --check js/personalHardening650.js
+          node --check js/personalToday640.js
+          node --check js/personalWaiting650.js
+          node --check js/homePage140.js
+          node --check js/familyPage140.js
           node --check js/workspaces305.js
           node --check js/instantShell64.js
+          node --check js/viewRuntime41.js
           node --check js/commandCenter467.js
           node --check js/cashflow468.js
           node --check js/capitalPlan469.js
@@ -42,6 +59,28 @@ jobs:
           node --check js/investmentBattle480.js
           node --check js/managerDeadlines481.js
           node --check js/morningDirector483.js
+          node --check js/copilot840.js
+          node --check js/commandCopilot840.js
+          node --check js/copilotFeedback842.js
+          node --check js/selfImproving892.js
+          node --check js/usage892.js
+          node --check js/autonomous943.js
+          node --check js/proposalReview944.js
+          node --check js/safeChangePlan945.js
+          node --check js/previewPr946.js
+          node --check js/oneOS967.js
+          node --check js/oneOS967Boot.js
+          node --check js/oneOS977.js
+          node --check js/oneOS977Boot.js
+          node --check js/legacyCleanup987.js
+          node --check js/legacyCleanup987Boot.js
+          node --check e2e_assistant_53_0.spec.mjs
+          node --check e2e_command_50_0.spec.mjs
+          node --check e2e_practical_49_0.spec.mjs
+          node --check e2e_os947_visual.spec.mjs
+          node --check e2e_one_os_967.spec.mjs
+          node --check e2e_one_os_977.spec.mjs
+          node --check e2e_legacy_cleanup_987.spec.mjs
           node --check e2e_os343_boot_budget.spec.mjs
           node --check e2e_os344_lazy_shell.spec.mjs
           node --check e2e_os345_deferred_boot.spec.mjs
@@ -85,7 +124,42 @@ jobs:
           node ticket_opportunity_198_test.mjs
           node ux_foundation_238_test.mjs
           node production_chrome_228_test.mjs
-      - name: OS333+ release guard
+      - name: Migrated core, performance and personal guards
+        run: |
+          node api_football_model_test.mjs
+          node core70_auto_model_test.mjs
+          node football_data_poisson_test.mjs
+          node football_data_count_model_test.mjs
+          node football_data_count_resolver_test.mjs
+          node chance_league_mapping_test.mjs
+          node conservative_poisson_calibration_test.mjs
+          node performance_41_3_test.mjs
+          node performance_41_3_static_test.mjs
+          node personal_home_53_1_static_test.mjs
+          node practical_49_static_test.mjs
+          node ticket_market_api_65_6_test.mjs
+          node core_hardening_31_test.mjs
+          node trust_sync_32_static_test.mjs
+          node copilot_write_32_test.mjs
+          node decision_next_30_test.mjs
+          node decision_next_30_integration_test.mjs
+      - name: Canonical runtime invariants
+        run: |
+          grep -q "renderCommandResults41" js/viewRuntime41.js
+          grep -q "executeCommand41" js/viewRuntime41.js
+          grep -q "hydrateColdView42" js/viewRuntime41.js
+          grep -q "./os181Suite.js','enhanceToday181" js/todayPage101.js
+          grep -q "xtb_transaction_ledger" js/os181Suite.js
+          grep -q "os_action_state" js/os181Suite.js
+          grep -q "PAYOUT_RECEIVED" js/ticketSales150.js
+          grep -q "ticket_price_journal" js/os181Suite.js
+          grep -q "payout_received_czk" js/ticketSettlement153.js
+          grep -q "from('ticket_inventory')" js/ticketCloud660.js
+          ! grep -Eiq "service[_-]?role" js/ticketCloud660.js
+          ! grep -R "ticket-market-watch-v673" js api
+          ! grep -q "ticketMarketWatch656.js" sw.js
+          ! grep -q "import {enhanceToday181} from './os181Suite.js'" js/todayPage101.js
+      - name: OS333+ canonical release guard
         run: npm run test:release
       - name: OS338 ticket renderer ownership
         run: node ticket_flicker_338_test.mjs
@@ -101,4 +175,4 @@ jobs:
       - name: OS347 isolated critical-path performance gate
         run: npx playwright test e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
       - name: Canonical and migrated browser smoke
-        run: npx playwright test e2e_os181_current_smoke.spec.mjs e2e_os212_compact_navigation.spec.mjs e2e_os228_production_chrome.spec.mjs e2e_os238_ux_foundation.spec.mjs e2e_os278_megarelease.spec.mjs e2e_os298_operator.spec.mjs e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs e2e_os345_deferred_boot.spec.mjs e2e_os346_ticket_on_demand.spec.mjs e2e_os348_workspace_retirement.spec.mjs e2e_os349_manager_focus.spec.mjs e2e_os361_ticket_longlist.spec.mjs e2e_os467_command_center.spec.mjs e2e_os468_cashflow.spec.mjs e2e_os469_capital_plan.spec.mjs e2e_os470_free_cash_forecast.spec.mjs e2e_os472_property_decision.spec.mjs e2e_os480_investment_battle.spec.mjs e2e_os481_manager_deadlines.spec.mjs e2e_os483_morning_director.spec.mjs --reporter=line
+        run: npx playwright test e2e_assistant_53_0.spec.mjs e2e_command_50_0.spec.mjs e2e_practical_49_0.spec.mjs e2e_os181_current_smoke.spec.mjs e2e_os212_compact_navigation.spec.mjs e2e_os228_production_chrome.spec.mjs e2e_os238_ux_foundation.spec.mjs e2e_os278_megarelease.spec.mjs e2e_os298_operator.spec.mjs e2e_os947_visual.spec.mjs e2e_one_os_967.spec.mjs e2e_one_os_977.spec.mjs e2e_legacy_cleanup_987.spec.mjs e2e_os333_unified_command.spec.mjs e2e_os334_focus_radar.spec.mjs e2e_os335_focus_queue.spec.mjs e2e_os336_action_execution.spec.mjs e2e_os339_ticket_stability.spec.mjs e2e_os340_ticket_portfolio.spec.mjs e2e_os341_manager.spec.mjs e2e_os342_navigation.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os344_lazy_shell.spec.mjs e2e_os345_deferred_boot.spec.mjs e2e_os346_ticket_on_demand.spec.mjs e2e_os348_workspace_retirement.spec.mjs e2e_os349_manager_focus.spec.mjs e2e_os361_ticket_longlist.spec.mjs e2e_os467_command_center.spec.mjs e2e_os468_cashflow.spec.mjs e2e_os469_capital_plan.spec.mjs e2e_os470_free_cash_forecast.spec.mjs e2e_os472_property_decision.spec.mjs e2e_os480_investment_battle.spec.mjs e2e_os481_manager_deadlines.spec.mjs e2e_os483_morning_director.spec.mjs --reporter=line
