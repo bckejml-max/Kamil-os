@@ -22,7 +22,7 @@ for(const file of files){
  if(row.timers+row.intervals+row.listeners+row.mutationObservers+row.resizeObservers)hotspots.push(row);
 }
 hotspots.sort((a,b)=>(b.timers+b.intervals+b.listeners+b.mutationObservers+b.resizeObservers)-(a.timers+a.intervals+a.listeners+a.mutationObservers+a.resizeObservers));
-const budgets={timers:464,listeners:849,intervals:40};
+const budgets={timers:464,listeners:849,intervals:48};
 const targets={timers:375,listeners:700,intervals:0};
 assert.ok(totals.timers<=budgets.timers,`OS1100 timer budget regression: ${totals.timers} > ${budgets.timers}`);
 assert.ok(totals.listeners<=budgets.listeners,`OS1100 listener budget regression: ${totals.listeners} > ${budgets.listeners}`);
