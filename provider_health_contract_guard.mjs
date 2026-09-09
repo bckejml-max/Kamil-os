@@ -23,6 +23,8 @@ for(const token of [
   'retryableStatus=status=>status===429||status>=500'
 ]) assert.ok(gmail.includes(token),`Gmail provider health missing contract token: ${token}`);
 assert.equal(gmail.includes('req.query'),false,'Gmail health endpoint must not use legacy req.query');
-assert.equal(gmail.includes("error:String(e?.message||e)"),false,'Gmail health endpoint must not leak upstream errors to clients');
+const clientFailure="return json(res,500,{ok:false,healthy:false,status:'error',configured:true,error:'GMAIL_SYNC_FAILED',checkedAt:new Date().toISOString()})";
+assert.ok(gmail.includes(clientFailure),'Gmail client failure response must stay generic');
+assert.ok(gmail.includes("logStage('error',{mode,error:String(e?.message||e)})"),'Detailed Gmail failures should remain server-log only');
 
-console.log('Provider health contract PASS: configured state is distinct from verified/healthy state');
+console.log('Provider health contract PASS: configured state is distinct from verified/healthy state and upstream detail stays server-side');
