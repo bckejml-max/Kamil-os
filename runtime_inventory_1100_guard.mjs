@@ -23,11 +23,11 @@ for(const file of files){
 }
 hotspots.sort((a,b)=>(b.timers+b.intervals+b.listeners+b.mutationObservers+b.resizeObservers)-(a.timers+a.intervals+a.listeners+a.mutationObservers+a.resizeObservers));
 const intervalHotspots=hotspots.filter(row=>row.intervals>0).sort((a,b)=>b.intervals-a.intervals||b.timers-a.timers||a.file.localeCompare(b.file));
-const budgets={timers:400,listeners:748,intervals:41};
+const budgets={timers:395,listeners:743,intervals:41};
 const targets={timers:350,listeners:650,intervals:0};
-assert.ok(totals.timers<=budgets.timers,`OS1240 timer budget regression: ${totals.timers} > ${budgets.timers}`);
-assert.ok(totals.listeners<=budgets.listeners,`OS1240 listener budget regression: ${totals.listeners} > ${budgets.listeners}`);
-assert.ok(totals.intervals<=budgets.intervals,`OS1240 interval budget regression: ${totals.intervals} > ${budgets.intervals}`);
+assert.ok(totals.timers<=budgets.timers,`OS1250 timer budget regression: ${totals.timers} > ${budgets.timers}`);
+assert.ok(totals.listeners<=budgets.listeners,`OS1250 listener budget regression: ${totals.listeners} > ${budgets.listeners}`);
+assert.ok(totals.intervals<=budgets.intervals,`OS1250 interval budget regression: ${totals.intervals} > ${budgets.intervals}`);
 const today=await readFile(new URL('./js/todayLite43.js',root),'utf8');
 assert.equal((today.match(/addEventListener\s*\(/g)||[]).length,0,'OS1110 Today must keep a single delegated click router');
 assert.match(today,/confidenceFor/,'OS1110 Today must expose priority confidence');
@@ -41,6 +41,11 @@ const ticketPage=await readFile(new URL('./js/ticketPage665.js',root),'utf8');
 assert.equal((ticketPage.match(/addEventListener\s*\(/g)||[]).length,0,'OS1240 Ticket page must remain delegated through OS1100');
 assert.match(ticketPage,/ownEvent1100/,'OS1240 Ticket page must use OS1100 event ownership');
 assert.match(ticketPage,/ticketDelegated665/,'OS1240 Ticket page must install its delegated host only once');
+const moneyHub=await readFile(new URL('./js/moneyHub680.js',root),'utf8');
+assert.equal((moneyHub.match(/addEventListener\s*\(/g)||[]).length,0,'OS1250 Money hub must remain fully OS1100-owned');
+assert.equal((moneyHub.match(/setTimeout\s*\(/g)||[]).length,0,'OS1250 Money hub must use keyed OS1100 scheduling');
+assert.match(moneyHub,/moneyDelegated680/,'OS1250 Money hub must keep one delegated host listener');
+assert.match(moneyHub,/pauseWhenHidden/,'OS1250 Money refresh scheduling must pause when hidden');
 const health=await readFile(new URL('./js/runtimeHealth1120.js',root),'utf8');
 assert.match(health,/PerformanceObserver/,'OS1120 must measure long tasks');
 assert.match(health,/recordModuleFailure1120/,'OS1120 must track repeated module failures');
@@ -77,4 +82,4 @@ assert.match(ui,/TIMELINE/,'OS1230 health UI must surface universal timeline sta
 assert.match(ui,/PERFORMANCE/,'OS1230 health UI must surface performance and leak status');
 const coordinator=await readFile(new URL('./js/runtimeCoordinator1050.js',root),'utf8');
 for(const token of ['runtimeHealth1120','runtimeLeak1210','performanceBudget1220','viewLifecycle1230','decisionCore1140','linkGraph1150','waitingIntelligence1160','universalTimeline1170','financeRisk1180','runtimeHealthUi1200'])assert.match(coordinator,new RegExp(token),`OS1230 canonical coordinator missing ${token}`);
-console.log(JSON.stringify({name:'OS1240 delegated hotspot runtime contract',totals,budgets,targets,topHotspots:hotspots.slice(0,20),intervalHotspots},null,2));
+console.log(JSON.stringify({name:'OS1250 Money runtime ownership contract',totals,budgets,targets,topHotspots:hotspots.slice(0,20),intervalHotspots},null,2));
