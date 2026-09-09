@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const src=await readFile(new URL('./js/lazyBoot41.js',import.meta.url),'utf8');
+assert.ok(src.includes("RUNTIME_OWNER='core.lazyBoot41'"),'lazyBoot41 must declare the core.lazyBoot41 owner');
+assert.ok(src.includes('installRuntimeOwnership1100'),'lazyBoot41 must install OS1100 ownership');
+assert.ok(src.includes("activateDomain1100('core',[RUNTIME_OWNER])"),'lazyBoot41 must activate its core runtime owner');
+assert.ok(src.includes('ownEvent1100'),'lazyBoot41 must use owner-scoped listeners');
+assert.ok(src.includes("schedule1100(RUNTIME_OWNER,'self-heal-sweep'"),'lazyBoot41 recurring self-heal must use OS1100 scheduling');
+assert.equal((src.match(/setInterval\s*\(/g)||[]).length,0,'lazyBoot41 must not own setInterval polling');
+assert.equal((src.match(/addEventListener\s*\(/g)||[]).length,0,'lazyBoot41 must not own raw listeners');
+console.log('OS1103 lazy boot guard PASS: lifecycle listeners and recurring self-heal are OS1100-owned');
