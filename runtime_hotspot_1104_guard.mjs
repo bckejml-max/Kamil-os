@@ -19,4 +19,5 @@ const settle=await read('./js/bettingAutoSettle544.js');
 assert.equal((stability.match(/addEventListener\s*\(/g)||[]).length,0,'platform431Stability must not own raw listeners');
 assert.equal((browser.match(/addEventListener\s*\(/g)||[]).length,0,'bettingBrowserFeed694 must not own raw listeners');
 assert.ok(settle.includes('runSingleFlight1100'),'betting auto-settlement must be single-flight');
+assert.ok(settle.includes("sel.includes('AWAY')||sel.includes('HOST')||sel.includes('2')"),'betting auto-settlement must preserve away selection compatibility');
 console.log('OS1104 polling guard PASS: platform heartbeat/watchdog and betting auto-settle/browser-feed polling are OS1100-owned');
