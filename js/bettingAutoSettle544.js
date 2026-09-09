@@ -1,6 +1,9 @@
+import {installRuntimeOwnership1100,schedule1100,activateDomain1100,runSingleFlight1100} from './runtimeOwnership1100.js';
+
 const STORE='kamil_betting_ledger_543';
 const RESULT_API='/api/market-history?source=bet_results';
-const VERSION='544.0.0';
+const VERSION='544.1.0';
+const OWNER='betting.autoSettle544';
 const SETTLEABLE=new Set(['MATCH_RESULT','MATCH_ODDS','BOTH_TEAMS_TO_SCORE','OVER_UNDER','TOTAL_GOALS','HOME_OVER_UNDER','AWAY_OVER_UNDER','TEAM_TOTALS','ASIAN_HANDICAP','MATCH_HANDICAP']);
 const norm=v=>String(v||'').toUpperCase();
 function read(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')}catch{return{bets:[]}}}
@@ -35,7 +38,7 @@ function syncView(state,summary){
  if(box)box.innerHTML=`<b style="color:#dce8f1">OS544 Auto-settlement</b> · ${summary.settled} automaticky uzavřeno · ${summary.pending} čeká · ${summary.skipped} nepodporovaných · CLV: poslední pozorovaný kurz, dokud nemáme 24/7 closing snapshot.`;
  window.__KAMIL_BETTING_AUTOSETTLE544__={version:VERSION,...summary,at:Date.now()};
 }
-export async function runBettingAutoSettle544(){
+async function settleOnce544(){
  const state=read();state.bets=Array.isArray(state.bets)?state.bets:[];
  const open=state.bets.filter(b=>norm(b.status||'OPEN')==='OPEN');if(!open.length){syncView(state,{settled:0,pending:0,skipped:0});return}
  const payload=await fetchMatches(open);let settled=0,pending=0,skipped=0;
@@ -50,5 +53,7 @@ export async function runBettingAutoSettle544(){
  }
  if(settled)write(state);syncView(state,{settled,pending,skipped});
 }
-function boot(){runBettingAutoSettle544();setInterval(runBettingAutoSettle544,15*60*1000)}
+export function runBettingAutoSettle544(){return runSingleFlight1100(OWNER,'settle',settleOnce544)}
+function scheduleNext544(){schedule1100(OWNER,'recurring',()=>Promise.resolve(runBettingAutoSettle544()).finally(scheduleNext544),15*60*1000,{pauseWhenHidden:true})}
+function boot(){installRuntimeOwnership1100();activateDomain1100('betting',[OWNER]);Promise.resolve(runBettingAutoSettle544()).finally(scheduleNext544)}
 boot();
