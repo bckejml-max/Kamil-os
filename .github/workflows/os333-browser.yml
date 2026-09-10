@@ -28,16 +28,20 @@ jobs:
           node --check js/bettingBootstrap543.js
           node --check js/runtimeOwnership1100.js
           node --check os2000_guard.mjs
+          node --check os2020_guard.mjs
           node --check release_guard_333.mjs
           node --check ci_current_350_test.mjs
           node --check runtime_boot_guard.mjs
           node --check runtime_ownership_1100_guard.mjs
           node --check e2e_os2000_redesign.spec.mjs
+          node --check e2e_os2020_decision_focus.spec.mjs
           node --check e2e_os343_boot_budget.spec.mjs
           node --check e2e_os345_deferred_boot.spec.mjs
           node --check e2e_os347_critical_path.spec.mjs
       - name: OS 2.0 architecture contract
-        run: node os2000_guard.mjs
+        run: |
+          node os2000_guard.mjs
+          node os2020_guard.mjs
       - name: Canonical release guard
         run: npm run test:release
       - name: Ticket renderer ownership
@@ -54,4 +58,4 @@ jobs:
       - name: OS 2.0 critical-path performance gate
         run: npx playwright test e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
       - name: OS 2.0 canonical browser smoke
-        run: npx playwright test e2e_os2000_redesign.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os345_deferred_boot.spec.mjs --reporter=line --workers=1
+        run: npx playwright test e2e_os2000_redesign.spec.mjs e2e_os2020_decision_focus.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os345_deferred_boot.spec.mjs --reporter=line --workers=1
