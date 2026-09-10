@@ -4,6 +4,10 @@ const OWNER='core.decision-focus2020';
 const VERSION='2020.0.0';
 let bound=false;
 
+function ensureStyles(){
+ if(document.querySelector('link[data-os2020-css]'))return;
+ const link=document.createElement('link');link.rel='stylesheet';link.href='./os2020.css';link.dataset.os2020Css='1';document.head.appendChild(link);
+}
 function hostFor(view){
  return view==='tickets'?document.querySelector('#ticketIntelView'):view==='betting'?document.querySelector('#bettingView'):null;
 }
@@ -23,8 +27,7 @@ function syncButton(host){
 }
 function apply(view){
  const host=hostFor(view);if(!host)return false;
- host.classList.add('os2020-focused');
- ensureBar(view,host);syncButton(host);
+ ensureStyles();host.classList.add('os2020-focused');ensureBar(view,host);syncButton(host);
  document.documentElement.dataset.os2020=view;
  return true;
 }
