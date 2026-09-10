@@ -13,179 +13,83 @@ jobs:
         with:
           node-version: 22
 
-      - name: OS 217 static and syntax QA
+      - name: OS 2.0 release QA
         run: node qa.mjs
 
-      - name: Deployment and core hardening
+      - name: Deployment, cloud and decision safety
         run: |
           node vercel_policy_test.mjs
           node core_hardening_31_test.mjs
-
-      - name: Cloud write and sync safety
-        run: |
           node trust_sync_32_static_test.mjs
           node copilot_write_32_test.mjs
-
-      - name: Decision safety and delta regression
-        run: |
           node decision_next_30_test.mjs
           node decision_next_30_integration_test.mjs
           node decision_delta_30_test.mjs
           node decision_delta_30_integration_test.mjs
 
-      - name: Ticket data integrity 182
-        run: node ticket_import_integrity_182_test.mjs
-      - name: Ticket import report 183
-        run: node ticket_import_report_183_test.mjs
-      - name: Ticket import rollback 184
-        run: node ticket_import_rollback_184_test.mjs
-      - name: Ticket Recovery Center 185
-        run: node ticket_recovery_185_test.mjs
-      - name: Ticket Cloud Recovery Vault 186
-        run: node ticket_recovery_cloud_186_test.mjs
-      - name: Ticket Recovery Cloud UX 187
-        run: node ticket_recovery_ux_187_test.mjs
-      - name: Ticket First-open Cloud Hydration 188
-        run: node ticket_recovery_hydration_188_test.mjs
-      - name: Ticket Recovery Snapshot Diff 189
-        run: node ticket_recovery_diff_189_test.mjs
-      - name: Ticket Multi-market Desk 190
-        run: node ticket_market_desk_190_test.mjs
-      - name: Ticket Market Coverage Queue 191
-        run: node ticket_market_queue_191_test.mjs
-      - name: Ticket Net Payout Learning 192
-        run: node ticket_payout_learning_192_test.mjs
-      - name: Ticket Minimum Profit Floor 193
-        run: node ticket_profit_floor_193_test.mjs
-      - name: Ticket Dynamic Repricing Guard 194
-        run: node ticket_repricing_guard_194_test.mjs
-      - name: Ticket Sell Probability Ladder 195
-        run: node ticket_sell_ladder_195_test.mjs
-      - name: Ticket Commander 196
-        run: node ticket_commander_196_test.mjs
-      - name: Daily Ticket Action Queue 197
-        run: node ticket_daily_queue_197_test.mjs
-      - name: Ticket Opportunity Scanner 198
-        run: node ticket_opportunity_198_test.mjs
-      - name: Ticket Presale Radar 199
-        run: node ticket_presale_radar_199_test.mjs
-      - name: Ticket Presale Execution Plan 200
-        run: node ticket_presale_execution_200_test.mjs
-      - name: Ticket Portfolio Exposure 201
-        run: node ticket_exposure_201_test.mjs
-      - name: Ticket Portfolio Risk Budget 202
-        run: node ticket_risk_budget_202_test.mjs
-      - name: Ticket Capital Allocator 203
-        run: node ticket_capital_allocator_203_test.mjs
-      - name: Ticket Expected Profit Portfolio Planner 204
-        run: node ticket_portfolio_planner_204_test.mjs
-      - name: Ticket Learned Net Profit Planner 205
-        run: node ticket_learned_net_planner_205_test.mjs
-      - name: Ticket Profit Confidence Engine 206
-        run: node ticket_profit_confidence_206_test.mjs
-      - name: Ticket Risk Adjusted Profit Ranking 207
-        run: node ticket_risk_adjusted_ranking_207_test.mjs
-      - name: Ticket Commander 3.0 208
-        run: node ticket_commander_208_test.mjs
-      - name: Ticket Commander Action Priority 209
-        run: node ticket_action_priority_209_test.mjs
-      - name: Ticket no-scroll workspace 210
-        run: node ticket_workspace_210_test.mjs
-      - name: OS 214 Ticket Buy Safety 2.0 gate
+      - name: Ticket data and recovery contracts
         run: |
+          node ticket_import_integrity_182_test.mjs
+          node ticket_import_report_183_test.mjs
+          node ticket_import_rollback_184_test.mjs
+          node ticket_recovery_185_test.mjs
+          node ticket_recovery_cloud_186_test.mjs
+          node ticket_recovery_ux_187_test.mjs
+          node ticket_recovery_hydration_188_test.mjs
+          node ticket_recovery_diff_189_test.mjs
+          node ticket_market_desk_190_test.mjs
+          node ticket_market_queue_191_test.mjs
+
+      - name: Ticket economics and execution contracts
+        run: |
+          node ticket_payout_learning_192_test.mjs
+          node ticket_profit_floor_193_test.mjs
+          node ticket_repricing_guard_194_test.mjs
+          node ticket_sell_ladder_195_test.mjs
+          node ticket_commander_196_test.mjs
+          node ticket_daily_queue_197_test.mjs
           node ticket_opportunity_198_test.mjs
           node ticket_presale_radar_199_test.mjs
           node ticket_presale_execution_200_test.mjs
+          node ticket_exposure_201_test.mjs
           node ticket_risk_budget_202_test.mjs
           node ticket_capital_allocator_203_test.mjs
-      - name: OS 215 Buy Blocker Explainer
-        run: node ticket_buy_blocker_215_test.mjs
-      - name: OS 216 Payout-Aware Execution Wiring
-        run: node ticket_presale_execution_wiring_216_test.mjs
-      - name: OS 217 Ticket Data Readiness Center
-        run: node ticket_data_readiness_217_test.mjs
-      - name: Ticket market API contract
-        run: node ticket_market_api_65_6_test.mjs
+          node ticket_portfolio_planner_204_test.mjs
+          node ticket_learned_net_planner_205_test.mjs
+          node ticket_profit_confidence_206_test.mjs
+          node ticket_risk_adjusted_ranking_207_test.mjs
+          node ticket_commander_208_test.mjs
+          node ticket_action_priority_209_test.mjs
+          node ticket_buy_blocker_215_test.mjs
+          node ticket_presale_execution_wiring_216_test.mjs
+          node ticket_data_readiness_217_test.mjs
+          node ticket_market_api_65_6_test.mjs
+
+      - name: Canonical release chain
+        run: npm run test:release
 
       - name: Current runtime syntax belt
         run: |
           node --check js/instantShell64.js
           node --check js/app.js
           node --check js/viewRuntime41.js
-          node --check js/todayPage101.js
+          node --check js/todayPage2000.js
           node --check js/ticketPage100.js
-          node --check js/ticketPage665.js
+          node --check js/bettingPage527.js
+          node --check js/bettingBootstrap543.js
           node --check js/moneyPage100.js
-          node --check js/os181Suite.js
-          node --check js/executiveCommand164.js
-          node --check js/dataTrust163.js
-          node --check js/ticketImportIntegrity182.js
-          node --check js/ticketImportReport183.js
-          node --check js/ticketImportRollback184.js
-          node --check js/ticketRecovery185.js
-          node --check js/ticketRecoveryCloudModel186.js
-          node --check js/ticketRecoveryCloud186.js
-          node --check js/ticketRecoveryUx187.js
-          node --check js/ticketRecoveryHydration188.js
-          node --check js/ticketRecoveryDiffModel189.js
-          node --check js/ticketRecoveryDiff189.js
-          node --check js/ticketMarketDeskModel190.js
-          node --check js/ticketMarketDesk190.js
-          node --check js/ticketMarketQueueModel191.js
-          node --check js/ticketMarketQueue191.js
-          node --check js/ticketPayoutLearningModel192.js
-          node --check js/ticketPayoutLearning192.js
-          node --check js/ticketProfitFloorModel193.js
-          node --check js/ticketProfitFloor193.js
-          node --check js/ticketRepricingGuardModel194.js
-          node --check js/ticketRepricingGuard194.js
-          node --check js/ticketSellLadderModel195.js
-          node --check js/ticketSellLadder195.js
-          node --check js/ticketCommanderModel196.js
-          node --check js/ticketCommander196.js
-          node --check js/ticketDailyQueueModel197.js
-          node --check js/ticketDailyQueue197.js
-          node --check js/ticketOpportunityModel198.js
-          node --check js/ticketOpportunity198.js
-          node --check js/ticketPresaleRadarModel199.js
-          node --check js/ticketPresaleRadar199.js
-          node --check js/ticketPresaleExecutionModel200.js
-          node --check js/ticketPresaleExecution200.js
-          node --check js/ticketExposureModel201.js
-          node --check js/ticketExposure201.js
-          node --check js/ticketRiskBudgetModel202.js
-          node --check js/ticketRiskBudget202.js
-          node --check js/ticketCapitalAllocatorModel203.js
-          node --check js/ticketCapitalAllocator203.js
-          node --check js/ticketPortfolioPlannerModel204.js
-          node --check js/ticketPortfolioPlanner204.js
-          node --check js/ticketLearnedNetPlannerModel205.js
-          node --check js/ticketLearnedNetPlanner205.js
-          node --check js/ticketProfitConfidenceModel206.js
-          node --check js/ticketProfitConfidence206.js
-          node --check js/ticketRiskAdjustedRankingModel207.js
-          node --check js/ticketRiskAdjustedRanking207.js
-          node --check js/ticketCommanderModel208.js
-          node --check js/ticketCommander208.js
-          node --check js/ticketActionPriorityModel209.js
-          node --check js/ticketActionPriority209.js
-          node --check js/ticketWorkspace210.js
-          node --check js/ticketBuyBlockerModel215.js
-          node --check js/ticketBuyBlocker215.js
-          node --check js/ticketDataReadinessModel217.js
-          node --check js/ticketDataReadiness217.js
-          node --check js/ticketImport660.js
           node --check js/ticketCloud660.js
           node --check js/ticketSales150.js
           node --check js/ticketSaleDetail151.js
+          node --check os2000_guard.mjs
 
       - name: Install browser QA
-        run: npm install --ignore-scripts --no-audit --no-fund
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: OS 217 browser release smoke
+      - name: OS 2.0 shell and on-demand Ticket smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_os181_current_smoke.spec.mjs --reporter=line
+          npx playwright test e2e_os2000_redesign.spec.mjs --reporter=line --workers=1
