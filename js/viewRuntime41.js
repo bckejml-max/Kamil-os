@@ -71,13 +71,7 @@ export async function executeCommand41(q=''){
  try{const x=await load('./commandSearch610.js');x.installCommandSearch610?.();if(x.executeExtendedCommand610?.(q))return true}catch(e){console.warn('[command-search610]',e)}
  const m=await load('./command.js');return m.execute(q)
 }
-export async function renderExtras41(view='today'){
- syncChrome142(view);
- if(view==='tickets'||view==='betting'){
-  try{const m=await load('./decisionFocus2020.js');m.applyDecisionFocus2020?.(view)}catch(error){console.warn('[decision-focus2020]',error)}
- }
- return null
-}
+export async function renderExtras41(view='today'){syncChrome142(view);return null}
 export function refreshRiskBadge41(){return Promise.resolve(null)}
 export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE,canonicalViews:[...validViews41],commandBar:true,inbox:true,betting:true,os2:true}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}}
 export function scheduleNotifications41(){return Promise.resolve(null)}
