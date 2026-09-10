@@ -28,7 +28,9 @@ if(index.includes('theme33.css')||index.includes('personal65.css')||index.includ
 if(index.includes('bettingBootstrap543.js'))fail('Betting bootstrap must not eager-load from index');
 for(const id of ['view-today','view-inbox','view-tickets','view-betting','view-money','view-family','view-home','view-more'])if(!index.includes(`id="${id}"`))fail(`static shell missing ${id}`);
 
-for(const symbol of ['architecture:\'os2-on-demand\'','BOOT343','DEFER345','__KAMIL_BOOT_BUDGET343__','__KAMIL_DEFERRED345__'])if(!boot.includes(symbol))fail(`OS2 boot missing ${symbol}`);
+for(const symbol of [
+ "architecture:'os2-on-demand'",'BOOT343','DEFER345','__KAMIL_BOOT_BUDGET343__','__KAMIL_DEFERRED345__'
+])if(!boot.includes(symbol))fail(`OS2 boot missing ${symbol}`);
 if((boot.match(/await import\('\.\/app\.js'\)/g)||[]).length!==1)fail('OS2 boot must import app.js exactly once');
 if(boot.includes('optionalImport(')||boot.includes('deferredImport('))fail('layered optional/deferred boot queues must stay retired');
 for(const p of ['ticketDesk331.js','bettingBootstrap543.js','workspaces305.js','todayCockpit363.js','commandCenter467.js'])if(boot.includes(p))fail(`${p} must not be an eager OS2 boot dependency`);
@@ -43,7 +45,8 @@ for(const token of [
 if(!views.includes('ensureViewStyles'))fail('view-specific CSS must remain lazy');
 if(!views.includes("tickets:['./ticket68.css'"))fail('Ticket styles must remain view-scoped');
 
-for(const symbol of ['data-os2-today','os2-welcome','os2-now','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today OS2 missing ${symbol}`);
+for(const symbol of ['data-os2-today','data-os2060-today','os2060-priorities','os2060-waiting','os2060-statuses','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today OS2060 missing ${symbol}`);
+if(today.includes('os2-kpis')||today.includes('Kalendář')||today.includes('Rychlý přístup'))fail('Today OS2060 must stay decision-first and compact');
 if(!app.includes("const input=qs('#commandInput')")||!app.includes('executeCommand41(v)'))fail('canonical command bar missing');
 if(!ticketPage.includes("import('./ticketDesk331.js')"))fail('Ticket Desk must remain on-demand from ticketPage100');
 if(!betting.includes("import('./bettingBootstrap543.js')"))fail('Betting enrichment must remain on-demand from bettingPage527');
@@ -51,4 +54,4 @@ if(!ticketCloud.includes("from('ticket_inventory')"))fail('ticket inventory clou
 if(/service[_-]?role/i.test(ticketCloud))fail('service-role reference in browser ticket code');
 
 if(!exists('./e2e_os2000_redesign.spec.mjs'))fail('missing OS2 browser regression');
-if(!process.exitCode)console.log(`OS2000 release guard OK · ${releaseVersion}`);
+if(!process.exitCode)console.log(`OS2060 release guard OK · ${releaseVersion}`);

@@ -9,12 +9,7 @@ async function boot(page){
 
 test('OS2000 starts as a small on-demand shell',async({page})=>{
  await boot(page);
- const state=await page.evaluate(()=>({
-  boot:window.__KAMIL_BOOT_BUDGET343__,
-  deferred:window.__KAMIL_DEFERRED345__,
-  styles:[...document.querySelectorAll('link[rel="stylesheet"]')].map(x=>x.getAttribute('href')),
-  resources:performance.getEntriesByType('resource').map(x=>x.name)
- }));
+ const state=await page.evaluate(()=>({boot:window.__KAMIL_BOOT_BUDGET343__,deferred:window.__KAMIL_DEFERRED345__,styles:[...document.querySelectorAll('link[rel="stylesheet"]')].map(x=>x.getAttribute('href')),resources:performance.getEntriesByType('resource').map(x=>x.name)}));
  expect(state.boot.architecture).toBe('os2-on-demand');
  expect(state.boot.modules.length).toBeLessThanOrEqual(2);
  expect(state.boot.modules.some(x=>x.path==='./app.js'&&x.ok)).toBe(true);
@@ -27,14 +22,19 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
  expect(state.resources.some(x=>x.includes('ticketDesk331.js'))).toBe(false);
 });
 
-test('OS2000 Today is the canonical lightweight dashboard',async({page})=>{
+test('OS2060 Today shows only three priorities, waiting and three compact domain statuses',async({page})=>{
  await boot(page);
- await expect(page.locator('.os2-hero h1')).toContainText(/Kamile/i);
- await expect(page.locator('.os2-now')).toBeVisible();
- await expect(page.locator('.os2-kpis .os2-kpi')).toHaveCount(4);
+ await expect(page.locator('.os2060-hero h1')).toContainText(/Kamile/i);
+ await expect(page.locator('[data-os2060-priority]')).toHaveCount(3);
+ await expect(page.locator('.os2060-waiting')).toBeVisible();
+ await expect(page.locator('.os2060-statuses .os2060-status')).toHaveCount(3);
+ await expect(page.locator('.os2-kpis')).toHaveCount(0);
+ await expect(page.getByText('Kalendář',{exact:true})).toHaveCount(0);
+ await expect(page.getByText('Rychlý přístup',{exact:true})).toHaveCount(0);
  const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(today?.healthy).toBe(true);
- expect(today?.version).toBe(2000);
+ expect(today?.version).toBe(2060);
+ expect(today?.priorities).toBeLessThanOrEqual(3);
 });
 
 test('OS2000 navigation keeps heavy views lazy',async({page})=>{
@@ -66,13 +66,7 @@ test('OS2010 keeps primary workspaces contained on desktop',async({page})=>{
   await page.locator(`#mainNav [data-view="${view}"]`).click();
   await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
   await page.waitForTimeout(view==='tickets'||view==='betting'?800:350);
-  const metrics=await page.evaluate(v=>{
-   const id={inbox:'inboxView',money:'moneyView',tickets:'ticketIntelView',betting:'bettingView'}[v];
-   const host=document.getElementById(id),body=document.body,root=document.documentElement;
-   if(!host)return null;
-   const rect=host.getBoundingClientRect();
-   return{hostWidth:rect.width,viewport:innerWidth,bodyOverflow:Math.max(body.scrollWidth,root.scrollWidth)-innerWidth};
-  },view);
+  const metrics=await page.evaluate(v=>{const id={inbox:'inboxView',money:'moneyView',tickets:'ticketIntelView',betting:'bettingView'}[v];const host=document.getElementById(id),body=document.body,root=document.documentElement;if(!host)return null;const rect=host.getBoundingClientRect();return{hostWidth:rect.width,viewport:innerWidth,bodyOverflow:Math.max(body.scrollWidth,root.scrollWidth)-innerWidth}},view);
   expect(metrics).not.toBeNull();
   expect(metrics.hostWidth).toBeLessThanOrEqual(1362);
   expect(metrics.bodyOverflow).toBeLessThanOrEqual(2);
