@@ -2,85 +2,29 @@ name: Kamil OS Control Plane + Operations QA
 on:
   pull_request:
     paths:
+      - 'index.html'
+      - 'os2.css'
+      - 'js/instantShell64.js'
       - 'js/app.js'
-      - 'js/inboxHub660.js'
-      - 'js/controlPlane1037.js'
-      - 'js/controlPlane1037Boot.js'
-      - 'js/controlOperations1047.js'
-      - 'js/controlOperations1047Boot.js'
-      - 'js/runtimeCoordinator1050.js'
+      - 'js/viewRuntime41.js'
+      - 'js/todayPage2000.js'
       - 'js/runtimeOwnership1100.js'
       - 'js/runtimeHealth1120.js'
       - 'js/runtimeLeak1210.js'
       - 'js/performanceBudget1220.js'
       - 'js/viewLifecycle1230.js'
-      - 'js/decisionCore1140.js'
-      - 'js/linkGraph1150.js'
-      - 'js/waitingIntelligence1160.js'
-      - 'js/universalTimeline1170.js'
-      - 'js/financeRisk1180.js'
-      - 'js/runtimeHealthUi1200.js'
-      - 'js/personalToday640.js'
-      - 'js/ticketPage665.js'
-      - 'js/moneyHub680.js'
-      - 'js/oneOS967Boot.js'
-      - 'js/oneOS977Boot.js'
-      - 'js/legacyCleanup987Boot.js'
-      - 'js/personalMore640.js'
+      - 'js/bettingPage527.js'
       - 'js/bettingBootstrap543.js'
+      - 'js/ticketPage100.js'
+      - 'os2000_guard.mjs'
       - 'runtime_boot_guard.mjs'
+      - 'runtime_ownership_1100_guard.mjs'
       - 'runtime_inventory_1100_guard.mjs'
-      - 'scripts/control_plane_1037_guard.mjs'
-      - 'scripts/control_operations_1047_guard.mjs'
-      - 'e2e_control_plane_1037.spec.mjs'
-      - 'e2e_control_operations_1047.spec.mjs'
-      - 'e2e_runtime_coordinator_1050.spec.mjs'
-      - 'e2e_os1200_health.spec.mjs'
-      - 'e2e_runtime_leak_1210.spec.mjs'
-      - 'e2e_runtime_hotspots_1240.spec.mjs'
-      - 'e2e_runtime_money_1250.spec.mjs'
-      - 'e2e_runtime_app_1260.spec.mjs'
-      - 'e2e_runtime_inbox_1270.spec.mjs'
+      - 'e2e_os2000_redesign.spec.mjs'
+      - 'e2e_os347_critical_path.spec.mjs'
       - '.github/workflows/os1047-control-operations.yml'
   push:
     branches: [main]
-    paths:
-      - 'js/app.js'
-      - 'js/inboxHub660.js'
-      - 'js/controlPlane1037.js'
-      - 'js/controlPlane1037Boot.js'
-      - 'js/controlOperations1047.js'
-      - 'js/controlOperations1047Boot.js'
-      - 'js/runtimeCoordinator1050.js'
-      - 'js/runtimeOwnership1100.js'
-      - 'js/runtimeHealth1120.js'
-      - 'js/runtimeLeak1210.js'
-      - 'js/performanceBudget1220.js'
-      - 'js/viewLifecycle1230.js'
-      - 'js/decisionCore1140.js'
-      - 'js/linkGraph1150.js'
-      - 'js/waitingIntelligence1160.js'
-      - 'js/universalTimeline1170.js'
-      - 'js/financeRisk1180.js'
-      - 'js/runtimeHealthUi1200.js'
-      - 'js/personalToday640.js'
-      - 'js/ticketPage665.js'
-      - 'js/moneyHub680.js'
-      - 'js/oneOS967Boot.js'
-      - 'js/oneOS977Boot.js'
-      - 'js/legacyCleanup987Boot.js'
-      - 'js/bettingBootstrap543.js'
-      - 'runtime_boot_guard.mjs'
-      - 'runtime_inventory_1100_guard.mjs'
-      - 'scripts/control_plane_1037_guard.mjs'
-      - 'scripts/control_operations_1047_guard.mjs'
-      - 'e2e_os1200_health.spec.mjs'
-      - 'e2e_runtime_leak_1210.spec.mjs'
-      - 'e2e_runtime_hotspots_1240.spec.mjs'
-      - 'e2e_runtime_money_1250.spec.mjs'
-      - 'e2e_runtime_app_1260.spec.mjs'
-      - 'e2e_runtime_inbox_1270.spec.mjs'
-      - '.github/workflows/os1047-control-operations.yml'
   workflow_dispatch:
 jobs:
   control:
@@ -90,65 +34,41 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Runtime and control syntax
+      - name: OS 2.0 runtime syntax
         run: |
+          node --check js/instantShell64.js
           node --check js/app.js
-          node --check js/inboxHub660.js
-          node --check js/runtimeCoordinator1050.js
+          node --check js/viewRuntime41.js
+          node --check js/todayPage2000.js
           node --check js/runtimeOwnership1100.js
           node --check js/runtimeHealth1120.js
           node --check js/runtimeLeak1210.js
           node --check js/performanceBudget1220.js
           node --check js/viewLifecycle1230.js
-          node --check js/decisionCore1140.js
-          node --check js/linkGraph1150.js
-          node --check js/waitingIntelligence1160.js
-          node --check js/universalTimeline1170.js
-          node --check js/financeRisk1180.js
-          node --check js/runtimeHealthUi1200.js
-          node --check js/personalToday640.js
-          node --check js/ticketPage665.js
-          node --check js/moneyHub680.js
+          node --check js/bettingPage527.js
+          node --check js/bettingBootstrap543.js
+          node --check js/ticketPage100.js
+          node --check os2000_guard.mjs
           node --check runtime_boot_guard.mjs
+          node --check runtime_ownership_1100_guard.mjs
           node --check runtime_inventory_1100_guard.mjs
-          node --check e2e_runtime_coordinator_1050.spec.mjs
-          node --check e2e_os1200_health.spec.mjs
-          node --check e2e_runtime_leak_1210.spec.mjs
-          node --check e2e_runtime_hotspots_1240.spec.mjs
-          node --check e2e_runtime_money_1250.spec.mjs
-          node --check e2e_runtime_app_1260.spec.mjs
-          node --check e2e_runtime_inbox_1270.spec.mjs
-      - name: Control Plane and Operations contracts
+          node --check e2e_os2000_redesign.spec.mjs
+          node --check e2e_os347_critical_path.spec.mjs
+      - name: OS 2.0 runtime contracts
         run: |
+          node os2000_guard.mjs
           node runtime_boot_guard.mjs
+          node runtime_ownership_1100_guard.mjs
           node runtime_inventory_1100_guard.mjs
-          node scripts/control_plane_1037_guard.mjs
-          node scripts/control_operations_1047_guard.mjs
       - name: Canonical compatibility
         run: npm run test:release
       - name: Install browser QA
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Control browser smoke
-        id: browser
+      - name: OS 2.0 browser smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-control-http.log 2>&1 &
           SERVER_PID=$!
-          set +e
-          npx playwright test e2e_runtime_coordinator_1050.spec.mjs e2e_os1200_health.spec.mjs e2e_runtime_leak_1210.spec.mjs e2e_runtime_hotspots_1240.spec.mjs e2e_runtime_money_1250.spec.mjs e2e_runtime_app_1260.spec.mjs e2e_runtime_inbox_1270.spec.mjs e2e_control_operations_1047.spec.mjs e2e_control_plane_1037.spec.mjs e2e_legacy_cleanup_987.spec.mjs e2e_one_os_977.spec.mjs e2e_one_os_967.spec.mjs e2e_os947_visual.spec.mjs --reporter=json > control-playwright.json
-          CODE=$?
-          kill $SERVER_PID || true
-          set -e
-          echo "code=$CODE" >> "$GITHUB_OUTPUT"
-      - name: Upload control browser report
-        if: always() && steps.browser.outcome != 'skipped'
-        uses: actions/upload-artifact@v4
-        with:
-          name: control-browser-report
-          path: control-playwright.json
-          if-no-files-found: warn
-          retention-days: 3
-      - name: Browser QA gate
-        if: steps.browser.outputs.code != '0' && steps.browser.outcome != 'skipped'
-        run: exit 1
+          trap 'kill $SERVER_PID' EXIT
+          npx playwright test e2e_os2000_redesign.spec.mjs e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
