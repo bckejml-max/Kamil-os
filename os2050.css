@@ -1,0 +1,24 @@
+/* OS2050 — Betting Action Cockpit */
+#bettingView.os2020-focused .bet630-head{padding:14px 16px 10px;border-bottom:0;background:transparent}
+#bettingView.os2020-focused .bet630-head p{display:none}
+#bettingView.os2020-focused .bet630-head h2{font-size:18px;margin-bottom:0}
+#bettingView.os2020-focused .bet630-badge{opacity:.78}
+#bettingView.os2020-focused .bet630-sourcewarn{margin:0 12px 10px;padding:9px 11px;font-size:9px}
+#bettingView.os2020-focused .bet630-risk{margin:0 12px 10px;padding:11px 12px;border-color:rgba(100,156,194,.2);background:rgba(75,128,163,.075)}
+#bettingView.os2020-focused .bet630-actions{gap:10px}
+#bettingView.os2020-focused .bet630-col{transition:opacity .16s ease,border-color .16s ease,background .16s ease}
+#bettingView.os2020-focused .bet630-col:has(.bet630-empty){opacity:.45;background:rgba(126,160,185,.018);border-style:dashed}
+#bettingView.os2020-focused .bet630-col:not(:has(.bet630-empty)) .bet630-action:first-of-type{margin:-1px -3px 0;padding:9px 7px;border:1px solid rgba(123,174,207,.14);border-radius:9px;background:rgba(117,166,198,.055)}
+#bettingView.os2020-focused .bet630-col.bet:not(:has(.bet630-empty)) .bet630-action:first-of-type{border-color:rgba(89,190,132,.25);background:rgba(46,126,78,.095)}
+#bettingView.os2020-focused .bet630-col.wait:not(:has(.bet630-empty)) .bet630-action:first-of-type{border-color:rgba(233,184,98,.26);background:rgba(143,95,25,.095)}
+#bettingView.os2020-focused .bet630-col.no:not(:has(.bet630-empty)) .bet630-action:first-of-type{border-color:rgba(235,111,126,.22);background:rgba(130,44,55,.075)}
+#bettingView.os2020-focused:not(.os2020-advanced) .bet630-action:nth-of-type(n+5){display:none}
+#bettingView.os2020-focused .os2020-focusbar{border-color:rgba(100,156,194,.2)}
+#bettingView.os2020-focused .os2020-focusbar [data-os2020-summary]{color:#9fb5c5;font-weight:700}
+
+@media(max-width:620px){
+ #bettingView.os2020-focused .bet630-head{padding:10px 10px 6px}
+ #bettingView.os2020-focused .bet630-risk{position:sticky;top:112px;z-index:18;margin:0 8px 8px;background:rgba(14,21,29,.96);backdrop-filter:blur(10px)}
+ #bettingView.os2020-focused .bet630-actions{gap:7px;padding-left:8px;padding-right:8px}
+ #bettingView.os2020-focused .bet630-col{padding:9px}
+}

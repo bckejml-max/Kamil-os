@@ -1,7 +1,7 @@
 import {installRuntimeOwnership1100,ownEvent1100} from './runtimeOwnership1100.js';
 
 const OWNER='core.decision-focus2020';
-const VERSION='2040.0.0';
+const VERSION='2050.0.0';
 let bound=false;
 
 function ensureLink(key,href){
@@ -11,18 +11,25 @@ function ensureLink(key,href){
 function ensureStyles(view){
  ensureLink('os2020-css','./os2020.css');
  if(view==='tickets')ensureLink('os2040-css','./os2040.css');
+ if(view==='betting')ensureLink('os2050-css','./os2050.css');
 }
 function hostFor(view){
  return view==='tickets'?document.querySelector('#ticketIntelView'):view==='betting'?document.querySelector('#bettingView'):null;
 }
-function labelFor(view){return view==='tickets'?'Vstupenky':'Sázení'}
 function ticketSummary(host){
  const values=[...host.querySelectorAll('.ticket640-kpis>.ticket640-kpi')].slice(0,4).map(node=>({label:node.querySelector('span')?.textContent?.trim()||'',value:node.querySelector('b')?.textContent?.trim()||'0'}));
  const map=Object.fromEntries(values.map(x=>[x.label,x.value]));
  if(!values.length)return'Vstupenky · zobrazím jen věci, které dnes vyžadují rozhodnutí';
  return `${map['KOUPIT DNES']||'0'} koupit · ${map['ZLEVNIT']||'0'} zlevnit · ${map['PRODAT']||'0'} prodat · cash ${map['VOLNÁ HOTOVOST']||'—'}`;
 }
-function descriptionFor(view,host){return view==='tickets'?ticketSummary(host):'Sázení · zobrazuju jen bankroll, expozici, P/L, ROI a akční frontu'}
+function bettingSummary(host){
+ const cols=[...host.querySelectorAll('.bet630-actions>.bet630-col')];
+ const count=kind=>cols.find(x=>x.classList.contains(kind))?.querySelector('h3 span')?.textContent?.trim()||'0';
+ const risk=[...host.querySelectorAll('.bet630-kpis>.bet630-kpi')].find(x=>x.querySelector('span')?.textContent?.trim()==='Risk room')?.querySelector('b')?.textContent?.trim()||'—';
+ if(!cols.length)return'Sázení · zobrazím jen rozhodnutí, bankroll a risk';
+ return `${count('bet')} vsadit · ${count('wait')} čekat · ${count('no')} nevsadit · risk room ${risk}`;
+}
+function descriptionFor(view,host){return view==='tickets'?ticketSummary(host):bettingSummary(host)}
 function ensureBar(view,host){
  let bar=host?.querySelector(':scope > [data-os2020-focusbar]');
  if(!host)return null;
