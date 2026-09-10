@@ -5,9 +5,15 @@ async function boot(page){
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
 }
+async function activate(page,view){
+ await page.evaluate(name=>{
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  document.querySelector(`#view-${name}`)?.classList.add('on');
+ },view);
+}
 
 test('OS2020 keeps Ticket advanced layers hidden until requested',async({page})=>{
- await boot(page);
+ await boot(page);await activate(page,'tickets');
  await page.evaluate(async()=>{
   const host=document.querySelector('#ticketIntelView');
   host.innerHTML='<div class="ticket640-lowergrid" data-test-advanced>advanced</div><div class="ticket640-note">note</div>';
@@ -25,7 +31,7 @@ test('OS2020 keeps Ticket advanced layers hidden until requested',async({page})=
 });
 
 test('OS2020 keeps Betting history hidden while action layer remains visible',async({page})=>{
- await boot(page);
+ await boot(page);await activate(page,'betting');
  await page.evaluate(async()=>{
   const host=document.querySelector('#bettingView');
   host.innerHTML='<div class="bet630-actions" data-test-primary>primary</div><div class="bet630-performance" data-test-advanced>history</div><div class="bet630-two">admin</div>';
