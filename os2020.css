@@ -1,0 +1,35 @@
+/* OS2020 — decision-first progressive disclosure for Tickets and Betting */
+.os2020-focusbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 12px;padding:10px 12px;border:1px solid var(--os-line-soft);border-radius:13px;background:rgba(17,23,31,.92)}
+.os2020-focusbar>div{min-width:0}.os2020-focusbar b{display:block;font-size:11px;letter-spacing:-.01em}.os2020-focusbar span{display:block;margin-top:2px;font-size:9px;color:var(--os-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.os2020-advanced-btn{flex:0 0 auto;min-height:30px;padding:0 10px;border:1px solid var(--os-line);border-radius:9px;background:var(--os-surface-2);color:var(--os-muted);font-size:10px;font-weight:800;cursor:pointer}
+.os2020-advanced-btn:hover{color:var(--os-text);border-color:#3b4d62}
+
+/* Tickets: command/action layer stays visible. Verification, capital decomposition and legacy analytics are progressive disclosure. */
+#ticketIntelView.os2020-focused:not(.os2020-advanced) .ticket640-lowergrid,
+#ticketIntelView.os2020-focused:not(.os2020-advanced) .ticket640-note,
+#ticketIntelView.os2020-focused:not(.os2020-advanced) [data-analytics466-body],
+#ticketIntelView.os2020-focused:not(.os2020-advanced) [data-ticket-health397],
+#ticketIntelView.os2020-focused:not(.os2020-advanced) [data-ticket-alerts413],
+#ticketIntelView.os2020-focused:not(.os2020-advanced) .td331-debug,
+#ticketIntelView.os2020-focused:not(.os2020-advanced) .td331-diagnostics{display:none!important}
+#ticketIntelView.os2020-focused .ticket640-head{margin-top:0!important}
+#ticketIntelView.os2020-focused .ticket640-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#ticketIntelView.os2020-focused .ticket640-grid{margin-bottom:0!important}
+
+/* Betting: action queue + risk stay primary. Historical breakdowns and bankroll administration move to Advanced. */
+#bettingView.os2020-focused:not(.os2020-advanced) .bet630-two,
+#bettingView.os2020-focused:not(.os2020-advanced) .bet630-performance,
+#bettingView.os2020-focused:not(.os2020-advanced) .bet630-foot,
+#bettingView.os2020-focused:not(.os2020-advanced) [data-betting-advanced],
+#bettingView.os2020-focused:not(.os2020-advanced) .bet144-note{display:none!important}
+#bettingView.os2020-focused .bet630-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#bettingView.os2020-focused .bet630-actions{margin-bottom:0!important}
+
+@media(max-width:900px){
+ #ticketIntelView.os2020-focused .ticket640-kpis,#bettingView.os2020-focused .bet630-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:620px){
+ .os2020-focusbar{position:sticky;top:66px;z-index:22;margin:-2px -2px 10px;padding:9px 10px;background:rgba(11,15,20,.96);backdrop-filter:blur(12px)}
+ .os2020-focusbar span{max-width:190px}
+ #ticketIntelView.os2020-focused .ticket640-kpis,#bettingView.os2020-focused .bet630-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
