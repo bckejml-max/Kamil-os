@@ -13,10 +13,16 @@ const page=read('js/bettingPage144.js');assert.ok(page.includes('maxPages=12'),'
 const page527=read('js/bettingPage527.js');
 const bootstrap=read('js/bettingBootstrap543.js');
 assert.ok(bootstrap.includes("const REV='os695'"),'OS695 bootstrap cache-bust revision missing');
-assert.ok(bootstrap.indexOf('await ensureBrowserFeed();')<bootstrap.indexOf('await ensureFeed();'),'browser feed must install before external providers');
+assert.ok(bootstrap.includes("architecture:'view-owned-core-first'"),'Betting bootstrap must stay core-first and view-owned');
+assert.ok(bootstrap.includes("import(`./bettingCommander542.js?rev=${REV}`)"),'Commander must be in the Betting core');
+assert.ok(bootstrap.includes("import(`./bettingLedger543.js?rev=${REV}`)"),'Ledger must be in the Betting core');
+assert.ok(bootstrap.includes("timing:'DEFERRED_STABILITY'"),'Timing analytics must stay out of automatic stability boot');
+assert.ok(bootstrap.includes("performance:'DEFERRED_STABILITY'"),'Performance analytics must stay out of automatic stability boot');
+assert.ok(bootstrap.includes("missed:'DEFERRED_STABILITY'"),'Missed Bets must stay out of automatic stability boot');
 assert.ok(page527.includes("import('./bettingBootstrap543.js')"),'Betting bootstrap must load from the Betting view, not global startup');
 assert.ok(page527.includes('if(bootstrapPromise)return bootstrapPromise'),'Betting bootstrap must be single-flight');
 assert.ok(page527.includes('ensureBettingBootstrap()'),'Betting view must install its bootstrap on demand');
+assert.ok(page527.includes("schedule1100(OWNER,'hub630'"),'Betting Hub must be deferred through owned scheduling');
 assert.ok(bootstrap.includes('export function installBettingBootstrap543'),'Betting bootstrap must expose an explicit installer');
 assert.ok(!bootstrap.includes("import('./runtimeCoordinator1050.js')"),'Betting bootstrap must not start the legacy global runtime');
 assert.ok(!bootstrap.includes("import('./commandCopilot840.js')"),'Betting bootstrap must not start global Copilot');
