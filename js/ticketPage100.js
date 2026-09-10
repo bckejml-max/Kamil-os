@@ -1,9 +1,10 @@
 // Canonical ticket view adapter.
-// Critical ticket UX boots first. Historical analytics are best-effort and must
-// never block or take DOM ownership away from the visible Commander workflow.
+// The portfolio desk, canonical controls and Commander shell are the only critical UX.
+// Market modelling, Hub and historical analytics are best-effort background enrichment.
 
-let bootPromise=null,legacyPromise=null;
-const BOOT_VERSION='640.0.0';
+let bootPromise=null,legacyPromise=null,earlyPromise=null;
+const BOOT_VERSION='640.0.1';
+const EARLY_DELAY_MS=80;
 const LEGACY_DELAY_MS=12000;
 const LEGACY_RETRY_MS=1800;
 const LEGACY_YIELD_MS=12;
@@ -11,9 +12,11 @@ const MAX_LEGACY_RETRIES=3;
 
 const CRITICAL=[
   ['./ticketUi421.js','installTicketUi421','CANONICAL UI 421/466'],
-  ['./ticketMarketEngine426.js','installTicketMarketEngine426','ENGINE 426'],
   ['./ticketCommander465.js','installTicketCommander465','COMMANDER 465'],
-  ['./ticketConsolidation466.js','installTicketConsolidation466','EXECUTION UI 466'],
+  ['./ticketConsolidation466.js','installTicketConsolidation466','EXECUTION UI 466']
+];
+const EARLY_BACKGROUND=[
+  ['./ticketMarketEngine426.js','installTicketMarketEngine426','ENGINE 426'],
   ['./ticketHub640.js','installTicketHub640','TICKETS 2.0 640']
 ];
 const ESSENTIAL_ANALYTICS=[
@@ -98,7 +101,7 @@ function publishBoot(state){
   state.status=state.failed.length?'PARTIAL':state.legacyDone?'OK':state.criticalDone?'READY':'STARTING';
   window.__KAMIL_TICKET_BOOT466__=state;
   document.documentElement.dataset.ticketBoot466=state.status.toLowerCase();
-  window.dispatchEvent(new CustomEvent('kamil:ticket-boot466-updated',{detail:{status:state.status,failed:state.failed.map(x=>x.label),ok:state.ok,total:state.modules.length,criticalDone:!!state.criticalDone,legacyStarted:!!state.legacyStarted,legacyDone:!!state.legacyDone,retries:state.legacyRetries||0}}));
+  window.dispatchEvent(new CustomEvent('kamil:ticket-boot466-updated',{detail:{status:state.status,failed:state.failed.map(x=>x.label),ok:state.ok,total:state.modules.length,criticalDone:!!state.criticalDone,earlyDone:!!state.earlyDone,legacyStarted:!!state.legacyStarted,legacyDone:!!state.legacyDone,retries:state.legacyRetries||0}}));
 }
 const yieldMain=()=>new Promise(resolve=>setTimeout(resolve,LEGACY_YIELD_MS));
 async function installSafe(path,fn,label,state){
@@ -122,6 +125,16 @@ async function waitCanonicalAnalytics(){
   }
   return{healthMounted:!!document.querySelector('[data-analytics466-body] [data-ticket-health397]'),alertsReady:!!window.__KAMIL_TICKET_ALERTS413__?.renderAlerts};
 }
+async function loadEarlyBackground(state){
+  if(state.earlyDone)return true;
+  for(const [path,fn,label] of EARLY_BACKGROUND){await installLegacySafe(path,fn,label,state);await yieldMain()}
+  state.earlyDone=true;publishBoot(state);return true;
+}
+function scheduleEarlyBackground(state){
+  if(state.earlyDone)return Promise.resolve(true);if(earlyPromise)return earlyPromise;
+  earlyPromise=new Promise(resolve=>setTimeout(resolve,EARLY_DELAY_MS)).then(()=>loadEarlyBackground(state)).catch(error=>{state.earlyError=String(error?.message||error);console.warn('[tickets466] early background failed',error);publishBoot(state);return false}).finally(()=>{earlyPromise=null});
+  return earlyPromise;
+}
 async function loadBackground(state){if(state.backgroundDone)return true;for(const [path,fn,label] of BACKGROUND_MODULES){await installLegacySafe(path,fn,label,state);await yieldMain()}state.backgroundDone=true;publishBoot(state);return true}
 async function loadLegacy(state){
   if(state.legacyDone)return true;
@@ -138,11 +151,14 @@ function scheduleLegacy(state,delay=LEGACY_DELAY_MS){
   return legacyPromise
 }
 async function desk(){
-  const state={version:BOOT_VERSION,startedAt:Date.now(),finishedAt:null,status:'STARTING',modules:[],failed:[],ok:0,criticalDone:false,legacyStarted:false,legacyDone:false,backgroundDone:false,legacyRetries:0};
+  const state={version:BOOT_VERSION,startedAt:Date.now(),finishedAt:null,status:'STARTING',modules:[],failed:[],ok:0,criticalDone:false,earlyDone:false,legacyStarted:false,legacyDone:false,backgroundDone:false,legacyRetries:0};
   window.__KAMIL_TICKET_BOOT466__=state;document.documentElement.dataset.ticketBoot466='starting';
   const base=await import('./ticketDesk331.js');
   if(document.documentElement.dataset.ticketDesk331!=='1')await base.installTicketDesk331();
   for(const [path,fn,label] of CRITICAL)await installSafe(path,fn,label,state);
-  state.criticalDone=true;publishBoot(state);scheduleLegacy(state);return window.__KAMIL_TICKET_DESK331__;
+  state.criticalDone=true;publishBoot(state);
+  scheduleEarlyBackground(state);
+  scheduleLegacy(state);
+  return window.__KAMIL_TICKET_DESK331__;
 }
-export function renderTicketPage100(){if(!bootPromise)bootPromise=desk().catch(error=>{bootPromise=null;legacyPromise=null;const state=window.__KAMIL_TICKET_BOOT466__||{version:BOOT_VERSION,modules:[]};state.status='FATAL';state.fatal=String(error?.message||error);state.finishedAt=Date.now();window.__KAMIL_TICKET_BOOT466__=state;document.documentElement.dataset.ticketBoot466='fatal';console.error('[tickets466] base desk boot failed',error);throw error});return bootPromise}
+export function renderTicketPage100(){if(!bootPromise)bootPromise=desk().catch(error=>{bootPromise=null;legacyPromise=null;earlyPromise=null;const state=window.__KAMIL_TICKET_BOOT466__||{version:BOOT_VERSION,modules:[]};state.status='FATAL';state.fatal=String(error?.message||error);state.finishedAt=Date.now();window.__KAMIL_TICKET_BOOT466__=state;document.documentElement.dataset.ticketBoot466='fatal';console.error('[tickets466] base desk boot failed',error);throw error});return bootPromise}
