@@ -1,40 +1,91 @@
-let started=false;
-let autoSettleStarted=false;
-let intelligenceStarted=false;
-let browserFeedStarted=false;
-let feedStarted=false;
-let budgetStarted=false;
-let timingStarted=false;
-let performanceStarted=false;
-let missedStarted=false;
-let controlStarted=false;
-let bootPromise=null;
-const REV='os695';
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 
-async function ensureBrowserFeed(){if(browserFeedStarted)return true;try{const browser=await import(`./bettingBrowserFeed694.js?rev=${REV}`);browser.installBettingBrowserFeed694?.();browserFeedStarted=true;return true}catch{return false}}
-async function ensureFeed(){if(feedStarted)return true;try{const feed=await import(`./bettingOddsFeed693.js?rev=${REV}`);await feed.installBettingOddsFeed693?.();feedStarted=true;return true}catch{return false}}
-async function ensureBudget(){if(budgetStarted)return true;try{const budget=await import(`./bettingRequestBudget561.js?rev=${REV}`);budget.installBettingRequestBudget561?.();budgetStarted=true;return true}catch{return false}}
-async function ensureTiming(){if(timingStarted)return true;try{const timing=await import(`./bettingTiming564.js?rev=${REV}`);timing.installBettingTiming564?.();timingStarted=true;return true}catch{return false}}
-async function ensurePerformance(){if(performanceStarted)return true;try{const performance=await import(`./bettingPerformance565.js?rev=${REV}`);performance.installBettingPerformance565?.();performanceStarted=true;return true}catch{return false}}
-async function ensureMissed(){if(missedStarted)return true;try{const missed=await import(`./bettingMissed566.js?rev=${REV}`);missed.installBettingMissed566?.();missedStarted=true;return true}catch{return false}}
-async function ensureControl(){if(controlStarted)return true;try{const control=await import(`./bettingControl586.js?rev=${REV}`);control.installBettingControl586?.();controlStarted=true;return true}catch{return false}}
+let started=false;
+let enrichmentStarted=false;
+let bootPromise=null;
+let enrichPromise=null;
+let bound=false;
+const REV='os695';
+const OWNER='betting.bootstrap543';
+const isActive=()=>!!document.querySelector('#view-betting.on');
+
+async function safeImport(path,fn,{awaitResult=false}={}){
+ try{
+  const mod=await import(`${path}?rev=${REV}`);
+  const run=mod?.[fn];
+  if(typeof run!=='function')return false;
+  const result=run();
+  if(awaitResult&&result&&typeof result.then==='function')await result;
+  return true;
+ }catch(error){console.warn(`[betting543] ${path}`,error);return false}
+}
+
+function publish(extra={}){
+ const prev=window.__KAMIL_BETTING_BOOTSTRAP543__||{};
+ window.__KAMIL_BETTING_BOOTSTRAP543__={version:'2000.1.0',architecture:'view-owned-core-first',...prev,...extra,at:Date.now()};
+}
+
+async function enrich(){
+ if(enrichmentStarted)return true;
+ if(!isActive())return false;
+ enrichmentStarted=true;
+ const results={};
+ const specs=[
+  ['browserFeed','./bettingBrowserFeed694.js','installBettingBrowserFeed694',false],
+  ['feed','./bettingOddsFeed693.js','installBettingOddsFeed693',true],
+  ['budget','./bettingRequestBudget561.js','installBettingRequestBudget561',false],
+  ['autoSettle','./bettingAutoSettle544.js','runBettingAutoSettle544',false],
+  ['intelligence','./bettingIntelligence560.js','installBettingIntelligence560',false],
+  ['timing','./bettingTiming564.js','installBettingTiming564',false],
+  ['performance','./bettingPerformance565.js','installBettingPerformance565',false],
+  ['missed','./bettingMissed566.js','installBettingMissed566',false],
+  ['control','./bettingControl586.js','installBettingControl586',false]
+ ];
+ try{
+  for(const [key,path,fn,awaitResult] of specs){
+   if(!isActive()){publish({healthy:true,coreReady:true,enrichmentPaused:true,enrichmentDone:false,...results});return false}
+   results[key]=await safeImport(path,fn,{awaitResult});
+   await new Promise(resolve=>setTimeout(resolve,0));
+  }
+  publish({healthy:true,coreReady:true,enrichmentPaused:false,enrichmentDone:true,...results});
+  return true;
+ }finally{enrichmentStarted=false}
+}
+
+function scheduleEnrichment(delay=120){
+ schedule1100(OWNER,'enrich',()=>{
+  if(!isActive()){publish({healthy:true,coreReady:true,enrichmentPaused:true});return}
+  if(!enrichPromise)enrichPromise=enrich().finally(()=>{enrichPromise=null});
+ },delay,{pauseWhenHidden:true});
+}
 
 async function boot(){
  const root=document.querySelector('#bettingView');if(!root)return false;
- await ensureBrowserFeed();await ensureFeed();await ensureBudget();
- if(started&&root.__bet543Observer&&root.__bet542Observer){
-  if(!autoSettleStarted){try{const auto=await import(`./bettingAutoSettle544.js?rev=${REV}`);auto.runBettingAutoSettle544?.();autoSettleStarted=true}catch{}}
-  if(!intelligenceStarted){try{const intelligence=await import(`./bettingIntelligence560.js?rev=${REV}`);intelligence.installBettingIntelligence560?.();intelligenceStarted=true}catch{}}
-  await ensureTiming();await ensurePerformance();await ensureMissed();await ensureControl();return true
+ if(!started){
+  started=true;
+  try{
+   const [commander,ledger]=await Promise.all([
+    import(`./bettingCommander542.js?rev=${REV}`),
+    import(`./bettingLedger543.js?rev=${REV}`)
+   ]);
+   if(!root.__bet542Observer)commander.installBettingCommander542?.();
+   if(!root.__bet543Observer)ledger.installBettingLedger543?.();
+   publish({healthy:true,coreReady:true,commander:true,ledger:true,enrichmentDone:false,enrichmentPaused:!isActive()});
+  }catch(error){
+   started=false;
+   publish({healthy:false,coreReady:false,error:String(error?.message||error)});
+   return false;
+  }
  }
- started=true;
- try{
-  const [commander,ledger,auto,intelligence]=await Promise.all([import(`./bettingCommander542.js?rev=${REV}`),import(`./bettingLedger543.js?rev=${REV}`),import(`./bettingAutoSettle544.js?rev=${REV}`),import(`./bettingIntelligence560.js?rev=${REV}`)]);
-  if(!root.__bet542Observer)commander.installBettingCommander542?.();if(!root.__bet543Observer)ledger.installBettingLedger543?.();
-  auto.runBettingAutoSettle544?.();autoSettleStarted=true;intelligence.installBettingIntelligence560?.();intelligenceStarted=true;
-  await ensureTiming();await ensurePerformance();await ensureMissed();await ensureControl();
-  window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:true,version:'2000.0.0',architecture:'view-owned',browserFeed:true,feed:true,budget:true,timing:true,performance:true,missed:true,control:true,at:Date.now()};return true
- }catch(error){started=false;window.__KAMIL_BETTING_BOOTSTRAP543__={healthy:false,architecture:'view-owned',error:String(error?.message||error),at:Date.now()};return false}
+ if(!bound){
+  bound=true;
+  ownEvent1100(OWNER,window,'kamil:view-change',event=>{
+   if(event.detail==='betting')scheduleEnrichment(80);
+   else publish({healthy:true,coreReady:true,enrichmentPaused:true});
+  });
+ }
+ scheduleEnrichment();
+ return true;
 }
 
 export function installBettingBootstrap543(){if(bootPromise)return bootPromise;bootPromise=boot().finally(()=>{bootPromise=null});return bootPromise}
