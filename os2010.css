@@ -1,0 +1,111 @@
+/* Kamil OS 2.0 — OS2010 visual convergence layer.
+   Keeps legacy business modules intact while making every primary workspace
+   read like one product. This file is intentionally scoped to data-os2. */
+
+html[data-os2="1"]{
+  --os2-content:1180px;
+  --os2-content-wide:1360px;
+  --os2-gap:14px;
+  --os2-control:38px;
+}
+
+html[data-os2="1"] .os2-main{width:min(var(--os2-content-wide),100%)}
+html[data-os2="1"] .view>div{width:100%;min-width:0}
+html[data-os2="1"] #ticketIntelView,
+html[data-os2="1"] #bettingView,
+html[data-os2="1"] #moneyView,
+html[data-os2="1"] #inboxView,
+html[data-os2="1"] #ticketsView,
+html[data-os2="1"] #homeView,
+html[data-os2="1"] #moreView{max-width:var(--os2-content);margin-inline:auto}
+html[data-os2="1"] #ticketIntelView{max-width:var(--os2-content-wide)}
+
+/* One spacing rhythm */
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView)>*+*{margin-top:var(--os2-gap)}
+html[data-os2="1"] :is(.grid,.cards,.panel-grid,.ticket-grid,.betting-grid,.money-grid,.dashboard-grid){gap:var(--os2-gap)!important}
+
+/* Flatten historical visual noise */
+html[data-os2="1"] :is(.card,.panel,.ticket-card,.bet-card,.betting-card,.money-card,.inbox-card,.metric,.stat-card,.decision-note,.ticket-panel,.analytics-card){
+  background:var(--os-surface)!important;
+  border:1px solid var(--os-line-soft)!important;
+  border-radius:14px!important;
+  box-shadow:none!important;
+  filter:none!important;
+  color:var(--os-text)!important;
+}
+html[data-os2="1"] :is(.card,.panel,.ticket-card,.bet-card,.betting-card,.money-card,.inbox-card,.metric,.stat-card,.decision-note,.ticket-panel,.analytics-card)::before,
+html[data-os2="1"] :is(.card,.panel,.ticket-card,.bet-card,.betting-card,.money-card,.inbox-card,.metric,.stat-card,.decision-note,.ticket-panel,.analytics-card)::after{box-shadow:none!important}
+
+/* Typography */
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) h1{font-size:clamp(24px,2.7vw,34px)!important;line-height:1.08!important;letter-spacing:-.045em!important;margin:.15em 0 .25em!important}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) h2{font-size:17px!important;line-height:1.2!important;letter-spacing:-.025em!important}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) h3{font-size:13px!important;letter-spacing:-.015em!important}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) :is(p,.muted,small){line-height:1.5}
+
+/* Controls */
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) :is(button,.btn,.icon-btn,input,select,textarea){
+  border-radius:10px!important;
+  border-color:var(--os-line)!important;
+  box-shadow:none!important;
+}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) :is(button,.btn,.icon-btn){min-height:var(--os2-control);font-weight:650}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) :is(input,select){min-height:var(--os2-control);background:#0d141c!important;color:var(--os-text)!important}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) textarea{background:#0d141c!important;color:var(--os-text)!important}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) :is(input,select,textarea):focus{outline:0!important;border-color:#456d9d!important;box-shadow:0 0 0 3px rgba(105,167,255,.08)!important}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) button:hover{filter:brightness(1.05)}
+
+/* Compact pills/tabs, no giant glossy controls */
+html[data-os2="1"] :is(.tabs,.tab-row,.segmented,.filters,.filter-row,.toolbar,.actions,.action-row){gap:7px!important}
+html[data-os2="1"] :is(.tab,.chip,.pill,.badge,.status-badge,.filter-chip){border-radius:999px!important;box-shadow:none!important}
+
+/* Tables: contained, calm and readable */
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView) :is(.table-wrap,.table-scroll,[data-table-wrap]){max-width:100%;overflow:auto;overscroll-behavior-inline:contain;border-radius:12px}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView) table{width:100%;max-width:100%;border-collapse:separate;border-spacing:0;background:transparent!important}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView) :is(th,td){padding:10px 11px!important;border-bottom:1px solid var(--os-line-soft)!important;vertical-align:middle}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView) th{position:sticky;top:0;z-index:2;background:var(--os-surface)!important;color:var(--os-muted)!important;font-size:9px!important;letter-spacing:.06em;text-transform:uppercase}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView) td{font-size:11px!important}
+
+/* Tickets: keep operator surface dominant and analytics subordinate */
+html[data-os2="1"] #ticketIntelView [data-ticket-desk331],
+html[data-os2="1"] #ticketIntelView [data-ticket-ui421],
+html[data-os2="1"] #ticketIntelView [data-ticket-hub640]{max-width:100%;min-width:0}
+html[data-os2="1"] #ticketIntelView [data-analytics466-body]{max-width:100%;min-width:0;overflow-x:auto!important;overscroll-behavior-inline:contain}
+html[data-os2="1"] #ticketIntelView :is([data-ticket-diagnostics],[data-ticket-health397],[data-ticket-alerts413]){opacity:.94}
+html[data-os2="1"] #ticketIntelView :is(.ticket-debug,.diagnostics,.debug-panel){font-size:10px!important}
+
+/* Betting: one calm cockpit instead of nested glowing dashboards */
+html[data-os2="1"] #bettingView :is([class*="hero"],[class*="banner"]){background:var(--os-surface)!important;box-shadow:none!important}
+html[data-os2="1"] #bettingView :is([class*="gradient"],[class*="glow"]){filter:none!important;text-shadow:none!important}
+html[data-os2="1"] #bettingView canvas{max-width:100%}
+
+/* Money and Inbox: readable working density */
+html[data-os2="1"] #moneyView :is(.metric-strip,.metrics,.summary-grid),
+html[data-os2="1"] #inboxView :is(.metric-strip,.metrics,.summary-grid){grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:9px!important}
+html[data-os2="1"] #inboxView :is(.inbox-row,.message-row,[data-inbox-row]){border-bottom:1px solid var(--os-line-soft)!important}
+
+/* Avoid layout explosions from historical min-widths */
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) *{min-width:0}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView) :is(pre,code){max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere}
+html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView) img{max-width:100%;height:auto}
+
+/* Mobile: one-column workspaces and thumb-sized controls */
+@media(max-width:760px){
+  html[data-os2="1"]{--os2-gap:10px;--os2-control:42px}
+  html[data-os2="1"] #ticketIntelView,
+  html[data-os2="1"] #bettingView,
+  html[data-os2="1"] #moneyView,
+  html[data-os2="1"] #inboxView,
+  html[data-os2="1"] #ticketsView,
+  html[data-os2="1"] #homeView,
+  html[data-os2="1"] #moreView{max-width:100%}
+  html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView,#ticketsView,#homeView,#moreView) :is(.grid,.cards,.panel-grid,.ticket-grid,.betting-grid,.money-grid,.dashboard-grid,.metric-strip,.metrics,.summary-grid){grid-template-columns:1fr!important}
+  html[data-os2="1"] #moneyView :is(.metric-strip,.metrics,.summary-grid),
+  html[data-os2="1"] #inboxView :is(.metric-strip,.metrics,.summary-grid){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView) table{min-width:620px}
+  html[data-os2="1"] :is(#ticketIntelView,#bettingView,#moneyView,#inboxView) :is(.toolbar,.actions,.action-row,.filters,.filter-row){flex-wrap:wrap!important}
+}
+
+@media(max-width:420px){
+  html[data-os2="1"] #moneyView :is(.metric-strip,.metrics,.summary-grid),
+  html[data-os2="1"] #inboxView :is(.metric-strip,.metrics,.summary-grid){grid-template-columns:1fr!important}
+}

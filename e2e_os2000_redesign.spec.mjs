@@ -20,6 +20,7 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
  expect(state.boot.modules.some(x=>x.path==='./app.js'&&x.ok)).toBe(true);
  expect(state.boot.failures).toHaveLength(0);
  expect(state.styles).toContain('./os2.css');
+ expect(state.styles).toContain('./os2010.css');
  expect(state.styles).toContain('./styles.css');
  expect(state.styles).not.toContain('./ticketDesk353.css');
  expect(state.resources.some(x=>x.includes('bettingBootstrap543.js'))).toBe(false);
@@ -58,12 +59,37 @@ test('OS2000 loads Ticket assets only when Tickets opens',async({page})=>{
  expect(styles).toContain('./ticketDesk353.css');
 });
 
+test('OS2010 keeps primary workspaces contained on desktop',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ for(const view of ['inbox','money','tickets','betting']){
+  await page.locator(`#mainNav [data-view="${view}"]`).click();
+  await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
+  await page.waitForTimeout(view==='tickets'||view==='betting'?800:350);
+  const metrics=await page.evaluate(v=>{
+   const id={inbox:'inboxView',money:'moneyView',tickets:'ticketIntelView',betting:'bettingView'}[v];
+   const host=document.getElementById(id),body=document.body,root=document.documentElement;
+   if(!host)return null;
+   const rect=host.getBoundingClientRect();
+   return{hostWidth:rect.width,viewport:innerWidth,bodyOverflow:Math.max(body.scrollWidth,root.scrollWidth)-innerWidth};
+  },view);
+  expect(metrics).not.toBeNull();
+  expect(metrics.hostWidth).toBeLessThanOrEqual(1362);
+  expect(metrics.bodyOverflow).toBeLessThanOrEqual(2);
+ }
+});
+
 test('OS2000 mobile keeps the five primary domains one tap away',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  await expect(page.locator('#bottomNav')).toBeVisible();
  await expect(page.locator('#bottomNav [data-view]')).toHaveCount(5);
- await page.locator('#bottomNav [data-view="inbox"]').click();
- await expect(page.locator('#view-inbox')).toHaveClass(/on/);
+ for(const view of ['inbox','tickets','betting','money']){
+  await page.locator(`#bottomNav [data-view="${view}"]`).click();
+  await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
+  await page.waitForTimeout(view==='tickets'||view==='betting'?700:250);
+  const overflow=await page.evaluate(()=>Math.max(document.body.scrollWidth,document.documentElement.scrollWidth)-innerWidth);
+  expect(overflow).toBeLessThanOrEqual(2);
+ }
  await expect(page.locator('body')).toHaveCSS('overflow-x','hidden');
 });
