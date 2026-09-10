@@ -1,29 +1,27 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL(p,import.meta.url),'utf8');
-const [runtime,focus,css,ticketCockpit,bettingCockpit]=await Promise.all([read('./js/viewRuntime41.js'),read('./js/decisionFocus2020.js'),read('./os2020.css'),read('./os2040.css'),read('./os2050.css')]);
-assert.match(runtime,/view==='tickets'\|\|view==='betting'/,'decision focus must stay scoped to Tickets and Betting');
-assert.match(runtime,/load\('\.\/decisionFocus2020\.js'\)/,'decision focus must remain lazy-loaded');
-assert.match(focus,/ownEvent1100\(OWNER,document,'click'/,'decision focus must use one owned delegated click listener');
-assert.ok((focus.match(/ownEvent1100\s*\(/g)||[]).length===1,'decision focus may own exactly one listener');
-assert.match(focus,/\.\/os2020\.css/,'OS2020 stylesheet must lazy-load with the focus controller');
-assert.match(focus,/\.\/os2040\.css/,'OS2040 Ticket cockpit stylesheet must lazy-load only for Tickets');
-assert.match(focus,/\.\/os2050\.css/,'OS2050 Betting cockpit stylesheet must lazy-load only for Betting');
-assert.match(focus,/KOUPIT DNES/,'OS2040 must summarize Ticket buy actions');
-assert.match(focus,/ZLEVNIT/,'OS2040 must summarize Ticket repricing actions');
-assert.match(focus,/PRODAT/,'OS2040 must summarize Ticket sell actions');
-assert.match(focus,/vsadit/,'OS2050 must summarize Betting actions');
-assert.match(focus,/čekat/,'OS2050 must summarize Betting wait actions');
-assert.match(focus,/nevsadit/,'OS2050 must summarize Betting no-bet actions');
-assert.match(css,/ticket640-lowergrid/,'Ticket advanced layer must be hidden by default');
-assert.match(css,/bet630-performance/,'Betting historical performance must be advanced');
-assert.match(css,/ticket640-kpis>\.ticket640-kpi:nth-child\(n\+5\)/,'OS2030 must keep only four Ticket KPIs in decision mode');
-assert.match(css,/bet630-kpis>\.bet630-kpi:nth-child\(n\+5\)/,'OS2030 must keep only four Betting KPIs in decision mode');
-assert.match(ticketCockpit,/ticket640-head p\{display:none/,'OS2040 must remove explanatory copy from the Ticket first screen');
-assert.match(ticketCockpit,/ticket640-row:nth-of-type\(n\+5\)/,'OS2040 must cap first-screen Ticket action rows at four per bucket');
-assert.match(ticketCockpit,/:has\(\.ticket640-empty\)/,'OS2040 must visually demote empty Ticket buckets');
-assert.match(bettingCockpit,/bet630-head p\{display:none/,'OS2050 must remove explanatory copy from the Betting first screen');
-assert.match(bettingCockpit,/bet630-action:nth-of-type\(n\+5\)/,'OS2050 must cap first-screen Betting action rows at four per bucket');
-assert.match(bettingCockpit,/:has\(\.bet630-empty\)/,'OS2050 must visually demote empty Betting buckets');
-assert.match(css,/os2020-advanced/,'advanced disclosure class missing');
-console.log('OS2050 decision action cockpit guard PASS');
+
+const [runtime,betting,money,tickets]=await Promise.all([
+  read('./js/viewRuntime41.js'),
+  read('./js/bettingPage527.js'),
+  read('./js/moneyPage100.js'),
+  read('./js/ticketDesk331.js')
+]);
+
+assert.doesNotMatch(runtime,/load\('\.\/decisionFocus2020\.js'\)/,'decision-focus overlays must stay off the canonical runtime');
+assert.match(runtime,/renderExtras41\(view='today'\)\{syncChrome142\(view\);return null\}/,'render extras must remain non-blocking');
+
+assert.match(betting,/renderBettingPage144\(\)/,'Betting core renderer must run immediately');
+assert.doesNotMatch(betting,/Betting centrum nedokončilo načtení včas/,'Betting view must not fail because enrichment timed out');
+assert.match(betting,/background:true/,'Betting enrichment must be marked as background work');
+
+assert.match(money,/renderPersonalMoney640\(\)/,'Money core renderer must stay on the critical path');
+assert.match(money,/requestIdleCallback/,'Money optional modules must be deferred');
+assert.match(money,/safeImport/,'Money optional module failures must be isolated');
+
+assert.match(tickets,/OS500 is the only critical path/,'Ticket desk must document its single critical renderer');
+assert.match(tickets,/scheduleOptionalOverlays\(\)/,'Ticket overlays must be scheduled after the core desk');
+assert.match(tickets,/optional overlays failed/,'Ticket overlay failures must be isolated from the core desk');
+
+console.log('Kamil OS core-first stability guard PASS');
