@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const read=p=>readFile(new URL(p,import.meta.url),'utf8');
+const [runtime,focus,css]=await Promise.all([read('./js/viewRuntime41.js'),read('./js/decisionFocus2020.js'),read('./os2020.css')]);
+assert.match(runtime,/view==='tickets'\|\|view==='betting'/,'decision focus must stay scoped to Tickets and Betting');
+assert.match(runtime,/load\('\.\/decisionFocus2020\.js'\)/,'decision focus must remain lazy-loaded');
+assert.match(focus,/ownEvent1100\(OWNER,document,'click'/,'OS2020 must use one owned delegated click listener');
+assert.ok((focus.match(/ownEvent1100\s*\(/g)||[]).length===1,'OS2020 may own exactly one listener');
+assert.match(focus,/\.\/os2020\.css/,'OS2020 stylesheet must lazy-load with the focus controller');
+assert.match(css,/ticket640-lowergrid/,'Ticket advanced layer must be hidden by default');
+assert.match(css,/bet630-performance/,'Betting historical performance must be advanced');
+assert.match(css,/os2020-advanced/,'advanced disclosure class missing');
+console.log('OS2020 decision-first guard PASS');
