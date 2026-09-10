@@ -24,6 +24,7 @@ const investmentSeed=read('js/externalInvestments33.js');
 const platform43=read('js/platform43.js');
 const stability431=read('js/platform431Stability.js');
 const diagnostics=read('js/systemDiagnostics421.js');
+const convergence=read('os2010.css');
 const rootPackage=JSON.parse(read('package.json'));
 
 const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
@@ -38,8 +39,10 @@ for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{st
 
 // OS 2.0 shell / startup contract.
 assert.ok(index.includes('data-os2="1"'),'OS2 shell marker missing');
-assert.equal((index.match(/rel="stylesheet"/g)||[]).length,2,'OS2 shell must eager-load only base + OS2 CSS');
+assert.equal((index.match(/rel="stylesheet"/g)||[]).length,3,'OS2 shell may eager-load only base + OS2 + convergence CSS');
 assert.ok(index.includes('./os2.css'),'OS2 stylesheet missing');
+assert.ok(index.includes('./os2010.css'),'OS2010 convergence stylesheet missing');
+assert.ok(convergence.includes('#ticketIntelView')&&convergence.includes('#bettingView')&&convergence.includes('#moneyView')&&convergence.includes('#inboxView'),'OS2010 primary workspace convergence missing');
 for(const label of ['Dnes','Inbox','Vstupenky','Sázení','Peníze','Rodina','Domov','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
 assert.ok(!index.includes('bettingBootstrap543.js'),'Betting bootstrap must not eager-load from index');
 assert.ok(instant.includes("architecture:'os2-on-demand'")&&instant.includes("await import('./app.js')"),'OS2 startup contract missing');
@@ -69,7 +72,7 @@ assert.ok(!bettingBootstrap.includes('runtimeCoordinator1050')&&!bettingBootstra
 
 // Existing data and safety invariants.
 assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
-assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js'),'service-worker shell/cache missing');
+assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('os2010.css'),'service-worker shell/cache missing');
 assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must never prefer stale cache');
 assert.ok(state.includes('export const store=new Store()'),'state store export missing');
 assert.ok(cloud.includes('mergeColdState42'),'cloud payload must restore cold history before upload');
