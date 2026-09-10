@@ -4,10 +4,13 @@ on:
     paths:
       - 'index.html'
       - 'os2.css'
+      - 'os2010.css'
+      - 'os2020.css'
       - 'js/instantShell64.js'
       - 'js/app.js'
       - 'js/viewRuntime41.js'
       - 'js/todayPage2000.js'
+      - 'js/decisionFocus2020.js'
       - 'js/runtimeOwnership1100.js'
       - 'js/runtimeHealth1120.js'
       - 'js/runtimeLeak1210.js'
@@ -17,10 +20,12 @@ on:
       - 'js/bettingBootstrap543.js'
       - 'js/ticketPage100.js'
       - 'os2000_guard.mjs'
+      - 'os2020_guard.mjs'
       - 'runtime_boot_guard.mjs'
       - 'runtime_ownership_1100_guard.mjs'
       - 'runtime_inventory_1100_guard.mjs'
       - 'e2e_os2000_redesign.spec.mjs'
+      - 'e2e_os2020_decision_focus.spec.mjs'
       - 'e2e_os347_critical_path.spec.mjs'
       - '.github/workflows/os1047-control-operations.yml'
   push:
@@ -40,6 +45,7 @@ jobs:
           node --check js/app.js
           node --check js/viewRuntime41.js
           node --check js/todayPage2000.js
+          node --check js/decisionFocus2020.js
           node --check js/runtimeOwnership1100.js
           node --check js/runtimeHealth1120.js
           node --check js/runtimeLeak1210.js
@@ -49,14 +55,17 @@ jobs:
           node --check js/bettingBootstrap543.js
           node --check js/ticketPage100.js
           node --check os2000_guard.mjs
+          node --check os2020_guard.mjs
           node --check runtime_boot_guard.mjs
           node --check runtime_ownership_1100_guard.mjs
           node --check runtime_inventory_1100_guard.mjs
           node --check e2e_os2000_redesign.spec.mjs
+          node --check e2e_os2020_decision_focus.spec.mjs
           node --check e2e_os347_critical_path.spec.mjs
       - name: OS 2.0 runtime contracts
         run: |
           node os2000_guard.mjs
+          node os2020_guard.mjs
           node runtime_boot_guard.mjs
           node runtime_ownership_1100_guard.mjs
           node runtime_inventory_1100_guard.mjs
@@ -71,4 +80,4 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-control-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_os2000_redesign.spec.mjs e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
+          npx playwright test e2e_os2000_redesign.spec.mjs e2e_os2020_decision_focus.spec.mjs e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
