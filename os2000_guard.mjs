@@ -23,12 +23,16 @@ assert.equal(views.includes('ensureInboxShell'),false,'Inbox must be static shel
 assert.equal(views.includes('ensureBettingShell'),false,'Betting must be static shell, not runtime DOM injection');
 assert.match(views,/data-os2-lazy|dataset\.os2Lazy/,'lazy view stylesheet marker missing');
 
-for(const symbol of ['os2-welcome','os2-now','os2-kpis','__KAMIL_TODAY_OS2000__'])assert.match(today,new RegExp(symbol),`Today OS2 missing ${symbol}`);
-assert.ok((today.match(/ownEvent1100\s*\(/g)||[]).length<=1,'Today OS2 should own at most one delegated UI listener');
+for(const symbol of ['os2060-today','os2060-priorities','os2060-waiting','os2060-statuses','__KAMIL_TODAY_OS2000__'])assert.match(today,new RegExp(symbol),`Today OS2060 missing ${symbol}`);
+assert.match(today,/slice\(0,3\)/,'Today OS2060 must cap decision priorities at three');
+assert.equal(today.includes('os2-kpis'),false,'Today OS2060 must not restore dashboard KPI tiles');
+assert.equal(today.includes('Kalendář'),false,'Today OS2060 first screen must not render calendar block');
+assert.equal(today.includes('Rychlý přístup'),false,'Today OS2060 first screen must not render quick-access block');
+assert.ok((today.match(/ownEvent1100\s*\(/g)||[]).length<=1,'Today OS2060 should own at most one delegated UI listener');
 assert.match(betting,/export function installBettingBootstrap543/,'Betting bootstrap must be explicitly view-owned');
 assert.equal(betting.includes('runtimeCoordinator1050'),false,'Betting must not revive legacy global runtime');
 
 for(const token of ['--os-bg','#0b0f14','.os2-app','.os2-sidebar','.os2-today','.os2-bottom'])assert.match(css,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')),`OS2 CSS missing ${token}`);
 for(const token of ['--os2-content','visual convergence','#ticketIntelView','#bettingView','#moneyView','#inboxView','overscroll-behavior-inline'])assert.match(convergence,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),`OS2010 convergence CSS missing ${token}`);
 assert.match(sw,/\.\/os2010\.css/,'service worker must precache OS2010 convergence layer');
-console.log('OS2000/2010 architecture guard PASS');
+console.log('OS2060 simplified Today architecture guard PASS');
