@@ -2,8 +2,8 @@
 // The portfolio desk, canonical controls and Commander shell are the only critical UX.
 // Market modelling, Hub and historical analytics are best-effort background enrichment.
 
-let bootPromise=null,legacyPromise=null,earlyPromise=null;
-const BOOT_VERSION='640.0.1';
+let bootPromise=null,legacyPromise=null,earlyPromise=null,wakeBound=false;
+const BOOT_VERSION='640.0.2';
 const EARLY_DELAY_MS=80;
 const LEGACY_DELAY_MS=12000;
 const LEGACY_RETRY_MS=1800;
@@ -92,6 +92,7 @@ const ESSENTIAL_PATHS=new Set(ESSENTIAL_ANALYTICS.map(x=>x[0]));
 const BACKGROUND_MODULES=MODULES.filter(x=>!ESSENTIAL_PATHS.has(x[0]));
 const RETIRED_CANONICAL_UI=new Set(['./ticketUi420.js','./ticketUi422.js','./ticketUi423.js','./ticketUi424.js','./ticketUi425.js','./ticketEngineUi427.js','./ticketPredictUi436.js','./ticketUi457.js']);
 const moduleKey=x=>`${x.path}|${x.label}`;
+const isTicketViewActive=()=>!!document.querySelector('#view-tickets.on,#view-tickets.active,[data-view-panel="tickets"].on,[data-view-panel="tickets"].active');
 function setModule(state,entry){const key=moduleKey(entry),i=state.modules.findIndex(x=>moduleKey(x)===key);if(i>=0)state.modules[i]=entry;else state.modules.push(entry);return entry}
 function removeModule(state,path){state.modules=state.modules.filter(x=>x.path!==path)}
 function publishBoot(state){
@@ -127,32 +128,44 @@ async function waitCanonicalAnalytics(){
 }
 async function loadEarlyBackground(state){
   if(state.earlyDone)return true;
-  for(const [path,fn,label] of EARLY_BACKGROUND){await installLegacySafe(path,fn,label,state);await yieldMain()}
+  if(!isTicketViewActive()){state.earlyDeferred=true;publishBoot(state);return false}
+  state.earlyDeferred=false;
+  for(const [path,fn,label] of EARLY_BACKGROUND){if(!isTicketViewActive()){state.earlyDeferred=true;publishBoot(state);return false}await installLegacySafe(path,fn,label,state);await yieldMain()}
   state.earlyDone=true;publishBoot(state);return true;
 }
-function scheduleEarlyBackground(state){
+function scheduleEarlyBackground(state,delay=EARLY_DELAY_MS){
   if(state.earlyDone)return Promise.resolve(true);if(earlyPromise)return earlyPromise;
-  earlyPromise=new Promise(resolve=>setTimeout(resolve,EARLY_DELAY_MS)).then(()=>loadEarlyBackground(state)).catch(error=>{state.earlyError=String(error?.message||error);console.warn('[tickets466] early background failed',error);publishBoot(state);return false}).finally(()=>{earlyPromise=null});
+  earlyPromise=new Promise(resolve=>setTimeout(resolve,delay)).then(()=>loadEarlyBackground(state)).catch(error=>{state.earlyError=String(error?.message||error);console.warn('[tickets466] early background failed',error);publishBoot(state);return false}).finally(()=>{earlyPromise=null});
   return earlyPromise;
 }
-async function loadBackground(state){if(state.backgroundDone)return true;for(const [path,fn,label] of BACKGROUND_MODULES){await installLegacySafe(path,fn,label,state);await yieldMain()}state.backgroundDone=true;publishBoot(state);return true}
+async function loadBackground(state){
+  if(state.backgroundDone)return true;
+  for(const [path,fn,label] of BACKGROUND_MODULES){if(!isTicketViewActive()){state.backgroundDeferred=true;publishBoot(state);return false}await installLegacySafe(path,fn,label,state);await yieldMain()}
+  state.backgroundDeferred=false;state.backgroundDone=true;publishBoot(state);return true
+}
 async function loadLegacy(state){
   if(state.legacyDone)return true;
-  state.legacyStarted=true;removeModule(state,'canonical:analytics466');publishBoot(state);
-  let essentialsOk=true;for(const [path,fn,label] of ESSENTIAL_ANALYTICS)essentialsOk=(await installSafe(path,fn,label,state))&&essentialsOk;
+  if(!isTicketViewActive()){state.legacyDeferred=true;state.legacyStarted=false;publishBoot(state);return false}
+  state.legacyDeferred=false;state.legacyStarted=true;removeModule(state,'canonical:analytics466');publishBoot(state);
+  let essentialsOk=true;for(const [path,fn,label] of ESSENTIAL_ANALYTICS){if(!isTicketViewActive()){state.legacyDeferred=true;state.legacyStarted=false;publishBoot(state);return false}essentialsOk=(await installSafe(path,fn,label,state))&&essentialsOk}
   const ready=await waitCanonicalAnalytics();
   if(!essentialsOk||!ready.healthMounted||!ready.alertsReady){state.legacyStarted=false;setModule(state,{label:'CANONICAL ANALYTICS READY',path:'canonical:analytics466',status:'ERROR',error:`essentialsOk=${essentialsOk};healthMounted=${ready.healthMounted};alertsReady=${ready.alertsReady}`,ms:0});publishBoot(state);return false}
   removeModule(state,'canonical:analytics466');state.legacyDone=true;state.legacyStarted=false;document.documentElement.dataset.ticketCanonical430='1';publishBoot(state);
-  setTimeout(()=>loadBackground(state).catch(error=>{state.backgroundError=String(error?.message||error);console.warn('[tickets466] background analytics failed',error);publishBoot(state)}),1000);return true
+  setTimeout(()=>{if(isTicketViewActive())loadBackground(state).catch(error=>{state.backgroundError=String(error?.message||error);console.warn('[tickets466] background analytics failed',error);publishBoot(state)});else{state.backgroundDeferred=true;publishBoot(state)}},1000);return true
 }
 function scheduleLegacy(state,delay=LEGACY_DELAY_MS){
   if(state.legacyDone)return Promise.resolve(true);if(legacyPromise)return legacyPromise;
-  legacyPromise=new Promise(resolve=>setTimeout(resolve,delay)).then(()=>loadLegacy(state)).catch(error=>{console.error('[tickets466] deferred analytics failed',error);state.legacyError=String(error?.message||error);publishBoot(state);return false}).then(ok=>{legacyPromise=null;if(!ok&&!state.legacyDone&&(state.legacyRetries||0)<MAX_LEGACY_RETRIES){state.legacyRetries=(state.legacyRetries||0)+1;setTimeout(()=>scheduleLegacy(state,LEGACY_RETRY_MS),LEGACY_RETRY_MS)}return ok});
+  legacyPromise=new Promise(resolve=>setTimeout(resolve,delay)).then(()=>loadLegacy(state)).catch(error=>{console.error('[tickets466] deferred analytics failed',error);state.legacyError=String(error?.message||error);publishBoot(state);return false}).then(ok=>{legacyPromise=null;if(!ok&&!state.legacyDone&&isTicketViewActive()&&(state.legacyRetries||0)<MAX_LEGACY_RETRIES){state.legacyRetries=(state.legacyRetries||0)+1;setTimeout(()=>scheduleLegacy(state,LEGACY_RETRY_MS),LEGACY_RETRY_MS)}return ok});
   return legacyPromise
+}
+function bindWake(){
+  if(wakeBound)return;wakeBound=true;
+  window.addEventListener('kamil:view-change',()=>{const state=window.__KAMIL_TICKET_BOOT466__;if(!state||!isTicketViewActive())return;if(!state.earlyDone)scheduleEarlyBackground(state,40);if(!state.legacyDone)scheduleLegacy(state,400);else if(!state.backgroundDone)loadBackground(state).catch(error=>{state.backgroundError=String(error?.message||error);publishBoot(state)})});
 }
 async function desk(){
   const state={version:BOOT_VERSION,startedAt:Date.now(),finishedAt:null,status:'STARTING',modules:[],failed:[],ok:0,criticalDone:false,earlyDone:false,legacyStarted:false,legacyDone:false,backgroundDone:false,legacyRetries:0};
   window.__KAMIL_TICKET_BOOT466__=state;document.documentElement.dataset.ticketBoot466='starting';
+  bindWake();
   const base=await import('./ticketDesk331.js');
   if(document.documentElement.dataset.ticketDesk331!=='1')await base.installTicketDesk331();
   for(const [path,fn,label] of CRITICAL)await installSafe(path,fn,label,state);
