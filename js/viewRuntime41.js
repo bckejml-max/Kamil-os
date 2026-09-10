@@ -4,6 +4,7 @@ import {APP_RELEASE} from './releaseMeta.js';
 const modules=new Map(),warmViews=new Map(),stylePromises=new Map();
 const titles={today:'DNES',inbox:'INBOX',money:'PENÍZE',tickets:'VSTUPENKY',betting:'SÁZENÍ',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
 const quick={today:'Úkol',inbox:'Úkol',money:'Finanční úkol',tickets:'Úkol k ticketům',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
+const heavyViews=new Set(['money','tickets','betting']);
 const viewDefs={
  today:['./todayPage2000.js','renderTodayPage2000'],
  inbox:['./inboxPage141.js','renderInboxPage141'],
@@ -50,7 +51,11 @@ function warmView(name='today'){
  warmViews.set(key,p);return p
 }
 export function getViewRenderer41(name='today'){return warmView(name)}
-export function prefetchView41(name='today'){return warmView(name).then(()=>true).catch(error=>{console.warn(`[viewRuntime41] prefetch ${name}`,error);return false})}
+export function prefetchView41(name='today'){
+ const key=validViews41.has(name)?name:'today';
+ if(heavyViews.has(key)&&!document.querySelector(`#view-${key}.on`))return Promise.resolve(false);
+ return warmView(key).then(()=>true).catch(error=>{console.warn(`[viewRuntime41] prefetch ${key}`,error);return false})
+}
 export async function setMoreMode41(){return Promise.resolve(null)}
 export async function openCapture41(type='task'){
  if(type==='money-task'){const m=await load('./personalMoneyActions645.js');return m.createMoneyTask645()}
