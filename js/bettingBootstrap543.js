@@ -22,23 +22,20 @@ async function safeImport(path,fn,{awaitResult=false}={}){
 
 function publish(extra={}){
  const prev=window.__KAMIL_BETTING_BOOTSTRAP543__||{};
- window.__KAMIL_BETTING_BOOTSTRAP543__={version:'2000.1.0',architecture:'view-owned-core-first',...prev,...extra,at:Date.now()};
+ window.__KAMIL_BETTING_BOOTSTRAP543__={version:'2000.1.1',architecture:'view-owned-core-first',...prev,...extra,at:Date.now()};
 }
 
 async function enrich(){
  if(enrichmentStarted)return true;
  if(!isActive())return false;
  enrichmentStarted=true;
- const results={};
+ const results={timing:'DEFERRED_STABILITY',performance:'DEFERRED_STABILITY',missed:'DEFERRED_STABILITY'};
  const specs=[
   ['browserFeed','./bettingBrowserFeed694.js','installBettingBrowserFeed694',false],
   ['feed','./bettingOddsFeed693.js','installBettingOddsFeed693',true],
   ['budget','./bettingRequestBudget561.js','installBettingRequestBudget561',false],
   ['autoSettle','./bettingAutoSettle544.js','runBettingAutoSettle544',false],
   ['intelligence','./bettingIntelligence560.js','installBettingIntelligence560',false],
-  ['timing','./bettingTiming564.js','installBettingTiming564',false],
-  ['performance','./bettingPerformance565.js','installBettingPerformance565',false],
-  ['missed','./bettingMissed566.js','installBettingMissed566',false],
   ['control','./bettingControl586.js','installBettingControl586',false]
  ];
  try{
@@ -70,7 +67,7 @@ async function boot(){
    ]);
    if(!root.__bet542Observer)commander.installBettingCommander542?.();
    if(!root.__bet543Observer)ledger.installBettingLedger543?.();
-   publish({healthy:true,coreReady:true,commander:true,ledger:true,enrichmentDone:false,enrichmentPaused:!isActive()});
+   publish({healthy:true,coreReady:true,commander:true,ledger:true,enrichmentDone:false,enrichmentPaused:!isActive(),timing:'DEFERRED_STABILITY',performance:'DEFERRED_STABILITY',missed:'DEFERRED_STABILITY'});
   }catch(error){
    started=false;
    publish({healthy:false,coreReady:false,error:String(error?.message||error)});
