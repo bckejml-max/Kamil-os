@@ -4,95 +4,53 @@ const BASE='http://127.0.0.1:4173';
 async function boot(page){
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
-}
-async function activate(page,view){
- await page.evaluate(name=>{
-  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
-  document.querySelector(`#view-${name}`)?.classList.add('on');
- },view);
+ await expect(page.locator('#view-today')).toHaveClass(/\bon\b/);
 }
 
-test('OS2040 turns Tickets into a four-KPI action cockpit with progressive detail',async({page})=>{
- await boot(page);await activate(page,'tickets');
- await page.evaluate(async()=>{
-  const host=document.querySelector('#ticketIntelView');
-  host.innerHTML=`<section class="ticket640">
-   <div class="ticket640-head"><div><h2>Ticket Command Center</h2><p>legacy explanation</p></div><span class="ticket640-badge">ONLINE</span></div>
-   <div class="ticket640-kpis">
-    <div class="ticket640-kpi" data-kpi="1"><span>KOUPIT DNES</span><b>2</b></div>
-    <div class="ticket640-kpi" data-kpi="2"><span>ZLEVNIT</span><b>1</b></div>
-    <div class="ticket640-kpi" data-kpi="3"><span>PRODAT</span><b>3</b></div>
-    <div class="ticket640-kpi" data-kpi="4"><span>VOLNÁ HOTOVOST</span><b>25 000 Kč</b></div>
-    <div class="ticket640-kpi" data-kpi="5"><span>AKTIVNÍ TICKET KAPITÁL</span><b>50 000 Kč</b></div>
-    <div class="ticket640-kpi" data-kpi="6"><span>ČEKÁ PAYOUT</span><b>10 000 Kč</b></div>
-   </div>
-   <div class="ticket640-command">Priorita: prodat event A.</div>
-   <div class="ticket640-grid">
-    <section class="ticket640-col buy"><h3>CO KOUPIT DNES<span>2</span></h3>${Array.from({length:6},(_,i)=>`<div class="ticket640-row" data-row="${i+1}"><b>Buy ${i+1}</b></div>`).join('')}</section>
-    <section class="ticket640-col lower"><h3>CO ZLEVNIT<span>0</span></h3><div class="ticket640-empty">Nic</div></section>
-    <section class="ticket640-col sell"><h3>CO PRODAT<span>1</span></h3><div class="ticket640-row"><b>Sell 1</b></div></section>
-   </div>
-   <div class="ticket640-lowergrid" data-test-advanced>advanced</div><div class="ticket640-note">note</div>
-  </section>`;
-  const m=await import('./js/decisionFocus2020.js');m.applyDecisionFocus2020('tickets');
- });
- await expect(page.locator('#ticketIntelView [data-os2020-focusbar]')).toBeVisible();
- await expect(page.locator('#ticketIntelView [data-os2020-summary]')).toContainText('2 koupit · 1 zlevnit · 3 prodat');
- await expect(page.locator('link[data-os2040-css]')).toHaveCount(1);
- await expect(page.locator('#ticketIntelView .ticket640-head p')).toBeHidden();
- await expect(page.locator('#ticketIntelView [data-test-advanced]')).toBeHidden();
- await expect(page.locator('#ticketIntelView [data-kpi="4"]')).toBeVisible();
- await expect(page.locator('#ticketIntelView [data-kpi="5"]')).toBeHidden();
- await expect(page.locator('#ticketIntelView [data-row="4"]')).toBeVisible();
- await expect(page.locator('#ticketIntelView [data-row="5"]')).toBeHidden();
- const btn=page.locator('#ticketIntelView [data-os2020-toggle]');
- await expect(btn).toHaveText('Pokročilé');
- await btn.click();
- await expect(page.locator('#ticketIntelView [data-test-advanced]')).toBeVisible();
- await expect(page.locator('#ticketIntelView [data-kpi="5"]')).toBeVisible();
- await expect(page.locator('#ticketIntelView [data-row="5"]')).toBeVisible();
- await expect(btn).toHaveAttribute('aria-expanded','true');
+async function openView(page,view){
+ const button=page.locator(`.os2-sidebar [data-view="${view}"]`).first();
+ await expect(button).toBeVisible();
+ await button.click();
+ await expect(page.locator(`#view-${view}`)).toHaveClass(/\bon\b/);
+}
+
+async function expectNoFatalModule(page,host){
+ await expect(page.locator(host)).not.toContainText('Modul se nepodařilo načíst');
+ await expect(page.locator(host)).not.toContainText('Kamil OS se nepodařilo načíst');
+}
+
+test('canonical runtime keeps decision-focus overlays out of the critical path',async({page})=>{
+ await boot(page);
+ const state=await page.evaluate(()=>({
+  focusbar:document.querySelectorAll('[data-os2020-focusbar]').length,
+  os2020:document.querySelectorAll('link[data-os2020-css]').length,
+  os2040:document.querySelectorAll('link[data-os2040-css]').length,
+  os2050:document.querySelectorAll('link[data-os2050-css]').length
+ }));
+ expect(state).toEqual({focusbar:0,os2020:0,os2040:0,os2050:0});
 });
 
-test('OS2050 turns Betting into a four-KPI action cockpit with progressive detail',async({page})=>{
- await boot(page);await activate(page,'betting');
- await page.evaluate(async()=>{
-  const host=document.querySelector('#bettingView');
-  host.innerHTML=`<section class="bet630">
-   <div class="bet630-head"><div><h2>Betting Command Center</h2><p>legacy explanation</p></div><span class="bet630-badge">ONLINE</span></div>
-   <div class="bet630-kpis">
-    <div class="bet630-kpi" data-kpi="1"><span>Bankroll</span><b>50 000 Kč</b></div>
-    <div class="bet630-kpi" data-kpi="2"><span>Otevřená expozice</span><b>2 000 Kč</b></div>
-    <div class="bet630-kpi" data-kpi="3"><span>P/L</span><b>+4 000 Kč</b></div>
-    <div class="bet630-kpi" data-kpi="4"><span>ROI</span><b>8,2 %</b></div>
-    <div class="bet630-kpi" data-kpi="5"><span>CLV</span><b>+2,1 %</b></div>
-    <div class="bet630-kpi" data-kpi="6"><span>Risk room</span><b>2 000 Kč</b></div>
-   </div>
-   <div class="bet630-risk"><div>Risk budget</div><strong>4 % bankrollu</strong></div>
-   <div class="bet630-actions" data-test-primary>
-    <section class="bet630-col bet"><h3>VSADIT<span>2</span></h3>${Array.from({length:6},(_,i)=>`<div class="bet630-action" data-bet-row="${i+1}"><b>Bet ${i+1}</b></div>`).join('')}</section>
-    <section class="bet630-col wait"><h3>ČEKAT NA KURZ<span>1</span></h3><div class="bet630-action"><b>Wait</b></div></section>
-    <section class="bet630-col no"><h3>NEVSADIT<span>0</span></h3><div class="bet630-empty">Nic</div></section>
-   </div>
-   <div class="bet630-performance" data-test-advanced>history</div><div class="bet630-two">admin</div>
-  </section>`;
-  const m=await import('./js/decisionFocus2020.js');m.applyDecisionFocus2020('betting');
- });
- await expect(page.locator('#bettingView [data-test-primary]')).toBeVisible();
- await expect(page.locator('#bettingView [data-test-advanced]')).toBeHidden();
- await expect(page.locator('#bettingView [data-os2020-summary]')).toContainText('2 vsadit · 1 čekat · 0 nevsadit');
- await expect(page.locator('link[data-os2050-css]')).toHaveCount(1);
- await expect(page.locator('#bettingView .bet630-head p')).toBeHidden();
- await expect(page.locator('#bettingView [data-kpi="4"]')).toBeVisible();
- await expect(page.locator('#bettingView [data-kpi="5"]')).toBeHidden();
- await expect(page.locator('#bettingView [data-bet-row="4"]')).toBeVisible();
- await expect(page.locator('#bettingView [data-bet-row="5"]')).toBeHidden();
- const btn=page.locator('#bettingView [data-os2020-toggle]');
- await btn.click();
- await expect(page.locator('#bettingView [data-test-advanced]')).toBeVisible();
- await expect(page.locator('#bettingView [data-kpi="5"]')).toBeVisible();
- await expect(page.locator('#bettingView [data-bet-row="5"]')).toBeVisible();
- const state=await page.evaluate(()=>window.__KAMIL_DECISION_FOCUS2020__);
- expect(state?.healthy).toBe(true);
- expect(state?.view).toBe('betting');
+test('Tickets opens as a usable canonical view without a fatal module screen',async({page})=>{
+ await boot(page);
+ await openView(page,'tickets');
+ await expectNoFatalModule(page,'#ticketIntelView');
+ await expect(page.locator('#ticketIntelView')).toBeVisible();
+});
+
+test('Betting opens immediately and optional enrichment cannot block navigation',async({page})=>{
+ await boot(page);
+ const started=Date.now();
+ await openView(page,'betting');
+ expect(Date.now()-started).toBeLessThan(3000);
+ await expectNoFatalModule(page,'#bettingView');
+ await expect(page.locator('#bettingView')).toBeVisible();
+});
+
+test('Money opens from the shell while optional finance modules stay non-fatal',async({page})=>{
+ await boot(page);
+ const started=Date.now();
+ await openView(page,'money');
+ expect(Date.now()-started).toBeLessThan(3000);
+ await expectNoFatalModule(page,'#moneyView');
+ await expect(page.locator('#moneyView')).toBeVisible();
 });
