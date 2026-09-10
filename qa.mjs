@@ -37,7 +37,6 @@ assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage2000.js','js/ticketPage100.js','js/bettingPage527.js','js/bettingBootstrap543.js','js/state.js','js/cloudPayload32.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','os2000_guard.mjs','runtime_boot_guard.mjs','runtime_ownership_1100_guard.mjs','release_guard_333.mjs'];
 for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 
-// OS 2.0 shell / startup contract.
 assert.ok(index.includes('data-os2="1"'),'OS2 shell marker missing');
 assert.equal((index.match(/rel="stylesheet"/g)||[]).length,3,'OS2 shell may eager-load only base + OS2 + convergence CSS');
 assert.ok(index.includes('./os2.css'),'OS2 stylesheet missing');
@@ -49,28 +48,26 @@ assert.ok(instant.includes("architecture:'os2-on-demand'")&&instant.includes("aw
 assert.ok(!instant.includes('optionalImport(')&&!instant.includes('deferredImport('),'layered startup queues must stay retired');
 assert.ok(!instant.includes('ticketDesk331.js')&&!instant.includes('todayCockpit363.js'),'heavy domains must stay off startup');
 
-// Canonical Today and lazy views.
 assert.ok(runtime.includes("today:['./todayPage2000.js','renderTodayPage2000']"),'OS2 Today renderer mapping missing');
 assert.ok(runtime.includes('ensureViewStyles')&&runtime.includes('dataset.os2Lazy'),'view-specific CSS lazy loading missing');
 assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateColdView42(key)'),'lazy view hydration/cache missing');
-for(const symbol of ['data-os2-today','os2-now','os2-kpis','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today OS2 missing ${symbol}`);
+for(const symbol of ['data-os2-today','data-os2060-today','os2060-priorities','os2060-waiting','os2060-statuses','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today OS2060 missing ${symbol}`);
+assert.ok(!today.includes('os2-kpis')&&!today.includes('Kalendář')&&!today.includes('Rychlý přístup'),'Today OS2060 must stay compact and decision-first');
+assert.ok(today.includes('slice(0,3)'),'Today OS2060 must cap priorities at three');
 assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');
 assert.ok(app.includes('requestAnimationFrame(()=>{const runForce='),'UI renders must remain coalesced');
 assert.ok(app.includes("const input=qs('#commandInput')")&&app.includes('executeCommand41(v)'),'canonical command bar missing');
 
-// Tickets remain on demand; business/data safety remains unchanged.
 assert.ok(ticketPage.includes('let bootPromise=null')&&ticketPage.includes("await import('./ticketDesk331.js')")&&ticketPage.includes('state.criticalDone=true'),'Ticket canonical critical-first adapter missing');
 assert.ok(runtime.includes("tickets:['./ticketPage100.js','renderTicketPage100']"),'Ticket page must be view-owned');
 assert.ok(ticketCloud.includes("from('ticket_inventory')")&&!/service[_-]?role/i.test(ticketCloud),'Ticket cloud contract missing or unsafe');
 assert.ok(ticketCloud.includes("c.includes('official-api')")&&ticketCloud.includes("u.includes('viagogo.com')"),'Viagogo source detection missing');
 
-// Betting remains fully view-owned and may not revive the global legacy runtime.
 assert.ok(runtime.includes("betting:['./bettingPage527.js','renderBettingPage527']"),'Betting page must be view-owned');
 assert.ok(bettingPage.includes("import('./bettingBootstrap543.js')")&&bettingPage.includes('installBettingBootstrap543'),'Betting lazy bootstrap bridge missing');
 assert.ok(bettingBootstrap.includes('export function installBettingBootstrap543'),'Betting view-owned bootstrap export missing');
 assert.ok(!bettingBootstrap.includes('runtimeCoordinator1050')&&!bettingBootstrap.includes('commandCopilot840'),'Betting must not revive global legacy runtime');
 
-// Existing data and safety invariants.
 assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
 assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('os2010.css'),'service-worker shell/cache missing');
 assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must never prefer stale cache');
