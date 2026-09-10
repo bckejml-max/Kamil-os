@@ -1,21 +1,54 @@
 import fs from 'node:fs';
-const fail=m=>{console.error(`OS333+ release guard: ${m}`);process.exitCode=1};
+const fail=m=>{console.error(`OS2000 release guard: ${m}`);process.exitCode=1};
 const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
-const release=read('./js/releaseMeta.js'),boot=read('./js/instantShell64.js'),mod=read('./js/unifiedCommand333.js'),resilience=read('./js/os333Resilience.js'),css=read('./os333.css'),pkg=JSON.parse(read('./package.json'));
-const releaseVersion=release.match(/APP_VERSION='([^']+)'/)?.[1]||'',releaseMajor=Number(releaseVersion.split('.')[0]||0);
-if(releaseMajor<333)fail(`releaseMeta ${releaseVersion||'unknown'} predates canonical OS333`);if(pkg.version!==releaseVersion)fail(`package version ${pkg.version} does not match releaseMeta ${releaseVersion}`);
-for(const path of ['./unifiedCommand333.js','./os333Resilience.js'])if(!boot.includes(path))fail(`OS333 boot missing ${path}`);if(releaseMajor>=334&&!boot.includes("./focusRadar334.js"))fail('OS334+ boot missing ./focusRadar334.js');if(releaseMajor>=342&&!boot.includes("./navigationOS342.js"))fail('OS342+ boot missing ./navigationOS342.js');
-if(releaseMajor>=343){for(const symbol of ['BOOT343','__KAMIL_BOOT_BUDGET343__'])if(!boot.includes(symbol))fail(`OS343 boot budget missing ${symbol}`);if(!fs.existsSync(new URL('./e2e_os343_boot_budget.spec.mjs',import.meta.url)))fail('missing OS343 browser regression')}
-if(releaseMajor>=345){for(const symbol of ['DEFER345','__KAMIL_DEFERRED345__','scheduleDeferred345'])if(!boot.includes(symbol))fail(`OS345 deferred boot missing ${symbol}`);if(!boot.includes("deferredImport('./performance330.js'"))fail('OS345 performance330 must remain deferred');if(!boot.includes("deferredImport('./ticketQa332.js'"))fail('OS345 ticketQa332 must remain deferred')}
-if(releaseMajor>=346){if(!fs.existsSync(new URL('./js/ticketOnDemand346.js',import.meta.url)))fail('missing OS346 ticket loader');if(!boot.includes("./ticketOnDemand346.js"))fail('OS346 boot missing ticket loader')}
-if(releaseMajor>=348){if(boot.includes("optionalImport('./workspaces305.js'"))fail('OS348 workspaces305 must not remain critical');if(!boot.includes("deferredImport('./workspaces305.js'"))fail('OS348 workspaces305 must be deferred')}
-if(releaseMajor>=350){if(!fs.existsSync(new URL('./ci_current_350_test.mjs',import.meta.url)))fail('missing OS350 current architecture guard');for(const script of ['test:current','test:release'])if(!pkg.scripts?.[script])fail(`OS350 package script missing ${script}`)}
-if(releaseMajor>=361){for(const p of ['./e2e_os361_ticket_longlist.spec.mjs','./ticketDesk357.css'])if(!fs.existsSync(new URL(p,import.meta.url)))fail(`missing OS361 file ${p}`)}
-if(releaseMajor>=362){if(!fs.existsSync(new URL('./js/releaseHealth362.js',import.meta.url)))fail('missing OS362 release health');if(!boot.includes("./releaseHealth362.js"))fail('OS362 boot missing release health')}
-if(releaseMajor>=363){for(const p of ['./js/todayCockpit363.js','./todayCockpit363.css','./e2e_os363_today_cockpit.spec.mjs'])if(!fs.existsSync(new URL(p,import.meta.url)))fail(`missing OS363 cockpit file ${p}`);const cockpit=read('./js/todayCockpit363.js');for(const symbol of ['STATE363','__KAMIL_TODAY_COCKPIT363__','installTodayCockpit363','__KAMIL_FOCUS_QUEUE335__','__KAMIL_OPPORTUNITY370__','version:370'])if(!cockpit.includes(symbol))fail(`OS363/370 cockpit missing ${symbol}`);if(!boot.includes("./todayCockpit363.js"))fail('OS363 boot missing cockpit')}
-if(releaseMajor>=364){const p='./js/executionState364.js';if(!fs.existsSync(new URL(p,import.meta.url)))fail('missing OS364 execution state');else{const x=read(p);for(const symbol of ['__KAMIL_EXECUTION_STATE364__','setState','clearState'])if(!x.includes(symbol))fail(`OS364 execution state missing ${symbol}`)}if(!boot.includes("./executionState364.js"))fail('OS364 boot missing execution state')}
-if(releaseMajor>=365){const x=read('./js/executionState364.js');for(const symbol of ['FOLLOW_KEY','__KAMIL_FOLLOWUP365__','setFollowup','dueFollowups'])if(!x.includes(symbol))fail(`OS365 follow-up missing ${symbol}`);if(!fs.existsSync(new URL('./e2e_os365_followup.spec.mjs',import.meta.url)))fail('missing OS365 browser regression');if(!String(pkg.scripts?.['test:e2e']||'').includes('e2e_os365_followup.spec.mjs'))fail('OS365 test:e2e missing follow-up regression')}
-if(releaseMajor>=366){const x=read('./js/executionState364.js'),cockpit=read('./js/todayCockpit363.js');for(const symbol of ['__KAMIL_WAITING366__','setWaitingFor','markContact','waitingPeople'])if(!x.includes(symbol))fail(`OS366 waiting engine missing ${symbol}`);for(const symbol of ['data-os366-who','data-os366-contact','ČEKÁM NA LIDI'])if(!cockpit.includes(symbol))fail(`OS366 Today waiting UI missing ${symbol}`);if(!fs.existsSync(new URL('./e2e_os366_waiting_people.spec.mjs',import.meta.url)))fail('missing OS366 browser regression');if(!String(pkg.scripts?.['test:e2e']||'').includes('e2e_os366_waiting_people.spec.mjs'))fail('OS366 test:e2e missing waiting-person regression')}
-if(releaseMajor>=368){const p='./js/xtbDecision368.js',cockpit=read('./js/todayCockpit363.js');if(!fs.existsSync(new URL(p,import.meta.url)))fail('missing OS368 XTB decision engine');else{const x=read(p);for(const symbol of ['__KAMIL_XTB_DECISION368__','ADD','HOLD','REDUCE','SELL','dataFresh'])if(!x.includes(symbol))fail(`OS368 XTB engine missing ${symbol}`)}if(!boot.includes("./xtbDecision368.js"))fail('OS368 boot missing XTB decision engine');for(const symbol of ['data-os368-xtb','XTB ROZHODNUTÍ'])if(!cockpit.includes(symbol))fail(`OS368 Today XTB UI missing ${symbol}`);if(!fs.existsSync(new URL('./e2e_os368_xtb_decision.spec.mjs',import.meta.url)))fail('missing OS368 browser regression');if(!String(pkg.scripts?.['test:e2e']||'').includes('e2e_os368_xtb_decision.spec.mjs'))fail('OS368 test:e2e missing XTB regression')}
-if(releaseMajor>=369){const p='./js/ticketDecision369.js',cockpit=read('./js/todayCockpit363.js');if(!fs.existsSync(new URL(p,import.meta.url)))fail('missing OS369 ticket decision engine');else{const x=read(p);for(const symbol of ['__KAMIL_TICKET_DECISION369__','BUY','HOLD','SELL','LOWER','SKIP','dataFresh'])if(!x.includes(symbol))fail(`OS369 ticket engine missing ${symbol}`)}if(!boot.includes("./ticketDecision369.js"))fail('OS369 boot missing ticket decision engine');for(const symbol of ['data-os369-ticket','VSTUPENKY · ROZHODNUTÍ'])if(!cockpit.includes(symbol))fail(`OS369 Today ticket UI missing ${symbol}`);if(!fs.existsSync(new URL('./e2e_os369_ticket_decision.spec.mjs',import.meta.url)))fail('missing OS369 browser regression');if(!String(pkg.scripts?.['test:e2e']||'').includes('e2e_os369_ticket_decision.spec.mjs'))fail('OS369 test:e2e missing ticket regression')}
-for(const symbol of ['installUnifiedCommand333','Ticket Action Center','RUNTIME HEALTH','INVESTMENT ACTION CENTER'])if(!mod.includes(symbol))fail(`missing ${symbol}`);for(const symbol of ['installOS333Resilience','data-os333-exec','data-os333-invest'])if(!resilience.includes(symbol))fail(`resilience missing ${symbol}`);if(!css.includes('.os333-drawer'))fail('ticket detail drawer CSS missing');for(const p of ['./js/ticketDesk331.js','./js/ticketQa332.js','./js/ticketCloud660.js','./js/financeCommand258.js'])if(!fs.existsSync(new URL(p,import.meta.url)))fail(`missing critical file ${p}`);if(!process.exitCode)console.log(`OS333+ release guard OK · ${releaseVersion}`);
+const exists=p=>fs.existsSync(new URL(p,import.meta.url));
+
+const release=read('./js/releaseMeta.js');
+const boot=read('./js/instantShell64.js');
+const index=read('./index.html');
+const views=read('./js/viewRuntime41.js');
+const app=read('./js/app.js');
+const today=read('./js/todayPage2000.js');
+const ticketPage=read('./js/ticketPage100.js');
+const ticketCloud=read('./js/ticketCloud660.js');
+const betting=read('./js/bettingPage527.js');
+const pkg=JSON.parse(read('./package.json'));
+const releaseVersion=release.match(/APP_VERSION='([^']+)'/)?.[1]||'';
+if(pkg.version!==releaseVersion)fail(`package version ${pkg.version} does not match releaseMeta ${releaseVersion}`);
+
+for(const p of [
+ './os2.css','./js/todayPage2000.js','./js/app.js','./js/viewRuntime41.js','./js/runtimeOwnership1100.js',
+ './js/ticketPage100.js','./js/ticketDesk331.js','./js/ticketUi421.js','./js/ticketCloud660.js',
+ './js/bettingPage527.js','./js/bettingBootstrap543.js','./js/command.js','./js/commandSearch610.js'
+])if(!exists(p))fail(`missing required OS2 file ${p}`);
+
+if(!index.includes('data-os2="1"'))fail('index missing OS2 shell marker');
+if(!index.includes('./os2.css'))fail('index missing OS2 stylesheet');
+if(index.includes('theme33.css')||index.includes('personal65.css')||index.includes('ticketDesk353.css'))fail('legacy view styles must not eager-load from index');
+if(index.includes('bettingBootstrap543.js'))fail('Betting bootstrap must not eager-load from index');
+for(const id of ['view-today','view-inbox','view-tickets','view-betting','view-money','view-family','view-home','view-more'])if(!index.includes(`id="${id}"`))fail(`static shell missing ${id}`);
+
+for(const symbol of ['architecture:\'os2-on-demand\'','BOOT343','DEFER345','__KAMIL_BOOT_BUDGET343__','__KAMIL_DEFERRED345__'])if(!boot.includes(symbol))fail(`OS2 boot missing ${symbol}`);
+if((boot.match(/await import\('\.\/app\.js'\)/g)||[]).length!==1)fail('OS2 boot must import app.js exactly once');
+if(boot.includes('optionalImport(')||boot.includes('deferredImport('))fail('layered optional/deferred boot queues must stay retired');
+for(const p of ['ticketDesk331.js','bettingBootstrap543.js','workspaces305.js','todayCockpit363.js','commandCenter467.js'])if(boot.includes(p))fail(`${p} must not be an eager OS2 boot dependency`);
+
+for(const token of [
+ "today:['./todayPage2000.js','renderTodayPage2000']",
+ "inbox:['./inboxPage141.js','renderInboxPage141']",
+ "money:['./moneyPage100.js','renderMoneyPage100']",
+ "tickets:['./ticketPage100.js','renderTicketPage100']",
+ "betting:['./bettingPage527.js','renderBettingPage527']"
+])if(!views.includes(token))fail(`view runtime missing ${token}`);
+if(!views.includes('ensureViewStyles'))fail('view-specific CSS must remain lazy');
+if(!views.includes("tickets:['./ticket68.css'"))fail('Ticket styles must remain view-scoped');
+
+for(const symbol of ['data-os2-today','os2-welcome','os2-now','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today OS2 missing ${symbol}`);
+if(!app.includes("const input=qs('#commandInput')")||!app.includes('executeCommand41(v)'))fail('canonical command bar missing');
+if(!ticketPage.includes("import('./ticketDesk331.js')"))fail('Ticket Desk must remain on-demand from ticketPage100');
+if(!betting.includes("import('./bettingBootstrap543.js')"))fail('Betting enrichment must remain on-demand from bettingPage527');
+if(!ticketCloud.includes("from('ticket_inventory')"))fail('ticket inventory cloud contract missing');
+if(/service[_-]?role/i.test(ticketCloud))fail('service-role reference in browser ticket code');
+
+if(!exists('./e2e_os2000_redesign.spec.mjs'))fail('missing OS2 browser regression');
+if(!process.exitCode)console.log(`OS2000 release guard OK · ${releaseVersion}`);
