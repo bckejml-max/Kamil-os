@@ -1,4 +1,4 @@
-/* OS2020 — decision-first progressive disclosure for Tickets and Betting */
+/* OS2020/2030 — decision-first progressive disclosure for Tickets and Betting */
 .os2020-focusbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 12px;padding:10px 12px;border:1px solid var(--os-line-soft);border-radius:13px;background:rgba(17,23,31,.92)}
 .os2020-focusbar>div{min-width:0}.os2020-focusbar b{display:block;font-size:11px;letter-spacing:-.01em}.os2020-focusbar span{display:block;margin-top:2px;font-size:9px;color:var(--os-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .os2020-advanced-btn{flex:0 0 auto;min-height:30px;padding:0 10px;border:1px solid var(--os-line);border-radius:9px;background:var(--os-surface-2);color:var(--os-muted);font-size:10px;font-weight:800;cursor:pointer}
@@ -14,6 +14,8 @@
 #ticketIntelView.os2020-focused:not(.os2020-advanced) .td331-diagnostics{display:none!important}
 #ticketIntelView.os2020-focused .ticket640-head{margin-top:0!important}
 #ticketIntelView.os2020-focused .ticket640-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+/* OS2030: primary Ticket strip = actions + immediately spendable cash. Capital/payout detail stays available in Advanced. */
+#ticketIntelView.os2020-focused:not(.os2020-advanced) .ticket640-kpis>.ticket640-kpi:nth-child(n+5){display:none!important}
 #ticketIntelView.os2020-focused .ticket640-grid{margin-bottom:0!important}
 
 /* Betting: action queue + risk stay primary. Historical breakdowns and bankroll administration move to Advanced. */
@@ -23,6 +25,8 @@
 #bettingView.os2020-focused:not(.os2020-advanced) [data-betting-advanced],
 #bettingView.os2020-focused:not(.os2020-advanced) .bet144-note{display:none!important}
 #bettingView.os2020-focused .bet630-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+/* OS2030: bankroll, live exposure, P/L and ROI answer the first-screen question. CLV/drawdown/rolling/history remain one click away. */
+#bettingView.os2020-focused:not(.os2020-advanced) .bet630-kpis>.bet630-kpi:nth-child(n+5){display:none!important}
 #bettingView.os2020-focused .bet630-actions{margin-bottom:0!important}
 
 @media(max-width:900px){

@@ -12,35 +12,43 @@ async function activate(page,view){
  },view);
 }
 
-test('OS2020 keeps Ticket advanced layers hidden until requested',async({page})=>{
+test('OS2030 keeps Ticket advanced layers and secondary KPIs hidden until requested',async({page})=>{
  await boot(page);await activate(page,'tickets');
  await page.evaluate(async()=>{
   const host=document.querySelector('#ticketIntelView');
-  host.innerHTML='<div class="ticket640-lowergrid" data-test-advanced>advanced</div><div class="ticket640-note">note</div>';
+  host.innerHTML='<div class="ticket640-kpis">'+Array.from({length:6},(_,i)=>`<div class="ticket640-kpi" data-kpi="${i+1}">KPI ${i+1}</div>`).join('')+'</div><div class="ticket640-lowergrid" data-test-advanced>advanced</div><div class="ticket640-note">note</div>';
   const m=await import('./js/decisionFocus2020.js');m.applyDecisionFocus2020('tickets');
  });
  await expect(page.locator('#ticketIntelView [data-os2020-focusbar]')).toBeVisible();
  await expect(page.locator('#ticketIntelView [data-test-advanced]')).toBeHidden();
+ await expect(page.locator('#ticketIntelView [data-kpi="4"]')).toBeVisible();
+ await expect(page.locator('#ticketIntelView [data-kpi="5"]')).toBeHidden();
  const btn=page.locator('#ticketIntelView [data-os2020-toggle]');
  await expect(btn).toHaveText('Pokročilé');
  await btn.click();
  await expect(page.locator('#ticketIntelView [data-test-advanced]')).toBeVisible();
+ await expect(page.locator('#ticketIntelView [data-kpi="5"]')).toBeVisible();
  await expect(btn).toHaveAttribute('aria-expanded','true');
  await btn.click();
  await expect(page.locator('#ticketIntelView [data-test-advanced]')).toBeHidden();
+ await expect(page.locator('#ticketIntelView [data-kpi="5"]')).toBeHidden();
 });
 
-test('OS2020 keeps Betting history hidden while action layer remains visible',async({page})=>{
+test('OS2030 keeps Betting history and secondary KPIs hidden while action layer remains visible',async({page})=>{
  await boot(page);await activate(page,'betting');
  await page.evaluate(async()=>{
   const host=document.querySelector('#bettingView');
-  host.innerHTML='<div class="bet630-actions" data-test-primary>primary</div><div class="bet630-performance" data-test-advanced>history</div><div class="bet630-two">admin</div>';
+  host.innerHTML='<div class="bet630-kpis">'+Array.from({length:12},(_,i)=>`<div class="bet630-kpi" data-kpi="${i+1}">KPI ${i+1}</div>`).join('')+'</div><div class="bet630-actions" data-test-primary>primary</div><div class="bet630-performance" data-test-advanced>history</div><div class="bet630-two">admin</div>';
   const m=await import('./js/decisionFocus2020.js');m.applyDecisionFocus2020('betting');
  });
  await expect(page.locator('#bettingView [data-test-primary]')).toBeVisible();
  await expect(page.locator('#bettingView [data-test-advanced]')).toBeHidden();
- await page.locator('#bettingView [data-os2020-toggle]').click();
+ await expect(page.locator('#bettingView [data-kpi="4"]')).toBeVisible();
+ await expect(page.locator('#bettingView [data-kpi="5"]')).toBeHidden();
+ const btn=page.locator('#bettingView [data-os2020-toggle]');
+ await btn.click();
  await expect(page.locator('#bettingView [data-test-advanced]')).toBeVisible();
+ await expect(page.locator('#bettingView [data-kpi="12"]')).toBeVisible();
  const state=await page.evaluate(()=>window.__KAMIL_DECISION_FOCUS2020__);
  expect(state?.healthy).toBe(true);
  expect(state?.view).toBe('betting');

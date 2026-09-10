@@ -9,5 +9,7 @@ assert.ok((focus.match(/ownEvent1100\s*\(/g)||[]).length===1,'OS2020 may own exa
 assert.match(focus,/\.\/os2020\.css/,'OS2020 stylesheet must lazy-load with the focus controller');
 assert.match(css,/ticket640-lowergrid/,'Ticket advanced layer must be hidden by default');
 assert.match(css,/bet630-performance/,'Betting historical performance must be advanced');
+assert.match(css,/ticket640-kpis>\.ticket640-kpi:nth-child\(n\+5\)/,'OS2030 must keep only four Ticket KPIs in decision mode');
+assert.match(css,/bet630-kpis>\.bet630-kpi:nth-child\(n\+5\)/,'OS2030 must keep only four Betting KPIs in decision mode');
 assert.match(css,/os2020-advanced/,'advanced disclosure class missing');
-console.log('OS2020 decision-first guard PASS');
+console.log('OS2030 decision-first KPI guard PASS');
