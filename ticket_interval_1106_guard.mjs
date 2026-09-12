@@ -20,7 +20,10 @@ const files=[
  ['./js/ticketExecutionOutcomes450.js','tickets.outcomes450'],
  ['./js/ticketPredictive433.js','tickets.predict433'],
  ['./js/ticketOutcomeCalibration441.js','tickets.outcome441'],
- ['./js/ticketActionExecution449.js','tickets.execution449']
+ ['./js/ticketActionExecution449.js','tickets.execution449'],
+ ['./js/ticketPriceIntelligence374.js','tickets.price374'],
+ ['./js/ticketEngineHealth431.js','tickets.engine431'],
+ ['./js/ticketPredictUi436.js','tickets.predictui436']
 ];
 for(const [path,owner] of files){
  const src=await read(path);
