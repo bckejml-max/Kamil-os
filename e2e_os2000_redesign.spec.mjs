@@ -21,6 +21,7 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
  expect(state.boot.failures).toHaveLength(0);
  expect(state.styles).toContain('./os2.css');
  expect(state.styles).toContain('./os2010.css');
+ expect(state.styles).toContain('./os737.css');
  expect(state.styles).toContain('./styles.css');
  expect(state.styles).not.toContain('./ticketDesk353.css');
  expect(state.resources.some(x=>x.includes('bettingBootstrap543.js'))).toBe(false);
@@ -76,6 +77,25 @@ test('OS2010 keeps primary workspaces contained on desktop',async({page})=>{
   expect(metrics).not.toBeNull();
   expect(metrics.hostWidth).toBeLessThanOrEqual(1362);
   expect(metrics.bodyOverflow).toBeLessThanOrEqual(2);
+ }
+});
+
+test('OS737 personal views use one clear visual hierarchy',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ const cases=[
+  ['inbox','#inboxView','.id141-hero','Co potřebuje tvoji pozornost'],
+  ['family','#ticketsView','.hf140-hero','Rodina'],
+  ['home','#homeView','.hf140-hero','Domov'],
+  ['more','#moreView','.id141-hero','Dokumenty pod kontrolou']
+ ];
+ for(const [view,host,hero,title] of cases){
+  await page.locator(`#mainNav [data-view="${view}"]`).click();
+  await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
+  await expect(page.locator(`${host} ${hero}`)).toBeVisible({timeout:10000});
+  await expect(page.locator(`${host} ${hero} h1`)).toContainText(title);
+  const duplicateVisible=await page.locator(`${host} .view-head:not(.hidden)`).count();
+  expect(duplicateVisible).toBe(0);
  }
 });
 
