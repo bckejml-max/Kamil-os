@@ -26,6 +26,7 @@ const files=[
  ['./js/dailyProfitBriefUi32.js','today.profitBrief32'],
  ['./js/actionExecution336.js','today.actionExecution336'],
  ['./js/focusQueue335.js','today.focusQueue335'],
+ ['./js/commandCenter467.js','today.commandCenter467'],
  ['./js/managerDeadlines481.js','manager.deadlines481'],
  ['./js/morningDirector483.js','today.morning483'],
  ['./js/kamilBrain300.js','today.brain300'],
