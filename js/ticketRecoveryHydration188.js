@@ -2,7 +2,7 @@ import {syncTicketRecoveryVault186} from './ticketRecoveryCloud186.js';
 import {openTicketRecoveryCenter185} from './ticketImport660.js';
 import {ownEvent1100} from './runtimeOwnership1100.js';
 
-export const TICKET_RECOVERY_HYDRATION_VERSION_188=189;
+export const TICKET_RECOVERY_HYDRATION_VERSION_188=188;
 const OWNER='tickets.recovery188';
 let opening=false,bound=false;
 const isActive=()=>!!document.querySelector('#view-tickets.on,#view-tickets.active,[data-view-panel="tickets"].on,[data-view-panel="tickets"].active');
