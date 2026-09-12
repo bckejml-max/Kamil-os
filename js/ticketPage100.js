@@ -1,9 +1,9 @@
 // Canonical ticket view adapter.
 // The portfolio desk, canonical controls and Commander shell are the only critical UX.
-// Market modelling, Hub and historical analytics are best-effort background enrichment.
+// Market modelling, Hub and selected operational analytics are best-effort background enrichment.
 
 let bootPromise=null,legacyPromise=null,earlyPromise=null,wakeBound=false;
-const BOOT_VERSION='640.0.2';
+const BOOT_VERSION='737.0.0';
 const EARLY_DELAY_MS=80;
 const LEGACY_DELAY_MS=12000;
 const LEGACY_RETRY_MS=1800;
@@ -23,74 +23,31 @@ const ESSENTIAL_ANALYTICS=[
   ['./ticketMarketHealth397.js','installTicketMarketHealth397','MARKET HEALTH 397'],
   ['./ticketAlerts413.js','installTicketAlerts413','ALERTS 413']
 ];
+
+// Stability release: keep only modules that own current operational data/actions.
+// Historical UI experiments, old commanders, predictive/calibration stacks and duplicate
+// portfolio/risk renderers remain in source for migration/reference but never auto-boot.
 const MODULES=[
-  ['./ticketPriceIntelligence374.js','installTicketPriceIntelligence374','PRICE 374'],
-  ['./ticketRefresh395.js','installTicketRefresh395','REFRESH 395'],
-  ['./ticketSourceEditor382.js','installTicketSourceEditor382','SOURCE 382'],
-  ['./ticketRowAuto396.js','installTicketRowAuto396','ROW AUTO 396'],
-  ['./ticketMarketHealth397.js','installTicketMarketHealth397','MARKET HEALTH 397'],
-  ['./ticketManualMarket398.js','installTicketManualMarket398','MANUAL MARKET 398'],
-  ['./ticketReadiness400.js','installTicketReadiness400','READINESS 400'],
-  ['./ticketPriceMemory402.js','installTicketPriceMemory402','PRICE MEMORY 402'],
-  ['./ticketClipboardMarket403.js','installTicketClipboardMarket403','CLIPBOARD 403'],
-  ['./ticketAutopilot407.js','installTicketAutopilot407','AUTOPILOT 407'],
   ['./ticketSaleSync408.js','installTicketSaleSync408','SALE SYNC 408'],
   ['./ticketSoldGuard408.js','installTicketSoldGuard408','SOLD GUARD 408'],
   ['./ticketPriceHistory409.js','installTicketPriceHistory409','HISTORY 409'],
   ['./ticketActionQueue410.js','installTicketActionQueue410','ACTION QUEUE 410'],
   ['./ticketSettlement411.js','installTicketSettlement411','SETTLEMENT 411'],
   ['./ticketReconcile412.js','installTicketReconcile412','RECONCILE 412'],
-  ['./ticketAlerts413.js','installTicketAlerts413','ALERTS 413'],
   ['./ticketPerformance414.js','installTicketPerformance414','PERFORMANCE 414'],
   ['./ticketCapital415.js','installTicketCapital415','CAPITAL 415'],
   ['./ticketRepair418.js','installTicketRepair418','REPAIR 418'],
-  ['./ticketDailyBrief419.js','installTicketDailyBrief419','DAILY BRIEF 419'],
-  ['./ticketUi420.js','installTicketUi420','CARD UI 420'],
-  ['./ticketUi422.js','installTicketUi422','SOLD UI 422'],
-  ['./ticketUi423.js','installTicketUi423','UI POLISH 423'],
-  ['./ticketUi424.js','installTicketUi424','DETAIL UI 424'],
-  ['./ticketUi425.js','installTicketUi425','RESPONSIVE 425'],
-  ['./ticketEngineUi427.js','installTicketEngineUi427','ENGINE UI 427'],
-  ['./ticketPortfolio428.js','installTicketPortfolio428','PORTFOLIO 428'],
   ['./ticketGmailSync429.js','installTicketGmailSync429','GMAIL 429'],
-  ['./ticketEngineHealth431.js','installTicketEngineHealth431','ENGINE HEALTH 431'],
-  ['./ticketAutoRepair432.js','installTicketAutoRepair432','AUTO REPAIR 432'],
-  ['./ticketPredictive433.js','installTicketPredictive433','PREDICTIVE 433'],
-  ['./ticketBacktest434.js','installTicketBacktest434','BACKTEST 434'],
-  ['./ticketCommander435.js','installTicketCommander435','COMMANDER 435'],
-  ['./ticketPredictUi436.js','installTicketPredictUi436','PREDICT UI 436'],
-  ['./ticketComparable437.js','installTicketComparable437','COMPARABLE 437'],
-  ['./ticketRisk438.js','installTicketRisk438','RISK 438'],
-  ['./ticketCommander439.js','installTicketCommander439','COMMANDER 439'],
-  ['./ticketDecisionJournal440.js','installTicketDecisionJournal440','JOURNAL 440'],
-  ['./ticketOutcomeCalibration441.js','installTicketOutcomeCalibration441','CALIBRATION 441'],
-  ['./ticketCalibrationFeedback442.js','installTicketCalibrationFeedback442','FEEDBACK 442'],
-  ['./ticketCalibrationReadiness443.js','installTicketCalibrationReadiness443','READINESS 443'],
-  ['./ticketDecisionQuality444.js','installTicketDecisionQuality444','QUALITY 444'],
-  ['./ticketConsensus445.js','installTicketConsensus445','CONSENSUS 445'],
-  ['./ticketRiskOps446.js','installTicketRiskOps446','RISK OPS 446'],
-  ['./ticketPortfolioOptimizer447.js','installTicketPortfolioOptimizer447','OPTIMIZER 447'],
-  ['./ticketCommander448.js','installTicketCommander448','COMMANDER 448'],
-  ['./ticketActionExecution449.js','installTicketActionExecution449','EXECUTION 449'],
-  ['./ticketExecutionOutcomes450.js','installTicketExecutionOutcomes450','OUTCOMES 450'],
-  ['./ticketActionGovernance451.js','installTicketActionGovernance451','GOVERNANCE 451'],
-  ['./ticketMarketRegime452.js','installTicketMarketRegime452','REGIME 452'],
-  ['./ticketCapitalPlanner453.js','installTicketCapitalPlanner453','CAPITAL PLANNER 453'],
-  ['./ticketCommander454.js','installTicketCommander454','COMMANDER 454'],
   ['./ticketRuntimeHealth455.js','installTicketRuntimeHealth455','RUNTIME 455'],
   ['./ticketRecovery456.js','installTicketRecovery456','RECOVERY 456'],
-  ['./ticketUi457.js','installTicketUi457','COMPACT UI 457'],
   ['./ticketLayoutGuard458.js','installTicketLayoutGuard458','LAYOUT 458'],
-  ['./ticketOperationalFocus459.js','installTicketOperationalFocus459','FOCUS 459'],
   ['./ticketWorkflow461.js','installTicketWorkflow461','WORKFLOW 461'],
-  ['./ticketDecisionAnalytics462.js','installTicketDecisionAnalytics462','ANALYTICS 462'],
-  ['./ticketCadence463.js','installTicketCadence463','CADENCE 463'],
   ['./ticketEventStrategy464.js','installTicketEventStrategy464','EVENT STRATEGY 464']
 ];
 
 const ESSENTIAL_PATHS=new Set(ESSENTIAL_ANALYTICS.map(x=>x[0]));
 const BACKGROUND_MODULES=MODULES.filter(x=>!ESSENTIAL_PATHS.has(x[0]));
-const RETIRED_CANONICAL_UI=new Set(['./ticketUi420.js','./ticketUi422.js','./ticketUi423.js','./ticketUi424.js','./ticketUi425.js','./ticketEngineUi427.js','./ticketPredictUi436.js','./ticketUi457.js']);
+const RETIRED_CANONICAL_UI=new Set();
 const moduleKey=x=>`${x.path}|${x.label}`;
 const isTicketViewActive=()=>!!document.querySelector('#view-tickets.on,#view-tickets.active,[data-view-panel="tickets"].on,[data-view-panel="tickets"].active');
 function setModule(state,entry){const key=moduleKey(entry),i=state.modules.findIndex(x=>moduleKey(x)===key);if(i>=0)state.modules[i]=entry;else state.modules.push(entry);return entry}
@@ -112,7 +69,6 @@ async function installSafe(path,fn,label,state){
   catch(error){const message=String(error?.message||error||'Neznámá chyba');setModule(state,{label,path,status:'ERROR',error:message,ms:Math.round(performance.now()-started)});console.error(`[tickets466] ${label} failed`,error);publishBoot(state);return false}
 }
 async function installLegacySafe(path,fn,label,state){
-  if(RETIRED_CANONICAL_UI.has(path)){setModule(state,{label,path,status:'RETIRED',ms:0,owner:'canonical-466'});publishBoot(state);return true}
   const started=performance.now();
   try{const mod=await import(path);if(typeof mod?.[fn]!=='function')throw new Error(`Chybí export ${fn}`);const result=mod[fn]();const entry=setModule(state,{label,path,status:result&&typeof result.then==='function'?'BACKGROUND':'OK',ms:Math.round(performance.now()-started)});publishBoot(state);if(result&&typeof result.then==='function')Promise.resolve(result).then(()=>{entry.status='OK';entry.ms=Math.round(performance.now()-started);delete entry.error;publishBoot(state)}).catch(error=>{entry.status='ERROR';entry.error=String(error?.message||error||'Neznámá chyba');console.warn(`[tickets466] background ${label} failed`,error);publishBoot(state)});return true}
   catch(error){const message=String(error?.message||error||'Neznámá chyba');setModule(state,{label,path,status:'ERROR',error:message,ms:Math.round(performance.now()-started)});console.error(`[tickets466] deferred ${label} failed`,error);publishBoot(state);return false}
@@ -163,7 +119,7 @@ function bindWake(){
   window.addEventListener('kamil:view-change',()=>{const state=window.__KAMIL_TICKET_BOOT466__;if(!state||!isTicketViewActive())return;if(!state.earlyDone)scheduleEarlyBackground(state,40);if(!state.legacyDone)scheduleLegacy(state,400);else if(!state.backgroundDone)loadBackground(state).catch(error=>{state.backgroundError=String(error?.message||error);publishBoot(state)})});
 }
 async function desk(){
-  const state={version:BOOT_VERSION,startedAt:Date.now(),finishedAt:null,status:'STARTING',modules:[],failed:[],ok:0,criticalDone:false,earlyDone:false,legacyStarted:false,legacyDone:false,backgroundDone:false,legacyRetries:0};
+  const state={version:BOOT_VERSION,startedAt:Date.now(),finishedAt:null,status:'STARTING',modules:[],failed:[],ok:0,criticalDone:false,earlyDone:false,legacyStarted:false,legacyDone:false,backgroundDone:false,legacyRetries:0,prunedLegacy:true};
   window.__KAMIL_TICKET_BOOT466__=state;document.documentElement.dataset.ticketBoot466='starting';
   bindWake();
   const base=await import('./ticketDesk331.js');
