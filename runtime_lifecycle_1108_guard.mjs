@@ -28,6 +28,7 @@ const files=[
  ['./js/managerDeadlines481.js','manager.deadlines481'],
  ['./js/kamilBrain300.js','today.brain300'],
  ['./js/kamilBrain301.js','today.brain301'],
+ ['./js/kamilBrain302.js','today.brain302'],
  ['./js/kamilBrain303.js','today.brain303'],
  ['./js/emailWorkflowUi35.js','email.workflow35'],
  ['./js/followUpUi35.js','followup.ui35'],
