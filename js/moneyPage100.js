@@ -1,5 +1,7 @@
 import {renderPersonalMoney640} from './personalMoney640.js';
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 
+const OWNER='money.page100';
 let backgroundScheduled=false,backgroundRunning=false,resumeBound=false;
 const OPTIONAL_STYLES=[
  ['moneyvisual138','./moneyVisual138.css'],['upgrade610','./upgrade610.css'],
@@ -8,6 +10,7 @@ const OPTIONAL_STYLES=[
 
 const moneyActive=()=>!!document.querySelector('#view-money.on');
 function ensureOptionalStyles(){
+ if(!moneyActive())return;
  for(const [key,href] of OPTIONAL_STYLES){
   if(document.querySelector(`link[data-${key}]`))continue;
   const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute(`data-${key}`,'1');document.head.appendChild(l)
@@ -40,9 +43,14 @@ async function loadBackground(){
    ['./unifiedCapital160.js',m=>m.enhanceUnifiedCapital160?.()]
   ];
   let loaded=0;
-  for(const [path,run] of jobs){if(!moneyActive())break;if(await safeImport(path,run))loaded++;await new Promise(resolve=>setTimeout(resolve,8))}
+  for(let i=0;i<jobs.length;i++){
+   if(!moneyActive())break;
+   const [path,run]=jobs[i];
+   if(await safeImport(path,run))loaded++;
+   if(i<jobs.length-1)await new Promise(resolve=>schedule1100(OWNER,`yield-${i}`,resolve,8,{pauseWhenHidden:true}));
+  }
   const complete=loaded===jobs.length;
-  window.__KAMIL_MONEY100__={healthy:true,core:true,architecture:'stable-canonical',background:complete,backgroundLoaded:loaded,backgroundTotal:jobs.length,paused:!moneyActive(),deferred:['cashflow690','xtb383-394','recommendation162','os181'],at:Date.now()};
+  window.__KAMIL_MONEY100__={healthy:true,core:true,architecture:'stable-canonical',background:complete,backgroundLoaded:loaded,backgroundTotal:jobs.length,paused:!moneyActive(),deferred:['cashflow690','xtb383-394','recommendation162','os181'],runtimeOwner:OWNER,at:Date.now()};
   return complete;
  }finally{backgroundRunning=false}
 }
@@ -50,19 +58,18 @@ async function loadBackground(){
 function scheduleBackground(delay=250){
  if(backgroundScheduled||backgroundRunning||!moneyActive())return;
  backgroundScheduled=true;
- const run=()=>{backgroundScheduled=false;if(moneyActive())void loadBackground()};
- if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1800});else setTimeout(run,delay);
+ schedule1100(OWNER,'background',()=>{backgroundScheduled=false;if(moneyActive())void loadBackground()},delay,{pauseWhenHidden:true});
 }
 function bindResume(){
  if(resumeBound)return;resumeBound=true;
- window.addEventListener('kamil:view-change',event=>{if(event.detail==='money')scheduleBackground(120)});
+ ownEvent1100(OWNER,window,'kamil:view-change',event=>{if(event.detail==='money')scheduleBackground(120)});
 }
 
 export function renderMoneyPage100(){
  bindResume();
  try{
   renderPersonalMoney640();
-  window.__KAMIL_MONEY100__={healthy:true,core:true,architecture:'stable-canonical',background:false,paused:false,at:Date.now()};
+  window.__KAMIL_MONEY100__={healthy:true,core:true,architecture:'stable-canonical',background:false,paused:false,runtimeOwner:OWNER,at:Date.now()};
  }catch(error){
   console.error('[money100] core render failed',error);
   window.__KAMIL_MONEY100__={healthy:false,core:false,error:String(error?.message||error),at:Date.now()};
