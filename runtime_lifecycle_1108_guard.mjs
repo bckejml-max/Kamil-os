@@ -9,7 +9,8 @@ const files=[
  ['./js/marketEdgeUi32.js','market.edge32'],
  ['./js/operator717.js','operator717'],
  ['./js/todayDashboard213.js','today.dashboard213'],
- ['./js/todayCockpit363.js','today.cockpit363']
+ ['./js/todayCockpit363.js','today.cockpit363'],
+ ['./js/directorUi34.js','director.ui34']
 ];
 for(const [path,owner] of files){
  const src=await read(path);
