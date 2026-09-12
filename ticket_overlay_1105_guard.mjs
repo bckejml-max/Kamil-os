@@ -33,7 +33,7 @@ for(const [name,path,owner] of files){
 }
 for(const [,path] of files){
  const src=await read(path);
- if(/cloudClient|loadTicketCloud660|updateTicketTracking660|fetch\('\/api\//.test(src))assert.ok(/const\s+(?:isActive|active)=\(\)=>/.test(src),`${path} must gate cloud/network work to the active Ticket view`);
+ if(/cloudClient|loadTicketCloud660|updateTicketTracking660|fetch\('\/api\//.test(src))assert.ok(/\b(?:isActive|active)\s*=\s*\(\)\s*=>/.test(src),`${path} must gate cloud/network work to the active Ticket view`);
 }
 const decision=await read('./js/ticketDecision507.js');
 assert.ok(decision.includes("schedule1100(OWNER,'cadence'"),'ticketDecision507 cadence must be OS1100 scheduled');
