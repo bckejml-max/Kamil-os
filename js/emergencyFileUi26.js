@@ -1,9 +1,11 @@
 import {store} from './state.js';
 import {emergencyFile,emergencySnapshotText,EMERGENCY_CONTACT_ROLES,EMERGENCY_ASSET_KINDS,containsSecretLike,emergencyFileNote} from './emergencyFile26.js';
-import {h,uid,qs,qsa,modal,toast} from './utils.js';
+import {h,uid,qs,modal,toast} from './utils.js';
+import {ownEvent1100,ownObserver1100} from './runtimeOwnership1100.js';
 
+const OWNER='home.emergency26';
 const hostId='emergencyFile26Host';
-let expanded=false;
+let expanded=false,bound=false;
 const opts=(map,selected)=>Object.entries(map).map(([k,v])=>`<option value="${k}" ${k===selected?'selected':''}>${h(v)}</option>`).join('');
 const tone=score=>score>=85?'good':score>=60?'warn':'bad';
 
@@ -55,16 +57,8 @@ function render(){
  <div class="decision-note">Během minuty najít komu volat a kde jsou důležité věci. Skóre měří pouze úplnost uložené evidence, ne skutečnou bezpečnost domácnosti.</div>
  <div class="row-actions"><button class="btn primary" data-ef-toggle>${expanded?'Sbalit':'Otevřít Emergency File'}</button><button class="btn" data-ef-copy>Kopírovat nouzový přehled</button></div>
  ${expanded?detailHtml(e):''}`;
- bind(host);
 }
 
-function bind(host){
- qs('[data-ef-toggle]',host)?.addEventListener('click',()=>{expanded=!expanded;render()});
- qs('[data-ef-copy]',host)?.addEventListener('click',copySnapshot);
- qs('[data-ef-add-contact]',host)?.addEventListener('click',()=>editContact());qs('[data-ef-add-asset]',host)?.addEventListener('click',()=>editAsset());
- qsa('[data-ef-edit-contact]',host).forEach(b=>b.onclick=()=>editContact(b.dataset.efEditContact));qsa('[data-ef-edit-asset]',host).forEach(b=>b.onclick=()=>editAsset(b.dataset.efEditAsset));
- qsa('[data-ef-archive-contact]',host).forEach(b=>b.onclick=()=>archive('contact',b.dataset.efArchiveContact));qsa('[data-ef-archive-asset]',host).forEach(b=>b.onclick=()=>archive('asset',b.dataset.efArchiveAsset));
-}
-
-function start(){const view=qs('#homeView');if(!view)return;new MutationObserver(()=>{if(!qs(`#${hostId}`,view)&&view.childElementCount)queueMicrotask(render)}).observe(view,{childList:true});store.subscribe(()=>{if(qs(`#${hostId}`,view))queueMicrotask(render)});if(view.childElementCount)render()}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+function handleClick(e){const host=e.target.closest?.(`#${hostId}`);if(!host)return;const t=e.target.closest?.('[data-ef-toggle]');if(t){expanded=!expanded;render();return}if(e.target.closest?.('[data-ef-copy]')){copySnapshot();return}if(e.target.closest?.('[data-ef-add-contact]')){editContact();return}if(e.target.closest?.('[data-ef-add-asset]')){editAsset();return}const ec=e.target.closest?.('[data-ef-edit-contact]');if(ec){editContact(ec.dataset.efEditContact);return}const ea=e.target.closest?.('[data-ef-edit-asset]');if(ea){editAsset(ea.dataset.efEditAsset);return}const ac=e.target.closest?.('[data-ef-archive-contact]');if(ac){archive('contact',ac.dataset.efArchiveContact);return}const aa=e.target.closest?.('[data-ef-archive-asset]');if(aa)archive('asset',aa.dataset.efArchiveAsset)}
+function start(){const view=qs('#homeView');if(!view||bound)return;bound=true;ownObserver1100(OWNER,view,{childList:true},()=>{if(!qs(`#${hostId}`,view)&&view.childElementCount)queueMicrotask(render)});ownEvent1100(OWNER,document,'click',handleClick);store.subscribe(()=>{if(qs(`#${hostId}`,view))queueMicrotask(render)});if(view.childElementCount)render()}
+if(document.readyState==='loading')ownEvent1100(OWNER,document,'DOMContentLoaded',start,{once:true});else start();
