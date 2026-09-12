@@ -1,3 +1,5 @@
+import {ownEvent1100,ownObserver1100,schedule1100} from './runtimeOwnership1100.js';
+const OWNER='navigation.compact212';
 const NAV_LABELS={today:'Dnes',tickets:'Vstupenky',family:'Rodina',home:'Domov',money:'Peníze',more:'Dokumenty'};
 function labelButton212(button){
  const view=button?.dataset?.view,label=NAV_LABELS[view]||button?.textContent?.trim().replace(/\s+/g,' ');if(!label)return;
@@ -13,7 +15,6 @@ function labelWorkspace212(root=document){
  const add=document.querySelector('#quickAddBtn');if(add){add.title='Rychle přidat';add.setAttribute('aria-label','Rychle přidat')}
 }
 function syncRootViewport212(){
- // <head> is metadata only. A legacy/global CSS rule must never make it consume viewport space.
  document.head?.style.setProperty('display','none','important');
  const workspace=document.querySelector('.workspace');if(!workspace)return;
  if(matchMedia('(max-width:850px)').matches)workspace.style.removeProperty('padding-bottom');
@@ -22,20 +23,21 @@ function syncRootViewport212(){
 function ensureStyle212(){
  let link=document.querySelector('link[data-compactnavigation212]');
  if(link?.sheet)return Promise.resolve(link);
- if(!link){
-  link=document.createElement('link');link.rel='stylesheet';link.href='./compactNavigation212.css';link.dataset.compactnavigation212='1';document.head.appendChild(link);
- }
+ if(!link){link=document.createElement('link');link.rel='stylesheet';link.href='./compactNavigation212.css';link.dataset.compactnavigation212='1';document.head.appendChild(link)}
  return new Promise(resolve=>{
   let done=false;
   const finish=()=>{if(done)return;done=true;resolve(link)};
   if(link.sheet)return finish();
   link.addEventListener('load',finish,{once:true});
   link.addEventListener('error',finish,{once:true});
-  setTimeout(finish,1500);
+  schedule1100(OWNER,'style-fallback',finish,1500,{pauseWhenHidden:true});
  });
 }
+let bound=false;
 export async function installCompactNavigation212(){
  await ensureStyle212();
- syncRootViewport212();labelWorkspace212();let timer=0;const rerun=()=>{clearTimeout(timer);timer=setTimeout(()=>{syncRootViewport212();labelWorkspace212()},60)};
- new MutationObserver(rerun).observe(document.body,{childList:true,subtree:true});window.addEventListener('kamil:view-change',rerun);window.addEventListener('resize',rerun,{passive:true});window.__KAMIL_COMPACT_NAV212__={version:212,refresh:()=>{syncRootViewport212();labelWorkspace212()},styleReady:true};
+ syncRootViewport212();labelWorkspace212();
+ const rerun=()=>schedule1100(OWNER,'rerun',()=>{syncRootViewport212();labelWorkspace212()},60,{pauseWhenHidden:true});
+ if(!bound){bound=true;ownObserver1100(OWNER,document.body,{childList:true,subtree:true},rerun);ownEvent1100(OWNER,window,'kamil:view-change',rerun);ownEvent1100(OWNER,window,'resize',rerun,{passive:true})}
+ window.__KAMIL_COMPACT_NAV212__={version:212,refresh:()=>{syncRootViewport212();labelWorkspace212()},styleReady:true};
 }
