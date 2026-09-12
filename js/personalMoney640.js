@@ -14,7 +14,6 @@ function wealthSnapshot(s,v){
  const property=v.records.filter(x=>x.recordType==='property').reduce((a,x)=>a+val(x,'marketValue','estimatedValue','value'),0);
  const bank=v.records.filter(x=>x.recordType==='bank-data').reduce((a,x)=>a+val(x,'balance','cashBalance','currentBalance'),0);
  const xtbAccounts=Object.values(s.xtbHub?.accounts||{});
- // The hub is the canonical XTB source when present. Legacy s.xtb positions must not be added again.
  const genericPositions=[...(s.investments?.positions||[]),...(s.portfolio?.positions||[]),...(xtbAccounts.length?[]:(s.xtb?.positions||[]))];
  const genericInvest=genericPositions.reduce((a,x)=>a+val(x,'marketValueCzk','valueCzk'),0);
  const xtbAccountCzk=xtbAccounts.reduce((a,x)=>a+val(x,'totalValueCzk','marketValueCzk','valueCzk'),0);
@@ -48,10 +47,7 @@ export function renderPersonalMoney640(){
  ${mortgage?`<section class="card money-section" data-money-group="mortgage"><div class="eyebrow">HYPOTÉKA</div><div class="row"><span>Poslední známý zůstatek</span><b>${money(mortgage.balance)}</b></div><div class="row"><span>Měsíční splátka</span><b>${money(mortgage.monthlyAmount)}</b></div><div class="row"><span>Stav k</span><b>${date(mortgage.asOf)}</b></div>${confidenceLine(mortgage)}<div class="row-actions"><button class="btn primary" id="mortgageUpdate645">Aktualizovat zůstatek</button><button class="btn" data-money-record="${h(mortgage.id)}">Detail</button></div></section>`:''}
  ${bank?`<section class="card money-section" data-money-group="data"><div class="eyebrow">BANKOVNÍ DATA</div><div class="row"><span>Kompletní data k</span><b>${date(bank.asOf)}</b></div>${confidenceLine(bank)}<p class="muted">${h(bank.nextAction)}</p><button class="btn" id="bankUpdate645">Doplnit stav k datu</button></section>`:''}</div>`;
  const setFilter=filter=>{host.querySelectorAll('[data-money-filter]').forEach(b=>b.classList.toggle('primary',b.dataset.moneyFilter===filter));host.querySelectorAll('[data-money-group]').forEach(el=>{el.style.display=filter==='all'||el.dataset.moneyGroup===filter?'':'none'})};
- host.querySelectorAll('[data-money-filter]').forEach(b=>b.addEventListener('click',()=>setFilter(b.dataset.moneyFilter)));
- host.querySelectorAll('[data-money-record]').forEach(b=>b.addEventListener('click',async()=>{await openMoneyRecord645(b.dataset.moneyRecord);renderPersonalMoney640()}));
- host.querySelector('#mortgageUpdate645')?.addEventListener('click',async()=>{await updateMortgageSnapshot645(mortgage.id);renderPersonalMoney640()});
- const updateBank=async()=>{if(bank)await updateBankSnapshot645(bank.id);renderPersonalMoney640()};host.querySelector('#bankUpdate645')?.addEventListener('click',updateBank);host.querySelector('#moneyDataFix650')?.addEventListener('click',updateBank);
- host.querySelector('#moneyTask645')?.addEventListener('click',async()=>{await createMoneyTask645();renderPersonalMoney640()});
+ const updateBank=async()=>{if(bank)await updateBankSnapshot645(bank.id);renderPersonalMoney640()};
+ host.onclick=async e=>{const filter=e.target.closest?.('[data-money-filter]');if(filter){setFilter(filter.dataset.moneyFilter);return}const record=e.target.closest?.('[data-money-record]');if(record){await openMoneyRecord645(record.dataset.moneyRecord);renderPersonalMoney640();return}if(e.target.closest?.('#mortgageUpdate645')&&mortgage){await updateMortgageSnapshot645(mortgage.id);renderPersonalMoney640();return}if(e.target.closest?.('#bankUpdate645,#moneyDataFix650')){await updateBank();return}if(e.target.closest?.('#moneyTask645')){await createMoneyTask645();renderPersonalMoney640()}};
  if(typeof window!=='undefined')window.__KAMIL_WEALTH_700_LAST__={at:Date.now(),wealth,monthly:v.monthlyKnown,insuranceAnnual:v.insuranceAnnual,spendComplete,bankAge,mortgageAge,issues:issues.length};
 }
