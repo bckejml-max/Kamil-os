@@ -13,6 +13,7 @@ const files=[
  ['./js/profitControlUi32.js','profit.control32'],
  ['./js/scenarioSimulatorUi26.js','money.scenario26'],
  ['./js/recoveryShieldUi32.js','recovery.shield32'],
+ ['./js/investmentBattle480.js','money.investmentBattle480'],
  ['./js/operator717.js','operator717'],
  ['./js/operatorHome299.js','operator.home299'],
  ['./js/todayDashboard213.js','today.dashboard213'],
