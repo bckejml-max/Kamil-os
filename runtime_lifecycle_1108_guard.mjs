@@ -15,6 +15,7 @@ const files=[
  ['./js/operatorHome299.js','operator.home299'],
  ['./js/todayDashboard213.js','today.dashboard213'],
  ['./js/todayCockpit363.js','today.cockpit363'],
+ ['./js/todayActions697.js','today.actions697'],
  ['./js/directorUi34.js','director.ui34'],
  ['./js/systemDiagnostics421.js','system.diagnostics421'],
  ['./js/remoteInboxUi31.js','remote.inbox31'],
