@@ -1,6 +1,8 @@
 import {hydrateColdView42} from './coldPartition42.js';
 import {APP_RELEASE} from './releaseMeta.js';
+import {ownEvent1100} from './runtimeOwnership1100.js';
 
+const OWNER='core.viewRuntime41';
 const modules=new Map(),warmViews=new Map(),stylePromises=new Map();
 const titles={today:'DNES',inbox:'INBOX',money:'PENÍZE',tickets:'VSTUPENKY',betting:'SÁZENÍ',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
 const quick={today:'Úkol',inbox:'Úkol',money:'Finanční úkol',tickets:'Úkol k ticketům',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
@@ -35,14 +37,18 @@ function loadCss(href){
  const p=new Promise(resolve=>{const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset.os2Lazy='1';l.onload=()=>resolve(true);l.onerror=()=>resolve(false);document.head.appendChild(l)});
  stylePromises.set(href,p);return p
 }
-async function ensureViewStyles(view){const hrefs=viewStyles[view]||[];if(!hrefs.length)return true;await Promise.all(hrefs.map(loadCss));return true}
+function keepCanonicalVisualLast(){
+ const canonical=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>x.getAttribute('href')==='./os737.css'||x.href.endsWith('/os737.css'));
+ if(canonical&&canonical!==document.head.lastElementChild)document.head.appendChild(canonical);
+}
+async function ensureViewStyles(view){const hrefs=viewStyles[view]||[];if(hrefs.length)await Promise.all(hrefs.map(loadCss));keepCanonicalVisualLast();return true}
 function syncChrome142(view){
  if(typeof document==='undefined')return;
  const p=document.querySelector('#pageTitle');if(p)p.textContent=titles[view]||'KAMIL OS';
  document.querySelectorAll('[data-view]').forEach(x=>{const on=x.dataset.view===view;x.classList.toggle('on',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
  const add=document.querySelector('#quickAddBtn');if(add){const hidden=view==='betting';add.classList.toggle('hidden',hidden);if(!hidden){const b=add.querySelector('b'),name=quick[view]||'Přidat';if(b)b.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`}}
 }
-window.addEventListener?.('kamil:view-change',e=>syncChrome142(e.detail));
+ownEvent1100(OWNER,window,'kamil:view-change',e=>syncChrome142(e.detail));
 syncChrome142('today');
 
 function warmView(name='today'){
@@ -76,7 +82,7 @@ export async function executeCommand41(q=''){
  try{const x=await load('./commandSearch610.js');x.installCommandSearch610?.();if(x.executeExtendedCommand610?.(q))return true}catch(e){console.warn('[command-search610]',e)}
  const m=await load('./command.js');return m.execute(q)
 }
-export async function renderExtras41(view='today'){syncChrome142(view);return null}
+export async function renderExtras41(view='today'){syncChrome142(view);keepCanonicalVisualLast();return null}
 export function refreshRiskBadge41(){return Promise.resolve(null)}
 export async function runPreflight41(){try{const m=await load('./personalHardening650.js');return {...m.personalReleasePreflight650(),safeCore:true,personalUx:APP_RELEASE,canonicalViews:[...validViews41],commandBar:true,inbox:true,betting:true,os2:true}}catch(error){return{ok:false,safeCore:true,personalUx:APP_RELEASE,error:String(error?.message||error)}}}
 export function scheduleNotifications41(){return Promise.resolve(null)}
