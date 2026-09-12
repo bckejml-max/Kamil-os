@@ -7,11 +7,8 @@ let hubScheduled=false,hubRunning=false,bound=false;
 const active=()=>!!document.querySelector('#view-family.on');
 
 function ensureStyle(){
- if(!active())return;
- for(const [key,href] of [['homefamily140','./homeFamilyVisual140.css'],['upgrade610','./upgrade610.css']]){
-  if(document.querySelector(`link[data-${key}]`))continue;
-  const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute(`data-${key}`,'1');document.head.appendChild(l);
- }
+ if(!active()||document.querySelector('link[data-homefamily140]'))return;
+ const l=document.createElement('link');l.rel='stylesheet';l.href='./homeFamilyVisual140.css';l.dataset.homefamily140='1';document.head.appendChild(l);
 }
 function data(){
  const x=window.__KAMIL_PERSONAL_FAMILY_650_LAST__||{};
