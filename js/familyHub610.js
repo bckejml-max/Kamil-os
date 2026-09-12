@@ -1,12 +1,16 @@
 import {store} from './state.js';
 import {isPersonalScope527} from './personalScope527.js';
 import {h} from './utils.js';
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 
 const VERSION=610;
+const OWNER='family.hub610';
 const A=v=>Array.isArray(v)?v:[];
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','CANCELLED','CANCELED']);
 const familyRe=/rodin|d[ií]t|dcera|syn|manžel|manzel|mam|tat|babi|děd|ded|dom[aá]cnost/i;
 const open=x=>!CLOSED.has(String(x?.status||x?.workflow||'').toUpperCase());
+const active=()=>!!document.querySelector('#view-family.on');
+let bound=false;
 function css(){if(document.querySelector('link[data-upgrade610-css]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='./upgrade610.css';l.dataset.upgrade610Css='1';document.head.appendChild(l)}
 function startOfDay(d=new Date()){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
 function dayDiff(v){const t=Date.parse(v||'');if(!Number.isFinite(t))return null;return Math.floor((startOfDay(new Date(t))-startOfDay())/86400000)}
@@ -22,6 +26,6 @@ function build(){
 }
 function dayHtml(x){return `<div class="os610-day"><small>${h(x.label)}</small>${x.items.length?x.items.slice(0,4).map(v=>`<div title="${h(v.title)}">${v.type==='event'?'●':'✓'} ${h(v.title)}</div>`).join(''):'<div class="muted">volno</div>'}</div>`}
 function card(){const m=build(),next=m.week.flatMap(x=>x.items.map(v=>({...v,day:x.label}))).slice(0,1)[0];return `<section class="os610-card" data-family-hub610><div class="os610-head"><div><small>OS610 · FAMILY HUB</small><h2>Rodinný týden</h2><p>Termíny, úkoly a domácnost v jednom krátkém pohledu.</p></div><span class="os610-badge">${m.tasks.length} otevřených úkolů</span></div><div class="os610-grid"><div class="os610-metric"><span>Po termínu</span><b class="${m.overdue.length?'os610-bad':''}">${m.overdue.length}</b></div><div class="os610-metric"><span>Do 7 dní</span><b>${m.week.reduce((n,x)=>n+x.items.length,0)}</b></div><div class="os610-metric"><span>Víkend</span><b>${m.weekend}</b></div><div class="os610-metric"><span>Členové domácnosti</span><b>${m.members.length}</b></div></div><div class="os610-family-week">${m.week.map(dayHtml).join('')}</div><div class="os610-family-radar"><span>${next?`Nejbližší: ${h(next.title)} · ${h(next.day)}`:'Týden je bez známého termínu'}</span><span>${m.undated.length} úkolů bez termínu</span>${m.birthdays[0]?`<span>Nejbližší narozeniny: ${h(m.birthdays[0].name)} za ${m.birthdays[0].days} d</span>`:''}</div></section>`}
-function mount(){const host=document.querySelector('#ticketsView');if(!host)return false;const old=host.querySelector('[data-family-hub610]'),wrap=document.createElement('div');wrap.innerHTML=card();const next=wrap.firstElementChild;if(old)old.replaceWith(next);else{const head=host.querySelector('.view-head');head?.after(next);if(!head)host.prepend(next)}return true}
-export function appendFamilyHub610(){css();const ok=mount();window.__KAMIL_FAMILY_HUB610__={version:VERSION,healthy:ok,model:build(),refresh:mount,at:Date.now()};return ok}
-window.addEventListener('kamil:focus610',e=>{if(e.detail?.focus!=='family-week')return;setTimeout(()=>document.querySelector('[data-family-hub610]')?.scrollIntoView({behavior:'smooth',block:'start'}),180)});
+function mount(){if(!active())return false;const host=document.querySelector('#ticketsView');if(!host)return false;const old=host.querySelector('[data-family-hub610]'),wrap=document.createElement('div');wrap.innerHTML=card();const next=wrap.firstElementChild;if(old)old.replaceWith(next);else{const head=host.querySelector('.view-head');head?.after(next);if(!head)host.prepend(next)}return true}
+function bind(){if(bound)return;bound=true;ownEvent1100(OWNER,window,'kamil:focus610',e=>{if(e.detail?.focus!=='family-week'||!active())return;schedule1100(OWNER,'focus',()=>document.querySelector('[data-family-hub610]')?.scrollIntoView({behavior:'smooth',block:'start'}),180,{pauseWhenHidden:true})})}
+export function appendFamilyHub610(){if(!active())return false;bind();css();const ok=mount();window.__KAMIL_FAMILY_HUB610__={version:VERSION,healthy:ok,model:build(),refresh:mount,at:Date.now()};return ok}
