@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL(p,import.meta.url),'utf8');
 const files=[
  ['./js/platform43.js','core.platform43'],
+ ['./js/platform43Ui.js','platform.ui43'],
  ['./js/bettingControl586.js','betting.control586'],
  ['./js/unifiedCommand333.js','core.unified333'],
  ['./js/audit525.js','core.audit527'],
