@@ -28,9 +28,6 @@ async function loadBackground(){
  backgroundRunning=true;
  try{
   ensureOptionalStyles();
-  // Stability release: only canonical money layers auto-load.
-  // Older cockpit/learning/cashflow suites remain available in source but no longer
-  // attach permanent listeners or timers merely by visiting Money.
   const jobs=[
    ['./moneyHub680.js',m=>m.appendMoneyHub680?.()],
    ['./wealthHistory610.js',m=>m.appendWealthHistory610?.()],
@@ -58,7 +55,8 @@ async function loadBackground(){
 function scheduleBackground(delay=250){
  if(backgroundScheduled||backgroundRunning||!moneyActive())return;
  backgroundScheduled=true;
- schedule1100(OWNER,'background',()=>{backgroundScheduled=false;if(moneyActive())void loadBackground()},delay,{pauseWhenHidden:true});
+ const queueOwned=()=>schedule1100(OWNER,'background',()=>{backgroundScheduled=false;if(moneyActive())void loadBackground()},0,{pauseWhenHidden:true});
+ if('requestIdleCallback'in window)requestIdleCallback(queueOwned,{timeout:1800});else schedule1100(OWNER,'idle-fallback',queueOwned,delay,{pauseWhenHidden:true});
 }
 function bindResume(){
  if(resumeBound)return;resumeBound=true;
