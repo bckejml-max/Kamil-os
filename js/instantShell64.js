@@ -27,6 +27,10 @@ function registerSw(){if('serviceWorker'in navigator)navigator.serviceWorker.reg
 function publishBoot343(){BOOT343.totalMs=Math.max(0,Math.round((performance.now()-BOOT343.startedAt)*10)/10);BOOT343.slowest=[...BOOT343.modules].sort((a,b)=>b.ms-a.ms).slice(0,5);BOOT343.healthy=BOOT343.failures.length===0;BOOT343.at=Date.now();window.__KAMIL_BOOT_BUDGET343__=BOOT343}
 function publishDeferred345(){DEFER345.healthy=DEFER345.failures.length===0;DEFER345.at=Date.now();window.__KAMIL_DEFERRED345__=DEFER345}
 function noteBootError(scope,error){const message=String(error?.message||error);console.error(`[os2:${scope}]`,error);window.__KAMIL_BOOT_ERRORS__=window.__KAMIL_BOOT_ERRORS__||[];window.__KAMIL_BOOT_ERRORS__.push({scope,message,at:Date.now()});BOOT343.failures.push({scope,message});publishBoot343()}
+function schedulePersonalSnapshot737(){
+ const run=async()=>{try{const [{applyPersonalSnapshot737},{store}]=await Promise.all([import('./personalSnapshot737.js'),import('./state.js')]);const syncTicketsCloud=store.get()?.meta?.cloudMode==='cloud';const result=await applyPersonalSnapshot737({syncTicketsCloud});window.__KAMIL_PERSONAL_SNAPSHOT737__=result;if(result?.ok)window.dispatchEvent(new CustomEvent('kamil:personal-snapshot737-ready',{detail:result}));else console.warn('[os2:personal-snapshot737]',result)}catch(error){console.warn('[os2:personal-snapshot737]',error)}};
+ if('requestIdleCallback'in window)requestIdleCallback(()=>void run(),{timeout:1800});else setTimeout(()=>void run(),900)
+}
 function scheduleDeferred345(){
  const run=()=>{if(DEFER345.started)return;DEFER345.started=true;DEFER345.complete=true;DEFER345.mode='on-demand';publishDeferred345();window.dispatchEvent(new CustomEvent('kamil:deferred345-complete',{detail:{healthy:true,modules:0,mode:'on-demand'}}))};
  if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:2500});else setTimeout(run,1200)
@@ -38,7 +42,7 @@ async function load(){
  finally{BOOT343.modules.push({path:'./app.js',fn:'module',ms:Math.max(0,Math.round((performance.now()-started)*10)/10),ok})}
  BOOT343.complete=true;publishBoot343();window.dispatchEvent(new CustomEvent('kamil:boot-budget343',{detail:{totalMs:BOOT343.totalMs,healthy:BOOT343.healthy,architecture:'os2-on-demand'}}));
  scheduleDeferred345();
- if(ok){document.querySelector('[data-core-boot-failed]')?.remove();const idle=fn=>'requestIdleCallback'in window?requestIdleCallback(fn,{timeout:5000}):setTimeout(fn,2500);idle(()=>{saveSnapshot();registerSw()})}
+ if(ok){document.querySelector('[data-core-boot-failed]')?.remove();schedulePersonalSnapshot737();const idle=fn=>'requestIdleCallback'in window?requestIdleCallback(fn,{timeout:5000}):setTimeout(fn,2500);idle(()=>{saveSnapshot();registerSw()})}
 }
 
 applyTheme();paintInstant();
