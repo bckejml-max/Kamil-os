@@ -22,7 +22,7 @@ async function safeImport(path,fn,{awaitResult=false}={}){
 
 function publish(extra={}){
  const prev=window.__KAMIL_BETTING_BOOTSTRAP543__||{};
- window.__KAMIL_BETTING_BOOTSTRAP543__={version:'2000.1.2',architecture:'view-owned-core-first',...prev,...extra,at:Date.now()};
+ window.__KAMIL_BETTING_BOOTSTRAP543__={version:'2000.1.3',architecture:'view-owned-core-first',...prev,...extra,runtimeOwner:OWNER,at:Date.now()};
 }
 
 async function enrich(){
@@ -38,10 +38,11 @@ async function enrich(){
   ['intelligence','./bettingIntelligence560.js','installBettingIntelligence560',false]
  ];
  try{
-  for(const [key,path,fn,awaitResult] of specs){
+  for(let i=0;i<specs.length;i++){
+   const [key,path,fn,awaitResult]=specs[i];
    if(!isActive()){publish({healthy:true,coreReady:true,enrichmentPaused:true,enrichmentDone:false,...results});return false}
    results[key]=await safeImport(path,fn,{awaitResult});
-   await new Promise(resolve=>setTimeout(resolve,0));
+   if(i<specs.length-1)await new Promise(resolve=>schedule1100(OWNER,`yield-${i}`,resolve,0,{pauseWhenHidden:true}));
   }
   publish({healthy:true,coreReady:true,enrichmentPaused:false,enrichmentDone:true,...results});
   return true;
