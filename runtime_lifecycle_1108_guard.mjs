@@ -8,6 +8,7 @@ const files=[
  ['./js/unifiedCommand333.js','core.unified333'],
  ['./js/audit525.js','core.audit527'],
  ['./js/marketEdgeUi32.js','market.edge32'],
+ ['./js/profitControlUi32.js','profit.control32'],
  ['./js/operator717.js','operator717'],
  ['./js/operatorHome299.js','operator.home299'],
  ['./js/todayDashboard213.js','today.dashboard213'],
