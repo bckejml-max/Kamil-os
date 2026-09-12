@@ -1,8 +1,10 @@
 import {store} from './state.js';
 import {h,qs,uid,toast} from './utils.js';
 import {emailWorkflow35,markInboxResolved35,convertInboxToWaiting35,closeWaitingFromReply35} from './emailWorkflow35.js';
+import {ownEvent1100,ownObserver1100} from './runtimeOwnership1100.js';
 
-let openEl=null,queued=false;
+const OWNER='email.workflow35';
+let openEl=null,queued=false,bound=false;
 const id='emailControl35Host';
 const tone=p=>Number(p)>=90?'bad':Number(p)>=78?'warn':'good';
 const whenText=v=>{const d=new Date(v);if(!Number.isFinite(d.getTime()))return'—';return d.toLocaleString('cs-CZ',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'})};
@@ -30,5 +32,5 @@ function renderToday(){const view=qs('#todayView');if(!view?.querySelector('.vie
 function refreshTile(){const grid=qs('#moreView .more26-grid');if(!grid)return;const b=emailWorkflow35(store.get());let btn=grid.querySelector('[data-email35-tile]');if(!btn){btn=document.createElement('button');btn.className='hub-tile';btn.dataset.email35Tile='1';btn.onclick=openEmailControl35;grid.appendChild(btn)}const action=b.needsAction+b.readyToClose+b.followUpNow,html=`<span class="hub-icon ${action?'warn':'good'}">✉</span><span class="hub-copy"><b>E-mail Control</b><small>${b.needsAction} řešit · ${b.readyToClose} odpovědí · ${b.followUpNow} urgovat</small></span><span class="hub-arrow">→</span>`;setHtml(btn,html)}
 function refreshTop(){const actions=qs('.top-actions');if(!actions)return;const b=emailWorkflow35(store.get()),action=b.needsAction+b.readyToClose+b.followUpNow;let btn=actions.querySelector('[data-email35-open]');if(!action){btn?.remove();return}if(!btn){btn=document.createElement('button');btn.className='btn';btn.dataset.email35Open='1';btn.onclick=openEmailControl35;const waiting=actions.querySelector('[data-followup35-open]');if(waiting)waiting.insertAdjacentElement('afterend',btn);else actions.insertBefore(btn,actions.firstChild)}const html=`✉ <span>Mail</span> <b class="${action?'warn':'good'}">${action}</b>`;setHtml(btn,html);btn.title='Otevřít E-mail Control'}
 function schedule(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;renderToday();refreshTile();refreshTop();if(openEl)paint()})}
-function start(){renderToday();refreshTile();refreshTop();store.subscribe(schedule);const view=qs('#todayView');if(view)new MutationObserver(()=>{if(!qs(`#${id}`,view))schedule()}).observe(view,{childList:true,subtree:false});const more=qs('#moreView');if(more)new MutationObserver(schedule).observe(more,{childList:true,subtree:true});const top=qs('.top-actions');if(top)new MutationObserver(schedule).observe(top,{childList:true});window.addEventListener('kamil:email-workflow-open',openEmailControl35);window.addEventListener('kamil:navigate',schedule)}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+function start(){if(bound)return;bound=true;renderToday();refreshTile();refreshTop();store.subscribe(schedule);const view=qs('#todayView');if(view)ownObserver1100(OWNER,view,{childList:true,subtree:false},()=>{if(!qs(`#${id}`,view))schedule()});const more=qs('#moreView');if(more)ownObserver1100(OWNER,more,{childList:true,subtree:true},schedule);const top=qs('.top-actions');if(top)ownObserver1100(OWNER,top,{childList:true},schedule);ownEvent1100(OWNER,window,'kamil:email-workflow-open',openEmailControl35);ownEvent1100(OWNER,window,'kamil:navigate',schedule)}
+if(document.readyState==='loading')ownEvent1100(OWNER,document,'DOMContentLoaded',start,{once:true});else start();
