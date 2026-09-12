@@ -2,13 +2,16 @@
 // OS426+ is the only pricing writer. This file intentionally does not touch the
 // ticket DOM; it only mirrors the canonical engine into historic globals used by
 // older modules.
-const VERSION=430;
-let bound=false,timer=0,lastSig='';
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
+const VERSION=431,OWNER='tickets.price374';
+let bound=false,lastSig='';
+const active=()=>!!document.querySelector('#view-tickets.on,#view-tickets.active,[data-view-panel="tickets"].on,[data-view-panel="tickets"].active');
 function mirror(){
+  if(!active())return;
   const engine=window.__KAMIL_TICKET_MARKET_ENGINE426__;
   if(!engine?.models)return;
   const sig=engine.models.map(m=>`${m.r?.id}:${m.market}:${m.price}:${m.code}:${m.confidence}`).join('|');
-  const compat={version:VERSION,healthy:true,canonical:true,models:engine.models,at:Date.now(),feeEstimatePct:Math.round((engine.fee?.rate??.15)*100)};
+  const compat={version:VERSION,healthy:true,canonical:true,models:engine.models,runtimeOwner:OWNER,at:Date.now(),feeEstimatePct:Math.round((engine.fee?.rate??.15)*100)};
   window.__KAMIL_TICKET_PRICE430__=compat;
   window.__KAMIL_TICKET_PRICE380__=compat;
   window.__KAMIL_TICKET_PRICE377__=compat;
@@ -19,11 +22,12 @@ function mirror(){
     window.dispatchEvent(new CustomEvent('kamil:ticket-price374-updated',{detail:{count:engine.models.length,version:VERSION,canonical:true}}));
   }
 }
-function schedule(ms=250){clearTimeout(timer);timer=setTimeout(mirror,ms)}
+function schedule(ms=250){if(!active())return;schedule1100(OWNER,'mirror',mirror,ms,{pauseWhenHidden:true})}
+function cadence(){if(active())schedule(0);schedule1100(OWNER,'cadence',cadence,15000,{pauseWhenHidden:true})}
 export function installTicketPriceIntelligence374(){
   if(bound)return;bound=true;
   document.documentElement.dataset.ticketPrice374Installed='compat';
-  for(const ev of ['kamil:view-change','kamil:ticket-refresh397-done','kamil:ticket-manual398-saved','kamil:ticket-clipboard403-saved','kamil:ticket-source382-saved'])window.addEventListener(ev,()=>schedule(450));
-  setInterval(mirror,1500);
+  for(const ev of ['kamil:view-change','kamil:ticket-engine426-updated','kamil:ticket-refresh397-done','kamil:ticket-manual398-saved','kamil:ticket-clipboard403-saved','kamil:ticket-source382-saved'])ownEvent1100(OWNER,window,ev,()=>schedule(150));
   schedule(1800);
+  schedule1100(OWNER,'cadence',cadence,15000,{pauseWhenHidden:true});
 }
