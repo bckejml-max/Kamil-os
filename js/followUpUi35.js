@@ -1,8 +1,10 @@
 import {store} from './state.js';
 import {h,qs,formModal,uid,toast} from './utils.js';
 import {waitingFor35,ensureWaiting35,nextFollowUpDate35} from './followUp35.js';
+import {ownEvent1100,ownObserver1100} from './runtimeOwnership1100.js';
 
-let openEl=null,queued=false;
+const OWNER='followup.ui35';
+let openEl=null,queued=false,bound=false;
 const tone=p=>Number(p)>=90?'bad':Number(p)>=75?'warn':'good';
 const actionLabel=a=>({FOLLOW_UP_NOW:'FOLLOW-UP TEĎ',FOLLOW_UP_SOON:'BRZY',REPLY_DETECTED:'ODPOVĚĎ PŘIŠLA',WAIT:'ČEKAT'})[a]||a;
 const dayText=d=>d===null?'bez termínu':d<0?`${Math.abs(d)} d po termínu`:d===0?'dnes':d===1?'zítra':`za ${d} d`;
@@ -14,7 +16,7 @@ function updateManual(id,fn,label){store.mutate(label,s=>{const rows=ensureWaiti
 async function openDraft(row){
  const body=`<div class="decision-note"><b>${h(row.title)}</b>${row.person?` · ${h(row.person)}`:''} · čekáš ${row.ageDays} dní.</div><label class="wide-field">Follow-up<textarea id="followup35Draft" rows="8">${h(row.draft)}</textarea></label><div class="decision-note">Text je návrh. Kamil OS ho sám neodešle.</div>`;
  const result=await new Promise(resolve=>{
-  const host=qs('#modalHost');if(!host){resolve(null);return}const el=document.createElement('div');el.className='modal';el.innerHTML=`<div class="modal-box"><div class="eyebrow">WAITING FOR / 35.0</div><h2>Připravený follow-up</h2>${body}<div class="row-actions" style="margin-top:14px"><button class="btn" data-fu35-cancel>Zavřít</button><button class="btn" data-fu35-copy>Kopírovat</button>${row.kind==='MANUAL'?'<button class="btn primary" data-fu35-sent>Označit jako odeslaný</button>':''}</div></div>`;host.appendChild(el);const close=v=>{el.remove();resolve(v)};qs('[data-fu35-cancel]',el).onclick=()=>close(null);qs('[data-fu35-copy]',el).onclick=async()=>{await copyText(qs('#followup35Draft',el)?.value||row.draft)};qs('[data-fu35-sent]',el)?.addEventListener('click',()=>close('sent'));el.onclick=e=>{if(e.target===el)close(null)};
+  const host=qs('#modalHost');if(!host){resolve(null);return}const el=document.createElement('div');el.className='modal';el.innerHTML=`<div class="modal-box"><div class="eyebrow">WAITING FOR / 35.0</div><h2>Připravený follow-up</h2>${body}<div class="row-actions" style="margin-top:14px"><button class="btn" data-fu35-cancel>Zavřít</button><button class="btn" data-fu35-copy>Kopírovat</button>${row.kind==='MANUAL'?'<button class="btn primary" data-fu35-sent>Označit jako odeslaný</button>':''}</div></div>`;host.appendChild(el);const close=v=>{el.remove();resolve(v)};qs('[data-fu35-cancel]',el).onclick=()=>close(null);qs('[data-fu35-copy]',el).onclick=async()=>{await copyText(qs('#followup35Draft',el)?.value||row.draft)};const sent=qs('[data-fu35-sent]',el);if(sent)sent.onclick=()=>close('sent');el.onclick=e=>{if(e.target===el)close(null)};
  });
  if(result==='sent'&&row.kind==='MANUAL')updateManual(row.id,x=>{const now=new Date().toISOString();x.lastFollowUpAt=now;x.lastTouchAt=now;x.followUpCount=Number(x.followUpCount||0)+1;x.nextFollowUpAt=nextFollowUpDate35(x.followUpEveryDays||3,new Date())},'Follow-up označen jako odeslaný');
 }
@@ -30,5 +32,5 @@ export function openFollowUp35(){
 function refreshTop(){const actions=document.querySelector('.top-actions');if(!actions)return;const b=waitingFor35(store.get());let btn=actions.querySelector('[data-followup35-open]');if(!btn){btn=document.createElement('button');btn.className='btn';btn.dataset.followup35Open='1';btn.onclick=openFollowUp35;const director=actions.querySelector('[data-director-top34]');if(director)director.insertAdjacentElement('afterend',btn);else actions.insertBefore(btn,actions.firstChild)}btn.innerHTML=`⏳ <span>Čekám</span>${b.dueNow?` <b class="bad">${b.dueNow}</b>`:''}`;btn.title=b.dueNow?`${b.dueNow} follow-upů je potřeba řešit`:'Waiting For'}
 function refreshTile(){const grid=qs('#moreView .more26-grid');if(!grid)return;const b=waitingFor35(store.get());let btn=grid.querySelector('[data-followup35-tile]');if(!btn){btn=document.createElement('button');btn.className='hub-tile';btn.dataset.followup35Tile='1';btn.onclick=openFollowUp35;grid.appendChild(btn)}btn.innerHTML=`<span class="hub-icon ${b.dueNow?'bad':b.soon||b.replies?'warn':'good'}">⏳</span><span class="hub-copy"><b>Waiting For</b><small>${b.total} otevřených · ${b.dueNow} urgovat teď · ${b.replies} odpovědí</small></span><span class="hub-arrow">→</span>`}
 function schedule(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;refreshTop();refreshTile();if(openEl)paint()})}
-function start(){refreshTop();refreshTile();store.subscribe(schedule);const top=document.querySelector('.top-actions');if(top)new MutationObserver(schedule).observe(top,{childList:true});const more=qs('#moreView');if(more)new MutationObserver(schedule).observe(more,{childList:true,subtree:true});window.addEventListener('kamil:waiting-open',openFollowUp35);window.addEventListener('kamil:navigate',schedule)}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+function start(){if(bound)return;bound=true;refreshTop();refreshTile();store.subscribe(schedule);const top=document.querySelector('.top-actions');if(top)ownObserver1100(OWNER,top,{childList:true},schedule);const more=qs('#moreView');if(more)ownObserver1100(OWNER,more,{childList:true,subtree:true},schedule);ownEvent1100(OWNER,window,'kamil:waiting-open',openFollowUp35);ownEvent1100(OWNER,window,'kamil:navigate',schedule)}
+if(document.readyState==='loading')ownEvent1100(OWNER,document,'DOMContentLoaded',start,{once:true});else start();
