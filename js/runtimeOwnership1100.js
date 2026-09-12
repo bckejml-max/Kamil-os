@@ -1,5 +1,6 @@
-const VERSION='1100.1.0';
+const VERSION='1100.2.0';
 const state=globalThis.__KAMIL_RUNTIME_OWNERSHIP1100__||(globalThis.__KAMIL_RUNTIME_OWNERSHIP1100__={version:VERSION,installed:false,owners:new Map(),domains:new Map(),scheduled:new Map(),deferred:new Map(),jobs:new Map(),events:[],eventCatalog:new Set(),storms:new Map(),maxEvents:200,backgroundPaused:false});
+state.version=VERSION;
 const now=()=>Date.now();
 const ownerRecord=owner=>{
  if(!owner||typeof owner!=='string')throw new TypeError('OS1100 owner must be a non-empty string');
@@ -52,7 +53,13 @@ export function cancelScheduled1100(tokenOrOwner,key){
 }
 const wait1100=(owner,key,ms)=>new Promise(resolve=>schedule1100(owner,key,resolve,ms,{critical:true}));
 
-export function ownObserver1100(owner,observer){
+export function ownObserver1100(owner,observerOrTarget,options,callback){
+ let observer=observerOrTarget;
+ if(observerOrTarget?.nodeType&&options&&typeof callback==='function'){
+  if(typeof MutationObserver!=='function')throw new TypeError('OS1100 MutationObserver unavailable');
+  observer=new MutationObserver(callback);
+  observer.observe(observerOrTarget,options);
+ }
  if(!observer?.disconnect)throw new TypeError('OS1100 observer must expose disconnect()');
  const rec=ownerRecord(owner);rec.observers.add(observer);log('observer:add',{owner});
  return ()=>cleanupEntry(rec.observers,observer,()=>{observer.disconnect();log('observer:remove',{owner})});
