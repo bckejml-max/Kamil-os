@@ -1,4 +1,6 @@
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 const VERSION=367;
+const OWNER='core.execution364';
 const KEY='kamil-os-execution-state-364';
 const FOLLOW_KEY='kamil-os-followups-365';
 const STATES={NOW:'Udělej teď',WAITING:'Čekám',RECHECK:'Zkontrolovat později',IGNORE:'Ignorovat'};
@@ -18,5 +20,6 @@ function clearWaitingFor(executionId){const prev=followups[executionId];if(!prev
 function setState(executionId,state){if(!STATES[state])return false;overrides[executionId]=state;save(KEY,overrides);const days=defaultDays(state),prev=followups[executionId]||{};if(days&&!followups[executionId])followups[executionId]={dueAt:Date.now()+days*DAY,days,note:'',setAt:Date.now(),lastContactAt:state==='WAITING'?Date.now():null,auto:true};if(state==='WAITING'&&prev.waitingFor&&!prev.lastContactAt)followups[executionId]={...prev,lastContactAt:Date.now(),dueAt:Date.now()+(Number(prev.days)||2)*DAY};if(!days)delete followups[executionId];save(FOLLOW_KEY,followups);build();emit({executionId,state});return true}
 function clearState(executionId,{keepFollowup=false}={}){delete overrides[executionId];save(KEY,overrides);if(!keepFollowup&&followups[executionId]){delete followups[executionId];save(FOLLOW_KEY,followups)}build();emit({executionId,state:null,automatic:true});return true}
 function publish(){window.__KAMIL_EXECUTION_STATE364__={version:VERSION,healthy:true,model,states:STATES,refresh,setState,clearState,setFollowup,clearFollowup,setWaitingFor,markContact,clearWaitingFor,at:Date.now()};window.__KAMIL_FOLLOWUP365__={version:VERSION,healthy:true,due:model.dueFollowups,setFollowup,clearFollowup,refresh,at:Date.now()};window.__KAMIL_WAITING366__={version:VERSION,healthy:true,people:model.waitingPeople,items:model.groups.WAITING,setWaitingFor,markContact,clearWaitingFor,refresh,at:Date.now()}}
-let timer=0,bound=false,intervalId=0;const schedule=()=>{clearTimeout(timer);timer=setTimeout(build,70)};
-export function installExecutionState364(){document.documentElement.dataset.executionState364=String(VERSION);document.documentElement.dataset.waiting366='1';if(!bound){bound=true;window.addEventListener('kamil:manager341-updated',schedule);window.addEventListener('kamil:view-change',schedule);window.addEventListener('focus',schedule)}build();setTimeout(schedule,700);if(!intervalId)intervalId=setInterval(schedule,15*60*1000)}
+let bound=false;const scheduleRefresh=()=>schedule1100(OWNER,'refresh',build,70,{pauseWhenHidden:true});
+function cadence(){scheduleRefresh();schedule1100(OWNER,'cadence',cadence,15*60*1000,{pauseWhenHidden:true})}
+export function installExecutionState364(){document.documentElement.dataset.executionState364=String(VERSION);document.documentElement.dataset.waiting366='1';if(!bound){bound=true;ownEvent1100(OWNER,window,'kamil:manager341-updated',scheduleRefresh);ownEvent1100(OWNER,window,'kamil:view-change',scheduleRefresh);ownEvent1100(OWNER,window,'focus',scheduleRefresh)}build();schedule1100(OWNER,'initial',scheduleRefresh,700,{pauseWhenHidden:true});schedule1100(OWNER,'cadence',cadence,15*60*1000,{pauseWhenHidden:true})}
