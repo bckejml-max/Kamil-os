@@ -22,6 +22,7 @@ const files=[
  ['./js/actionExecution336.js','today.actionExecution336'],
  ['./js/managerDeadlines481.js','manager.deadlines481'],
  ['./js/kamilBrain300.js','today.brain300'],
+ ['./js/kamilBrain303.js','today.brain303'],
  ['./js/directorUi34.js','director.ui34'],
  ['./js/systemDiagnostics421.js','system.diagnostics421'],
  ['./js/remoteInboxUi31.js','remote.inbox31'],
