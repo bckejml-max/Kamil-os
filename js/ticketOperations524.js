@@ -1,13 +1,16 @@
 import {loadTicketCloud660} from './ticketCloud660.js';
 import {buildTicketRepricingGuardDesk194} from './ticketRepricingGuardModel194.js';
+import {ownEvent1100,ownObserver1100,schedule1100} from './runtimeOwnership1100.js';
 
-const VERSION='524.0.2';
+const VERSION='524.0.3';
+const OWNER='tickets.operations524';
 const ACTIVE=new Set(['LISTED','NOT_LISTED']);
 const SOLD=new Set(['SOLD_UNDELIVERED','SOLD_WAITING_PAYMENT','PAYOUT_RECEIVED','PAID']);
 const ACTIONS=new Set(['DROP TO','RAISE TO','LIST AT']);
 const LOG_KEY='kamil.ticket.actionLog524';
-let bound=false,timer=0,loading=null,observer=null,painting=false;
+let bound=false,loading=null,painting=false;
 let cloud=null,guardDesk=null;
+const active=()=>!!document.querySelector('#view-tickets.on,#view-tickets.active,[data-view-panel="tickets"].on,[data-view-panel="tickets"].active');
 
 const n=v=>{const x=Number(v);return Number.isFinite(x)?x:0};
 const qty=r=>Math.max(1,n(r?.qty)||1);
@@ -116,7 +119,7 @@ function payoutSummary(){const rows=payoutRows(),waiting=rows.filter(x=>x.st==='
 function ensureShell(){
   let shell=document.querySelector('[data-ticket-ops524-shell]');if(shell)return shell;
   shell=document.createElement('div');shell.dataset.ticketOps524Shell='1';shell.className='tdops524-shell';shell.innerHTML='<div class="tdops524-backdrop" data-ops-close></div><aside class="tdops524-drawer" role="dialog" aria-modal="true"><header><div><small data-ops-eyebrow>TICKET OPS</small><h2 data-ops-title>Detail</h2></div><button type="button" data-ops-close aria-label="Zavřít">×</button></header><div class="tdops524-body" data-ops-body></div></aside>';
-  document.body.appendChild(shell);shell.addEventListener('click',e=>{if(e.target.closest('[data-ops-close]'))closeShell();const confirm=e.target.closest('[data-confirm524]');if(confirm){const g=guardMap().get(String(confirm.dataset.confirm524));if(confirmGuard(g)){confirm.textContent='✓ Potvrzeno';confirm.disabled=true;renderRepricing();decorateRows()}}});
+  document.body.appendChild(shell);ownEvent1100(OWNER,shell,'click',e=>{if(e.target.closest('[data-ops-close]'))closeShell();const confirm=e.target.closest('[data-confirm524]');if(confirm){const g=guardMap().get(String(confirm.dataset.confirm524));if(confirmGuard(g)){confirm.textContent='✓ Potvrzeno';confirm.disabled=true;renderRepricing();decorateRows()}}});
   return shell;
 }
 function openShell(title,eyebrow,html){const s=ensureShell();s.querySelector('[data-ops-title]').textContent=title;s.querySelector('[data-ops-eyebrow]').textContent=eyebrow;s.querySelector('[data-ops-body]').innerHTML=html;s.classList.add('open');document.documentElement.classList.add('ticket-ops-open')}
@@ -134,18 +137,19 @@ function openRepricing(){openShell('Smart repricing','OS523–524 · PRICE ACTIO
 
 function installControls(){
   const host=document.querySelector('#ticketIntelView .td331'),modes=host?.querySelector(':scope > .td331-modes'),tools=modes?.querySelector('.td500-view-tools');if(!tools)return;
-  if(!tools.querySelector('[data-payout511]')){const b=document.createElement('button');b.type='button';b.className='td500-icon-btn tdops-control';b.dataset.payout511='1';b.textContent='Payouty';b.title='OS511 · otevřít payout centrum';b.addEventListener('click',openPayout);tools.prepend(b)}
-  if(!tools.querySelector('[data-repricing523]')){const b=document.createElement('button');b.type='button';b.className='td500-icon-btn tdops-control';b.dataset.repricing523='1';b.textContent='Repricing';b.title='OS523 · otevřít frontu cenových akcí';b.addEventListener('click',openRepricing);tools.prepend(b)}
+  if(!tools.querySelector('[data-payout511]')){const b=document.createElement('button');b.type='button';b.className='td500-icon-btn tdops-control';b.dataset.payout511='1';b.textContent='Payouty';b.title='OS511 · otevřít payout centrum';tools.prepend(b)}
+  if(!tools.querySelector('[data-repricing523]')){const b=document.createElement('button');b.type='button';b.className='td500-icon-btn tdops-control';b.dataset.repricing523='1';b.textContent='Repricing';b.title='OS523 · otevřít frontu cenových akcí';tools.prepend(b)}
 }
 function publish(){const p=payoutSummary(),rows=repricingRows(),logs=readLog(),waiting=p.waiting.length+p.delivery.length;window.__KAMIL_TICKET_PAYOUT511__={version:'511.0.1',healthy:true,waiting,pendingGross:p.pendingGross,paid:p.paid.length,actualPayout:p.payout,actualNet:p.net,at:Date.now()};window.__KAMIL_TICKET_REPRICING523__={version:'523.0.1',healthy:true,active:rows.length,actionable:rows.filter(x=>ACTIONS.has(x.action)).length,confirmedToday:rows.filter(x=>ACTIONS.has(x.action)&&confirmed(x)).length,at:Date.now()};window.__KAMIL_TICKET_ACTION524__={version:VERSION,healthy:true,count:logs.filter(x=>!x.undoneAt).length,localOnly:true,at:Date.now()}}
-function paint(){if(painting||!cloud?.ok)return false;painting=true;try{installControls();decorateRows();publish();return true}finally{observer?.takeRecords();painting=false}}
-async function refresh(force=false){if(loading&&!force)return loading;loading=(async()=>{try{const next=await loadTicketCloud660();if(!next?.ok)return false;cloud=next;guardDesk=buildTicketRepricingGuardDesk194(next.inventory||[],next.latest||new Map());paint();if(document.querySelector('[data-ticket-ops524-shell].open [data-ops-title]')?.textContent==='Smart repricing')renderRepricing();return true}catch(error){console.warn('[ticketOperations524]',error);return false}finally{loading=null}})();return loading}
-function schedule(ms=100,{reload=false}={}){clearTimeout(timer);timer=setTimeout(()=>{timer=0;reload?refresh(true):paint()},ms)}
+function paint(){if(painting||!active()||!cloud?.ok)return false;painting=true;try{installControls();decorateRows();publish();return true}finally{painting=false}}
+async function refresh(force=false){if(!active())return false;if(loading&&!force)return loading;loading=(async()=>{try{const next=await loadTicketCloud660();if(!next?.ok||!active())return false;cloud=next;guardDesk=buildTicketRepricingGuardDesk194(next.inventory||[],next.latest||new Map());paint();if(active()&&document.querySelector('[data-ticket-ops524-shell].open [data-ops-title]')?.textContent==='Smart repricing')renderRepricing();return true}catch(error){console.warn('[ticketOperations524]',error);return false}finally{loading=null}})();return loading}
+function schedule(ms=100,{reload=false}={}){schedule1100(OWNER,reload?'reload':'paint',()=>{if(active())reload?refresh(true):paint()},ms,{pauseWhenHidden:true})}
 export function installTicketOperations524(){
-  const first=refresh();if(bound)return first;bound=true;
-  for(const ev of ['kamil:view-change','kamil:ticket-desk331-updated','kamil:ticket-economics506-updated','kamil:ticket-grouping508-updated'])window.addEventListener(ev,()=>schedule(140));
-  for(const ev of ['kamil:ticket-refresh397-done','kamil:ticket-payout154-updated'])window.addEventListener(ev,()=>schedule(80,{reload:true}));
-  window.addEventListener('keydown',e=>{if(e.key==='Escape')closeShell()});
-  const root=document.querySelector('#ticketIntelView');if(root){observer=new MutationObserver(records=>{if(painting)return;if(records.some(r=>r.type==='childList'&&(r.target===root||r.target?.matches?.('.td331,.td331-grid'))))schedule(160)});observer.observe(root,{childList:true,subtree:true})}
+  const first=active()?refresh():Promise.resolve(false);if(bound)return first;bound=true;
+  for(const ev of ['kamil:view-change','kamil:ticket-desk331-updated','kamil:ticket-economics506-updated','kamil:ticket-grouping508-updated'])ownEvent1100(OWNER,window,ev,()=>{if(active())schedule(140,{reload:!cloud})});
+  for(const ev of ['kamil:ticket-refresh397-done','kamil:ticket-payout154-updated'])ownEvent1100(OWNER,window,ev,()=>{if(active())schedule(80,{reload:true})});
+  ownEvent1100(OWNER,window,'keydown',e=>{if(e.key==='Escape')closeShell()});
+  ownEvent1100(OWNER,document,'click',e=>{if(!active())return;const payout=e.target.closest?.('[data-payout511]');if(payout){e.preventDefault();openPayout();return}const repricing=e.target.closest?.('[data-repricing523]');if(repricing){e.preventDefault();openRepricing()}},true);
+  const root=document.querySelector('#ticketIntelView');if(root)ownObserver1100(OWNER,root,{childList:true,subtree:true},records=>{if(painting||!active())return;if(records.some(r=>r.type==='childList'&&(r.target===root||r.target?.matches?.('.td331,.td331-grid'))))schedule(160)});
   return first;
 }
