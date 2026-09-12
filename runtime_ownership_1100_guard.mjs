@@ -13,7 +13,8 @@ for(const domain of ['tickets','betting','finance','control'])assert.ok(snapshot
 assert.ok(runtime.includes('__KAMIL_RUNTIME1100__'),'OS1100 global diagnostics API missing');
 assert.ok(runtime.includes("'visibilitychange'"),'OS1100 background pause lifecycle missing');
 assert.ok(runtime.includes('event storm blocked'),'OS1100 event storm guard missing');
-assert.ok(runtime.includes("typeof MutationObserver==='function'"),'OS1100 observer overload support missing');
+assert.ok(/export function ownObserver1100\(owner,observerOrTarget,options,callback\)/.test(runtime),'OS1100 observer overload signature missing');
+assert.ok(/new MutationObserver\(callback\)/.test(runtime)&&/observer\.observe\(observerOrTarget,options\)/.test(runtime),'OS1100 observer overload implementation missing');
 assert.ok(app.includes('installRuntimeOwnership1100()'),'OS2 app shell must install runtime ownership directly');
 assert.ok(app.includes("const OWNER='core.app41'"),'OS2 app shell must keep a canonical runtime owner');
 assert.equal(shell.includes('runtimeCoordinator1050'),false,'OS2 boot must not require legacy coordinator for ownership');
