@@ -15,6 +15,7 @@ const files=[
  ['./js/recoveryShieldUi32.js','recovery.shield32'],
  ['./js/investmentBattle480.js','money.investmentBattle480'],
  ['./js/capitalPlan469.js','money.capitalPlan469'],
+ ['./js/cashflow468.js','money.cashflow468'],
  ['./js/operator717.js','operator717'],
  ['./js/operatorHome299.js','operator.home299'],
  ['./js/todayDashboard213.js','today.dashboard213'],
