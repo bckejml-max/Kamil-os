@@ -28,6 +28,7 @@ const files=[
  ['./js/kamilBrain303.js','today.brain303'],
  ['./js/emailWorkflowUi35.js','email.workflow35'],
  ['./js/followUpUi35.js','followup.ui35'],
+ ['./js/emergencyFileUi26.js','home.emergency26'],
  ['./js/directorUi34.js','director.ui34'],
  ['./js/systemDiagnostics421.js','system.diagnostics421'],
  ['./js/remoteInboxUi31.js','remote.inbox31'],
