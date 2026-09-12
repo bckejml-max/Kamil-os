@@ -16,6 +16,8 @@ const files=[
  ['./js/todayDashboard213.js','today.dashboard213'],
  ['./js/todayCockpit363.js','today.cockpit363'],
  ['./js/todayActions697.js','today.actions697'],
+ ['./js/changePulseUi35.js','today.changePulse35'],
+ ['./js/dailyProfitBriefUi32.js','today.profitBrief32'],
  ['./js/directorUi34.js','director.ui34'],
  ['./js/systemDiagnostics421.js','system.diagnostics421'],
  ['./js/remoteInboxUi31.js','remote.inbox31'],
