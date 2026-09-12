@@ -11,6 +11,7 @@ const files=[
  ['./js/performance330.js','core.performance330'],
  ['./js/hardening329.js','core.hardening329'],
  ['./js/qa143.js','core.qa143'],
+ ['./js/qa308.js','core.qa308'],
  ['./js/audit525.js','core.audit527'],
  ['./js/marketEdgeUi32.js','market.edge32'],
  ['./js/profitControlUi32.js','profit.control32'],
