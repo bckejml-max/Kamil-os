@@ -18,6 +18,7 @@ const files=[
  ['./js/investmentBattle480.js','money.investmentBattle480'],
  ['./js/capitalPlan469.js','money.capitalPlan469'],
  ['./js/cashflow468.js','money.cashflow468'],
+ ['./js/propertyDecision472.js','money.propertyDecision472'],
  ['./js/operator717.js','operator717'],
  ['./js/operatorHome299.js','operator.home299'],
  ['./js/todayDashboard213.js','today.dashboard213'],
