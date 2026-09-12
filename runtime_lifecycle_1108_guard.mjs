@@ -5,6 +5,7 @@ const files=[
  ['./js/platform43.js','core.platform43'],
  ['./js/platform43Ui.js','platform.ui43'],
  ['./js/bettingControl586.js','betting.control586'],
+ ['./js/bettingMissed566.js','betting.missed566'],
  ['./js/unifiedCommand333.js','core.unified333'],
  ['./js/audit525.js','core.audit527'],
  ['./js/marketEdgeUi32.js','market.edge32'],
