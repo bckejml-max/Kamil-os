@@ -1,3 +1,6 @@
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
+
+const OWNER='core.performance330';
 const START=performance.now();
 function ensureQaCss(){if(document.querySelector('link[data-qa308],link[href="./qa308.css"]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='./qa308.css';l.dataset.qa308='css-only';document.head.appendChild(l)}
 function nav(){const n=performance.getEntriesByType?.('navigation')?.[0];return n?{dns:Math.round(n.domainLookupEnd-n.domainLookupStart),connect:Math.round(n.connectEnd-n.connectStart),ttfb:Math.round(n.responseStart-n.requestStart),dom:Math.round(n.domContentLoadedEventEnd-n.startTime),load:Math.round(n.loadEventEnd-n.startTime)}:null}
@@ -5,4 +8,4 @@ function resources(){const rows=performance.getEntriesByType?.('resource')||[];c
 function readiness(){return{core:!!window.__KAMIL_CORE312__,intelligence:!!window.__KAMIL_INTELLIGENCE318__,domain:!!window.__KAMIL_DOMAIN_OS328__,health:!!window.__KAMIL_HEALTH329__}}
 function sample(){const data={version:330,sinceInstallMs:Math.round(performance.now()-START),navigation:nav(),resources:resources(),domNodes:document.getElementsByTagName('*').length,readiness:readiness(),bootErrors:(window.__KAMIL_BOOT_ERRORS__||[]).length,at:new Date().toISOString()};window.__KAMIL_PERFORMANCE330__=data;return data}
 function observeLongTasks(){if(!('PerformanceObserver'in window))return;try{const obs=new PerformanceObserver(list=>{const prev=window.__KAMIL_LONG_TASKS330__||[];for(const x of list.getEntries())prev.push({start:Math.round(x.startTime),duration:Math.round(x.duration)});window.__KAMIL_LONG_TASKS330__=prev.slice(-30)});obs.observe({type:'longtask',buffered:true})}catch{}}
-export function installPerformance330(){ensureQaCss();observeLongTasks();sample();setTimeout(sample,800);setTimeout(sample,2200);window.addEventListener('load',()=>setTimeout(sample,50),{once:true});window.addEventListener('kamil:view-change',()=>setTimeout(sample,120));window.__KAMIL_SAMPLE_PERFORMANCE330__=sample}
+export function installPerformance330(){ensureQaCss();observeLongTasks();sample();schedule1100(OWNER,'sample-800',sample,800,{pauseWhenHidden:true});schedule1100(OWNER,'sample-2200',sample,2200,{pauseWhenHidden:true});ownEvent1100(OWNER,window,'load',()=>schedule1100(OWNER,'load-sample',sample,50,{pauseWhenHidden:false}),{once:true});ownEvent1100(OWNER,window,'kamil:view-change',()=>schedule1100(OWNER,'view-sample',sample,120,{pauseWhenHidden:true}));window.__KAMIL_SAMPLE_PERFORMANCE330__=sample}
