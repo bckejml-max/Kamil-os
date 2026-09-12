@@ -2,7 +2,9 @@ import {store} from './state.js';
 import {buildDomainOS328} from './domainOS328.js';
 import {openFinanceCommand258} from './financeCommand258.js';
 import {openTicketCommander660} from './ticketCommander660.js';
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 
+const OWNER='today.focusQueue335';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 const num=x=>Number.isFinite(Number(x))?Number(x):0;
 const money=x=>`${Math.round(num(x)).toLocaleString('cs-CZ')} Kč`;
@@ -42,5 +44,5 @@ function anchor(){const section=document.querySelector('#view-today'),radar=sect
 let lastMarkup='';
 function render(){const host=anchor();if(!host)return false;const m=model(),markup=html(m),first=!window.__KAMIL_FOCUS_QUEUE335__;let queue=host.querySelector(':scope > [data-focus-queue335]'),changed=false;if(!queue){host.insertAdjacentHTML('afterbegin',markup);queue=host.querySelector(':scope > [data-focus-queue335]');lastMarkup=markup;changed=true}else if(lastMarkup!==markup){queue.outerHTML=markup;queue=host.querySelector(':scope > [data-focus-queue335]');lastMarkup=markup;changed=true}window.__KAMIL_FOCUS_QUEUE335__={version:349,model:m,healthy:true,mounted:!!queue,refresh:renderSafe,open,at:Date.now()};if(first||changed)window.dispatchEvent(new CustomEvent('kamil:focus-queue335-updated',{detail:{version:349,current:m.now?.key||null,changed}}));return true}
 function renderSafe(){try{return render()}catch(error){console.error('[focusQueue335]',error);window.__KAMIL_FOCUS_QUEUE335__={version:349,healthy:false,error:String(error?.message||error),refresh:renderSafe,open,at:Date.now()};return false}}
-let timer=0,bound=false;const schedule=(delay=100)=>{clearTimeout(timer);timer=setTimeout(renderSafe,delay)};
-export function installFocusQueue335(){injectCss();document.documentElement.dataset.focusQueue335='1';if(!bound){bound=true;document.addEventListener('click',e=>{const b=e.target.closest?.('[data-focus335-open]');if(!b)return;e.preventDefault();open(b.dataset.focus335Open)});window.addEventListener('kamil:view-change',e=>{if(isTodayEvent(e))schedule(40)});window.addEventListener('kamil:manager341-updated',()=>schedule(20));store.subscribe?.(()=>schedule())}renderSafe();setTimeout(()=>schedule(20),600);setTimeout(()=>schedule(20),1700)}
+let bound=false;const schedule=(delay=100)=>schedule1100(OWNER,'render',renderSafe,delay,{pauseWhenHidden:true});
+export function installFocusQueue335(){injectCss();document.documentElement.dataset.focusQueue335='1';if(!bound){bound=true;ownEvent1100(OWNER,document,'click',e=>{const b=e.target.closest?.('[data-focus335-open]');if(!b)return;e.preventDefault();open(b.dataset.focus335Open)});ownEvent1100(OWNER,window,'kamil:view-change',e=>{if(isTodayEvent(e))schedule(40)});ownEvent1100(OWNER,window,'kamil:manager341-updated',()=>schedule(20));store.subscribe?.(()=>schedule())}renderSafe();schedule1100(OWNER,'boot-600',()=>schedule(20),600,{pauseWhenHidden:true});schedule1100(OWNER,'boot-1700',()=>schedule(20),1700,{pauseWhenHidden:true})}
