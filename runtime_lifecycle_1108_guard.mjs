@@ -8,6 +8,7 @@ const files=[
  ['./js/bettingMissed566.js','betting.missed566'],
  ['./js/unifiedCommand333.js','core.unified333'],
  ['./js/domainOS328.js','core.domain328'],
+ ['./js/performance330.js','core.performance330'],
  ['./js/audit525.js','core.audit527'],
  ['./js/marketEdgeUi32.js','market.edge32'],
  ['./js/profitControlUi32.js','profit.control32'],
