@@ -15,6 +15,7 @@ const files=[
  ['./js/profitControlUi32.js','profit.control32'],
  ['./js/scenarioSimulatorUi26.js','money.scenario26'],
  ['./js/recoveryShieldUi32.js','recovery.shield32'],
+ ['./js/smartSyncUi31.js','sync.smart31'],
  ['./js/investmentBattle480.js','money.investmentBattle480'],
  ['./js/capitalPlan469.js','money.capitalPlan469'],
  ['./js/cashflow468.js','money.cashflow468'],
