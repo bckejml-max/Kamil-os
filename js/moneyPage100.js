@@ -1,4 +1,5 @@
 import {renderPersonalMoney640} from './personalMoney640.js';
+import {ensurePersonalMoneyBridge737} from './personalMoneyBridge737.js';
 import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 
 const OWNER='money.page100';
@@ -29,6 +30,7 @@ async function loadBackground(){
  try{
   ensureOptionalStyles();
   const jobs=[
+   ['./personalDebtSummary737.js',m=>m.appendPersonalDebtSummary737?.()],
    ['./moneyHub680.js',m=>m.appendMoneyHub680?.()],
    ['./wealthHistory610.js',m=>m.appendWealthHistory610?.()],
    ['./propertyFinance610.js',m=>m.appendPropertyFinance610?.()],
@@ -66,6 +68,7 @@ function bindResume(){
 export function renderMoneyPage100(){
  bindResume();
  try{
+  ensurePersonalMoneyBridge737();
   renderPersonalMoney640();
   window.__KAMIL_MONEY100__={healthy:true,core:true,architecture:'stable-canonical',background:false,paused:false,runtimeOwner:OWNER,at:Date.now()};
  }catch(error){
