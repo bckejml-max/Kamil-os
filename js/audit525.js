@@ -1,6 +1,9 @@
-const VERSION='527.0.0';
+import {ownEvent1100,ownObserver1100,schedule1100} from './runtimeOwnership1100.js';
+const VERSION='527.0.1';
+const OWNER='core.audit527';
 const TITLES={today:'DNES',inbox:'INBOX',money:'PENÍZE',tickets:'VSTUPENKY',betting:'SÁZENÍ',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
-let bound=false,timer=0,titleObserver=null,syncObserver=null,bettingObserver=null,bettingTimer=0,ledgerPromise=null,ledgerInfo=null;
+let bound=false,ledgerPromise=null,ledgerInfo=null;
+const bettingActive=()=>!!document.querySelector('#view-betting.on,#view-betting.active,[data-view-panel="betting"].on,[data-view-panel="betting"].active');
 
 function ensureCss(){
   if(document.querySelector('link[data-audit525]'))return;
@@ -13,7 +16,7 @@ function ensureCss(){
 function viewFrom(detail){
   const requested=typeof detail==='string'?detail:detail?.view;
   if(requested&&TITLES[requested])return requested;
-  const active=document.querySelector('[id^="view-"].on');
+  const active=document.querySelector('[id^="view-"].on,[id^="view-"].active');
   return active?.id?.replace(/^view-/,'')||null;
 }
 function syncNav(view){
@@ -34,6 +37,7 @@ function syncLocalStatus(){
   if(el.title!==title)el.title=title;
 }
 async function loadLedgerInfo(){
+  if(!bettingActive())return null;
   if(ledgerInfo)return ledgerInfo;
   if(ledgerPromise)return ledgerPromise;
   ledgerPromise=fetch(`/api/core70-health?source=ledger&_=${Date.now()}`,{cache:'no-store',headers:{Accept:'application/json'}}).then(async response=>{
@@ -46,6 +50,7 @@ async function loadLedgerInfo(){
   return ledgerPromise;
 }
 function applyBettingTruth(){
+  if(!bettingActive())return;
   const host=document.querySelector('#bettingView'),metrics=host?.querySelectorAll('.bet144-metric');
   if(!host||!metrics?.length||!ledgerInfo)return;
   const incomplete=ledgerInfo.priorReportedExposureUnresolved===true;
@@ -68,12 +73,11 @@ function applyBettingTruth(){
   if(window.__KAMIL_BETTING_144__){window.__KAMIL_BETTING_144__.ledgerComplete=!incomplete;window.__KAMIL_BETTING_144__.ledgerPersistence=ledgerInfo.persistence||null}
   document.documentElement.dataset.bettingLedger527=incomplete?'partial':'complete';
 }
-function scheduleBettingTruth(){
-  clearTimeout(bettingTimer);bettingTimer=setTimeout(()=>applyBettingTruth(),35);
-}
+function scheduleBettingTruth(){schedule1100(OWNER,'betting-truth',applyBettingTruth,35,{pauseWhenHidden:true})}
 function ensureBettingTruth(){
+  if(!bettingActive())return;
   const host=document.querySelector('#bettingView');if(!host)return;
-  if(!bettingObserver){bettingObserver=new MutationObserver(scheduleBettingTruth);bettingObserver.observe(host,{childList:true,subtree:true})}
+  if(!host.dataset.audit527Observed){host.dataset.audit527Observed='1';ownObserver1100(OWNER,host,{childList:true,subtree:true},scheduleBettingTruth)}
   loadLedgerInfo().then(()=>scheduleBettingTruth());
 }
 function sync(view=viewFrom(null)){
@@ -91,16 +95,15 @@ function sync(view=viewFrom(null)){
 }
 function schedule(view){
   queueMicrotask(()=>sync(view||viewFrom(null)));
-  clearTimeout(timer);
-  timer=setTimeout(()=>sync(view||viewFrom(null)),90);
+  schedule1100(OWNER,'sync',()=>sync(view||viewFrom(null)),90,{pauseWhenHidden:true});
 }
 export function installAudit525(){
   ensureCss();sync();if(bound)return;bound=true;
-  window.addEventListener('kamil:view-change',event=>schedule(viewFrom(event.detail)));
-  window.addEventListener('popstate',()=>schedule());
+  ownEvent1100(OWNER,window,'kamil:view-change',event=>schedule(viewFrom(event.detail)));
+  ownEvent1100(OWNER,window,'popstate',()=>schedule());
   const title=document.querySelector('#pageTitle');
-  if(title){titleObserver=new MutationObserver(()=>schedule());titleObserver.observe(title,{childList:true,characterData:true,subtree:true})}
+  if(title)ownObserver1100(OWNER,title,{childList:true,characterData:true,subtree:true},()=>schedule());
   const syncStatus=document.querySelector('#syncStatus');
-  if(syncStatus){syncObserver=new MutationObserver(()=>syncLocalStatus());syncObserver.observe(syncStatus,{attributes:true,childList:true,subtree:true})}
-  setTimeout(()=>sync(),350);
+  if(syncStatus)ownObserver1100(OWNER,syncStatus,{attributes:true,childList:true,subtree:true},()=>syncLocalStatus());
+  schedule1100(OWNER,'initial',()=>sync(),350,{pauseWhenHidden:true});
 }
