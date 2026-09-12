@@ -20,17 +20,22 @@ if(appVersion!==appRelease)fail(`APP_VERSION ${appVersion||'unknown'} != APP_REL
 if(major<466){if(!process.exitCode)console.log(`Ticket canonical guard skipped · release ${appVersion}`);process.exit()}
 
 const criticalStart=page.indexOf('const CRITICAL=[');
+const earlyStart=page.indexOf('const EARLY_BACKGROUND=[');
 const essentialStart=page.indexOf('const ESSENTIAL_ANALYTICS=[');
 const legacyStart=page.indexOf('const MODULES=[');
 if(criticalStart<0)fail('ticketPage100 missing CRITICAL boot list');
+if(earlyStart<0)fail('ticketPage100 missing EARLY_BACKGROUND boot list');
 if(essentialStart<0)fail('ticketPage100 missing ESSENTIAL_ANALYTICS list');
 if(legacyStart<0)fail('ticketPage100 missing legacy MODULES list');
-if(criticalStart>=0&&essentialStart>=0&&criticalStart>essentialStart)fail('critical boot must be declared before essential analytics');
+if(criticalStart>=0&&earlyStart>=0&&criticalStart>earlyStart)fail('critical boot must be declared before early background');
+if(earlyStart>=0&&essentialStart>=0&&earlyStart>essentialStart)fail('early background must be declared before essential analytics');
 if(essentialStart>=0&&legacyStart>=0&&essentialStart>legacyStart)fail('essential analytics must be declared before legacy modules');
 
-const criticalBlock=criticalStart>=0&&essentialStart>criticalStart?page.slice(criticalStart,essentialStart):'';
-for(const path of ['./ticketUi421.js','./ticketMarketEngine426.js','./ticketCommander465.js','./ticketConsolidation466.js']){if(!criticalBlock.includes(path))fail(`critical boot missing ${path}`);if(count(page,path)!==1)fail(`${path} must appear exactly once in ticketPage100`)}
-for(const token of ['state.criticalDone=true','state.legacyDone=true','BACKGROUND_MODULES','loadBackground','LEGACY_DELAY_MS=12000','healthMounted','alertsReady'])if(!page.includes(token))fail(`critical-first boot missing ${token}`);
+const criticalBlock=criticalStart>=0&&earlyStart>criticalStart?page.slice(criticalStart,earlyStart):'';
+for(const path of ['./ticketUi421.js','./ticketCommander465.js','./ticketConsolidation466.js']){if(!criticalBlock.includes(path))fail(`critical boot missing ${path}`);if(count(page,path)!==1)fail(`${path} must appear exactly once in ticketPage100`)}
+const earlyBlock=earlyStart>=0&&essentialStart>earlyStart?page.slice(earlyStart,essentialStart):'';
+for(const path of ['./ticketMarketEngine426.js','./ticketHub640.js']){if(!earlyBlock.includes(path))fail(`early background missing ${path}`);if(count(page,path)!==1)fail(`${path} must appear exactly once in ticketPage100`)}
+for(const token of ['state.criticalDone=true','state.legacyDone=true','BACKGROUND_MODULES','loadBackground','LEGACY_DELAY_MS=12000','healthMounted','alertsReady','isTicketViewActive','backgroundDeferred'])if(!page.includes(token))fail(`critical-first boot missing ${token}`);
 if(/\.refresh\?\.\(/.test(page))fail('canonical adapter must not call renderer refresh methods directly');
 const essentialBlock=essentialStart>=0&&legacyStart>essentialStart?page.slice(essentialStart,legacyStart):'';
 for(const path of ['./ticketMarketHealth397.js','./ticketAlerts413.js'])if(!essentialBlock.includes(path))fail(`essential analytics missing ${path}`);
@@ -40,7 +45,7 @@ const settlementPath='./ticketSettlement411.js';
 if(criticalBlock.includes(settlementPath))fail('settlement analytics must stay out of critical ticket boot');
 if(!page.slice(legacyStart).includes(settlementPath))fail(`deferred analytics missing ${settlementPath}`);
 if(count(page,settlementPath)!==1)fail(`${settlementPath} must appear exactly once in ticketPage100`);
-if(!page.includes('setTimeout(()=>loadBackground(state)'))fail('background analytics scheduling missing after canonical analytics readiness');
+if(!page.includes("if(isTicketViewActive())loadBackground(state)")||!page.includes('state.backgroundDeferred=true'))fail('view-aware background analytics scheduling missing after canonical analytics readiness');
 
 for(const token of ['__KAMIL_TICKET_COMMANDER454__','__KAMIL_TICKET_COMMANDER439__','__KAMIL_TICKET_COMMANDER435__','__KAMIL_TICKET_ENGINE426__',"source:'WAIT'",'čekám na model'])if(!commander.includes(token))fail(`Commander 6 fallback missing ${token}`);
 if(commander.includes('if(!c?.rows?.length)return null'))fail('Commander 6 must not disappear when OS454 has no rows');
