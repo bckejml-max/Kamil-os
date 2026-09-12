@@ -26,6 +26,7 @@ const files=[
  ['./js/actionExecution336.js','today.actionExecution336'],
  ['./js/focusQueue335.js','today.focusQueue335'],
  ['./js/managerDeadlines481.js','manager.deadlines481'],
+ ['./js/morningDirector483.js','today.morning483'],
  ['./js/kamilBrain300.js','today.brain300'],
  ['./js/kamilBrain301.js','today.brain301'],
  ['./js/kamilBrain302.js','today.brain302'],
