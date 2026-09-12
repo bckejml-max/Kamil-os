@@ -1,7 +1,9 @@
 import {store} from './state.js';
 import {h,money} from './utils.js';
 import {buildFinanceCommand258} from './financeCommand258.js';
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 
+const OWNER='core.resilience333';
 const up=x=>String(x||'').toUpperCase();
 function taskCounts(s){const all=[...(s.tasks||[]),...(s.personalAdmin?.items||[])],open=all.filter(x=>!['DONE','CLOSED','ARCHIVED'].includes(up(x.status)));return{open:open.length,overdue:open.filter(x=>x.due&&Date.parse(x.due)<Date.now()).length}}
 function managerRows(){const now=new Date(),items=[['Koncepty faktur',1],['Karta zakázky',20],['Dodavatelská fakturace',25],['Cestovní příkaz + docházka','last']];return items.map(([name,target])=>{let y=now.getFullYear(),m=now.getMonth(),day=target==='last'?new Date(y,m+1,0).getDate():target,due=new Date(y,m,day,17,0);if(due<now){m++;if(m>11){m=0;y++}day=target==='last'?new Date(y,m+1,0).getDate():target;due=new Date(y,m,day,17,0)}const diff=Math.ceil((due-now)/86400000);return{name,day,diff,state:diff<=2?'soon':'ok'}})}
@@ -10,4 +12,5 @@ function renderToday(){const host=document.querySelector('#todayView');if(!host|
 function renderMoney(){const host=document.querySelector('#moneyView');if(!host||host.querySelector('[data-os333-invest]'))return;const f=finance(),rows=(f.review||[]).slice(0,6);host.insertAdjacentHTML('afterbegin',`<section class="os333-invest" data-os333-invest><div class="os333-head"><div><span>INVESTMENT ACTION CENTER</span><h2>Co zkontrolovat v portfoliu</h2></div><b>${money(f.investments||0)}</b></div><div class="os333-invest-list">${rows.length?rows.map(r=>`<div><span><b>${h(r.name)}</b><small>${h(r.reason)}</small></span><strong>${h(r.action)}</strong></div>`).join(''):'<div class="os333-empty">Z uložených dat teď nevychází žádná investiční akce.</div>'}</div></section>`)}
 function enrichTickets(){const exec=document.querySelector('[data-os333-exec]'),desk=window.__KAMIL_TICKET_DESK331__;if(!exec||!desk)return;const count=Number(desk.actions);if(Number.isFinite(count)){exec.querySelector('[data-os333-ticket-count]').textContent=`${count} akcí`;exec.dataset.cloudState='ready'}}
 function paint(){renderToday();renderMoney();enrichTickets()}
-export function installOS333Resilience(){paint();window.addEventListener('kamil:view-change',paint);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')paint()});setTimeout(paint,250);setTimeout(paint,1200);setInterval(enrichTickets,4000);window.__KAMIL_OS333_RESILIENCE__={version:333,paint}}
+function cadence(){enrichTickets();schedule1100(OWNER,'cadence',cadence,4000,{pauseWhenHidden:true})}
+export function installOS333Resilience(){paint();ownEvent1100(OWNER,window,'kamil:view-change',paint);ownEvent1100(OWNER,document,'visibilitychange',()=>{if(document.visibilityState==='visible')paint()});schedule1100(OWNER,'paint-fast',paint,250,{pauseWhenHidden:true});schedule1100(OWNER,'paint-late',paint,1200,{pauseWhenHidden:true});schedule1100(OWNER,'cadence',cadence,4000,{pauseWhenHidden:true});window.__KAMIL_OS333_RESILIENCE__={version:333,paint}}
