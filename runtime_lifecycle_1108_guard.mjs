@@ -9,6 +9,7 @@ const files=[
  ['./js/audit525.js','core.audit527'],
  ['./js/marketEdgeUi32.js','market.edge32'],
  ['./js/operator717.js','operator717'],
+ ['./js/operatorHome299.js','operator.home299'],
  ['./js/todayDashboard213.js','today.dashboard213'],
  ['./js/todayCockpit363.js','today.cockpit363'],
  ['./js/directorUi34.js','director.ui34'],
