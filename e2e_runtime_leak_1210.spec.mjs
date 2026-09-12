@@ -4,9 +4,6 @@ test('OS1210 survives 20 navigation cycles without runtime ownership leaks',asyn
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.__KAMIL_RUNTIME_COORDINATOR1050__?.complete===true&&window.__KAMIL_RUNTIME_LEAK1210_API__?.begin,{timeout:20000});
  const sequence=['today','tickets','betting','money','today'];
- // Warm every lazy view once. Some legacy-compatible view layers intentionally
- // complete their first-load settle passes asynchronously, so the baseline must
- // be taken only after canonical Money and Betting boot paths are confirmed ready.
  for(const view of sequence){
   await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
   await page.waitForTimeout(100);
@@ -16,8 +13,6 @@ test('OS1210 survives 20 navigation cycles without runtime ownership leaks',asyn
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'money'})));
  await page.waitForFunction(()=>window.__KAMIL_MONEY_HUB680__?.healthy===true&&document.querySelector('#moneyView [data-money-hub680]'),{timeout:15000});
  await page.waitForTimeout(400);
- // One short confirmation cycle after all lazy modules are ready makes the baseline
- // represent steady-state navigation while preserving tight leak tolerances.
  for(const view of sequence){
   await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
   await page.waitForTimeout(60);
@@ -66,6 +61,25 @@ test('OS1280 keeps migrated Betting recurring work single-owned',async({page})=>
   await page.waitForTimeout(35);
   await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'betting'})));
   await page.waitForTimeout(70);
+ }
+ const after=await page.evaluate(names=>{const s=window.__KAMIL_RUNTIME1100__?.snapshot?.().owners||{};return Object.fromEntries(names.map(n=>[n,s[n]?.timers||0]))},owners);
+ expect(after).toEqual(before);
+});
+
+test('OS1290 keeps migrated Ticket analytics recurring work single-owned',async({page})=>{
+ await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>window.__KAMIL_RUNTIME_COORDINATOR1050__?.complete===true,{timeout:20000});
+ await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'tickets'})));
+ await page.waitForFunction(()=>window.__KAMIL_TICKET_BOOT466__?.backgroundDone===true,{timeout:45000});
+ await page.waitForTimeout(300);
+ const owners=['tickets.predictive433','tickets.backtest434','tickets.commander435','tickets.comparable437','tickets.risk438'];
+ const before=await page.evaluate(names=>{const s=window.__KAMIL_RUNTIME1100__?.snapshot?.().owners||{};return Object.fromEntries(names.map(n=>[n,s[n]?.timers||0]))},owners);
+ for(const name of owners){expect(before[name],`${name} should own one recurring timer`).toBe(1)}
+ for(let i=0;i<4;i++){
+  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'today'})));
+  await page.waitForTimeout(40);
+  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'tickets'})));
+  await page.waitForTimeout(90);
  }
  const after=await page.evaluate(names=>{const s=window.__KAMIL_RUNTIME1100__?.snapshot?.().owners||{};return Object.fromEntries(names.map(n=>[n,s[n]?.timers||0]))},owners);
  expect(after).toEqual(before);
