@@ -10,6 +10,7 @@ const files=[
  ['./js/domainOS328.js','core.domain328'],
  ['./js/performance330.js','core.performance330'],
  ['./js/hardening329.js','core.hardening329'],
+ ['./js/qa143.js','core.qa143'],
  ['./js/audit525.js','core.audit527'],
  ['./js/marketEdgeUi32.js','market.edge32'],
  ['./js/profitControlUi32.js','profit.control32'],
