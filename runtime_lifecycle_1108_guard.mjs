@@ -11,7 +11,8 @@ const files=[
  ['./js/todayDashboard213.js','today.dashboard213'],
  ['./js/todayCockpit363.js','today.cockpit363'],
  ['./js/directorUi34.js','director.ui34'],
- ['./js/systemDiagnostics421.js','system.diagnostics421']
+ ['./js/systemDiagnostics421.js','system.diagnostics421'],
+ ['./js/remoteInboxUi31.js','remote.inbox31']
 ];
 for(const [path,owner] of files){
  const src=await read(path);
