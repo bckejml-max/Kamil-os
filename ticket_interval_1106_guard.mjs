@@ -15,7 +15,12 @@ const files=[
  ['./js/ticketConsensus445.js','tickets.consensus445'],
  ['./js/ticketDecisionQuality444.js','tickets.quality444'],
  ['./js/ticketRiskOps446.js','tickets.riskops446'],
- ['./js/ticketPortfolioOptimizer447.js','tickets.optimizer447']
+ ['./js/ticketPortfolioOptimizer447.js','tickets.optimizer447'],
+ ['./js/ticketMarketRegime452.js','tickets.regime452'],
+ ['./js/ticketExecutionOutcomes450.js','tickets.outcomes450'],
+ ['./js/ticketPredictive433.js','tickets.predict433'],
+ ['./js/ticketOutcomeCalibration441.js','tickets.outcome441'],
+ ['./js/ticketActionExecution449.js','tickets.execution449']
 ];
 for(const [path,owner] of files){
  const src=await read(path);
