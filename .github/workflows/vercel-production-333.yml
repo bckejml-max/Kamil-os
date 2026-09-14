@@ -1,4 +1,4 @@
-name: Vercel Production Guard
+name: Production Release Guard
 
 on:
   push:
@@ -6,59 +6,22 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: vercel-production-main
+  group: production-release-main
   cancel-in-progress: true
 
 jobs:
-  validate-and-deploy:
+  validate-production:
     runs-on: ubuntu-latest
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: team_cHEU3IXsEXwuTTWbe0l2eIhj
-      VERCEL_PROJECT_ID: prj_eKQcHMPKD00dztpWujOlvWI5PkHQ
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Validate release
+      - name: Validate canonical release
         run: npm run test:release
-      - name: Require production deploy credential
-        if: env.VERCEL_TOKEN == ''
+      - name: Verify production security contracts
         run: |
-          echo 'VERCEL_TOKEN is required for guarded production deployment.' >&2
-          exit 1
-      - name: Pull production configuration
-        run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
-      - name: Build production output
-        run: npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
-      - name: Deploy production output
-        id: deploy
-        shell: bash
-        run: |
-          set -euo pipefail
-          DEPLOY_URL="$(npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN")"
-          echo "Production deployment: $DEPLOY_URL"
-          echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
-      - name: Production POST auth guard - tickets
-        shell: bash
-        env:
-          DEPLOY_URL: ${{ steps.deploy.outputs.deploy_url }}
-        run: |
-          set -euo pipefail
-          body="$(mktemp)"
-          code="$(curl --silent --show-error --max-time 15 -o "$body" -w '%{http_code}' -X POST "$DEPLOY_URL/api/ticket-gmail-sync?mode=tickets")"
-          cat "$body"
-          test "$code" = "401"
-          node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));if(j.error!=='AUTH_REQUIRED'||j.status!=='auth_required'||j.healthy!==true)process.exit(1)" "$body"
-      - name: Production POST auth guard - inbox
-        shell: bash
-        env:
-          DEPLOY_URL: ${{ steps.deploy.outputs.deploy_url }}
-        run: |
-          set -euo pipefail
-          body="$(mktemp)"
-          code="$(curl --silent --show-error --max-time 15 -o "$body" -w '%{http_code}' -X POST "$DEPLOY_URL/api/ticket-gmail-sync?mode=inbox")"
-          cat "$body"
-          test "$code" = "401"
-          node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));if(j.error!=='AUTH_REQUIRED'||j.status!=='auth_required'||j.healthy!==true)process.exit(1)" "$body"
+          node privacy_security_guard.mjs
+          node ticket_gmail_sync_health_guard.mjs
+      - name: Deployment ownership
+        run: echo 'Production deployment is owned by the Vercel Git integration for main; this workflow validates the exact source commit before/alongside that deployment.'
