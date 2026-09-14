@@ -1,8 +1,12 @@
 import {LOCAL_KEY,META_KEY,QUEUE_KEY,SCHEMA_VERSION,MAX_UNDO} from './config.js';
 import {clone,uid} from './utils.js';
+import {schedule1100} from './runtimeOwnership1100.js';
 
+const OWNER='core.state41';
 const UNDO_KEY='kamil-os-41-undo';
 const BOOT_KEY='kamil-os-41-boot-summary';
+const STAGE_KEY='kamil-os-state-stage-1132';
+const RECOVERY_KEY='kamil-os-state-recovery-1131';
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED']);
 
 const blank=()=>({
@@ -137,9 +141,20 @@ class Store{
   this.s=migrate(raw);this.s.undo=[];this.undoLoaded=false;this.legacyUndo=legacyUndo;
   const boot=this.readBootSummary();this.undoCountCache=legacyUndo?.length||Number(boot?.undoCount||0);
   this.writeBootSummary();
-  setTimeout(()=>this.compactLegacyStorage(),2200);
+  schedule1100(OWNER,'compact-legacy-storage',()=>this.compactLegacyStorage(),2200,{pauseWhenHidden:true});
  }
- readLocal(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'null')}catch{return null}}
+ saveRecovery(reason,raw,extra={}){try{localStorage.setItem(RECOVERY_KEY,JSON.stringify({at:new Date().toISOString(),reason,raw,...extra}))}catch{}}
+ parseStored(raw,key){
+  if(!raw)return null;
+  try{return JSON.parse(raw)}catch(error){this.saveRecovery('parse-failed',raw,{key,error:String(error?.message||error)});return null}
+ }
+ readLocal(){
+  const primaryRaw=localStorage.getItem(LOCAL_KEY),primary=this.parseStored(primaryRaw,LOCAL_KEY);
+  if(primary)return primary;
+  const stageRaw=localStorage.getItem(STAGE_KEY),stage=this.parseStored(stageRaw,STAGE_KEY);
+  if(stage){try{localStorage.setItem(LOCAL_KEY,stageRaw);localStorage.removeItem(STAGE_KEY)}catch{}return stage}
+  return null;
+ }
  readBootSummary(){try{return JSON.parse(localStorage.getItem(BOOT_KEY)||'null')}catch{return null}}
  readUndo(){try{return compactUndo(JSON.parse(localStorage.getItem(UNDO_KEY)||'[]'))}catch{return []}}
  ensureUndoLoaded(){
@@ -166,7 +181,13 @@ class Store{
  subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}
  emit(reason){this.listeners.forEach(fn=>fn(this.s,reason))}
  persist(){
-  localStorage.setItem(LOCAL_KEY,JSON.stringify({...this.s,undo:[]}));
+  const report=validateState(this.s);
+  if(!report.ok||report.fatal.length){this.saveRecovery('persist-blocked-invalid-state',JSON.stringify({...this.s,undo:[]}),{report});throw new Error('STATE_PERSIST_BLOCKED')}
+  const payload=JSON.stringify({...this.s,undo:[]});
+  localStorage.setItem(STAGE_KEY,payload);
+  JSON.parse(localStorage.getItem(STAGE_KEY)||'null');
+  localStorage.setItem(LOCAL_KEY,payload);
+  localStorage.removeItem(STAGE_KEY);
   if(this.undoLoaded)this.writeUndo();
   this.writeBootSummary();
  }
