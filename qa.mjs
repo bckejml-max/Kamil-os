@@ -59,7 +59,8 @@ assert.ok(runtime.includes('ensureViewStyles')&&runtime.includes('dataset.os2Laz
 assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateColdView42(key)'),'lazy view hydration/cache missing');
 for(const symbol of ['data-os2-today','os2-now','os2-kpis','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today OS2 missing ${symbol}`);
 assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');
-assert.ok(app.includes('requestAnimationFrame(()=>{const runForce='),'UI renders must remain coalesced');
+assert.ok(app.includes("scheduleFrame1110('app-render'")&&app.includes('renderQueued=true')&&app.includes('renderQueued=false'),'UI renders must remain coalesced through runtime-owned frame scheduling');
+assert.ok(!app.includes('requestAnimationFrame('),'app render scheduling must not bypass runtime ownership');
 assert.ok(app.includes("const input=qs('#commandInput')")&&app.includes('executeCommand41(v)'),'canonical command bar missing');
 
 // Tickets remain on demand; business/data safety remains unchanged.
