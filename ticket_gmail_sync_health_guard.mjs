@@ -54,7 +54,7 @@ for(const mode of ['tickets','unknown','inbox']){
 
 {
   const originalFetch=globalThis.fetch;
-  const jsonResponse=(body,status=200)=>({ok:status>=200&&status<300,status,json:async()=>body});
+  const jsonResponse=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8'}});
   process.env.GMAIL_ALLOWED_EMAILS='owner@example.com';
   const headers=id=>[
     {name:'Subject',value:`Action ${id}`},
