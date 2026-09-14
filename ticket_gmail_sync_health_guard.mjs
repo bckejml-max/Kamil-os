@@ -21,27 +21,10 @@ async function run(req){
 
 for(const key of ['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN'])delete process.env[key];
 
-{
-  const {res,payload}=await run({method:'POST',url:'/api/ticket-gmail-sync?mode=tickets',headers:{}});
-  assert.equal(res.statusCode,200);
-  assert.equal(payload.ok,true);
-  assert.equal(payload.configured,false);
-  assert.equal(payload.healthy,false);
-  assert.equal(payload.status,'unconfigured');
-  assert.equal(payload.count,0);
-  assert.deepEqual(payload.messages,[]);
-}
-
-{
-  const {res,payload}=await run({method:'POST',url:'/api/ticket-gmail-sync?mode=unknown',headers:{}});
-  assert.equal(res.statusCode,200);
-  assert.equal(payload.status,'unconfigured');
-  assert.deepEqual(payload.messages,[]);
-}
-
-{
-  const {res,payload}=await run({method:'POST',url:'/api/ticket-gmail-sync?mode=inbox',headers:{}});
+for(const mode of ['tickets','unknown','inbox']){
+  const {res,payload}=await run({method:'POST',url:`/api/ticket-gmail-sync?mode=${mode}`,headers:{}});
   assert.equal(res.statusCode,401);
+  assert.equal(payload.ok,false);
   assert.equal(payload.status,'auth_required');
   assert.equal(payload.error,'AUTH_REQUIRED');
 }
@@ -54,15 +37,16 @@ for(const key of ['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKE
 
 {
   const originalFetch=globalThis.fetch;
+  let called=false;
   process.env.GOOGLE_CLIENT_ID='test-id';
   process.env.GOOGLE_CLIENT_SECRET='test-secret';
   process.env.GOOGLE_REFRESH_TOKEN='test-refresh';
-  globalThis.fetch=async()=>{throw new Error('sensitive upstream detail must not reach client')};
+  globalThis.fetch=async()=>{called=true;throw new Error('must not call upstream without auth')};
   try{
     const {res,payload}=await run({method:'POST',url:'/api/ticket-gmail-sync?mode=tickets',headers:{}});
-    assert.equal(res.statusCode,500);
-    assert.equal(payload.error,'GMAIL_SYNC_FAILED');
-    assert.equal(JSON.stringify(payload).includes('sensitive upstream detail'),false);
+    assert.equal(res.statusCode,401);
+    assert.equal(payload.error,'AUTH_REQUIRED');
+    assert.equal(called,false);
   }finally{
     globalThis.fetch=originalFetch;
     for(const key of ['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN'])delete process.env[key];
