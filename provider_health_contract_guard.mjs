@@ -17,14 +17,16 @@ for(const token of [
   "healthy:false,status:'unconfigured',configured:false",
   "healthy:true,status:'ok',configured:true",
   "status:'auth_required',configured:true",
-  "status:'error',configured:true,error:'GMAIL_SYNC_FAILED'",
+  "error:badBody?'BAD_BODY'",
+  "'HISTORY_PAGE_LIMIT'",
+  "'GMAIL_SYNC_FAILED'",
   'checkedAt:new Date().toISOString()',
   'AbortController',
   'retryableStatus=status=>status===429||status>=500'
 ]) assert.ok(gmail.includes(token),`Gmail provider health missing contract token: ${token}`);
 assert.equal(gmail.includes('req.query'),false,'Gmail health endpoint must not use legacy req.query');
-const clientFailure="return json(res,500,{ok:false,healthy:false,status:'error',configured:true,error:'GMAIL_SYNC_FAILED',checkedAt:new Date().toISOString()})";
-assert.ok(gmail.includes(clientFailure),'Gmail client failure response must stay generic');
+assert.match(gmail,/return json\(res,badBody\?400:500,\{ok:false,healthy:badBody,status:'error',configured:true,error:/,'Gmail failure response must remain fail-closed with bounded client-safe errors');
 assert.ok(gmail.includes("logStage('error',{mode,error:String(e?.message||e)})"),'Detailed Gmail failures should remain server-log only');
+assert.equal(/message:String\(e\?\.message/.test(gmail),false,'Detailed Gmail exception messages must not leak into client error responses');
 
-console.log('Provider health contract PASS: configured state is distinct from verified/healthy state and upstream detail stays server-side');
+console.log('Provider health contract PASS: configured state is distinct from verified/healthy state and Gmail errors remain bounded');
