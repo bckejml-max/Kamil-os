@@ -47,7 +47,7 @@ assert.equal((moneyHub.match(/setTimeout\s*\(/g)||[]).length,0,'OS1250 Money hub
 assert.match(moneyHub,/moneyDelegated680/,'OS1250 Money hub must keep one delegated host listener');
 assert.match(moneyHub,/pauseWhenHidden/,'OS1250 Money refresh scheduling must pause when hidden');
 const appShell=await readFile(new URL('./js/app.js',root),'utf8');
-assert.equal((appShell.match(/addEventListener\s*\(/g)||[]).length,2,'OS1260 app shell raw listeners must be limited to service-worker lifecycle events');
+assert.equal((appShell.match(/addEventListener\s*\(/g)||[]).length,0,'OS1260 app shell must not use raw listeners');
 assert.match(appShell,/OWNER='core\.app41'/,'OS1260 app shell must have a canonical OS1100 owner');
 assert.match(appShell,/ownEvent1100\(OWNER,document,'pointerover'/,'OS1260 nav prefetch must use delegated pointerover');
 assert.match(appShell,/ownEvent1100\(OWNER,document,'pointerdown'/,'OS1260 nav prefetch must use delegated pointerdown');
@@ -64,7 +64,7 @@ for(const name of ['bettingRequestBudget561.js','bettingTiming564.js','bettingPe
  const src=await readFile(new URL(`./js/${name}`,root),'utf8');
  assert.equal((src.match(/setInterval\s*\(/g)||[]).length,0,`OS1280 ${name} must not use raw polling intervals`);
  assert.match(src,/schedule1100/ ,`OS1280 ${name} must use OS1100 recurring scheduling`);
- assert.match(src,/pauseWhenHidden/ ,`OS1280 ${name} recurring work must pause while hidden`);
+ assert.match(src,/pauseWhenHidden/ ,`OS1280 ${name} recurring work must pause when hidden`);
 }
 const health=await readFile(new URL('./js/runtimeHealth1120.js',root),'utf8');
 assert.match(health,/PerformanceObserver/,'OS1120 must measure long tasks');
