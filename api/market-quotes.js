@@ -1,13 +1,13 @@
 import {MARKET_QUOTE_SOURCE_32,quoteSymbol32,normalizeYahooChart32} from '../js/marketQuote32.js';
+import {parseProviderJson1160,providerOutcome1163,freshness1171,ttlFor1172} from '../lib/provider-reliability1160.js';
 
 const USER_AGENT='Mozilla/5.0 (compatible; KamilOS/32.4.1; +https://kamil-os-smoke.vercel.app/)';
 const PULSE_BASE='https://api.pulsescore.net/api/chance';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function requestUrl(req){return new URL(String(req.url||'/api/market-quotes'),'https://kamil-os-smoke.vercel.app')}
 function requested(req){const url=requestUrl(req),raw=url.searchParams.get('symbols')||url.searchParams.get('symbol')||'',values=String(raw).split(','),out=[];for(const v of values){const s=quoteSymbol32(v);if(s&&!out.includes(s))out.push(s);if(out.length>=MARKET_QUOTE_SOURCE_32.maxSymbols)break}return out}
-async function parseUpstreamJson(response,label,{allowArray=false}={}){const type=String(response?.headers?.get?.('content-type')||'').toLowerCase();if(!type.includes('application/json')&&!type.includes('+json'))throw new Error(`${label}_NON_JSON`);const text=await response.text();if(!text.trim())throw new Error(`${label}_EMPTY_JSON`);let payload;try{payload=JSON.parse(text)}catch{throw new Error(`${label}_INVALID_JSON`)}if(payload===null||typeof payload!=='object'||(!allowArray&&Array.isArray(payload)))throw new Error(`${label}_JSON_SHAPE`);return payload}
 async function fetchQuote(symbol){
- const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1d&includePrePost=false&events=div%2Csplits`,response=await fetch(url,{headers:{'User-Agent':USER_AGENT,'Accept':'application/json'}});if(!response.ok)throw new Error(`QUOTE ${response.status}`);return normalizeYahooChart32(await parseUpstreamJson(response,'YAHOO_QUOTE'),symbol);
+ const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1d&includePrePost=false&events=div%2Csplits`,response=await fetch(url,{headers:{'User-Agent':USER_AGENT,'Accept':'application/json'}});if(!response.ok)throw new Error(`QUOTE ${response.status}`);return normalizeYahooChart32(await parseProviderJson1160(response,{provider:'YAHOO_QUOTE'}),symbol);
 }
 function clampInt(value,fallback,min,max){const n=Number.parseInt(String(value??''),10);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):fallback}
 function cleanSport(value){const sport=String(value||'soccer').trim().toLowerCase();return /^[a-z0-9-]+$/.test(sport)?sport:'soccer'}
@@ -33,7 +33,7 @@ function normalizeChanceEvents(payload){
 async function chanceOdds(req,res,url){
  res.setHeader('Cache-Control','no-store');
  const apiKey=requestPulseKey(req);
- if(!apiKey)return res.status(503).json({ok:false,error:'PULSESCORE_NOT_CONFIGURED'});
+ if(!apiKey)return res.status(503).json({ok:false,error:'PULSESCORE_NOT_CONFIGURED',dataState:'failed'});
  const sport=cleanSport(url.searchParams.get('sport'));
  const mode=String(url.searchParams.get('mode')||'prematch').toLowerCase();
  const page=clampInt(url.searchParams.get('page'),1,1,10000);
@@ -44,11 +44,11 @@ async function chanceOdds(req,res,url){
   :`${PULSE_BASE}${sportPrefix}/events?page=${page}&limit=${limit}`;
  try{
   const upstream=await fetch(target,{headers:{'X-Secret':apiKey,'Accept':'application/json'}});
-  const payload=await parseUpstreamJson(upstream,'PULSESCORE',{allowArray:true});
-  if(!upstream.ok)return res.status(upstream.status>=400&&upstream.status<600?upstream.status:502).json({ok:false,error:'PULSESCORE_UPSTREAM_ERROR',status:upstream.status,details:payload});
-  const events=normalizeChanceEvents(payload);
-  return res.status(200).json({ok:true,provider:'pulsescore',bookmaker:'chance',sport,mode,fetchedAt:new Date().toISOString(),eventCount:events.length,events});
- }catch(error){return res.status(502).json({ok:false,error:'PULSESCORE_FETCH_FAILED',message:String(error?.message||error).slice(0,300)})}
+  const payload=await parseProviderJson1160(upstream,{provider:'PULSESCORE',allowArray:true});
+  if(!upstream.ok)return res.status(upstream.status>=400&&upstream.status<600?upstream.status:502).json({ok:false,error:'PULSESCORE_UPSTREAM_ERROR',status:upstream.status,details:payload,dataState:'failed'});
+  const events=normalizeChanceEvents(payload),fetchedAt=new Date().toISOString(),outcome=providerOutcome1163({items:events,provider:'pulsescore',fetchedAt:Date.parse(fetchedAt)}),freshness=freshness1171(fetchedAt,ttlFor1172(mode==='live'?'liveOdds':'prematchOdds'));
+  return res.status(200).json({ok:true,provider:'pulsescore',bookmaker:'chance',sport,mode,fetchedAt,eventCount:events.length,events,dataState:outcome.state,freshness});
+ }catch(error){return res.status(502).json({ok:false,error:'PULSESCORE_FETCH_FAILED',message:String(error?.message||error).slice(0,300),dataState:'failed'})}
 }
 export default async function handler(req,res){
  res.setHeader('Content-Type','application/json; charset=utf-8');if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({ok:false,error:'METHOD_NOT_ALLOWED'})}
@@ -56,5 +56,6 @@ export default async function handler(req,res){
  res.setHeader('Cache-Control','public, s-maxage=120, stale-while-revalidate=300');
  const symbols=requested(req);if(!symbols.length)return res.status(400).json({ok:false,error:'NO_SYMBOLS'});
  const quotes=[],errors=[];for(let i=0;i<symbols.length;i++){try{const q=await fetchQuote(symbols[i]);if(q)quotes.push(q);else errors.push({symbol:symbols[i],error:'NO_PRICE'})}catch(error){errors.push({symbol:symbols[i],error:String(error?.message||error).slice(0,80)})}if(i<symbols.length-1)await sleep(40)}
- return res.status(quotes.length?200:502).json({ok:quotes.length>0,provider:MARKET_QUOTE_SOURCE_32.provider,fetchedAt:new Date().toISOString(),requested:symbols,quotes,errors,contract:{factsOnly:true,investmentAction:false,changesDecisionAction:false,thirdPartyPublic:true,urlParser:'WHATWG'}});
+ const fetchedAt=new Date().toISOString(),outcome=providerOutcome1163({items:quotes,provider:MARKET_QUOTE_SOURCE_32.provider,fetchedAt:Date.parse(fetchedAt)}),freshness=freshness1171(fetchedAt,ttlFor1172('financeQuote'));
+ return res.status(quotes.length?200:502).json({ok:quotes.length>0,provider:MARKET_QUOTE_SOURCE_32.provider,fetchedAt,requested:symbols,quotes,errors,dataState:quotes.length?outcome.state:'failed',freshness,contract:{factsOnly:true,investmentAction:false,changesDecisionAction:false,thirdPartyPublic:true,urlParser:'WHATWG'}});
 }
