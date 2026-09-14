@@ -5,14 +5,15 @@ import {authCooldownSeconds32,authErrorMessage32,authConnectedLabel32} from './a
 import {qs,qsa,toast,modal} from './utils.js';
 import {validViews41,getViewRenderer41,prefetchView41,setMoreMode41,openCapture41,renderCommandResults41,executeCommand41,renderExtras41,refreshRiskBadge41,runPreflight41,scheduleNotifications41,warmRuntime41} from './viewRuntime41.js';
 import {markPerf41,markFirstView41} from './perf41.js';
-import {installRuntimeOwnership1100,ownEvent1100} from './runtimeOwnership1100.js';
+import {installRuntimeOwnership1100,ownEvent1100,ownCleanup1100,schedule1100,cancelScheduled1100} from './runtimeOwnership1100.js';
+import {scheduleFrame1110,scheduleIdle1110} from './osHardening1110.js';
 
 const OWNER='core.app41';
 installRuntimeOwnership1100();
 let actionLock=false;
-export async function withActionLock(fn){if(actionLock)return false;actionLock=true;try{return await fn()}finally{setTimeout(()=>{actionLock=false},250)}}
+export async function withActionLock(fn){if(actionLock)return false;actionLock=true;try{return await fn()}finally{schedule1100(OWNER,'action-unlock',()=>{actionLock=false},250)}}
 
-let current='today',stopAuthWatch=()=>{},authCooldownTimer=null,renderSeq=0,renderQueued=false,renderForce=false,stateRevision=0,sessionSeq=0;
+let current='today',stopAuthWatch=()=>{},renderSeq=0,renderQueued=false,renderForce=false,stateRevision=0,sessionSeq=0;
 const viewRevision=new Map();
 let recoveryMode=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
 const pageTitles={today:'DNES',inbox:'INBOX',money:'PENÍZE',tickets:'VSTUPENKY',betting:'SÁZENÍ',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
@@ -54,7 +55,7 @@ async function render(force=false){
 }
 function scheduleRender(force=false){
  renderForce=renderForce||force;if(renderQueued)return;renderQueued=true;
- requestAnimationFrame(()=>{const runForce=renderForce;renderForce=false;renderQueued=false;void render(runForce)});
+ scheduleFrame1110('app-render',()=>{const runForce=renderForce;renderForce=false;renderQueued=false;void render(runForce)});
 }
 function navigate(v){
  const next=validViews41.has(v)?v:'today';
@@ -74,18 +75,20 @@ ownEvent1100(OWNER,window,'kamil:logout',()=>withActionLock(async()=>{await logo
 ownEvent1100(OWNER,window,'kamil:capture',e=>openCapture(e.detail||null).catch(error=>warnAction('capture',error)));
 ownEvent1100(OWNER,window,'kamil:cloud-login',e=>showLoginView(e.detail?.reason==='recovery'?'Toto zařízení nemá tvoje uložená data. Připoj existující cloudový profil — nejjednodušší je e-mailový odkaz bez hesla.':'Cloud je volitelný. Kamil OS funguje i bez přihlášení.'));
 
-store.subscribe(()=>{stateRevision++;if(document.visibilityState==='visible')scheduleRender();scheduleNotifications41()});
+const stopStore=store.subscribe(()=>{stateRevision++;if(document.visibilityState==='visible')scheduleRender();scheduleNotifications41()});
+ownCleanup1100(OWNER,stopStore);
 ownEvent1100(OWNER,document,'visibilitychange',()=>{if(document.visibilityState==='hidden')scheduleNotifications41(0);else if(viewRevision.get(current)!==stateRevision)scheduleRender()});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
 qs('#logoutBtn').onclick=()=>withActionLock(async()=>{await logout();await handleSession(null)}).catch(error=>warnAction('logout-button',error));
 const quickAdd=qs('#quickAddBtn');if(quickAdd)ownEvent1100(OWNER,quickAdd,'click',()=>openCapture().catch(error=>warnAction('quick-add',error)));
 
-const input=qs('#commandInput');let commandSeq=0,commandTimer=0;
+const input=qs('#commandInput');let commandSeq=0;
+function cancelCommandTimer(){cancelScheduled1100(OWNER,'command-debounce')}
 function renderCommandSafe(value,seq){return renderCommandResults41(value).then(()=>{if(seq!==commandSeq){const next=++commandSeq;return renderCommandResults41(input.value).catch(error=>warnAction('command-refresh',error)).then(()=>next)}}).catch(error=>warnAction('command-results',error))}
 function runCommand(value){const v=String(value||'').trim();if(!v){renderCommandResults41('').catch(()=>{});return}commandSeq++;return executeCommand41(v).then(()=>renderCommandResults41('')).catch(error=>warnAction('command-execute',error))}
-input.oninput=()=>{clearTimeout(commandTimer);const seq=++commandSeq,value=input.value;commandTimer=setTimeout(()=>{commandTimer=0;renderCommandSafe(value,seq)},80)};
-input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(commandTimer);const v=input.value;input.value='';runCommand(v)}if(e.key==='Escape'){clearTimeout(commandTimer);input.value='';commandSeq++;renderCommandResults41('').catch(()=>{});input.blur()}};
-qs('#commandGo').onclick=()=>{clearTimeout(commandTimer);const v=input.value;input.value='';runCommand(v)};
+input.oninput=()=>{cancelCommandTimer();const seq=++commandSeq,value=input.value;schedule1100(OWNER,'command-debounce',()=>void renderCommandSafe(value,seq),80)};
+input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();cancelCommandTimer();const v=input.value;input.value='';runCommand(v)}if(e.key==='Escape'){cancelCommandTimer();input.value='';commandSeq++;renderCommandResults41('').catch(()=>{});input.blur()}};
+qs('#commandGo').onclick=()=>{cancelCommandTimer();const v=input.value;input.value='';runCommand(v)};
 ownEvent1100(OWNER,document,'keydown',e=>{
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();input.focus();input.select();import('./command.js').catch(()=>{})}
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='n'){e.preventDefault();openCapture().catch(error=>warnAction('shortcut-add',error))}
@@ -93,16 +96,17 @@ ownEvent1100(OWNER,document,'keydown',e=>{
 });
 ownEvent1100(OWNER,document,'click',e=>{if(!e.target.closest('.command-wrap')&&input.value)renderCommandResults41('').catch(()=>{})});
 
-onSyncStatus((s,detail)=>{const el=qs('#syncStatus');if(!el)return;el.className='sync '+(s==='ok'?'ok':s);el.innerHTML=`<i></i> ${s==='ok'?'Cloud • Uloženo':s==='saving'?'Cloud • Ukládám…':s==='offline'?'Offline – uložím později':s==='conflict'?'Konflikt dat':'Cloud'}`;el.onclick=null;el.onkeydown=null;el.removeAttribute('role');el.removeAttribute('tabindex');el.style.cursor='default';if(detail)el.title=detail});
+const stopSyncStatus=onSyncStatus((s,detail)=>{const el=qs('#syncStatus');if(!el)return;el.className='sync '+(s==='ok'?'ok':s);el.innerHTML=`<i></i> ${s==='ok'?'Cloud • Uloženo':s==='saving'?'Cloud • Ukládám…':s==='offline'?'Offline – uložím později':s==='conflict'?'Konflikt dat':'Cloud'}`;el.onclick=null;el.onkeydown=null;el.removeAttribute('role');el.removeAttribute('tabindex');el.style.cursor='default';if(detail)el.title=detail});
+ownCleanup1100(OWNER,stopSyncStatus);
 function setCloudConnectedStatus(sess,result={}){const el=qs('#syncStatus');if(!el||!sess)return;const x=authConnectedLabel32({email:sess.user?.email,lastCloudAt:result.updatedAt||store.meta().lastCloudAt});el.className='sync ok';el.innerHTML=`<i></i> ${x.short}`;el.title=x.detail}
 function setCloudLoadingStatus(){const el=qs('#syncStatus');if(!el)return;el.className='sync saving';el.innerHTML='<i></i> Cloud • Načítám data…';el.title='Lokální obrazovka už funguje; cloud se synchronizuje na pozadí.'}
 function openCloudConnect(){showLoginView('Připoj existující cloudový profil. Heslo není nutné — stačí e-mailový přihlašovací odkaz.')}
 function localSyncStatus(){const el=qs('#syncStatus');if(!el)return;el.className='sync local';el.innerHTML='<i></i> Jen toto zařízení';el.title='Klikni a připoj existující cloudová data. Kamil OS jinak dál funguje lokálně.';el.setAttribute('role','button');el.tabIndex=0;el.style.cursor='pointer';el.onclick=openCloudConnect;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCloudConnect()}}}
-function authCooldownRender(){clearTimeout(authCooldownTimer);const magic=qs('#magicLinkBtn'),reset=qs('#forgotPasswordBtn'),m=store.meta(),magicLeft=authCooldownSeconds32(m.lastMagicLinkAt),resetLeft=authCooldownSeconds32(m.lastPasswordResetAt);if(magic){magic.disabled=magicLeft>0;magic.textContent=magicLeft>0?`Další odkaz za ${magicLeft} s`:'Poslat přihlašovací odkaz bez hesla'}if(reset){reset.disabled=resetLeft>0;reset.textContent=resetLeft>0?`Reset znovu za ${resetLeft} s`:'Obnovit cloudové heslo'}if(magicLeft||resetLeft)authCooldownTimer=setTimeout(authCooldownRender,1000)}
-function showResetView(){qs('#authView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#resetView').classList.remove('hidden');setTimeout(()=>qs('#resetPassword1')?.focus(),30)}
-function showLoginView(message=''){qs('#resetView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#authView').classList.remove('hidden');const email=qs('#loginEmail'),last=store.meta().lastCloudEmail;if(email&&!email.value&&last)email.value=last;if(message)qs('#authMessage').textContent=message;authCooldownRender();setTimeout(()=>email?.focus(),30)}
-function showApp(){clearTimeout(authCooldownTimer);qs('#authView').classList.add('hidden');qs('#resetView').classList.add('hidden');qs('#appView').classList.remove('hidden')}
-function schedulePreflight(){const idle=fn=>'requestIdleCallback'in window?requestIdleCallback(fn,{timeout:3000}):setTimeout(fn,1200);idle(async()=>{try{const pf=await runPreflight41();store.get().meta.preflight=pf;store.persist()}catch{}})}
+function authCooldownRender(){cancelScheduled1100(OWNER,'auth-cooldown');const magic=qs('#magicLinkBtn'),reset=qs('#forgotPasswordBtn'),m=store.meta(),magicLeft=authCooldownSeconds32(m.lastMagicLinkAt),resetLeft=authCooldownSeconds32(m.lastPasswordResetAt);if(magic){magic.disabled=magicLeft>0;magic.textContent=magicLeft>0?`Další odkaz za ${magicLeft} s`:'Poslat přihlašovací odkaz bez hesla'}if(reset){reset.disabled=resetLeft>0;reset.textContent=resetLeft>0?`Reset znovu za ${resetLeft} s`:'Obnovit cloudové heslo'}if(magicLeft||resetLeft)schedule1100(OWNER,'auth-cooldown',authCooldownRender,1000,{pauseWhenHidden:true})}
+function showResetView(){qs('#authView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#resetView').classList.remove('hidden');schedule1100(OWNER,'focus-reset',()=>qs('#resetPassword1')?.focus(),30)}
+function showLoginView(message=''){qs('#resetView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#authView').classList.remove('hidden');const email=qs('#loginEmail'),last=store.meta().lastCloudEmail;if(email&&!email.value&&last)email.value=last;if(message)qs('#authMessage').textContent=message;authCooldownRender();schedule1100(OWNER,'focus-login',()=>email?.focus(),30)}
+function showApp(){cancelScheduled1100(OWNER,'auth-cooldown');qs('#authView').classList.add('hidden');qs('#resetView').classList.add('hidden');qs('#appView').classList.remove('hidden')}
+function schedulePreflight(){scheduleIdle1110('app-preflight',async()=>{try{const pf=await runPreflight41();store.get().meta.preflight=pf;store.persist()}catch{}},3000)}
 
 async function handleSession(sess){
  const seq=++sessionSeq;
@@ -117,7 +121,8 @@ async function handleSession(sess){
  }else localSyncStatus();
  schedulePreflight();markPerf41(sess?'cloud-session-ready':'local-ready');
 }
-async function startAuthWatch(){stopAuthWatch();stopAuthWatch=await watchAuth((ev,sess)=>{if(ev==='PASSWORD_RECOVERY'){recoveryMode=true;setTimeout(showResetView,0);return}if(!recoveryMode)setTimeout(()=>{handleSession(sess).catch(error=>console.warn('[app41:auth-watch]',error))},0)})}
+async function startAuthWatch(){stopAuthWatch();stopAuthWatch=await watchAuth((ev,sess)=>{if(ev==='PASSWORD_RECOVERY'){recoveryMode=true;schedule1100(OWNER,'auth-recovery-view',showResetView,0);return}if(!recoveryMode)schedule1100(OWNER,'auth-session-handoff',()=>{handleSession(sess).catch(error=>console.warn('[app41:auth-watch]',error))},0)})}
+ownCleanup1100(OWNER,()=>stopAuthWatch());
 
 qs('#magicLinkBtn').onclick=async()=>{const email=qs('#loginEmail').value.trim(),msg=qs('#authMessage'),left=authCooldownSeconds32(store.meta().lastMagicLinkAt);if(left){msg.textContent=`Už jsem odkaz poslal. Použij nejnovější e-mail nebo počkej ${left} s.`;authCooldownRender();return}if(!email){msg.textContent='Nejdřív napiš e-mail cloudového účtu.';qs('#loginEmail').focus();return}store.setMeta({lastCloudEmail:email});msg.textContent='Posílám přihlašovací odkaz…';qs('#magicLinkBtn').disabled=true;try{const {error}=await sendMagicLink(email);if(error){if(error.status===429||String(error.message||'').toLowerCase().includes('rate limit'))store.setMeta({lastMagicLinkAt:new Date().toISOString()});msg.textContent=authErrorMessage32(error)}else{store.setMeta({lastMagicLinkAt:new Date().toISOString()});msg.textContent='Hotovo. Otevři vždy nejnovější e-mail. Odkaz tě vrátí na stabilní Kamil OS a načte cloudová data.'}}catch(error){msg.textContent=authErrorMessage32(error)}authCooldownRender()};
 qs('#loginBtn').onclick=async()=>{const email=qs('#loginEmail').value.trim(),password=qs('#loginPassword').value,msg=qs('#authMessage');if(!email||!password){msg.textContent='Pro přihlášení heslem vyplň e-mail i heslo. Nebo použij přihlašovací odkaz bez hesla.';return}store.setMeta({lastCloudEmail:email});msg.textContent='Připojuji cloud…';try{const {data,error}=await login(email,password);if(error){msg.textContent=authErrorMessage32(error);return}msg.textContent='';await handleSession(data?.session||await session());await startAuthWatch()}catch(error){msg.textContent=authErrorMessage32(error)}};
@@ -132,6 +137,6 @@ showApp();localSyncStatus();quickShell('today');scheduleRender(true);warmRuntime
 const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
 if(hashParams.get('error')){recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search);toast(hashParams.get('error_code')==='otp_expired'?'Přihlašovací/resetovací odkaz vypršel. Pošli si nový a otevři vždy nejnovější e-mail.':'Cloudové přihlášení se nepodařilo. Kamil OS běží lokálně.');await handleSession(await session())}else if(recoveryMode){await session();showResetView();await startAuthWatch()}else{const sess=await session();if(sess){await handleSession(sess);await startAuthWatch()}else{store.get().meta.cloudMode='local';schedulePreflight();markPerf41('session-check-complete')}}
 
-if('serviceWorker'in navigator){try{const reg=await (window.__KAMIL_SW_PROMISE__||(window.__KAMIL_SW_PROMISE__=navigator.serviceWorker.register('./sw.js')));if(reg){reg.addEventListener('updatefound',()=>{const w=reg.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)qs('#updateBanner').classList.remove('hidden')})});qs('#reloadAppBtn').onclick=()=>location.reload()}}catch(error){console.warn('[app41:service-worker]',error)}}
+if('serviceWorker'in navigator){try{const reg=await (window.__KAMIL_SW_PROMISE__||(window.__KAMIL_SW_PROMISE__=navigator.serviceWorker.register('./sw.js')));if(reg){ownEvent1100(OWNER,reg,'updatefound',()=>{const w=reg.installing;if(!w)return;ownEvent1100(OWNER,w,'statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)qs('#updateBanner').classList.remove('hidden')})});qs('#reloadAppBtn').onclick=()=>location.reload()}}catch(error){console.warn('[app41:service-worker]',error)}}
 ownEvent1100(OWNER,window,'beforeunload',()=>{if(store.dirty){store.queueSync(store.get());store.setMeta({pendingAt:new Date().toISOString()})}});
 ownEvent1100(OWNER,window,'beforeinstallprompt',e=>{e.preventDefault();window.__installPrompt=e});
