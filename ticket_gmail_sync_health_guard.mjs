@@ -14,6 +14,7 @@ function response(){
 
 async function run(req){
   Object.defineProperty(req,'query',{get(){throw new Error('ticket-gmail-sync must not access legacy req.query')}});
+  if(typeof req?.[Symbol.asyncIterator]!=='function')Object.defineProperty(req,Symbol.asyncIterator,{value:async function*(){}});
   const res=response();
   await handler(req,res);
   return {res,payload:res.json()};
