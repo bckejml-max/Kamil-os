@@ -23,38 +23,35 @@ jobs:
           node-version: 24
       - name: Validate release
         run: npm run test:release
-      - name: Explain missing deploy credential
+      - name: Require production deploy credential
         if: env.VERCEL_TOKEN == ''
-        run: echo 'VERCEL_TOKEN is not configured. Release validation passed, but production deploy is skipped.'
+        run: |
+          echo 'VERCEL_TOKEN is required for guarded production deployment.' >&2
+          exit 1
       - name: Pull production configuration
-        if: env.VERCEL_TOKEN != ''
         run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
       - name: Build production output
-        if: env.VERCEL_TOKEN != ''
         run: npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
       - name: Deploy production output
         id: deploy
-        if: env.VERCEL_TOKEN != ''
         shell: bash
         run: |
           set -euo pipefail
           DEPLOY_URL="$(npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN")"
           echo "Production deployment: $DEPLOY_URL"
           echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
-      - name: Production POST smoke - tickets
-        if: env.VERCEL_TOKEN != ''
+      - name: Production POST auth guard - tickets
         shell: bash
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.deploy_url }}
         run: |
           set -euo pipefail
           body="$(mktemp)"
-          code="$(curl --fail-with-body --silent --show-error --max-time 25 -o "$body" -w '%{http_code}' -X POST "$DEPLOY_URL/api/ticket-gmail-sync?mode=tickets")"
+          code="$(curl --silent --show-error --max-time 15 -o "$body" -w '%{http_code}' -X POST "$DEPLOY_URL/api/ticket-gmail-sync?mode=tickets")"
           cat "$body"
-          test "$code" = "200"
-          node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));if(j.ok!==true||j.status!=='ok'||j.configured!==true)process.exit(1)" "$body"
-      - name: Production POST smoke - inbox auth guard
-        if: env.VERCEL_TOKEN != ''
+          test "$code" = "401"
+          node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));if(j.error!=='AUTH_REQUIRED'||j.status!=='auth_required'||j.healthy!==true)process.exit(1)" "$body"
+      - name: Production POST auth guard - inbox
         shell: bash
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.deploy_url }}
