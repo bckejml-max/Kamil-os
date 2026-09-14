@@ -19,7 +19,7 @@ async function run(req){
   return {res,payload:res.json()};
 }
 
-for(const key of ['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN'])delete process.env[key];
+for(const key of ['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN','GMAIL_ALLOWED_EMAILS'])delete process.env[key];
 
 for(const mode of ['tickets','unknown','inbox']){
   const {res,payload}=await run({method:'POST',url:`/api/ticket-gmail-sync?mode=${mode}`,headers:{}});
@@ -49,7 +49,41 @@ for(const mode of ['tickets','unknown','inbox']){
     assert.equal(called,false);
   }finally{
     globalThis.fetch=originalFetch;
-    for(const key of ['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN'])delete process.env[key];
+  }
+}
+
+{
+  const originalFetch=globalThis.fetch;
+  const jsonResponse=(body,status=200)=>({ok:status>=200&&status<300,status,json:async()=>body});
+  process.env.GMAIL_ALLOWED_EMAILS='owner@example.com';
+  const headers=id=>[
+    {name:'Subject',value:`Action ${id}`},
+    {name:'From',value:'person@example.com'},
+    {name:'Message-ID',value:`<${id}@example.com>`}
+  ];
+  globalThis.fetch=async(url)=>{
+    const u=String(url);
+    if(u.includes('/auth/v1/user'))return jsonResponse({id:'user-1',email:'owner@example.com'});
+    if(u.includes('oauth2.googleapis.com/token'))return jsonResponse({access_token:'gmail-token'});
+    if(u.endsWith('/gmail/v1/users/me/profile'))return jsonResponse({emailAddress:'owner@example.com',historyId:'history-42'});
+    if(u.includes('/gmail/v1/users/me/messages?'))return jsonResponse({messages:[{id:'m1'},{id:'m1'},{id:'m2'}]});
+    if(u.includes('/gmail/v1/users/me/messages/m1?'))return jsonResponse({id:'m1',threadId:'t1',internalDate:'1000',labelIds:['UNREAD'],snippet:'Please confirm this action?',payload:{headers:headers('m1')}});
+    if(u.includes('/gmail/v1/users/me/messages/m2?'))return jsonResponse({id:'m2',threadId:'t2',internalDate:'2000',labelIds:['UNREAD'],snippet:'Please reply and confirm.',payload:{headers:headers('m2')}});
+    throw new Error(`unexpected mock URL ${u}`);
+  };
+  try{
+    const {res,payload}=await run({method:'POST',url:'/api/ticket-gmail-sync?mode=inbox',headers:{authorization:'Bearer os-token'}});
+    assert.equal(res.statusCode,200);
+    assert.equal(payload.ok,true);
+    assert.equal(payload.scanned,2,'duplicate Gmail ids must be removed before detail fetch');
+    assert.equal(payload.count,2,'duplicate Gmail rows must not replay into the response');
+    assert.deepEqual(payload.messages.map(x=>x.id).sort(),['m1','m2']);
+    assert.equal(payload.checkpoint.historyId,'history-42');
+    assert.equal(payload.checkpoint.messageCount,2);
+    assert.equal(payload.checkpoint.newestReceivedAt,new Date(2000).toISOString());
+  }finally{
+    globalThis.fetch=originalFetch;
+    for(const key of ['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN','GMAIL_ALLOWED_EMAILS'])delete process.env[key];
   }
 }
 
