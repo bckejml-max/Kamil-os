@@ -22,7 +22,8 @@ assert.ok(bettingStore.includes("REQUIRED_REVISION='0034_betting_ledger543.sql'"
 
 assert.ok(gmail.includes('authorizedMailbox(req,res)'),'Gmail sync must authenticate every mode');
 assert.ok(gmail.includes("error:'AUTH_REQUIRED'"),'Gmail sync must expose an auth-required contract');
-assert.ok(gmail.includes('async function ticketMode(req,res)'),'ticket mode must receive the authenticated request');
+assert.match(gmail,/async function ticketMode\(req,res(?:,input)?\)/,'ticket mode must receive the authenticated request');
 assert.ok(!gmail.includes('async function ticketMode(res)'),'ticket mode must never bypass request authentication');
+assert.match(gmail,/ticketMode\(req,res,input\)/,'ticket handler must pass request plus bounded checkpoint input');
 
 console.log('PRIVACY + API SECURITY GUARD PASS');
