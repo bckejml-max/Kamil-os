@@ -1,0 +1,26 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+
+const read=p=>fs.readFileSync(p,'utf8');
+const snapshot=read('js/personalSnapshot737.js');
+const betSeed=read('lib/bet-ledger.js');
+const bettingStore=read('lib/betting-ledger543-store.js');
+const gmail=read('api/ticket-gmail-sync.js');
+
+for(const forbidden of ['RAW_TICKETS','RAW_XTB','DEBTS=[','KNOWN_BETS','Sázky.xlsx','Dluhy.xlsx']){
+ assert.equal(snapshot.includes(forbidden),false,`personalSnapshot737.js must not embed personal data: ${forbidden}`);
+}
+assert.ok(snapshot.includes('NO_EMBEDDED_PERSONAL_DATA'),'personal snapshot must explicitly remain data-free');
+assert.ok(snapshot.length<2000,'personalSnapshot737.js unexpectedly contains a large embedded payload');
+
+assert.ok(betSeed.includes('Object.freeze([])'),'public source must not contain hardcoded personal bets');
+assert.ok(!/stakeCzk\s*:\s*\d+/.test(betSeed),'public betting seed must not contain personal stake amounts');
+assert.ok(bettingStore.includes("error:'AUTH_REQUIRED'"),'server betting ledger must fail closed');
+assert.ok(bettingStore.includes('writable:false'),'server betting ledger must not expose anonymous writes');
+
+assert.ok(gmail.includes('authorizedMailbox(req,res)'),'Gmail sync must authenticate every mode');
+assert.ok(gmail.includes("error:'AUTH_REQUIRED'"),'Gmail sync must expose an auth-required contract');
+assert.ok(gmail.includes('async function ticketMode(req,res)'),'ticket mode must receive the authenticated request');
+assert.ok(!gmail.includes('async function ticketMode(res)'),'ticket mode must never bypass request authentication');
+
+console.log('PRIVACY + API SECURITY GUARD PASS');
