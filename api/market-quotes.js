@@ -5,8 +5,9 @@ const PULSE_BASE='https://api.pulsescore.net/api/chance';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function requestUrl(req){return new URL(String(req.url||'/api/market-quotes'),'https://kamil-os-smoke.vercel.app')}
 function requested(req){const url=requestUrl(req),raw=url.searchParams.get('symbols')||url.searchParams.get('symbol')||'',values=String(raw).split(','),out=[];for(const v of values){const s=quoteSymbol32(v);if(s&&!out.includes(s))out.push(s);if(out.length>=MARKET_QUOTE_SOURCE_32.maxSymbols)break}return out}
+async function parseUpstreamJson(response,label,{allowArray=false}={}){const type=String(response?.headers?.get?.('content-type')||'').toLowerCase();if(!type.includes('application/json')&&!type.includes('+json'))throw new Error(`${label}_NON_JSON`);const text=await response.text();if(!text.trim())throw new Error(`${label}_EMPTY_JSON`);let payload;try{payload=JSON.parse(text)}catch{throw new Error(`${label}_INVALID_JSON`)}if(payload===null||typeof payload!=='object'||(!allowArray&&Array.isArray(payload)))throw new Error(`${label}_JSON_SHAPE`);return payload}
 async function fetchQuote(symbol){
- const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1d&includePrePost=false&events=div%2Csplits`,response=await fetch(url,{headers:{'User-Agent':USER_AGENT,'Accept':'application/json'}});if(!response.ok)throw new Error(`QUOTE ${response.status}`);return normalizeYahooChart32(await response.json(),symbol);
+ const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1d&includePrePost=false&events=div%2Csplits`,response=await fetch(url,{headers:{'User-Agent':USER_AGENT,'Accept':'application/json'}});if(!response.ok)throw new Error(`QUOTE ${response.status}`);return normalizeYahooChart32(await parseUpstreamJson(response,'YAHOO_QUOTE'),symbol);
 }
 function clampInt(value,fallback,min,max){const n=Number.parseInt(String(value??''),10);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):fallback}
 function cleanSport(value){const sport=String(value||'soccer').trim().toLowerCase();return /^[a-z0-9-]+$/.test(sport)?sport:'soccer'}
@@ -43,7 +44,7 @@ async function chanceOdds(req,res,url){
   :`${PULSE_BASE}${sportPrefix}/events?page=${page}&limit=${limit}`;
  try{
   const upstream=await fetch(target,{headers:{'X-Secret':apiKey,'Accept':'application/json'}});
-  const text=await upstream.text();let payload;try{payload=JSON.parse(text)}catch{payload={raw:text.slice(0,2000)}}
+  const payload=await parseUpstreamJson(upstream,'PULSESCORE',{allowArray:true});
   if(!upstream.ok)return res.status(upstream.status>=400&&upstream.status<600?upstream.status:502).json({ok:false,error:'PULSESCORE_UPSTREAM_ERROR',status:upstream.status,details:payload});
   const events=normalizeChanceEvents(payload);
   return res.status(200).json({ok:true,provider:'pulsescore',bookmaker:'chance',sport,mode,fetchedAt:new Date().toISOString(),eventCount:events.length,events});
