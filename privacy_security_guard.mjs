@@ -15,8 +15,10 @@ assert.ok(snapshot.length<2000,'personalSnapshot737.js unexpectedly contains a l
 
 assert.ok(betSeed.includes('Object.freeze([])'),'public source must not contain hardcoded personal bets');
 assert.ok(!/stakeCzk\s*:\s*\d+/.test(betSeed),'public betting seed must not contain personal stake amounts');
-assert.ok(bettingStore.includes("error:'AUTH_REQUIRED'"),'server betting ledger must fail closed');
+assert.ok(bettingStore.includes('REMOTE_BETTING_LEDGER_DISABLED'),'server betting ledger must fail closed while the private ledger migration is absent');
+assert.ok(bettingStore.includes("status:'disabled'")||bettingStore.includes("status:error===DISABLED_ERROR?'disabled'"),'server betting ledger must expose an explicit disabled state');
 assert.ok(bettingStore.includes('writable:false'),'server betting ledger must not expose anonymous writes');
+assert.ok(bettingStore.includes("REQUIRED_REVISION='0034_betting_ledger543.sql'"),'server betting ledger must name the migration required before writes can be enabled');
 
 assert.ok(gmail.includes('authorizedMailbox(req,res)'),'Gmail sync must authenticate every mode');
 assert.ok(gmail.includes("error:'AUTH_REQUIRED'"),'Gmail sync must expose an auth-required contract');
