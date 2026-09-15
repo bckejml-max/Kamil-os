@@ -49,10 +49,14 @@ export default async function handler(req,res){
  const u=requestUrl(req),source=String(u.searchParams.get('source')||'').toLowerCase();
  res.setHeader('Content-Type','application/json; charset=utf-8');
  if(source==='ledger543'){
-  res.setHeader('Cache-Control','no-store');
-  if(req.method==='GET')return res.status(200).json(await getBettingLedger543());
-  if(req.method==='POST'||req.method==='PUT'){try{const result=await mutateBettingLedger543(await readBody(req));return res.status(result.status).json(result.body)}catch(error){return res.status(500).json({ok:false,error:'LEDGER_543_FAILED',message:String(error?.message||error)})}}
-  res.setHeader('Allow','GET, POST, PUT');return res.status(405).json({ok:false,error:'METHOD_NOT_ALLOWED'});
+  res.setHeader('Cache-Control','private, no-store, max-age=0');
+  if(req.method==='GET'){
+   const body=await getBettingLedger543(req);
+   const status=body?.ok?200:body?.error==='AUTH_REQUIRED'?401:body?.error==='REMOTE_BETTING_LEDGER_MIGRATION_REQUIRED'?503:502;
+   return res.status(status).json(body);
+  }
+  if(req.method==='POST'||req.method==='PUT'){try{const result=await mutateBettingLedger543(await readBody(req),req);return res.status(result.status).json(result.body)}catch(error){return res.status(500).json({ok:false,error:'LEDGER_543_FAILED',message:String(error?.message||error),writable:false})}}
+  res.setHeader('Allow','GET, POST, PUT');return res.status(405).json({ok:false,error:'METHOD_NOT_ALLOWED',writable:false});
  }
  if(source==='bet_results')return bettingResults(req,res);
  if(source==='chance_odds_health693')return chanceOddsHealth(req,res);
