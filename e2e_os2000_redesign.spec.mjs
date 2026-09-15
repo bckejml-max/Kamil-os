@@ -50,11 +50,12 @@ test('OS2000 navigation keeps heavy views lazy',async({page})=>{
  expect(resources.some(x=>x.includes('bettingBootstrap543.js'))).toBe(false);
 });
 
-test('OS2000 loads Ticket assets only when Tickets opens',async({page})=>{
+test('OS2000 keeps cloud-only Ticket assets deferred until sign-in',async({page})=>{
  await boot(page);
  await page.locator('#mainNav [data-view="tickets"]').click();
  await expect(page.locator('#view-tickets')).toHaveClass(/on/);
- await expect.poll(()=>page.evaluate(()=>performance.getEntriesByType('resource').some(x=>x.name.includes('ticketDesk331.js'))),{timeout:15000}).toBe(true);
+ await expect(page.getByRole('heading',{name:'Připoj své portfolio vstupenek'})).toBeVisible();
+ expect(await page.evaluate(()=>performance.getEntriesByType('resource').some(x=>x.name.includes('ticketDesk331.js')))).toBe(false);
  const styles=await page.evaluate(()=>[...document.querySelectorAll('link[data-os2-lazy]')].map(x=>x.getAttribute('href')));
  expect(styles).toContain('./ticket68.css');
  expect(styles).toContain('./ticketDesk353.css');
@@ -84,7 +85,7 @@ test('OS737 personal views use one clear visual hierarchy',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
  const cases=[
-  ['inbox','#inboxView','.id141-hero','Co potřebuje tvoji pozornost'],
+  ['inbox','#inboxView','.inbox660-head','Co potřebuje tvoji pozornost'],
   ['family','#ticketsView','.hf140-hero','Rodina'],
   ['home','#homeView','.hf140-hero','Domov'],
   ['more','#moreView','.id141-hero','Dokumenty pod kontrolou']

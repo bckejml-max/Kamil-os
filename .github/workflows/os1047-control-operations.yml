@@ -80,4 +80,4 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-control-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_os2000_redesign.spec.mjs e2e_os2020_decision_focus.spec.mjs e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
+          npx playwright test e2e_os2000_redesign.spec.mjs e2e_os2020_decision_focus.spec.mjs e2e_os347_critical_path.spec.mjs e2e_usability_audit.spec.mjs --reporter=line --workers=1

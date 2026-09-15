@@ -28,6 +28,6 @@ test('OS2000 idle phase does not revive old analytics',async({page})=>{
 
 test('OS2000 critical snapshot stays immutable after Tickets loads',async({page})=>{
  await boot(page);const before=await page.evaluate(()=>({count:window.__KAMIL_BOOT_BUDGET343__.modules.length,paths:window.__KAMIL_BOOT_BUDGET343__.modules.map(x=>x.path)}));
- await page.locator('#mainNav [data-view="tickets"]').click();await expect(page.locator('#view-tickets')).toHaveClass(/on/);await expect.poll(()=>page.evaluate(()=>performance.getEntriesByType('resource').some(x=>x.name.includes('ticketDesk331.js'))),{timeout:15000}).toBe(true);
+ await page.locator('#mainNav [data-view="tickets"]').click();await expect(page.locator('#view-tickets')).toHaveClass(/on/);await expect(page.getByRole('heading',{name:'Připoj své portfolio vstupenek'})).toBeVisible();
  const after=await page.evaluate(()=>({count:window.__KAMIL_BOOT_BUDGET343__.modules.length,paths:window.__KAMIL_BOOT_BUDGET343__.modules.map(x=>x.path)}));expect(after).toEqual(before);
 });

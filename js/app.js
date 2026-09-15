@@ -65,6 +65,14 @@ function navigate(v){
  void prefetchView41(current);window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:current}));window.scrollTo({top:0,behavior:'auto'});
 }
 qsa('[data-view]').forEach(x=>{x.onclick=()=>navigate(x.dataset.view)});
+qs('#mobileMenuBtn').onclick=async()=>{
+ const names={today:'Dnes',inbox:'Inbox',tickets:'Vstupenky',betting:'Sázení',money:'Peníze',family:'Rodina',home:'Domov',more:'Dokumenty'};
+ const choice=await modal('Všechny sekce','',[
+  ...Object.entries(names).map(([value,label])=>({label,value,primary:value===current})),
+  {label:'Zavřít',value:null}
+ ]);
+ if(choice)navigate(choice);
+};
 const warmNav=e=>{const x=e.target?.closest?.('[data-view]');if(x)void prefetchView41(x.dataset.view)};
 ownEvent1100(OWNER,document,'pointerover',warmNav,{passive:true});
 ownEvent1100(OWNER,document,'pointerdown',warmNav,{passive:true});

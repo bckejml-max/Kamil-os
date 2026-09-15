@@ -64,3 +64,26 @@ input,textarea,select{background:#0d1218!important;color:var(--os-text)!importan
 @media(max-width:1060px){:root{--os-sidebar:82px}.os2-sidebar{width:82px!important}.os2-main{padding-left:24px!important;padding-right:24px!important}.os2-command{padding-left:24px!important;padding-right:24px!important}.os2-topbar{padding-left:24px!important;padding-right:24px!important}}
 @media(max-width:760px){.os2-topbar{height:58px!important;padding:0 14px!important}.os2-command{padding:10px 12px 0!important}.os2-command-box{height:45px!important}.os2-main{padding:16px 12px 92px!important}.view-head{margin-bottom:16px!important}.view-head h1{font-size:25px!important}.view-head p{font-size:12px!important}.os2-hero{min-height:184px!important;padding:20px!important}.os2-hero h1{font-size:30px!important}.metric-strip,.os2-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}.os2-bottom{display:grid!important;grid-template-columns:repeat(5,1fr)!important;left:10px!important;right:10px!important;bottom:10px!important;width:auto!important;border:1px solid var(--os-line)!important;border-radius:18px!important;background:rgba(17,21,27,.94)!important;backdrop-filter:blur(20px)!important;box-shadow:0 14px 40px rgba(0,0,0,.28)!important;overflow:hidden!important}.os2-bottom button{min-height:56px!important;background:transparent!important;border:0!important;border-radius:0!important;font-size:10px!important;color:#7f8a99!important}.os2-bottom button.on{color:#e8f0ff!important;background:rgba(122,167,255,.09)!important}}
 @media(max-width:480px){.metric-strip,.os2-kpis{grid-template-columns:1fr 1fr!important}.os2-hero h1{font-size:27px!important}.os2-chip{display:none!important}}
+
+/* Shared controls stay readable and reachable on every screen. */
+.os2-auth-form{display:grid;gap:12px;margin-top:22px;text-align:left}
+.os2-auth-form label{font-size:14px;color:var(--os-text)}
+.os2-auth-form input{width:100%;padding:10px 12px}
+.os2-auth-form details[open]{display:grid;gap:12px}
+.os2-auth-form summary,.os2-analysis summary{cursor:pointer;padding:12px 0;font-size:15px;font-weight:700;color:var(--os-text)}
+.os2-mobile-menu{display:none!important}
+.os2-connection-state{max-width:720px;padding:28px;background:#11161d;border:1px solid var(--os-line);border-radius:18px;color:var(--os-text)}
+.os2-connection-state h1{font-size:28px;line-height:1.2;margin:12px 0}
+.os2-connection-state p{line-height:1.65;color:var(--os-muted);margin:16px 0}
+.os2-analysis{border:1px solid var(--os-line);border-radius:16px;padding:8px 18px;margin-top:18px}
+.os2-analysis>section{margin-top:16px}
+.os2-row-side .os2-action-link{display:block;margin-top:6px;min-height:36px}
+html[data-os2="1"] .os2-main>.view:not(.on){display:none!important}
+html[data-os2="1"] .os2-command{position:relative!important;top:auto!important;margin:0!important}
+@media(max-width:760px){
+ .os2-mobile-menu{display:inline-flex!important;align-items:center;justify-content:center;min-width:42px;min-height:42px}
+ .os2-connection-state{padding:20px}
+ .os2-connection-state h1{font-size:24px}
+ .os2-top-actions{gap:6px!important}
+ .os2-top-actions .sync{max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+}
