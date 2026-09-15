@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import {getBettingLedger543,mutateBettingLedger543,REQUIRED_REVISION} from './lib/betting-ledger543-store.js';
 
 const store=fs.readFileSync('lib/betting-ledger543-store.js','utf8');
-const api=fs.readFileSync('api/betting-ledger543.js','utf8');
+const market=fs.readFileSync('api/market-history.js','utf8');
 const bridge=fs.readFileSync('js/apiAuthBridge1210.js','utf8');
 const vercel=fs.readFileSync('vercel.json','utf8');
 const migration='supabase/migrations/0034_betting_ledger543.sql';
@@ -13,10 +13,11 @@ const sql=fs.readFileSync(migration,'utf8');
 
 for(const token of ['betting_ledger543_settings','betting_ledger543_bets','enable row level security','auth.uid()','BETTING_LEDGER_SETTLED_IMMUTABLE','primary key (user_id, id)'])assert.ok(sql.includes(token),`OS1186 migration missing ${token}`);
 for(const token of ['auth/v1/user','supabase_rls','BET_ALREADY_SETTLED','BET_SETTLEMENT_RACE','status=eq.OPEN','AUTH_REQUIRED'])assert.ok(store.includes(token),`OS1186 store missing ${token}`);
-assert.ok(api.includes('getBettingLedger543(req)'),'Dedicated betting API must pass request auth to reads');
-assert.ok(api.includes('mutateBettingLedger543(await readBody(req),req)'),'Dedicated betting API must pass request auth to mutations');
+assert.ok(market.includes('getBettingLedger543(req)'),'Shared betting route must pass request auth to reads');
+assert.ok(market.includes('mutateBettingLedger543(await readBody(req),req)'),'Shared betting route must pass request auth to mutations');
 assert.ok(bridge.includes("headers.set('Authorization',`Bearer ${token}`)"),'Same-origin API bridge must forward cloud bearer token');
-assert.equal(vercel.includes('"source": "/api/betting-ledger543"'),false,'Betting ledger must not be rewritten to market-history');
+assert.ok(vercel.includes('"source": "/api/betting-ledger543"')&&vercel.includes('"destination": "/api/market-history?source=ledger543"'),'Betting ledger must share market-history to stay within Hobby function limit');
+assert.equal(fs.existsSync('api/betting-ledger543.js'),false,'Dedicated betting API would exceed the 12-function Hobby deployment limit');
 
 {
  let called=false;const original=globalThis.fetch;globalThis.fetch=async()=>{called=true;throw new Error('must not fetch without auth')};
@@ -40,4 +41,4 @@ assert.equal(vercel.includes('"source": "/api/betting-ledger543"'),false,'Bettin
  try{const result=await mutateBettingLedger543({action:'add',bet:{id:'bet-1',status:'OPEN',stakeCzk:100,odds:2}},{headers:{authorization:'Bearer test-token'}});assert.equal(result.status,201);assert.equal(result.body.ok,true);assert.equal(result.body.bet.id,'bet-1')}finally{globalThis.fetch=original}
 }
 
-console.log('OS1181-1186 PASS: betting ledger is migration-backed, RLS owner-scoped, idempotent by key and settled rows are DB-immutable');
+console.log('OS1181-1186 PASS: betting ledger is RLS owner-scoped, shared within Vercel limits, idempotent by key and settled rows are DB-immutable');
