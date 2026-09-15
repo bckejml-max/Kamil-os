@@ -16,12 +16,12 @@ assert.equal(first.items[0].payload.transferred,4,'two partial transfers must ac
 assert.equal(first.items[0].payload.state,'transferred');
 assert.equal(first.items[0].patch.market_status,'SOLD_WAITING_PAYMENT');
 assert.equal(first.unmatched.length,0);
+assert.equal(first.review.length,0);
 
 const replay=planTicketGmailBatch1215({inventory,messages,states:[{ticket_id:'ticket-1',payload:first.items[0].payload}],checkpoint:{historyId:'201'},now:Date.parse('2026-09-15T10:05:00Z')});
 assert.equal(replay.replays.length,4,'same Gmail messages must be replay-safe');
 assert.equal(replay.items[0].payload.sold,4);
 assert.equal(replay.items[0].payload.transferred,4);
-
 assert.throws(()=>planTicketGmailBatch1215({inventory,messages:[{...messages[0],qty:1}],states:[{ticket_id:'ticket-1',payload:first.items[0].payload}]}),e=>e?.code==='TICKET_EVENT_REPLAY_CONFLICT','changed payload with same Gmail id must fail closed');
 
 const payout=planTicketGmailBatch1215({inventory,messages:[{id:'gmail-pay',order_id:'ORDER-1',type:'payout_info',payout_czk:900,fee_czk:100,ts:'2026-09-15T11:00:00Z'}],states:[{ticket_id:'ticket-1',payload:first.items[0].payload}],checkpoint:{historyId:'202'},now:Date.parse('2026-09-15T11:01:00Z')});
@@ -30,17 +30,23 @@ assert.equal(payout.items[0].payload.payoutCzk,900);
 assert.equal(payout.items[0].patch.market_status,'PAYOUT_RECEIVED');
 assert.equal(payout.items[0].patch.marketplace_fee_czk,100);
 
+const ambiguousQty=planTicketGmailBatch1215({inventory,messages:[{id:'gmail-q',order_id:'ORDER-1',type:'buyer',qty:null}]});
+assert.equal(ambiguousQty.items.length,0,'missing sale quantity must never default to one ticket');
+assert.equal(ambiguousQty.review[0].reviewReason,'QTY_REQUIRED');
+const ambiguousPayout=planTicketGmailBatch1215({inventory,messages:[{id:'gmail-p',order_id:'ORDER-1',type:'payout_info',payout_czk:900}]});
+assert.equal(ambiguousPayout.items.length,0,'incomplete payout must not auto-commit');
+assert.equal(ambiguousPayout.review[0].reviewReason,'PAYOUT_COMPONENTS_REQUIRED');
 const unmatched=planTicketGmailBatch1215({inventory,messages:[{id:'gmail-x',order_id:'UNKNOWN',type:'buyer',qty:1}],checkpoint:{historyId:'203'}});
 assert.equal(unmatched.items.length,0);
 assert.equal(unmatched.unmatched.length,1);
 
 const client=fs.readFileSync('js/ticketGmailSync429.js','utf8');
 assert.match(client,/planTicketGmailBatch1215/,'live Gmail client must use OS1215 planner');
-assert.match(client,/mode:'tickets'/,'live client must request ticket mode, not health default');
+assert.match(client,/ticket-gmail-sync\?mode=tickets/,'live client must explicitly request ticket mode');
 assert.match(client,/ticket_gmail_sync1215/,'live client must load durable checkpoint');
 assert.match(client,/ticket_gmail_state1215/,'live client must load durable event state');
 assert.match(client,/commit_ticket_gmail_batch1215/,'live client must use atomic DB commit RPC');
-assert.match(client,/plan\.unmatched\.length\?\(durable\.checkpoint/,'unmatched messages must hold checkpoint');
+assert.match(client,/plan\.unmatched\.length\+plan\.review\.length>0/,'unmatched or ambiguous messages must hold checkpoint');
 assert.doesNotMatch(client,/function patchFor\(/,'legacy direct patch path must be removed');
 
 const migration=fs.readFileSync('supabase/migrations/0035_ticket_gmail_transactions1215.sql','utf8');
@@ -50,4 +56,4 @@ assert.match(migration,/create or replace function public\.commit_ticket_gmail_b
 assert.match(migration,/auth\.uid\(\)/i,'atomic commit must be owner scoped');
 assert.match(migration,/raise exception 'TICKET_NOT_FOUND/i,'missing inventory row must fail closed');
 
-console.log('OS1215 live Gmail ticket transaction guard PASS');
+console.log('OS1215/1216 live Gmail ticket transaction guard PASS');
