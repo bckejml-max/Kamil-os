@@ -1,6 +1,6 @@
 // Ticket Redesign 500 + optional overlays.
 // OS500 is the only critical path. Every later overlay loads after the desk is usable.
-import {ownObserver1100,schedule1100} from './runtimeOwnership1100.js';
+import {ownEvent1100,ownObserver1100,schedule1100} from './runtimeOwnership1100.js';
 let loadPromise=null;
 let installPromise=null;
 let overlayPromise=null;
@@ -12,7 +12,15 @@ const isActive=()=>!!document.querySelector('#view-tickets.on,#view-tickets.acti
 const revised=url=>{const u=new URL(url);u.searchParams.set('rev',ASSET_REV);return u};
 const ungzip=async url=>{const requestUrl=revised(url),response=await fetch(requestUrl,{cache:'no-store'});if(!response.ok)throw new Error(`OS500 asset ${response.status}: ${requestUrl}`);const bytes=new Uint8Array(await response.arrayBuffer()),isGzip=bytes.length>1&&bytes[0]===0x1f&&bytes[1]===0x8b;if(!isGzip)return new TextDecoder().decode(bytes);if(typeof DecompressionStream!=='function')throw new Error('OS500 requires DecompressionStream for gzip assets');const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));return new Response(stream).text()};
 const text=async url=>{const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error(`Ticket overlay asset ${response.status}: ${url}`);return response.text()};
-function keepStyleLast(){if(!isActive()||!styleNode?.isConnected)return;if(document.head.lastElementChild!==styleNode)document.head.appendChild(styleNode)}
+function keepStyleLast(){
+ if(!styleNode?.isConnected)return;
+ styleNode.media=isActive()?'all':'not all';
+ if(!isActive())return;
+ const canonical=document.querySelector('link[href="./os737.css"]');
+ if(canonical){if(styleNode.nextElementSibling!==canonical)document.head.insertBefore(styleNode,canonical)}
+ else if(document.head.lastElementChild!==styleNode)document.head.appendChild(styleNode);
+}
+ownEvent1100(OWNER,window,'kamil:view-change',keepStyleLast);
 function noteFailure(list,label,error,phase='load'){const item={label,phase,message:String(error?.message||error),at:Date.now()};list.push(item);console.warn(`[ticketDesk331:${phase}] ${label}`,error);return item}
 async function optionalText(url,label,failures){try{return await text(url)}catch(error){noteFailure(failures,label,error,'css');return''}}
 async function optionalInstaller(url,fn,label,failures){try{const mod=await import(url);if(typeof mod?.[fn]!=='function')throw new Error(`Chybí export ${fn}`);return{label,fn,install:mod[fn]}}catch(error){noteFailure(failures,label,error,'module');return{label,fn,install:null}}}

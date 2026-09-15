@@ -25,7 +25,9 @@ async function safeImport(path,run){
 }
 
 async function loadBackground(){
- if(backgroundRunning||!moneyActive())return false;
+ const page=document.querySelector('#moneyView .money-page'),drawer=page?.querySelector('[data-money-analysis]');
+ if(backgroundRunning||!moneyActive()||!drawer?.open)return false;
+ const original=new Set(page.children);
  backgroundRunning=true;
  try{
   ensureOptionalStyles();
@@ -38,14 +40,14 @@ async function loadBackground(){
    ['./marketIntelligence100.js',async m=>{m.appendXtbIntelligence100?.();await m.appendCapitalBrain100?.()}],
    ['./marketDetails100.js',m=>m.appendXtbDetails100?.()],
    ['./dataQa144.js',m=>m.applyMoneyDataQa144?.()],
-   ['./moneyVisual138.js',m=>m.enhanceMoneyVisual138?.()],
-   ['./unifiedCapital160.js',m=>m.enhanceUnifiedCapital160?.()]
+   // The core overview already owns totals; do not mount duplicate visual overviews.
   ];
   let loaded=0;
   for(let i=0;i<jobs.length;i++){
    if(!moneyActive())break;
    const [path,run]=jobs[i];
    if(await safeImport(path,run))loaded++;
+   for(const el of [...page.children])if(!original.has(el))drawer.appendChild(el);
    if(i<jobs.length-1)await new Promise(resolve=>schedule1100(OWNER,`yield-${i}`,resolve,8,{pauseWhenHidden:true}));
   }
   const complete=loaded===jobs.length;
@@ -76,6 +78,7 @@ export function renderMoneyPage100(){
   window.__KAMIL_MONEY100__={healthy:false,core:false,error:String(error?.message||error),at:Date.now()};
   throw error;
  }
- scheduleBackground();
+ const page=document.querySelector('#moneyView .money-page');
+ if(page){const drawer=document.createElement('details');drawer.className='os2-analysis';drawer.dataset.moneyAnalysis='1';drawer.innerHTML='<summary>Investice, historie a podrobné analýzy</summary><p class="muted">Historie majetku, nemovitosti a investiční přehledy.</p>';drawer.ontoggle=()=>{if(drawer.open)scheduleBackground(0)};page.appendChild(drawer)}
  return true;
 }
