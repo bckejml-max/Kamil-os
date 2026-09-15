@@ -6,7 +6,8 @@ const snapshot=read('js/personalSnapshot737.js');
 const betSeed=read('lib/bet-ledger.js');
 const bettingStore=read('lib/betting-ledger543-store.js');
 const bettingMigration=read('supabase/migrations/0034_betting_ledger543.sql');
-const bettingApi=read('api/betting-ledger543.js');
+const marketHistory=read('api/market-history.js');
+const vercel=read('vercel.json');
 const gmail=read('api/ticket-gmail-sync.js');
 
 for(const forbidden of ['RAW_TICKETS','RAW_XTB','DEBTS=[','KNOWN_BETS','Sázky.xlsx','Dluhy.xlsx']){
@@ -20,8 +21,10 @@ assert.ok(!/stakeCzk\s*:\s*\d+/.test(betSeed),'public betting seed must not cont
 for(const token of ['AUTH_REQUIRED','REMOTE_BETTING_LEDGER_MIGRATION_REQUIRED','supabase_rls','auth/v1/user'])assert.ok(bettingStore.includes(token),`server betting ledger missing secure contract: ${token}`);
 assert.ok(bettingStore.includes("REQUIRED_REVISION='0034_betting_ledger543.sql'"),'server betting ledger must name its migration revision');
 for(const token of ['enable row level security','auth.uid()','revoke all on table public.betting_ledger543_settings from anon','revoke all on table public.betting_ledger543_bets from anon','BETTING_LEDGER_SETTLED_IMMUTABLE'])assert.ok(bettingMigration.includes(token),`betting RLS migration missing ${token}`);
-assert.ok(bettingApi.includes('getBettingLedger543(req)'),'betting reads must carry authenticated request context');
-assert.ok(bettingApi.includes('mutateBettingLedger543(await readBody(req),req)'),'betting writes must carry authenticated request context');
+assert.ok(marketHistory.includes('getBettingLedger543(req)'),'betting reads must carry authenticated request context');
+assert.ok(marketHistory.includes('mutateBettingLedger543(await readBody(req),req)'),'betting writes must carry authenticated request context');
+assert.ok(vercel.includes('"destination": "/api/market-history?source=ledger543"'),'betting ledger must share an existing function to preserve Hobby deployment limits');
+assert.equal(fs.existsSync('api/betting-ledger543.js'),false,'no dedicated 13th betting API function may be deployed on Hobby');
 
 assert.ok(gmail.includes('authorizedMailbox(req,res)'),'Gmail sync must authenticate every mode');
 assert.ok(gmail.includes("error:'AUTH_REQUIRED'"),'Gmail sync must expose an auth-required contract');
