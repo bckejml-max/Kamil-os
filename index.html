@@ -22,11 +22,11 @@
   <div class="eyebrow">KAMIL OS</div><h1>Cloud je volitelný.</h1>
   <p class="muted">Aplikace funguje lokálně i bez přihlášení. Cloud použij jen pokud chceš synchronizovat data.</p>
   <button class="btn primary wide" id="skipLoginBtn">Zpět do Kamil OS</button>
-  <div class="auth-legacy227" aria-hidden="true"><input id="loginEmail" type="email" tabindex="-1"><button id="magicLinkBtn" type="button">legacy</button><input id="loginPassword" type="password" tabindex="-1"><button id="loginBtn" type="button">legacy</button><button id="forgotPasswordBtn" type="button">legacy</button><div id="authMessage"></div></div>
+  <div class="os2-auth-form"><label for="loginEmail">E-mail cloudového účtu</label><input id="loginEmail" type="email" autocomplete="username"><button class="btn primary" id="magicLinkBtn" type="button">Poslat přihlašovací odkaz</button><details><summary>Přihlásit se heslem</summary><label for="loginPassword">Heslo</label><input id="loginPassword" type="password" autocomplete="current-password"><button class="btn primary" id="loginBtn" type="button">Přihlásit se</button><button class="btn" id="forgotPasswordBtn" type="button">Zapomenuté heslo</button></details><div id="authMessage" role="status" aria-live="polite"></div></div>
  </div>
 </div>
 <div id="resetView" class="auth-shell hidden">
- <div class="auth-card"><div class="eyebrow">KAMIL OS</div><h1>Obnova cloudu</h1><p class="muted">Lokální data zůstávají dostupná. Po dokončení se vrať do aplikace.</p><a class="btn primary wide" href="./">Zpět do Kamil OS</a><div class="auth-legacy227" aria-hidden="true"><input id="resetPassword1" type="password" tabindex="-1"><input id="resetPassword2" type="password" tabindex="-1"><button id="setPasswordBtn" type="button">legacy</button><div id="resetMessage"></div></div></div>
+ <div class="auth-card"><div class="eyebrow">KAMIL OS</div><h1>Obnova cloudu</h1><p class="muted">Zadej nové heslo s alespoň 8 znaky.</p><div class="os2-auth-form"><label for="resetPassword1">Nové heslo</label><input id="resetPassword1" type="password" autocomplete="new-password"><label for="resetPassword2">Zopakovat nové heslo</label><input id="resetPassword2" type="password" autocomplete="new-password"><button class="btn primary" id="setPasswordBtn" type="button">Uložit nové heslo</button><div id="resetMessage" role="status" aria-live="polite"></div></div><a class="btn wide" href="./">Zpět do Kamil OS</a></div>
 </div>
 
 <div id="appView" class="os2-app">
@@ -55,6 +55,7 @@
   <header class="os2-topbar">
    <div class="os2-title"><strong id="pageTitle">DNES</strong><span id="todayLabel"></span></div>
    <div class="os2-top-actions">
+    <button class="os2-icon-btn os2-mobile-menu" id="mobileMenuBtn" aria-label="Všechny sekce">☰</button>
     <button class="os2-primary" id="quickAddBtn"><span>＋</span> <b>Přidat</b></button>
     <span id="syncStatus" class="os2-chip sync local"><i></i> Jen toto zařízení</span>
     <button class="os2-icon-btn" id="undoBtn" aria-label="Vrátit poslední změnu">↶</button>
