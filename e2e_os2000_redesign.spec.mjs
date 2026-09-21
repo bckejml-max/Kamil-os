@@ -496,3 +496,31 @@ test('OS1308 settled WIN pnl is immutable under integrity guard',async({page})=>
  expect(result.closingOdds).toBeNull();
  expect(result.recovery).toBe(true);
 });
+
+
+test('OS1308 invalid primary state recovers from valid staging copy',async({page})=>{
+ await page.addInitScript(()=>{
+  const staged={
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   tasks:[{id:'stage-survivor',title:'Přežil staging',status:'OPEN'}]
+  };
+  localStorage.setItem('kamil-os-state','[]');
+  localStorage.setItem('kamil-os-state-stage-1132',JSON.stringify(staged));
+ });
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  let recovery=null;try{recovery=JSON.parse(localStorage.getItem('kamil-os-state-recovery-1131')||'null')}catch{}
+  let primary=null;try{primary=JSON.parse(localStorage.getItem('kamil-os-state')||'null')}catch{}
+  return {
+   hasTask:store.get().tasks.some(x=>x.id==='stage-survivor'),
+   primaryIsArray:Array.isArray(primary),
+   stageGone:localStorage.getItem('kamil-os-state-stage-1132')===null,
+   recoveryReason:recovery?.reason||null
+  };
+ });
+ expect(result.hasTask).toBe(true);
+ expect(result.primaryIsArray).toBe(false);
+ expect(result.stageGone).toBe(true);
+ expect(result.recoveryReason).toBe('invalid-primary-shape');
+});
