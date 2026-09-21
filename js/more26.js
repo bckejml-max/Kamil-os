@@ -1,6 +1,7 @@
 import {APP_VERSION,SCHEMA_VERSION} from './config.js';
 import {store,validateState,repairState} from './state.js';
 import {createBackupEnvelope,readBackup,backupHealth,backupGuardNote} from './backupGuard26.js';
+import {replaceColdState42} from './coldPartition42.js';
 import {smartImportView,bindSmartImport} from './smartImportUi29.js';
 import {h,downloadJson,qs,qsa,modal,toast} from './utils.js';
 import {runPreflight} from './preflight.js';
