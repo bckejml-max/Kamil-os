@@ -16,7 +16,7 @@ export async function withActionLock(fn){if(actionLock)return false;actionLock=t
 let current='today',stopAuthWatch=()=>{},renderSeq=0,renderQueued=false,renderForce=false,stateRevision=0,sessionSeq=0;
 const viewRevision=new Map();
 let recoveryMode=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
-const pageTitles={today:'DNES',work:'PRÁCE',tickets:'VSTUPENKY',property:'REALITY',money:'PENÍZE',betting:'SÁZENÍ',inbox:'INBOX',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
+const pageTitles={today:'DNES',work:'PRÁCE',tickets:'VSTUPENKY',property:'REALITY',money:'PENÍZE',betting:'SÁZENÍ',inbox:'ÚKOLY',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
 const viewHosts={today:'todayView',work:'workView',tickets:'ticketIntelView',property:'propertyView',money:'moneyView',betting:'bettingView',inbox:'inboxView',family:'ticketsView',home:'homeView',more:'moreView'};
 const quickLabels={today:'Přidat',work:'Pracovní úkol',tickets:'Úkol k ticketům',property:'Úkol k realitě',money:'Finanční úkol',inbox:'Úkol',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
 const captureTypeForView=()=>({today:'task',work:'work-task',tickets:'ticket-task',property:'property-task',money:'money-task',inbox:'task',family:'family-task',home:'home-task',more:'document-source'})[current]||'task';
