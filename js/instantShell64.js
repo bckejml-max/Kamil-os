@@ -1,6 +1,6 @@
 import {APP_VERSION} from './releaseMeta.js';
 
-const SNAPSHOT_KEY='kamil-os-fast-snapshot-66-0';
+const SNAPSHOT_KEY='kamil-os-fast-snapshot-1300';
 const root=document.documentElement;
 const BOOT343={version:343,architecture:'os2-on-demand',startedAt:performance.now(),modules:[],failures:[],complete:false,totalMs:0,slowest:[],healthy:true,at:Date.now()};
 const DEFER345={version:345,architecture:'os2-on-demand',started:false,complete:false,modules:[],failures:[],healthy:true,at:Date.now()};

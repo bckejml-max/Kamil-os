@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const read=p=>fs.readFileSync(p,'utf8');
+const index=read('index.html'),runtime=read('js/viewRuntime41.js'),app=read('js/app.js'),today=read('js/todayPage2000.js'),work=read('js/workPage1300.js'),property=read('js/propertyPage1300.js'),css=read('productReset1300.css'),sw=read('sw.js');
+assert.match(index,/data-product-reset1300="1"/);
+assert.match(index,/data-view="work"/);assert.match(index,/data-view="property"/);
+assert.match(index,/id="workView"/);assert.match(index,/id="propertyView"/);
+assert.match(index,/productReset1300\.css/);
+assert.match(runtime,/work:\['\.\/workPage1300\.js','renderWorkPage1300'\]/);
+assert.match(runtime,/property:\['\.\/propertyPage1300\.js','renderPropertyPage1300'\]/);
+assert.match(app,/work:'workView'/);assert.match(app,/property:'propertyView'/);
+assert.match(today,/Potřebuje tvoji pozornost/);assert.match(today,/data-product-home1300/);assert.match(today,/workCommandCenter440/);assert.match(today,/buildPropertyHub620/);
+assert.match(work,/data-work-page1300/);assert.match(work,/Finanční expozice/);
+assert.match(property,/data-property-page1300/);assert.match(property,/Investiční byty jako samostatné rozhodnutí/);
+assert.match(css,/Historical experimental decorators/);assert.match(css,/\[data-today-hub650\]/);assert.match(css,/repeat\(6,minmax\(0,1fr\)\)/);
+assert.match(sw,/productReset1300\.css/);assert.match(sw,/workPage1300\.js/);assert.match(sw,/propertyPage1300\.js/);
+console.log('OS1300 product reset guard PASS');

@@ -4,14 +4,16 @@ import {ownEvent1100} from './runtimeOwnership1100.js';
 
 const OWNER='core.viewRuntime41';
 const modules=new Map(),warmViews=new Map(),stylePromises=new Map();
-const titles={today:'DNES',inbox:'INBOX',money:'PENÍZE',tickets:'VSTUPENKY',betting:'SÁZENÍ',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
-const quick={today:'Úkol',inbox:'Úkol',money:'Finanční úkol',tickets:'Úkol k ticketům',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
+const titles={today:'DNES',work:'PRÁCE',tickets:'VSTUPENKY',property:'REALITY',money:'PENÍZE',betting:'SÁZENÍ',inbox:'INBOX',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
+const quick={today:'Přidat',work:'Pracovní úkol',tickets:'Úkol k ticketům',property:'Úkol k realitě',money:'Finanční úkol',betting:'Přidat',inbox:'Úkol',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
 const heavyViews=new Set(['money','tickets','betting']);
 const viewDefs={
  today:['./todayPage2000.js','renderTodayPage2000'],
+ work:['./workPage1300.js','renderWorkPage1300'],
  inbox:['./inboxPage141.js','renderInboxPage141'],
  money:['./moneyPage100.js','renderMoneyPage100'],
  tickets:['./ticketPage100.js','renderTicketPage100'],
+ property:['./propertyPage1300.js','renderPropertyPage1300'],
  betting:['./bettingPage527.js','renderBettingPage527'],
  family:['./familyPage140.js','renderFamilyPage140'],
  home:['./homePage140.js','renderHomePage140'],
@@ -38,7 +40,7 @@ function warmView(name='today'){const key=validViews41.has(name)?name:'today';if
 export function getViewRenderer41(name='today'){return warmView(name)}
 export function prefetchView41(name='today'){const key=validViews41.has(name)?name:'today';if(heavyViews.has(key)&&!document.querySelector(`#view-${key}.on`))return Promise.resolve(false);return warmView(key).then(()=>true).catch(error=>{console.warn(`[viewRuntime41] prefetch ${key}`,error);return false})}
 export async function setMoreMode41(){return Promise.resolve(null)}
-export async function openCapture41(type='task'){if(type==='money-task'){const m=await load('./personalMoneyActions645.js');return m.createMoneyTask645()}if(type==='document-source'){const btn=document.querySelector('#documentInbox650');if(btn){btn.click();return true}return null}const m=await load('./personalCapture643.js');if(type==='family-task')return m.openPersonalCapture643('task',{area:'Rodina',category:'Rodina'});if(type==='home-task')return m.openPersonalCapture643('task',{area:'Domov',category:'Domov'});if(type==='ticket-task')return m.openPersonalCapture643('task',{area:'Vstupenky',category:'Vstupenky'});return m.openPersonalCapture643(['task','waiting','admin','insurance','contract'].includes(type)?type:'task')}
+export async function openCapture41(type='task'){if(type==='money-task'){const m=await load('./personalMoneyActions645.js');return m.createMoneyTask645()}if(type==='document-source'){const btn=document.querySelector('#documentInbox650');if(btn){btn.click();return true}return null}const m=await load('./personalCapture643.js');if(type==='work-task')return m.openPersonalCapture643('task',{area:'Práce',category:'Práce'});if(type==='property-task')return m.openPersonalCapture643('task',{area:'Reality',category:'Reality'});if(type==='family-task')return m.openPersonalCapture643('task',{area:'Rodina',category:'Rodina'});if(type==='home-task')return m.openPersonalCapture643('task',{area:'Domov',category:'Domov'});if(type==='ticket-task')return m.openPersonalCapture643('task',{area:'Vstupenky',category:'Vstupenky'});return m.openPersonalCapture643(['task','waiting','admin','insurance','contract'].includes(type)?type:'task')}
 export async function renderCommandResults41(q=''){try{const c=await load('./capitalCommand100.js');if(c.isCapitalQuestion100(q)){const box=document.querySelector('#commandResults');if(box){const amount=c.parseCapitalAmount100(q);box.classList.remove('hidden');box.innerHTML=`<div class="search-row"><div><b>Rozhodnout, co s ${Number(amount||0).toLocaleString('cs-CZ')} Kč</b><div class="muted">Capital Allocation Brain</div></div><button class="btn" data-capital-command100>Vyhodnotit</button></div>`;box.querySelector('[data-capital-command100]')?.addEventListener('click',()=>{box.classList.add('hidden');c.openCapitalDecision100(q)});return}}}catch{}try{const x=await load('./commandSearch610.js');x.installCommandSearch610?.();if(x.renderExtendedResults610?.(q))return}catch(e){console.warn('[command-search610]',e)}const m=await load('./command.js');return m.renderResults(q)}
 export async function executeCommand41(q=''){try{const c=await load('./capitalCommand100.js');if(c.isCapitalQuestion100(q))return c.openCapitalDecision100(q)}catch(e){console.warn('[capital-command100]',e)}try{const x=await load('./commandSearch610.js');x.installCommandSearch610?.();if(x.executeExtendedCommand610?.(q))return true}catch(e){console.warn('[command-search610]',e)}const m=await load('./command.js');return m.execute(q)}
 export async function renderExtras41(view='today'){syncChrome142(view);return null}

@@ -1,85 +1,52 @@
 import {store} from './state.js';
+import {workCommandCenter440} from './workCommandCenter440.js';
+import {buildPropertyHub620} from './propertyHub620.js';
 import {ownEvent1100} from './runtimeOwnership1100.js';
 
 const OWNER='today.os2000';
-const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED']);
+const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT_RECEIVED']);
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-const open=x=>!CLOSED.has(String(x?.status||x?.workflow||'').toUpperCase());
+const upper=v=>String(v||'').toUpperCase();
+const open=x=>!CLOSED.has(upper(x?.status||x?.workflow||x?.market_status));
 const titleOf=x=>String(x?.title||x?.name||x?.label||x?.eventName||x?.event_name||'Bez názvu').trim();
-const dateOf=x=>x?.dueAt||x?.due_at||x?.dueDate||x?.due_date||x?.deadline||x?.date||x?.startsAt||x?.start||null;
+const dateOf=x=>x?.dueAt||x?.due_at||x?.dueDate||x?.due_date||x?.deadline||x?.due||x?.date||x?.startsAt||x?.start||null;
 const ts=x=>{const d=Date.parse(dateOf(x)||'');return Number.isFinite(d)?d:null};
-const fmtDate=x=>{const t=ts(x);if(!t)return'bez termínu';try{return new Date(t).toLocaleDateString('cs-CZ',{day:'numeric',month:'short'})}catch{return'bez termínu'}};
+const fmtDate=x=>{const t=ts(x);if(!t)return'bez termínu';return new Date(t).toLocaleDateString('cs-CZ',{day:'numeric',month:'short'})};
 const money=v=>Number.isFinite(Number(v))?`${Math.round(Number(v)).toLocaleString('cs-CZ')} Kč`:'—';
 
-function data(){
+function betting(){let ledger={};try{ledger=JSON.parse(localStorage.getItem('kamil_betting_ledger_543')||'{}')}catch{}const bets=Array.isArray(ledger?.bets)?ledger.bets:[],active=bets.filter(x=>upper(x.status||'OPEN')==='OPEN');return{open:active.length,exposure:active.reduce((a,x)=>a+Number(x.stakeCzk||0),0),bankroll:Number(ledger?.bankrollCzk||0)}}
+function baseData(){
  const s=store.get();
- const tasks=(s.tasks||[]).filter(open);
- const waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[]),...(s.personalInbox?.items||[]).filter(x=>String(x?.bucket||'').toLowerCase()==='waiting')].filter(open);
- const tickets=(s.ticketBook?.items||[]).filter(x=>['HOLD','LISTED','NOT_LISTED','OPEN'].includes(String(x?.workflow||x?.market_status||'HOLD').toUpperCase()));
- const inbox=[...(s.inbox||[]),...(s.personalInbox?.items||[])].filter(open);
- const calendar=(s.calendar?.events||[]).filter(x=>{const t=ts(x);return t&&t>Date.now()-6*3600000}).sort((a,b)=>(ts(a)||Infinity)-(ts(b)||Infinity));
- const urgentTasks=[...tasks].sort((a,b)=>{
-  const pa=Number(a?.priority||a?.score||0),pb=Number(b?.priority||b?.score||0);if(pb!==pa)return pb-pa;
-  return (ts(a)||Infinity)-(ts(b)||Infinity);
- });
- const now=Date.now();
- const overdue=tasks.filter(x=>ts(x)&&ts(x)<now).length;
- const activeCapital=tickets.reduce((sum,x)=>sum+Number(x?.buy_total_czk||x?.buy||x?.buyTotalCzk||0),0);
- const cash=Number(s.financePlan?.cashNow||0);
- return{s,tasks,waiting,tickets,inbox,calendar,urgentTasks,overdue,activeCapital,cash};
+ const tasks=(s.tasks||[]).filter(open),waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[]),...(s.personalInbox?.items||[]).filter(x=>String(x?.bucket||'').toLowerCase()==='waiting')].filter(open),tickets=(s.ticketBook?.items||[]).filter(open),calendar=(s.calendar?.events||[]).filter(x=>{const t=ts(x);return t&&t>Date.now()-6*3600000}).sort((a,b)=>(ts(a)||Infinity)-(ts(b)||Infinity));
+ const urgentTasks=[...tasks].sort((a,b)=>{const ao=ts(a)&&ts(a)<Date.now(),bo=ts(b)&&ts(b)<Date.now();if(ao!==bo)return bo-ao;const pa=Number(a?.priority||a?.score||0),pb=Number(b?.priority||b?.score||0);if(pb!==pa)return pb-pa;return(ts(a)||Infinity)-(ts(b)||Infinity)});
+ const overdue=tasks.filter(x=>ts(x)&&ts(x)<Date.now()),transfer=tickets.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(upper(x.market_status||x.workflow))),activeTickets=tickets.filter(x=>!['PAID','PAYOUT_RECEIVED','SOLD'].includes(upper(x.market_status||x.workflow))),cash=Number(s.financePlan?.cashNow||0),work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=betting();
+ return{s,tasks,waiting,tickets,activeTickets,transfer,calendar,urgentTasks,overdue,cash,work,property,bet};
 }
-
-function nextPriority(d){
- const overdue=d.urgentTasks.find(x=>ts(x)&&ts(x)<Date.now());
- if(overdue)return{title:titleOf(overdue),why:'Má prošlý termín. Vyřešení sníží okamžité riziko.',action:'today',tone:'bad'};
- if(d.urgentTasks[0])return{title:titleOf(d.urgentTasks[0]),why:ts(d.urgentTasks[0])?`Nejbližší termín ${fmtDate(d.urgentTasks[0])}.`:'Nejvýše postavený otevřený úkol.',action:'today',tone:'hot'};
- if(d.waiting[0])return{title:`Prověřit: ${titleOf(d.waiting[0])}`,why:'Čeká na odpověď nebo další krok.',action:'inbox',tone:'hot'};
- if(d.tickets.length)return{title:'Zkontrolovat aktivní vstupenky',why:`V portfoliu je ${d.tickets.length} aktivních položek.`,action:'tickets',tone:'good'};
- return{title:'Teď není nic kritického',why:'OS nenašel urgentní otevřený krok.',action:null,tone:'good'};
-}
-
-function rows(items,{limit=5,side=fmtDate,empty='Nic otevřeného.'}={}){
- if(!items.length)return`<div class="os2-empty">${esc(empty)}</div>`;
- return items.slice(0,limit).map(x=>`<div class="os2-row"><div class="os2-row-main"><b>${esc(titleOf(x))}</b><small>${esc(x?.category||x?.area||x?.project||x?.source||'')}</small></div><div class="os2-row-side">${esc(side(x))}</div></div>`).join('');
-}
-
 function greeting(){const h=new Date().getHours();return h<11?'Dobré ráno':h<18?'Dobré odpoledne':'Dobrý večer'}
+function attention(d){
+ const out=[];
+ for(const x of d.overdue.slice(0,2))out.push({title:titleOf(x),detail:`Úkol po termínu · ${fmtDate(x)}`,route:'today',tone:'bad',cta:'vyřešit'});
+ const wr=d.work.topRisks[0];if(wr)out.push({title:wr.title,detail:`${wr.kind} · ${wr.detail}`,route:'work',tone:wr.score>=95?'bad':'warn',cta:'otevřít'});
+ if(d.transfer.length)out.push({title:`${d.transfer.length} prodejů čeká na převod`,detail:'Vstupenky jsou prodané, ale ještě nejsou dokončené.',route:'tickets',tone:'bad',cta:'převést'});
+ const dueWait=d.waiting.find(x=>{const t=ts(x);return t&&t<=Date.now()+86400000});if(dueWait)out.push({title:`Follow-up: ${titleOf(dueWait)}`,detail:ts(dueWait)&&ts(dueWait)<Date.now()?'Čekání je po termínu.':'Follow-up je dnes nebo zítra.',route:'inbox',tone:'warn',cta:'zkontrolovat'});
+ return out.slice(0,4);
+}
+function actionRows(items){if(!items.length)return '<div class="pr1300-empty">Teď nic akutního nevyžaduje tvoji pozornost.</div>';return `<div class="pr1300-attention">${items.map(x=>`<button type="button" data-today1300-nav="${esc(x.route)}"><i class="pr1300-dot ${esc(x.tone)}"></i><span><b>${esc(x.title)}</b><small>${esc(x.detail)}</small></span><em>${esc(x.cta)} →</em></button>`).join('')}</div>`}
+function todayRows(items){if(!items.length)return '<div class="pr1300-empty">Žádné otevřené úkoly.</div>';return items.slice(0,6).map(x=>`<div class="pr1300-row"><div class="pr1300-row-main"><b>${esc(titleOf(x))}</b><small>${esc(x?.project||x?.area||x?.category||'')}</small></div><div class="pr1300-row-side ${ts(x)&&ts(x)<Date.now()?'bad':''}">${esc(fmtDate(x))}</div></div>`).join('')}
+function calendarRows(items){if(!items.length)return '<div class="pr1300-empty">V kalendáři nic blízkého.</div>';return items.slice(0,5).map(x=>`<div class="pr1300-row"><div class="pr1300-row-main"><b>${esc(titleOf(x))}</b><small>${esc(x?.location||x?.calendar||'')}</small></div><div class="pr1300-row-side">${new Date(ts(x)).toLocaleString('cs-CZ',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>`).join('')}
+function domain(route,label,value,detail,tone=''){return `<button type="button" class="pr1300-domain ${tone}" data-today1300-nav="${esc(route)}"><span>${esc(label)}</span><b>${esc(value)}</b><small>${esc(detail)}</small></button>`}
 
 function render(){
  const host=document.querySelector('#todayView');if(!host)return false;
- const d=data(),priority=nextPriority(d),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
- const nextCalendar=d.calendar.slice(0,4);
- host.innerHTML=`<div class="os2-today" data-os2-today>
-  <div class="os2-welcome">
-   <section class="os2-hero">
-    <div><div class="os2-kicker">${esc(today)}</div><h1>${greeting()}, Kamile.</h1><p>Jedna obrazovka pro to důležité. Ostatní analýzy se načtou až ve chvíli, kdy je otevřeš.</p></div>
-    <div class="os2-hero-bottom"><span class="os2-pill good">● rychlý režim</span><span class="os2-pill">${d.tasks.length} otevřených úkolů</span><span class="os2-pill">${d.waiting.length} čekání</span></div>
-   </section>
-   <section class="os2-now">
-    <div><div class="os2-now-label"><span>Teď</span><i class="os2-now-dot"></i></div><h2>${esc(priority.title)}</h2><p>${esc(priority.why)}</p></div>
-    <div class="os2-now-actions">${priority.action?`<button class="os2-primary" data-os2-nav="${esc(priority.action)}">Otevřít</button>`:''}<button class="os2-icon-btn" data-os2-add>＋ Přidat</button></div>
-   </section>
-  </div>
-  <div class="os2-kpis">
-   <div class="os2-kpi"><span>Otevřené</span><b>${d.tasks.length}</b><small>${d.overdue?`${d.overdue} po termínu`:'bez prošlých termínů'}</small></div>
-   <div class="os2-kpi"><span>Čekám na</span><b>${d.waiting.length}</b><small>odpovědi a follow-upy</small></div>
-   <div class="os2-kpi"><span>Vstupenky</span><b>${d.tickets.length}</b><small>${d.activeCapital?money(d.activeCapital)+' kapitál':'aktivní portfolio'}</small></div>
-   <div class="os2-kpi"><span>Hotovost</span><b>${d.cash?money(d.cash):'—'}</b><small>financePlan.cashNow</small></div>
-  </div>
-  <div class="os2-grid">
-   <div class="os2-stack">
-    <section class="os2-panel"><div class="os2-panel-head"><h3>Co řešit</h3><button class="os2-action-link" data-os2-nav="inbox">Otevřít Inbox</button></div><div class="os2-list">${rows(d.urgentTasks,{limit:6,empty:'Žádné otevřené úkoly.'})}</div></section>
-    <section class="os2-panel"><div class="os2-panel-head"><h3>Čekám na</h3><button class="os2-action-link" data-os2-nav="inbox">Všechna čekání</button></div><div class="os2-list">${rows(d.waiting,{limit:5,empty:'Nikdo tě teď neblokuje.'})}</div></section>
-   </div>
-   <div class="os2-stack">
-    <section class="os2-panel"><div class="os2-panel-head"><h3>Kalendář</h3><span>nejbližší</span></div><div class="os2-list">${rows(nextCalendar,{limit:4,side:x=>{const t=ts(x);return t?new Date(t).toLocaleString('cs-CZ',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—'},empty:'V kalendáři nic blízkého.'})}</div></section>
-    <section class="os2-panel"><div class="os2-panel-head"><h3>Rychlý přístup</h3><span>bez čekání</span></div><div class="os2-list"><div class="os2-row"><div class="os2-row-main"><b>Vstupenky</b><small>portfolio, ceny a prodej</small></div><button class="os2-action-link" data-os2-nav="tickets">Otevřít</button></div><div class="os2-row"><div class="os2-row-main"><b>Peníze</b><small>hotovost a rozhodnutí</small></div><button class="os2-action-link" data-os2-nav="money">Otevřít</button></div><div class="os2-row"><div class="os2-row-main"><b>Sázení</b><small>ledger a value</small></div><button class="os2-action-link" data-os2-nav="betting">Otevřít</button></div></div></section>
-   </div>
-  </div>
+ const d=baseData(),att=attention(d),best=d.property.best,today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'}),workRisk=d.work.topRisks.length,propValue=best?best.decision.action:'bez kandidáta';
+ host.innerHTML=`<div class="pr1300-shell" data-os2-today data-product-home1300>
+  <div class="pr1300-head"><div><div class="pr1300-kicker">${esc(today)}</div><h1>${greeting()}, Kamile.</h1><p>OS má jednu práci: rychle ukázat, co potřebuje tvoji pozornost a dovést tě rovnou k akci.</p></div><span class="pr1300-status ${att.some(x=>x.tone==='bad')?'bad':att.length?'warn':'good'}">${att.length?`${att.length} k řešení`:'klid'}</span></div>
+  <section class="pr1300-panel"><div class="pr1300-panel-head"><h2>Potřebuje tvoji pozornost</h2><span>jen věci, které mají další krok</span></div>${actionRows(att)}</section>
+  <div class="pr1300-domains">${domain('work','Práce',`${d.work.projects.length} zakázek`,workRisk?`${workRisk} rizik / termínů ke kontrole`:'bez akutního rizika',workRisk?'warn':'good')}${domain('tickets','Vstupenky',`${d.activeTickets.length} aktivních`,d.transfer.length?`${d.transfer.length} čeká na převod`:'portfolio bez transfer urgencu',d.transfer.length?'bad':'')}${domain('property','Reality',propValue,best?`${best.name} · ${best.score}/100`:`${d.property.rows.length} kandidátů`,best?.decision.code==='BUY'?'good':best?.decision.code==='NEGOTIATE'?'warn':'')}${domain('money','Peníze',d.cash?money(d.cash):'otevřít finance','hotovost, spoření a investice')}${domain('betting','Sázení',`${d.bet.open} otevřených`,d.bet.exposure?`${money(d.bet.exposure)} expozice`:'bez otevřené expozice')}${domain('inbox','Inbox',`${d.waiting.length} čekání`,'follow-upy, odpovědi a věci k vyřízení',d.waiting.length?'warn':'')}</div>
+  <div class="pr1300-grid"><div class="pr1300-stack"><section class="pr1300-panel"><div class="pr1300-panel-head"><h2>Dnes</h2><button class="pr1300-btn primary" type="button" data-today1300-add>＋ Přidat</button></div>${todayRows(d.urgentTasks)}</section></div><div class="pr1300-stack"><section class="pr1300-panel"><div class="pr1300-panel-head"><h3>Nejbližší kalendář</h3><span>${d.calendar.length} událostí</span></div>${calendarRows(d.calendar)}</section><section class="pr1300-panel"><div class="pr1300-panel-head"><h3>Rychlý stav</h3><span>bez diagnostického balastu</span></div><div class="pr1300-row"><div class="pr1300-row-main"><b>Úkoly po termínu</b><small>otevřené položky s prošlým datem</small></div><div class="pr1300-row-side ${d.overdue.length?'bad':'good'}">${d.overdue.length}</div></div><div class="pr1300-row"><div class="pr1300-row-main"><b>Waiting For</b><small>čekání a follow-upy</small></div><div class="pr1300-row-side ${d.waiting.length?'warn':'good'}">${d.waiting.length}</div></div><div class="pr1300-row"><div class="pr1300-row-main"><b>Pracovní režim</b><small>výsledek Work Command Centeru</small></div><div class="pr1300-row-side ${d.work.status==='ZÁSAH'?'bad':d.work.status==='SLEDOVAT'?'warn':'good'}">${esc(d.work.status)}</div></div></section></div></div>
  </div>`;
- if(!host.dataset.os2Bound){host.dataset.os2Bound='1';ownEvent1100(OWNER,host,'click',e=>{const nav=e.target?.closest?.('[data-os2-nav]');if(nav){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:nav.dataset.os2Nav}));return}if(e.target?.closest?.('[data-os2-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))})}
- window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.tickets.length,at:Date.now()};
+ if(!host.dataset.today1300Bound){host.dataset.today1300Bound='1';ownEvent1100(OWNER,host,'click',e=>{const nav=e.target.closest('[data-today1300-nav]');if(nav){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:nav.dataset.today1300Nav}));return}if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))})}
+ window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1300,attention:att.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,work:d.work.status,property:best?.decision.code||null,at:Date.now()};
  return true;
 }
-
 export function renderTodayPage2000(){return render()}
