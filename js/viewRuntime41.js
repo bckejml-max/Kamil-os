@@ -11,19 +11,19 @@ const viewDefs={
  today:['./todayPage2000.js','renderTodayPage2000'],
  work:['./workPage1300.js','renderWorkPage1300'],
  inbox:['./inboxPage141.js','renderInboxPage141'],
- money:['./moneyPage100.js','renderMoneyPage100'],
- tickets:['./ticketPage100.js','renderTicketPage100'],
+ money:['./moneyOverview.js','renderMoneyOverview'],
+ tickets:['./ticketOverview.js','renderTicketOverview'],
  property:['./propertyPage1300.js','renderPropertyPage1300'],
- betting:['./bettingPage527.js','renderBettingPage527'],
+ betting:['./bettingOverview.js','renderBettingOverview'],
  family:['./familyPage140.js','renderFamilyPage140'],
  home:['./homePage140.js','renderHomePage140'],
  more:['./documentsPage141.js','renderDocumentsPage141']
 };
 const viewStyles={
  inbox:['./core70.css','./personal64.css'],
- money:['./globalFintech137.css','./personal64.css'],
- tickets:['./ticket68.css','./globalFintech137.css','./ticketWorkspace210.css','./ticketDesk353.css','./ticketDesk355.css','./ticketDesk356.css'],
- betting:['./globalFintech137.css'],
+ money:[],
+ tickets:[],
+ betting:[],
  family:['./personal64.css','./family70.css'],
  home:['./personal64.css','./home68.css'],
  more:['./personal64.css']
