@@ -1,6 +1,7 @@
 import {APP_VERSION,SCHEMA_VERSION} from './config.js';
 import {store,validateState,repairState} from './state.js';
 import {createBackupEnvelope,readBackup,backupHealth,backupGuardNote} from './backupGuard26.js';
+import {replaceColdState42} from './coldPartition42.js';
 import {smartImportView,bindSmartImport} from './smartImportUi29.js';
 import {h,downloadJson,qs,qsa,modal,toast} from './utils.js';
 import {runPreflight} from './preflight.js';
@@ -46,7 +47,7 @@ async function importBackup(file){
   const ok=await modal('Obnovit zálohu?',`<p>Zdroj: <b>${h(source)}</b>${parsed.exportedAt?` · ${h(new Date(parsed.exportedAt).toLocaleString('cs-CZ'))}`:''}.</p><p>Před obnovou automaticky stáhnu <b>safety backup současného stavu</b>. Potom data bezpečně migruji na schema v${SCHEMA_VERSION}.</p>${unique.length?`<p class="muted">Opravitelné nálezy: ${h(unique.join(' · '))}</p>`:'<p class="muted">Kontrola struktury neodhalila problém.</p>'}<p class="muted">Obnova sama nic nemaže z cloudové historie ani automaticky neprovádí jiné osobní akce.</p>`,[{label:'Zrušit',value:false},{label:'Vytvořit safety backup a obnovit',value:true,primary:true}]);
   if(!ok)return;
   exportBackup({safety:true});
-  store.replace(repaired.state,'backup-import');store.dirty=true;store.queueSync(store.get());store.setMeta({lastRestoreAt:new Date().toISOString(),lastRestoreSource:parsed.legacy?'legacy':parsed.fingerprint});
+  replaceColdState42(repaired.state);store.replace(repaired.state,'backup-import');store.dirty=true;store.queueSync(store.get());store.setMeta({lastRestoreAt:new Date().toISOString(),lastRestoreSource:parsed.legacy?'legacy':parsed.fingerprint});
   toast('Záloha obnovena; původní stav byl stažen jako safety backup.');renderMore();
  }catch{toast('Soubor není platná JSON záloha.')}
 }

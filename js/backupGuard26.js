@@ -1,4 +1,5 @@
 import {APP_VERSION,SCHEMA_VERSION} from './config.js';
+import {mergeColdState42} from './coldPartition42.js';
 
 export const BACKUP_FORMAT='KAMIL_OS_BACKUP';
 export const BACKUP_FORMAT_VERSION=1;
@@ -25,7 +26,7 @@ export function backupFingerprint(payload){
 }
 
 export function backupPayload(state){
- const base=obj(state)?{...state,undo:[]}:{undo:[]};
+ const full=mergeColdState42(obj(state)?state:{}),base=obj(full)?{...full,undo:[]}:{undo:[]};
  const payload=jsonClone(base);payload.undo=[];
  return payload;
 }

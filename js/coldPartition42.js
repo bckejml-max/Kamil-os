@@ -1,8 +1,11 @@
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
+
 const MAIN_KEY='kamil-os-state';
 const COLD_KEY='kamil-os-41-2-cold-v1';
 const BOOT_KEY='kamil-os-41-boot-summary';
 const QUEUE_KEY='kamil-os-22-sync-queue';
-const LAYOUT_VERSION=3;
+const LAYOUT_VERSION=4;
+const OWNER='storage.coldPartition42';
 
 const DOMAINS={
   money:[['tradeJournal','trades'],['personalSpending','transactions'],['netWorthBook','history'],['importCenter','history'],['investmentBook','history']]
@@ -141,16 +144,29 @@ export function mergeColdState42(state={}){
   }
   return out;
 }
+export function replaceColdState42(state={}){
+  const cold=readCold();
+  for(const [domain,paths] of Object.entries(DOMAINS)){
+    cold[domain]=cold[domain]&&typeof cold[domain]==='object'?cold[domain]:{};
+    for(const path of paths){
+      const value=getPath(state,path);
+      cold[domain][keyOf(path)]=Array.isArray(value)?value:[];
+    }
+  }
+  const raw=JSON.stringify(cold);localStorage.setItem(COLD_KEY,raw);
+  const mainBytes=(localStorage.getItem(MAIN_KEY)||'').length;writeBootStats(mainBytes,raw.length);
+  return {ok:true,coldBytes:raw.length};
+}
 export async function startColdPartition42(){
-  if(started)return;started=true;
-  const store=await getStore();
-  if(needsLocalCompaction42())compactLocalState42({force:true});
-  patchStorePersistence(store);
-  if(stateHasColdData(store.get()))persistPartitioned(store);
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')try{persistPartitioned(store)}catch{}});
-  window.addEventListener('beforeunload',()=>{try{persistPartitioned(store)}catch{}});
+  if(started)return true;started=true;
+  const store=await getStore();patchStorePersistence(store);
+  const compact=()=>{try{if(needsLocalCompaction42())compactLocalState42({force:true});else if(stateHasColdData(store.get()))persistPartitioned(store)}catch(error){console.warn('[coldPartition42] startup compaction',error)}};
+  schedule1100(OWNER,'startup-compaction',compact,250,{pauseWhenHidden:false});
+  ownEvent1100(OWNER,document,'visibilitychange',()=>{if(document.visibilityState==='hidden')try{persistPartitioned(store)}catch{}});
+  ownEvent1100(OWNER,window,'beforeunload',()=>{try{persistPartitioned(store)}catch{}});
+  return true;
 }
 export function coldStorageStats42(){
   try{return {mainBytes:(localStorage.getItem(MAIN_KEY)||'').length,coldBytes:(localStorage.getItem(COLD_KEY)||'').length,queueBytes:(localStorage.getItem(QUEUE_KEY)||'').length,hydrated:[...hydrated],layoutVersion:Number(readBoot()?.storage?.layoutVersion||0)}}catch{return {mainBytes:0,coldBytes:0,queueBytes:0,hydrated:[...hydrated],layoutVersion:0}}
 }
-export const coldStorage42Info={domains:Object.keys(DOMAINS),layoutVersion:LAYOUT_VERSION,goal:'keep money history arrays and cloud queue payloads out of hot localStorage while preserving all data and avoiding repeat startup parsing'};
+export const coldStorage42Info={domains:Object.keys(DOMAINS),layoutVersion:LAYOUT_VERSION,authoritativeReplace:true,runtimeOwner:OWNER,goal:'keep money history arrays and cloud queue payloads out of hot localStorage while preserving all data and avoiding repeat startup parsing'};
