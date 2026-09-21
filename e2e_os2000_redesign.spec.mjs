@@ -64,39 +64,35 @@ test('OS2000 navigation keeps heavy views lazy',async({page})=>{
  expect(resources.some(x=>x.includes('bettingBootstrap543.js'))).toBe(false);
 });
 
-test('OS2000 loads Ticket assets only when Tickets opens',async({page})=>{
+test('OS2000 keeps the default Ticket view lightweight and loads the desk only on demand',async({page})=>{
  await boot(page);
  await page.locator('#mainNav [data-view="tickets"]').click();
  await expect(page.locator('#view-tickets')).toHaveClass(/on/);
+ await expect(page.locator('[data-ticket-overview]')).toBeVisible({timeout:10000});
+ let resources=await page.evaluate(()=>performance.getEntriesByType('resource').map(x=>x.name));
+ expect(resources.some(x=>x.includes('ticketDesk331.js'))).toBe(false);
+ await page.locator('[data-ticket-advanced]').click();
  await expect.poll(()=>page.evaluate(()=>performance.getEntriesByType('resource').some(x=>x.name.includes('ticketDesk331.js'))),{timeout:15000}).toBe(true);
- const styles=await page.evaluate(()=>[...document.querySelectorAll('link[data-os2-lazy]')].map(x=>x.getAttribute('href')));
- expect(styles).toContain('./ticket68.css');
- expect(styles).toContain('./ticketDesk353.css');
 });
 
-test('OS1300 keeps Money, Tickets and Betting to one primary workspace',async({page})=>{
+test('OS1300 keeps Money, Tickets and Betting to one simple primary workspace',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
 
  await page.locator('#mainNav [data-view="money"]').click();
  await expect(page.locator('#view-money')).toHaveClass(/on/);
- await expect(page.locator('#moneyView .money-page')).toBeVisible({timeout:10000});
- await page.waitForTimeout(900);
- await expect(page.locator('#moneyView [data-money-hub680]')).toHaveCount(0);
- await expect(page.locator('#moneyView [data-property-hub620]')).toHaveCount(0);
- await expect(page.locator('#moneyView [data-property-finance610]')).toHaveCount(0);
+ await expect(page.locator('#moneyView [data-money-overview]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#moneyView .money-page')).toHaveCount(0);
 
  await page.locator('#mainNav [data-view="betting"]').click();
  await expect(page.locator('#view-betting')).toHaveClass(/on/);
- await expect(page.locator('#bettingView .bet144')).toBeVisible({timeout:10000});
- await page.waitForTimeout(900);
- await expect(page.locator('#bettingView [data-betting-hub630]')).toHaveCount(0);
+ await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#bettingView .bet144')).toHaveCount(0);
 
  await page.locator('#mainNav [data-view="tickets"]').click();
  await expect(page.locator('#view-tickets')).toHaveClass(/on/);
- await expect(page.locator('#ticketIntelView .td331')).toBeVisible({timeout:15000});
- await page.waitForTimeout(900);
- await expect(page.locator('#ticketIntelView [data-ticket-hub640]')).toHaveCount(0);
+ await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#ticketIntelView .td331')).toHaveCount(0);
 });
 
 test('OS2010 keeps primary workspaces contained on desktop',async({page})=>{
@@ -125,10 +121,9 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
 
  await page.locator('#mainNav [data-view="inbox"]').click();
  await expect(page.locator('#view-inbox')).toHaveClass(/on/);
- await expect(page.locator('#inboxView [data-inbox-hub660]')).toBeVisible({timeout:10000});
- await expect(page.locator('#inboxView [data-inbox-hub660] h1')).toContainText(/Co čeká na tebe/i);
- await page.waitForTimeout(500);
- await expect(page.locator('#inboxView .inbox69-page')).toHaveCount(0);
+ await expect(page.locator('#inboxView [data-tasks-overview]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#inboxView [data-tasks-overview] h1')).toContainText(/Jedna fronta všeho/i);
+ await expect(page.locator('#inboxView [data-inbox-hub660]')).toHaveCount(0);
 
  await page.locator('#mainNav [data-view="family"]').click();
  await expect(page.locator('#view-family')).toHaveClass(/on/);
@@ -151,17 +146,30 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
-test('OS1300 mobile keeps the six primary domains one tap away',async({page})=>{
+test('OS1303 mobile keeps primary domains one tap away and secondary domains reachable',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  await expect(page.locator('#bottomNav')).toBeVisible();
- await expect(page.locator('#bottomNav [data-view]')).toHaveCount(6);
- for(const view of ['work','tickets','property','money','betting']){
+ await expect(page.locator('#bottomNav [data-view]')).toHaveCount(7);
+ for(const view of ['inbox','work','tickets','money','property','betting']){
   await page.locator(`#bottomNav [data-view="${view}"]`).click();
   await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
-  await page.waitForTimeout(view==='tickets'||view==='betting'?700:250);
   const overflow=await page.evaluate(()=>Math.max(document.body.scrollWidth,document.documentElement.scrollWidth)-innerWidth);
   expect(overflow).toBeLessThanOrEqual(2);
  }
+ await expect(page.locator('#mobileMenuBtn')).toBeVisible();
+ await page.locator('#mobileMenuBtn').click();
+ await page.getByRole('button',{name:'Rodina',exact:true}).click();
+ await expect(page.locator('#view-family')).toHaveClass(/on/);
  await expect(page.locator('body')).toHaveCSS('overflow-x','hidden');
+});
+
+test('OS1303 exposes cloud login controls when local mode asks to connect',async({page})=>{
+ await boot(page);
+ await page.locator('#syncStatus').click();
+ await expect(page.locator('#authView')).toBeVisible();
+ await expect(page.locator('#loginEmail')).toBeVisible();
+ await expect(page.locator('#magicLinkBtn')).toBeVisible();
+ await page.locator('summary').filter({hasText:'Přihlásit se heslem'}).click();
+ await expect(page.locator('#loginPassword')).toBeVisible();
 });
