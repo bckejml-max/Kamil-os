@@ -1,5 +1,6 @@
 import {localInboxSummary660} from './inboxHub660.js';
 import {ownEvent1100} from './runtimeOwnership1100.js';
+import {loadProductAdvancedStyles} from './productAdvancedStyles.js';
 
 const OWNER='product.tasksOverview';
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -14,6 +15,6 @@ export function renderTasksOverview(){
  '<div class="pr1300-kpis"><div class="pr1300-kpi"><span>Odpovědět</span><b>'+m.counts.reply+'</b><small>reakce a maily</small></div><div class="pr1300-kpi"><span>Vyřešit</span><b>'+m.counts.do+'</b><small>konkrétní kroky</small></div><div class="pr1300-kpi"><span>Čekám</span><b>'+m.counts.waiting+'</b><small>follow-upy</small></div><div class="pr1300-kpi"><span>Termíny</span><b>'+m.counts.deadline+'</b><small>časově omezené</small></div></div>' +
  '<div class="pr1300-actions"><button class="pr1300-btn primary" type="button" data-task-add>＋ Přidat úkol</button><button class="pr1300-btn" type="button" data-task-wait>Čekám na někoho</button><button class="pr1300-btn" type="button" data-task-advanced>Celá fronta + Gmail</button></div>' +
  '<section class="pr1300-panel"><div class="pr1300-panel-head"><h2>Nejdůležitější otevřené věci</h2><span>nejvyšší priorita nahoře</span></div>'+rows(m.rows)+'</section></div>';
- if(!host.dataset.tasksOverviewBound){host.dataset.tasksOverviewBound='1';ownEvent1100(OWNER,host,'click',async e=>{if(e.target.closest('[data-task-add]')){window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}));return}if(e.target.closest('[data-task-wait]')){window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'waiting'}));return}const route=e.target.closest('[data-task-route]');if(route){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:route.dataset.taskRoute||'today'}));return}if(e.target.closest('[data-task-advanced]')){const m=await import('./inboxAdvanced141.js');await m.renderInboxPage141?.()}})}
+ if(!host.dataset.tasksOverviewBound){host.dataset.tasksOverviewBound='1';ownEvent1100(OWNER,host,'click',async e=>{if(e.target.closest('[data-task-add]')){window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}));return}if(e.target.closest('[data-task-wait]')){window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'waiting'}));return}const route=e.target.closest('[data-task-route]');if(route){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:route.dataset.taskRoute||'today'}));return}if(e.target.closest('[data-task-advanced]')){await loadProductAdvancedStyles(["./core70.css","./personal64.css"]);const m=await import('./inboxAdvanced141.js');await m.renderInboxPage141?.()}})}
  window.__KAMIL_TASKS_OVERVIEW__={healthy:true,total:m.counts.total,urgent:m.counts.urgent,at:Date.now()};return true;
 }
