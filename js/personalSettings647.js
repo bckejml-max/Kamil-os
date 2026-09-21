@@ -1,3 +1,4 @@
+import {mergeColdState42} from './coldPartition42.js';
 import {store} from './state.js';
 import {h,modal,formModal,downloadJson,toast} from './utils.js';
 import {personalVault640} from './personalVault640.js';
