@@ -4,8 +4,8 @@ import {ticketIdentity1188,reconcileQuantity1190,payoutReconciliation1192,transf
 
 const RECOVERY_KEY='kamil-os-recovery-1130';
 const OWNER='data.integrity1130';
-const SETTLED=new Set(['WON','LOST','VOID','CASHED_OUT','SETTLED','PAID','PAYOUT RECEIVED']);
-const criticalBetFields=['status','result','outcome','payout','payoutCzk','profit','profitCzk','settledAt','settled_at'];
+const SETTLED=new Set(['WIN','LOSS','WON','LOST','VOID','CASHED_OUT','SETTLED','PAID','PAYOUT RECEIVED','PAYOUT_RECEIVED']);
+const criticalBetFields=['status','result','outcome','payout','payoutCzk','profit','profitCzk','pnlCzk','closingOdds','settledAt','settled_at'];
 let started=false,stop=()=>{},checking=false,settledBaseline=new Map();
 installRuntimeOwnership1100();
 const clone=x=>{try{return structuredClone(x)}catch{return JSON.parse(JSON.stringify(x))}};
