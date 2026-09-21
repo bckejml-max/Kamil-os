@@ -36,7 +36,7 @@ async function start(){
     corrected.audit=Array.isArray(corrected.audit)?corrected.audit:[];
     corrected.audit.unshift({id:`integrity-${Date.now()}`,label:`Integrity auto-repair: ${violations.length} settled bet field set(s), ${dedupe?.duplicates?.length||0} duplicate transaction(s)`,at:new Date().toISOString()});
     corrected.audit=corrected.audit.slice(0,100);
-    store.replace(corrected,'integrity-auto-repair');
+    store.replace(corrected,'integrity-auto-repair',{cloud:true,audit:false});
     captureSettled(corrected);
     globalThis.__KAMIL_HEALTH1159__?.warnings?.push?.({type:'integrity-auto-repair',settledIds:violations.map(x=>x.id),financeDuplicates:dedupe?.duplicates?.length||0,at:Date.now()});
     return;
