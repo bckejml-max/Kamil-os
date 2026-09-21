@@ -5,11 +5,13 @@ import {authCooldownSeconds32,authErrorMessage32,authConnectedLabel32} from './a
 import {qs,qsa,toast,modal} from './utils.js';
 import {validViews41,getViewRenderer41,prefetchView41,setMoreMode41,openCapture41,renderCommandResults41,executeCommand41,renderExtras41,refreshRiskBadge41,runPreflight41,scheduleNotifications41,warmRuntime41} from './viewRuntime41.js';
 import {markPerf41,markFirstView41} from './perf41.js';
+import {startColdPartition42} from './coldPartition42.js';
 import {installRuntimeOwnership1100,ownEvent1100,ownCleanup1100,schedule1100,cancelScheduled1100} from './runtimeOwnership1100.js';
 import {scheduleFrame1110,scheduleIdle1110} from './osHardening1110.js';
 
 const OWNER='core.app41';
 installRuntimeOwnership1100();
+await startColdPartition42();
 let actionLock=false;
 export async function withActionLock(fn){if(actionLock)return false;actionLock=true;try{return await fn()}finally{schedule1100(OWNER,'action-unlock',()=>{actionLock=false},250)}}
 
