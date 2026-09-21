@@ -1,6 +1,7 @@
 import {SUPABASE_URL,SUPABASE_KEY,STATE_TABLE,CALENDAR_TABLE,XTB_TABLE,SCHEMA_VERSION} from './config.js';
 import {store} from './state.js';
 import {cloudPayload32,cloudPayloadNeedsNormalize32,cloudSchema32,mergeCloudIntoDevice32} from './cloudPayload32.js';
+import {replaceColdState42} from './coldPartition42.js';
 import {installRuntimeOwnership1100,ownEvent1100,schedule1100,cancelScheduled1100} from './runtimeOwnership1100.js';
 
 const SUPABASE_SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -84,7 +85,7 @@ export async function loadCloud(){
   const local=store.get(),cloudAt=new Date(data.updated_at||0).getTime(),localAt=new Date(local.meta?.lastMutationAt||0).getTime(),lastCloudAt=new Date(store.meta().lastCloudAt||0).getTime();
   if(store.dirty&&localAt>lastCloudAt&&cloudAt>lastCloudAt){status('conflict');return {ok:false,conflict:true,cloud:data.payload,updatedAt:data.updated_at,localAt:local.meta?.lastMutationAt,lastCloudAt:store.meta().lastCloudAt}}
   const normalize=cloudPayloadNeedsNormalize32(data.payload,SCHEMA_VERSION),merged=mergeCloudIntoDevice32(local,data.payload,SCHEMA_VERSION);
-  store.replace(merged,'cloud');store.dirty=false;store.setMeta({lastCloudAt:data.updated_at,lastCloudSchema:schema.remote||null});status('ok');
+  replaceColdState42(merged);store.replace(merged,'cloud');store.dirty=false;store.setMeta({lastCloudAt:data.updated_at,lastCloudSchema:schema.remote||null});status('ok');
   if(normalize){const normalized=await saveNow();return {ok:true,normalized:!!normalized?.ok,updatedAt:normalized?.updatedAt||data.updated_at,fromSchema:schema.remote,toSchema:SCHEMA_VERSION}}
   return {ok:true,updatedAt:data.updated_at,fromSchema:schema.remote,toSchema:SCHEMA_VERSION};
  }catch(error){if(captured===epoch())status('offline',error.message);return {ok:false,error}}
@@ -126,7 +127,7 @@ export function conflictSummary(local,cloud){
   {label:'Pohledávky',local:count(local,'debtBook.items'),cloud:count(cloud,'debtBook.items')}
  ];
 }
-export async function resolveConflict(choice,cloudPayload,updatedAt=null){if(choice==='cloud'){const schema=cloudSchema32(cloudPayload,SCHEMA_VERSION);if(schema.future)return {ok:false,futureSchema:true};const merged=mergeCloudIntoDevice32(store.get(),cloudPayload,SCHEMA_VERSION),acceptedAt=updatedAt||cloudPayload?.meta?.lastCloudAt||null;merged.meta=merged.meta||{};if(acceptedAt)merged.meta.lastCloudAt=acceptedAt;store.replace(merged,'cloud-conflict');store.dirty=false;store.clearQueue();store.setMeta({lastCloudAt:acceptedAt||store.meta().lastCloudAt||null,lastCloudSchema:schema.remote||null});status('ok');if(cloudPayloadNeedsNormalize32(cloudPayload,SCHEMA_VERSION))await saveNow();return {ok:true,updatedAt:acceptedAt}}if(choice==='local')return saveNow();return {ok:false,reason:'NO_CHOICE'}}
+export async function resolveConflict(choice,cloudPayload,updatedAt=null){if(choice==='cloud'){const schema=cloudSchema32(cloudPayload,SCHEMA_VERSION);if(schema.future)return {ok:false,futureSchema:true};const merged=mergeCloudIntoDevice32(store.get(),cloudPayload,SCHEMA_VERSION),acceptedAt=updatedAt||cloudPayload?.meta?.lastCloudAt||null;merged.meta=merged.meta||{};if(acceptedAt)merged.meta.lastCloudAt=acceptedAt;replaceColdState42(merged);store.replace(merged,'cloud-conflict');store.dirty=false;store.clearQueue();store.setMeta({lastCloudAt:acceptedAt||store.meta().lastCloudAt||null,lastCloudSchema:schema.remote||null});status('ok');if(cloudPayloadNeedsNormalize32(cloudPayload,SCHEMA_VERSION))await saveNow();return {ok:true,updatedAt:acceptedAt}}if(choice==='local')return saveNow();return {ok:false,reason:'NO_CHOICE'}}
 
 export async function loadDataHubs(){
  const c=await getClient(),sess=c?await currentSession(c):null;if(!sess)return;
