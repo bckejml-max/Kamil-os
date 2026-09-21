@@ -1,6 +1,7 @@
 import {store} from './state.js';
 import {ticketEventPortfolio32} from './ticketPortfolio32.js';
 import {ownEvent1100} from './runtimeOwnership1100.js';
+import {loadProductAdvancedStyles} from './productAdvancedStyles.js';
 
 const OWNER='product.ticketOverview';
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
