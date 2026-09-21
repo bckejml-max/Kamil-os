@@ -26,6 +26,7 @@ const stability431=read('js/platform431Stability.js');
 const diagnostics=read('js/systemDiagnostics421.js');
 const convergence=read('os2010.css');
 const visual=read('os737.css');
+const product=read('productReset1300.css');
 const rootPackage=JSON.parse(read('package.json'));
 
 const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
@@ -35,19 +36,19 @@ assert.equal(release,version,'APP_RELEASE must equal APP_VERSION');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 
-const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage2000.js','js/ticketPage100.js','js/bettingPage527.js','js/bettingBootstrap543.js','js/state.js','js/cloudPayload32.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','os2000_guard.mjs','runtime_boot_guard.mjs','runtime_ownership_1100_guard.mjs','release_guard_333.mjs'];
+const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage2000.js','js/workPage1300.js','js/propertyPage1300.js','js/ticketPage100.js','js/bettingPage527.js','js/bettingBootstrap543.js','js/state.js','js/cloudPayload32.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','os2000_guard.mjs','runtime_boot_guard.mjs','runtime_ownership_1100_guard.mjs','release_guard_333.mjs'];
 for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 
-// OS 2.0 shell / startup contract. The fourth stylesheet is the one canonical
-// visual layer; adding any fifth eager stylesheet is forbidden.
+// OS 1300 product shell keeps the four legacy base layers plus one focused product layer.
 assert.ok(index.includes('data-os2="1"'),'OS2 shell marker missing');
-assert.equal((index.match(/rel="stylesheet"/g)||[]).length,4,'OS2 shell may eager-load only base + OS2 + convergence + OS737 visual CSS');
+assert.equal((index.match(/rel="stylesheet"/g)||[]).length,5,'OS1300 shell may eager-load only base + OS2 + convergence + OS737 + product reset CSS');
 assert.ok(index.includes('./os2.css'),'OS2 stylesheet missing');
 assert.ok(index.includes('./os2010.css'),'OS2010 convergence stylesheet missing');
 assert.ok(index.includes('./os737.css'),'OS737 canonical visual stylesheet missing');
+assert.ok(index.includes('./productReset1300.css')&&index.includes('data-product-reset1300="1"'),'OS1300 product reset shell missing');
 assert.ok(convergence.includes('#ticketIntelView')&&convergence.includes('#bettingView')&&convergence.includes('#moneyView')&&convergence.includes('#inboxView'),'OS2010 primary workspace convergence missing');
 assert.ok(visual.includes('--os-sidebar:248px')&&visual.includes('#ticketIntelView')&&visual.includes('#bettingView')&&visual.includes('#moneyView'),'OS737 unified visual system missing primary workspace coverage');
-for(const label of ['Dnes','Inbox','Vstupenky','Sázení','Peníze','Rodina','Domov','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
+for(const label of ['Dnes','Práce','Vstupenky','Reality','Peníze','Sázení','Inbox','Rodina','Domov','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
 assert.ok(!index.includes('bettingBootstrap543.js'),'Betting bootstrap must not eager-load from index');
 assert.ok(instant.includes("architecture:'os2-on-demand'")&&instant.includes("await import('./app.js')"),'OS2 startup contract missing');
 assert.ok(!instant.includes('optionalImport(')&&!instant.includes('deferredImport('),'layered startup queues must stay retired');
@@ -55,9 +56,10 @@ assert.ok(!instant.includes('ticketDesk331.js')&&!instant.includes('todayCockpit
 
 // Canonical Today and lazy views.
 assert.ok(runtime.includes("today:['./todayPage2000.js','renderTodayPage2000']"),'OS2 Today renderer mapping missing');
+assert.ok(runtime.includes("work:['./workPage1300.js','renderWorkPage1300']")&&runtime.includes("property:['./propertyPage1300.js','renderPropertyPage1300']"),'OS1300 Work/Reality renderer mapping missing');
 assert.ok(runtime.includes('ensureViewStyles')&&runtime.includes('dataset.os2Lazy'),'view-specific CSS lazy loading missing');
 assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateColdView42(key)'),'lazy view hydration/cache missing');
-for(const symbol of ['data-os2-today','os2-now','os2-kpis','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today OS2 missing ${symbol}`);
+for(const symbol of ['data-os2-today','data-product-home1300','pr1300-attention','pr1300-domains','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today OS2 missing ${symbol}`);
 assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');
 assert.ok(app.includes("scheduleFrame1110('app-render'")&&app.includes('renderQueued=true')&&app.includes('renderQueued=false'),'UI renders must remain coalesced through runtime-owned frame scheduling');
 assert.ok(!app.includes('requestAnimationFrame('),'app render scheduling must not bypass runtime ownership');
@@ -77,7 +79,7 @@ assert.ok(!bettingBootstrap.includes('runtimeCoordinator1050')&&!bettingBootstra
 
 // Existing data and safety invariants.
 assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
-assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('os2010.css')&&sw.includes('os737.css'),'service-worker shell/cache missing');
+assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('os2010.css')&&sw.includes('os737.css')&&sw.includes('productReset1300.css')&&sw.includes('workPage1300.js')&&sw.includes('propertyPage1300.js'),'service-worker shell/cache missing');
 assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must never prefer stale cache');
 assert.ok(state.includes('export const store=new Store()'),'state store export missing');
 assert.ok(cloud.includes('mergeColdState42'),'cloud payload must restore cold history before upload');
@@ -91,5 +93,6 @@ assert.ok(!investmentSeed.includes('store.subscribe(')&&!investmentSeed.includes
 assert.ok(platform43.includes('export const ROADMAP43=['),'platform registry missing');
 assert.ok(stability431.includes("entryTypes:['longtask']")&&stability431.includes('setSafeMode43(true)'),'freeze detector/Safe Mode missing');
 assert.ok(diagnostics.includes('43.7 STABILITY MEMORY'),'stability diagnostics missing');
+assert.ok(product.includes('.pr1300-attention')&&product.includes('.pr1300-domains'),'OS1300 focused product visual layer missing');
 
 execFileSync(process.execPath,['os2000_guard.mjs'],{stdio:'pipe'});
