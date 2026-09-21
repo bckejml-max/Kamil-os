@@ -191,3 +191,94 @@ test('OS1306 mobile menu reaches secondary personal sections',async({page})=>{
  await page.getByRole('button',{name:'Rodina',exact:true}).click();
  await expect(page.locator('#view-family')).toHaveClass(/on/);
 });
+
+
+test('OS1307 full desktop audit renders every product surface without crash or overflow',async({page})=>{
+ const pageErrors=[],consoleErrors=[];
+ page.on('pageerror',e=>pageErrors.push(String(e?.message||e)));
+ page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text())});
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ const cases=[
+  ['today','#todayView','[data-os2-today]'],
+  ['inbox','#inboxView','[data-tasks-overview]'],
+  ['work','#workView','[data-work-page1300]'],
+  ['tickets','#ticketIntelView','[data-ticket-overview]'],
+  ['money','#moneyView','[data-money-overview]'],
+  ['property','#propertyView','[data-property-page1300]'],
+  ['betting','#bettingView','[data-betting-overview]'],
+  ['family','#ticketsView','.hf140-hero'],
+  ['home','#homeView','.hf140-hero'],
+  ['more','#moreView','.id141-hero']
+ ];
+ for(const [view,host,ready] of cases){
+  if(view!=='today')await page.locator(`#mainNav [data-view="${view}"]`).click();
+  await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
+  await expect(page.locator(`${host} ${ready}`)).toBeVisible({timeout:12000});
+  await expect(page.locator('.view.on')).toHaveCount(1);
+  await expect(page.locator(host)).not.toContainText('Modul se nepodařilo načíst');
+  const overflow=await page.evaluate(()=>Math.max(document.body.scrollWidth,document.documentElement.scrollWidth)-innerWidth);
+  expect(overflow,`horizontal overflow in ${view}`).toBeLessThanOrEqual(2);
+ }
+ expect(pageErrors).toEqual([]);
+ expect(consoleErrors).toEqual([]);
+});
+
+test('OS1307 advanced personal workspaces reset back to their simple overview',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+
+ await page.locator('#mainNav [data-view="inbox"]').click();
+ await expect(page.locator('#inboxView [data-tasks-overview]')).toBeVisible();
+ await page.locator('#inboxView [data-task-advanced]').click();
+ await expect(page.locator('#inboxView [data-inbox-hub660]')).toBeVisible({timeout:12000});
+ await page.locator('#mainNav [data-view="work"]').click();
+ await page.locator('#mainNav [data-view="inbox"]').click();
+ await expect(page.locator('#inboxView [data-tasks-overview]')).toBeVisible({timeout:12000});
+ await expect(page.locator('#inboxView [data-inbox-hub660]')).toHaveCount(0);
+
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('#moneyView [data-money-overview]')).toBeVisible();
+ await page.locator('#moneyView [data-money-advanced]').click();
+ await expect(page.locator('#moneyView .money-page')).toBeVisible({timeout:12000});
+ await page.locator('#mainNav [data-view="property"]').click();
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('#moneyView [data-money-overview]')).toBeVisible({timeout:12000});
+ await expect(page.locator('#moneyView .money-page')).toHaveCount(0);
+
+ await page.locator('#mainNav [data-view="betting"]').click();
+ await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
+ await page.locator('#bettingView [data-betting-advanced]').click();
+ await expect(page.locator('#bettingView .bet144')).toBeVisible({timeout:12000});
+ await page.locator('#mainNav [data-view="today"]').click();
+ await page.locator('#mainNav [data-view="betting"]').click();
+ await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible({timeout:12000});
+ await expect(page.locator('#bettingView .bet144')).toHaveCount(0);
+});
+
+test('OS1307 signed-out ticket sync routes to visible cloud login and safely returns',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="tickets"]').click();
+ await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible();
+ await page.locator('#ticketIntelView [data-ticket-sync]').click();
+ await expect(page.locator('#authView')).toBeVisible();
+ await expect(page.locator('#appView')).toBeHidden();
+ await expect(page.locator('#loginEmail')).toBeVisible();
+ await page.locator('#skipLoginBtn').click();
+ await expect(page.locator('#appView')).toBeVisible();
+ await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible({timeout:12000});
+});
+
+test('OS1307 mobile audit reaches every secondary section with no horizontal overflow',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await boot(page);
+ for(const label of ['Rodina','Domov','Dokumenty']){
+  await page.locator('#mobileMenuBtn').click();
+  await page.getByRole('button',{name:label,exact:true}).click();
+  const view={Rodina:'family',Domov:'home',Dokumenty:'more'}[label];
+  await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
+  const overflow=await page.evaluate(()=>Math.max(document.body.scrollWidth,document.documentElement.scrollWidth)-innerWidth);
+  expect(overflow,`mobile overflow in ${view}`).toBeLessThanOrEqual(2);
+ }
+ await expect(page.locator('.view.on')).toHaveCount(1);
+});
