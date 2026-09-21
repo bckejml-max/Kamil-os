@@ -10,7 +10,7 @@ const OWNER='product.moneyOverview';
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 const val=(x,...keys)=>{for(const k of keys){const n=Number(x?.[k]);if(Number.isFinite(n)&&n!==0)return n}return 0};
-const isOpen=x=>!['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED'].includes(String(x?.status||'').toUpperCase());
+const isOpen=x=>!['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED'].includes(String(x?.status||'').toUpperCase());
 
 function data(){
  ensurePersonalVault640();
