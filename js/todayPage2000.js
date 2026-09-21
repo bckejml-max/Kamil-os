@@ -4,7 +4,7 @@ import {buildPropertyHub620} from './propertyHub620.js';
 import {ownEvent1100} from './runtimeOwnership1100.js';
 
 const OWNER='today.os2000';
-const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT_RECEIVED']);
+const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT_RECEIVED','PAYOUT RECEIVED','CANCELLED','CANCELED']);
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const upper=v=>String(v||'').toUpperCase();
 const open=x=>!CLOSED.has(upper(x?.status||x?.workflow||x?.market_status));
