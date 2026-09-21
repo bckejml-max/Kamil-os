@@ -440,3 +440,16 @@ test('OS1308 store.replace cloud option queues and schedules repaired state',asy
  expect(result.audit).toBe('integrity-test');
  expect(result.queuedTask).toBe(true);
 });
+
+
+test('OS1308 lazy undo history is actionable immediately after reload',async({page})=>{
+ await page.addInitScript(()=>{
+  const base={meta:{schemaVersion:80,createdAt:new Date().toISOString()},tasks:[]};
+  localStorage.setItem('kamil-os-state',JSON.stringify(base));
+  localStorage.setItem('kamil-os-41-undo',JSON.stringify([{label:'Předchozí změna',at:new Date().toISOString(),state:{...base,tasks:[{id:'restored',title:'Obnovený úkol',status:'OPEN'}]}}]));
+ });
+ await boot(page);
+ await expect(page.locator('#undoBtn')).toBeEnabled();
+ await page.locator('#undoBtn').click();
+ await expect.poll(()=>page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().tasks.some(x=>x.id==='restored')})).toBe(true);
+});
