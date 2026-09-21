@@ -41,7 +41,7 @@ const bootSummary=(s={},undoCount=0)=>({
 });
 
 export function migrate(input){
- const s=input&&typeof input==='object'?clone(input):blank();
+ const s=input&&typeof input==='object'&&!Array.isArray(input)?clone(input):blank();
  s.meta=s.meta||{};
  const from=Number(s.meta.schemaVersion||0);
  s.tasks=Array.isArray(s.tasks)?s.tasks:[];
@@ -149,10 +149,13 @@ class Store{
   try{return JSON.parse(raw)}catch(error){this.saveRecovery('parse-failed',raw,{key,error:String(error?.message||error)});return null}
  }
  readLocal(){
+  const validShape=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
   const primaryRaw=localStorage.getItem(LOCAL_KEY),primary=this.parseStored(primaryRaw,LOCAL_KEY);
-  if(primary)return primary;
+  if(validShape(primary))return primary;
+  if(primaryRaw&&primary!==null)this.saveRecovery('invalid-primary-shape',primaryRaw,{key:LOCAL_KEY});
   const stageRaw=localStorage.getItem(STAGE_KEY),stage=this.parseStored(stageRaw,STAGE_KEY);
-  if(stage){try{localStorage.setItem(LOCAL_KEY,stageRaw);localStorage.removeItem(STAGE_KEY)}catch{}return stage}
+  if(validShape(stage)){try{localStorage.setItem(LOCAL_KEY,stageRaw);localStorage.removeItem(STAGE_KEY)}catch{}return stage}
+  if(stageRaw&&stage!==null)this.saveRecovery('invalid-stage-shape',stageRaw,{key:STAGE_KEY});
   return null;
  }
  readBootSummary(){try{return JSON.parse(localStorage.getItem(BOOT_KEY)||'null')}catch{return null}}
