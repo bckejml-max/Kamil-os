@@ -19,6 +19,10 @@ html[data-product-reset1300="1"] .os2-brand-copy span{color:#778392!important}
 html[data-product-reset1300="1"] .os2-command{position:relative;z-index:30}
 html[data-product-reset1300="1"] .os2-command-box{background:#0f141b!important}
 html[data-product-reset1300="1"] .os2-main{max-width:1320px!important}
+html[data-product-reset1300="1"] .os2-nav button{min-height:38px}
+html[data-product-reset1300="1"] .os2-nav .os1300-nav-label:nth-of-type(2){margin-top:8px}
+.pr1300-clickrow{width:100%;border:0!important;background:transparent!important;color:inherit!important;text-align:left!important;font:inherit!important;cursor:pointer}.pr1300-clickrow:hover{background:rgba(255,255,255,.025)!important}
+.pr1300-btn:last-child:not(.primary){opacity:.82}
 
 /* The product reset owns Today. Historical experimental decorators stay available in source,
    but are not allowed to stack duplicate dashboards into the primary surface. */
@@ -56,7 +60,7 @@ html[data-product-reset1300="1"] #todayView .os333-exec{display:none!important}
 
 @media(max-width:1080px){.pr1300-grid{grid-template-columns:1fr}.pr1300-domains{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){
- html[data-product-reset1300="1"] .os2-bottom{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+ html[data-product-reset1300="1"] .os2-bottom{grid-template-columns:repeat(7,minmax(0,1fr))!important}
  html[data-product-reset1300="1"] .os2-bottom button{font-size:8.5px!important;padding-inline:2px!important}
  .pr1300-head{align-items:flex-start;flex-direction:column}.pr1300-head h1{font-size:25px}.pr1300-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.pr1300-domains{grid-template-columns:1fr 1fr}.pr1300-hero{grid-template-columns:1fr}.pr1300-hero-value{text-align:left}.pr1300-grid{gap:12px}.pr1300-shell{gap:14px}
 }
