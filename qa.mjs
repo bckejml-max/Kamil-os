@@ -87,7 +87,7 @@ assert.ok(!bettingBootstrap.includes('runtimeCoordinator1050')&&!bettingBootstra
 
 // Existing data and safety invariants.
 assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
-assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('os2010.css')&&sw.includes('os737.css')&&sw.includes('productReset1300.css')&&sw.includes('workPage1300.js')&&sw.includes('propertyPage1300.js'),'service-worker shell/cache missing');
+assert.ok(/const CACHE='kamil-os-[0-9.]+-[a-z0-9-]+-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('os2010.css')&&sw.includes('os737.css')&&sw.includes('productReset1300.css')&&sw.includes('workPage1300.js')&&sw.includes('propertyPage1300.js'),'service-worker shell/cache missing');
 assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must never prefer stale cache');
 assert.ok(state.includes('export const store=new Store()'),'state store export missing');
 assert.ok(cloud.includes('mergeColdState42'),'cloud payload must restore cold history before upload');
