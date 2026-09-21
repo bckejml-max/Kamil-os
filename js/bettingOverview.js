@@ -8,8 +8,8 @@ const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',ma
 
 function ledger(){
  let legacy={};try{legacy=JSON.parse(localStorage.getItem('kamil_betting_ledger_543')||'{}')}catch{}
- const canonical=store.get()?.bettingLedger||{},bets=(canonical.bets?.length?canonical.bets:legacy.bets)||[];
- return {bets,bankrollCzk:Number(canonical.bankrollCzk||legacy.bankrollCzk||0),unitCzk:Number(canonical.unitCzk||legacy.unitCzk||0)};
+ const canonical=store.get()?.bettingLedger||{},useCanonical=canonical.updatedAt||Number(canonical.bankrollCzk||0)!==0||Number(canonical.unitCzk||0)!==0||(Array.isArray(canonical.bets)&&canonical.bets.length>0),bets=useCanonical?(Array.isArray(canonical.bets)?canonical.bets:[]):(Array.isArray(legacy.bets)?legacy.bets:[]);
+ return {bets,bankrollCzk:Number(useCanonical?canonical.bankrollCzk:legacy.bankrollCzk||0),unitCzk:Number(useCanonical?canonical.unitCzk:legacy.unitCzk||0)};
 }
 function data(){
  const l=ledger(),open=l.bets.filter(x=>String(x.status||'OPEN').toUpperCase()==='OPEN'),settled=l.bets.filter(x=>['WIN','LOSS','VOID'].includes(String(x.status||'').toUpperCase()));
