@@ -2,6 +2,7 @@
 // The portfolio desk, canonical controls and Commander shell are the only critical UX.
 // Market modelling, Hub and selected operational analytics are best-effort background enrichment.
 import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
+import {session} from './cloud.js';
 
 const OWNER='tickets.page100';
 let bootPromise=null,legacyPromise=null,earlyPromise=null,wakeBound=false;
@@ -133,4 +134,4 @@ async function desk(){
   scheduleLegacy(state);
   return window.__KAMIL_TICKET_DESK331__;
 }
-export function renderTicketPage100(){if(!bootPromise)bootPromise=desk().catch(error=>{bootPromise=null;legacyPromise=null;earlyPromise=null;const state=window.__KAMIL_TICKET_BOOT466__||{version:BOOT_VERSION,modules:[]};state.status='FATAL';state.fatal=String(error?.message||error);state.finishedAt=Date.now();window.__KAMIL_TICKET_BOOT466__=state;document.documentElement.dataset.ticketBoot466='fatal';console.error('[tickets466] base desk boot failed',error);throw error});return bootPromise}
+export async function renderTicketPage100(){const sess=await session();if(!sess){const host=document.querySelector('#ticketIntelView');if(host){host.innerHTML='<section class="os2-connection-state"><div class="eyebrow">VSTUPENKY</div><h1>Připoj své portfolio vstupenek</h1><p>Vstupenky se načítají z tvého cloudového účtu. V tomto prohlížeči zatím nejsi přihlášený — prázdná obrazovka neznamená, že se tvoje vstupenky smazaly.</p><button class="btn primary" data-ticket-connect>Připojit cloudový účet</button><p class="muted">Po přihlášení se načte portfolio i evidence.</p></section>';host.querySelector('[data-ticket-connect]')?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('kamil:cloud-login')))}return{healthy:true,requiresSession:true}}if(!bootPromise)bootPromise=desk().catch(error=>{bootPromise=null;legacyPromise=null;earlyPromise=null;const state=window.__KAMIL_TICKET_BOOT466__||{version:BOOT_VERSION,modules:[]};state.status='FATAL';state.fatal=String(error?.message||error);state.finishedAt=Date.now();window.__KAMIL_TICKET_BOOT466__=state;document.documentElement.dataset.ticketBoot466='fatal';console.error('[tickets466] base desk boot failed',error);throw error});await bootPromise;return window.__KAMIL_TICKET_DESK331__}
