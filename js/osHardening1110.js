@@ -1,5 +1,5 @@
 import {APP_VERSION} from './releaseMeta.js';
-import {installRuntimeOwnership1100,ownEvent1100,schedule1100,cancelScheduled1100,runtimeSnapshot1100,runSingleFlight1100,beginAction1100} from './runtimeOwnership1100.js';
+import {installRuntimeOwnership1100,ownEvent1100,ownCleanup1100,schedule1100,cancelScheduled1100,runtimeSnapshot1100,runSingleFlight1100,beginAction1100} from './runtimeOwnership1100.js';
 
 const OWNER='core.hardening1110';
 const VERSION='1159.0.0';
@@ -12,10 +12,10 @@ const safeMessage=error=>String(error?.message||error||'Unknown error').slice(0,
 const uuid=label=>`${String(label||'action').replace(/[^a-z0-9_-]+/gi,'-').slice(0,24)}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
 const sameOriginApi=input=>{try{const raw=typeof input==='string'?input:input?.url;if(!raw)return false;const u=new URL(raw,location.href);return u.origin===location.origin&&u.pathname.startsWith('/api/')}catch{return false}};
 const combineSignal=(external,controller)=>{
- if(!external)return controller.signal;
- if(external.aborted){controller.abort(external.reason);return controller.signal}
+ if(!external)return{signal:controller.signal,cleanup:()=>{}};
+ if(external.aborted){controller.abort(external.reason);return{signal:controller.signal,cleanup:()=>{}}}
  const abort=()=>controller.abort(external.reason);external.addEventListener('abort',abort,{once:true});
- return controller.signal;
+ return{signal:controller.signal,cleanup:()=>external.removeEventListener('abort',abort)};
 };
 
 ownEvent1100(OWNER,window,'error',event=>{
@@ -38,11 +38,11 @@ if(nativeFetch&&!globalThis.__KAMIL_FETCH_HARDENED1110__){
   const timer=setTimeout(()=>{health.api.timeouts++;controller.abort(new DOMException('Kamil OS API timeout','TimeoutError'))},API_TIMEOUT_MS);
   const started=performance.now();
   try{
-   const response=await nativeFetch(input,{...init,headers,signal:combineSignal(init?.signal,controller)});
+   const combined=combineSignal(init?.signal,controller);try{const response=await nativeFetch(input,{...init,headers,signal:combined.signal});
    const ms=Math.round((performance.now()-started)*10)/10;push(health.network,{method,url:typeof input==='string'?input:input?.url,status:response.status,ok:response.ok,ms,actionId});
    const serverVersion=response.headers.get('x-kamil-version');if(serverVersion&&String(serverVersion)!==String(APP_VERSION)){health.release.server=serverVersion;health.release.mismatch=true;push(health.warnings,{type:'version-mismatch',app:APP_VERSION,server:serverVersion})}
    if(!response.ok)health.api.failures++;
-   return response;
+   return response}finally{combined.cleanup()}
   }catch(error){health.api.failures++;push(health.network,{method,url:typeof input==='string'?input:input?.url,status:0,ok:false,error:safeMessage(error),actionId});throw error}
   finally{clearTimeout(timer)}
  };
@@ -77,10 +77,16 @@ export function pragueIso1110(value=Date.now()){
 }
 export function singleAction1110(key,fn){return runSingleFlight1100(OWNER,`action:${key}`,fn)}
 export function actionId1110(label='action'){return beginAction1100(label)||uuid(label)}
+const frameJobs=new Map(),idleJobs=new Map();
+function cancelFrame1110(key){const id=frameJobs.get(String(key));if(id===undefined)return false;cancelAnimationFrame(id);frameJobs.delete(String(key));return true}
+function cancelIdle1110(key){const k=String(key),job=idleJobs.get(k);if(!job)return false;idleJobs.delete(k);if(job.kind==='native')cancelIdleCallback?.(job.id);else cancelScheduled1100(OWNER,`idle:${k}`);return true}
+ownCleanup1100(OWNER,()=>{for(const id of frameJobs.values())cancelAnimationFrame(id);frameJobs.clear();for(const [key,job] of idleJobs){if(job.kind==='native')cancelIdleCallback?.(job.id);else cancelScheduled1100(OWNER,`idle:${key}`)}idleJobs.clear()});
 export function scheduleFrame1110(key,fn){
- const token=`${OWNER}:frame:${key}`;cancelScheduled1100(token);let cancelled=false;const id=requestAnimationFrame(ts=>{if(!cancelled)fn(ts)});return()=>{cancelled=true;cancelAnimationFrame(id)}}
+ const k=String(key);cancelFrame1110(k);const id=requestAnimationFrame(ts=>{if(frameJobs.get(k)!==id)return;frameJobs.delete(k);fn(ts)});frameJobs.set(k,id);return()=>cancelFrame1110(k)}
 export function scheduleIdle1110(key,fn,timeout=2500){
- const token=`${OWNER}:idle:${key}`;cancelScheduled1100(token);if('requestIdleCallback'in window){let cancelled=false;const id=requestIdleCallback(deadline=>{if(!cancelled)fn(deadline)},{timeout});return()=>{cancelled=true;cancelIdleCallback?.(id)}}return schedule1100(OWNER,`idle:${key}`,()=>fn({didTimeout:true,timeRemaining:()=>0}),Math.min(timeout,1200));
+ const k=String(key);cancelIdle1110(k);
+ if('requestIdleCallback'in window){const id=requestIdleCallback(deadline=>{if(idleJobs.get(k)?.id!==id)return;idleJobs.delete(k);fn(deadline)},{timeout});idleJobs.set(k,{kind:'native',id});return()=>cancelIdle1110(k)}
+ idleJobs.set(k,{kind:'runtime'});schedule1100(OWNER,`idle:${k}`,()=>{if(!idleJobs.has(k))return;idleJobs.delete(k);fn({didTimeout:true,timeRemaining:()=>0})},Math.min(timeout,1200));return()=>cancelIdle1110(k)
 }
 
 function snapshot(){return{version:VERSION,appVersion:APP_VERSION,apiTimeoutMs:API_TIMEOUT_MS,healthy:health.healthy,errors:health.errors.length,rejections:health.rejections.length,warnings:health.warnings.length,network:health.network.length,navigation:navCount,runtime:runtimeTotals(),release:{...health.release}}}
