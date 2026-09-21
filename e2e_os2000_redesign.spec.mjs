@@ -431,14 +431,18 @@ test('OS1308 store.replace cloud option queues and schedules repaired state',asy
    writes,
    lastMutationAt:store.get().meta?.lastMutationAt||null,
    audit:store.get().audit?.[0]?.label||null,
-   queuedTask:queued?.payload?.tasks?.some(x=>x.id==='repair-task')===true
+   queuePending:queued?.pending===true,
+   queueHasPayload:!!queued?.payload,
+   persistedTask:JSON.parse(localStorage.getItem('kamil-os-state')||'{}')?.tasks?.some(x=>x.id==='repair-task')===true
   };
  });
  expect(result.dirty).toBe(true);
  expect(result.writes).toBe(1);
  expect(result.lastMutationAt).toBeTruthy();
  expect(result.audit).toBe('integrity-test');
- expect(result.queuedTask).toBe(true);
+ expect(result.queuePending).toBe(true);
+ expect(result.queueHasPayload).toBe(false);
+ expect(result.persistedTask).toBe(true);
 });
 
 
@@ -592,6 +596,8 @@ test('OS1309 service worker excludes auth and query URLs from cache surface',asy
 
 test('OS1310 cold partition compacts hot state and hydrates Money on demand',async({page})=>{
  await page.addInitScript(()=>{
+  if(sessionStorage.getItem('os1310-seeded'))return;
+  sessionStorage.setItem('os1310-seeded','1');
   const history=[{id:'tx-cold-1',date:'2026-09-20',amount:-1234,merchant:'Cold test'}];
   localStorage.setItem('kamil-os-state',JSON.stringify({
    meta:{schemaVersion:80,createdAt:new Date().toISOString()},
