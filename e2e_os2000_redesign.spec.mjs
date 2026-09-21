@@ -22,6 +22,7 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
  expect(state.styles).toContain('./os2.css');
  expect(state.styles).toContain('./os2010.css');
  expect(state.styles).toContain('./os737.css');
+ expect(state.styles).toContain('./productReset1300.css');
  expect(state.styles).toContain('./styles.css');
  expect(state.styles).not.toContain('./ticketDesk353.css');
  expect(state.resources.some(x=>x.includes('bettingBootstrap543.js'))).toBe(false);
@@ -30,12 +31,25 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
 
 test('OS2000 Today is the canonical lightweight dashboard',async({page})=>{
  await boot(page);
- await expect(page.locator('.os2-hero h1')).toContainText(/Kamile/i);
- await expect(page.locator('.os2-now')).toBeVisible();
- await expect(page.locator('.os2-kpis .os2-kpi')).toHaveCount(4);
+ await expect(page.locator('.pr1300-head h1')).toContainText(/Kamile/i);
+ await expect(page.locator('[data-product-home1300]')).toBeVisible();
+ await expect(page.locator('.pr1300-panel').first()).toContainText(/Potřebuje tvoji pozornost/i);
+ await expect(page.locator('.pr1300-domains .pr1300-domain')).toHaveCount(6);
  const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(today?.healthy).toBe(true);
  expect(today?.version).toBe(2000);
+});
+
+test('OS1300 makes Work and Reality first-class product views',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="work"]').click();
+ await expect(page.locator('#view-work')).toHaveClass(/on/);
+ await expect(page.locator('[data-work-page1300]')).toBeVisible({timeout:10000});
+ await expect(page.locator('[data-work-page1300] h1')).toContainText(/Zakázky/);
+ await page.locator('#mainNav [data-view="property"]').click();
+ await expect(page.locator('#view-property')).toHaveClass(/on/);
+ await expect(page.locator('[data-property-page1300]')).toBeVisible({timeout:10000});
+ await expect(page.locator('[data-property-page1300] h1')).toContainText(/Investiční byty/);
 });
 
 test('OS2000 navigation keeps heavy views lazy',async({page})=>{
@@ -99,12 +113,12 @@ test('OS737 personal views use one clear visual hierarchy',async({page})=>{
  }
 });
 
-test('OS2000 mobile keeps the five primary domains one tap away',async({page})=>{
+test('OS1300 mobile keeps the six primary domains one tap away',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  await expect(page.locator('#bottomNav')).toBeVisible();
- await expect(page.locator('#bottomNav [data-view]')).toHaveCount(5);
- for(const view of ['inbox','tickets','betting','money']){
+ await expect(page.locator('#bottomNav [data-view]')).toHaveCount(6);
+ for(const view of ['work','tickets','property','money','betting']){
   await page.locator(`#bottomNav [data-view="${view}"]`).click();
   await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
   await page.waitForTimeout(view==='tickets'||view==='betting'?700:250);
