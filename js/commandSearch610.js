@@ -10,9 +10,9 @@ const addMatch=(out,q,kind,title,detail,target,id,focus)=>{if(norm(`${title} ${d
 
 export function searchExtended610(raw){
  const q=norm(raw);if(!q)return[];const s=S(),out=[];
- for(const x of A(s.propertyBook?.candidates))addMatch(out,q,'Reality 2.0',x.name||x.title||'Nemovitost',[x.location,x.purchasePrice||x.priceCzk||x.price?money(x.purchasePrice||x.priceCzk||x.price):'',x.monthlyRent||x.rentCzk?`nájem ${money(x.monthlyRent||x.rentCzk)}`:'',x.areaM2||x.sizeM2||x.floorArea||x.area?`${x.areaM2||x.sizeM2||x.floorArea||x.area} m²`:''].filter(Boolean).join(' · '),'money',x.id,'property-hub');
- for(const x of A(s.ticketBook?.watchlist))addMatch(out,q,'Vstupenky 2.0 · watchlist',x.name||x.event||x.title||'Sledovaná akce',[x.city,x.venue,x.date||x.eventDate].filter(Boolean).join(' · '),'tickets',x.id,'ticket-hub');
- for(const x of A(s.ticketBook?.opportunities||s.ticketOpportunities||s.ticket_market_opportunities))addMatch(out,q,'Vstupenky 2.0 · příležitost',x.name||x.event||x.title||'Příležitost',[x.city,x.category,x.maxBuyPrice||x.maxBuyPriceCzk?`max ${money(x.maxBuyPrice||x.maxBuyPriceCzk)}`:''].filter(Boolean).join(' · '),'tickets',x.id,'ticket-hub');
+ for(const x of A(s.propertyBook?.candidates))addMatch(out,q,'Reality 2.0',x.name||x.title||'Nemovitost',[x.location,x.purchasePrice||x.priceCzk||x.price?money(x.purchasePrice||x.priceCzk||x.price):'',x.monthlyRent||x.rentCzk?`nájem ${money(x.monthlyRent||x.rentCzk)}`:'',x.areaM2||x.sizeM2||x.floorArea||x.area?`${x.areaM2||x.sizeM2||x.floorArea||x.area} m²`:''].filter(Boolean).join(' · '),'property',x.id,null);
+ for(const x of A(s.ticketBook?.watchlist))addMatch(out,q,'Vstupenky 2.0 · watchlist',x.name||x.event||x.title||'Sledovaná akce',[x.city,x.venue,x.date||x.eventDate].filter(Boolean).join(' · '),'tickets',x.id,null);
+ for(const x of A(s.ticketBook?.opportunities||s.ticketOpportunities||s.ticket_market_opportunities))addMatch(out,q,'Vstupenky 2.0 · příležitost',x.name||x.event||x.title||'Příležitost',[x.city,x.category,x.maxBuyPrice||x.maxBuyPriceCzk?`max ${money(x.maxBuyPrice||x.maxBuyPriceCzk)}`:''].filter(Boolean).join(' · '),'tickets',x.id,null);
  for(const x of A(s.netWorthBook?.history))addMatch(out,q,'Historie majetku',x.title||x.label||`Snapshot ${x.asOf||x.date||''}`,[x.netKnown!=null?`netto ${money(x.netKnown)}`:'',x.knownAssets!=null?`aktiva ${money(x.knownAssets)}`:''].filter(Boolean).join(' · '),'money',x.id,'wealth-history');
  for(const x of A(s.personalSpending?.transactions).slice(0,250))addMatch(out,q,'Výdaj / transakce',x.merchant||x.title||x.name||x.category||'Transakce',[x.category,x.amount!=null?money(Math.abs(Number(x.amount||0))):'',x.date||x.bookedAt].filter(Boolean).join(' · '),'money',x.id,'spending');
  for(const x of A(s.personalInbox?.items))addMatch(out,q,'Inbox 2.0',x.title||x.subject||x.name||'Inbox položka',[x.category,x.description||x.notes||x.summary,x.due||x.deadline].filter(Boolean).join(' · '),'inbox',x.id,'inbox-hub');
@@ -28,15 +28,15 @@ function navIntent(raw){const q=norm(raw);const map=[
  [['co musím zaplatit','co musim zaplatit','co zaplatit','jaké platby čekají','jake platby cekaji'],['inbox','inbox-pay']],
  [['jaké mám termíny','jake mam terminy','co má termín','co ma termin','blížící termíny','blizici terminy'],['inbox','inbox-deadline']],
  [['jaké dokumenty řešit','jake dokumenty resit','co doložit','co dolozit','co podepsat','dokumenty k vyřízení','dokumenty k vyrizeni'],['inbox','inbox-document']],
- [['cashflow 2.0','cashflow 2','cash flow 2.0','cash flow 2','cashflow forecast','výhled cashflow','vyhled cashflow','výhled peněz','vyhled penez','kolik budu mít za 7 dní','kolik budu mit za 7 dni','kolik budu mít za 30 dní','kolik budu mit za 30 dni','kolik budu mít za 90 dní','kolik budu mit za 90 dni','co mi přijde na účet','co mi prijde na ucet','co mi odejde z účtu','co mi odejde z uctu'],['money','cashflow-hub']],
- [['money 2.0','money 2','peníze 2.0','penize 2.0','peníze 2','penize 2','finance 2.0','finance 2','moje finance','kolik mám peněz','kolik mam penez','kolik mám volného cash','kolik mam volneho cash','co mám ve financích','co mam ve financich'],['money','money-hub']],
- [['ukaž reality','ukaz reality','ukaž byty','ukaz byty','investiční byty','investicni byty','reality 2.0','reality 2','property hub','porovnej byty','srovnej byty'],['money','property-hub']],
- [['hypoteční scénáře','hypotecni scenare','financování bytu','financovani bytu'],['money','property']],
+ [['cashflow 2.0','cashflow 2','cash flow 2.0','cash flow 2','cashflow forecast','výhled cashflow','vyhled cashflow','výhled peněz','vyhled penez','kolik budu mít za 7 dní','kolik budu mit za 7 dni','kolik budu mít za 30 dní','kolik budu mit za 30 dni','kolik budu mít za 90 dní','kolik budu mit za 90 dni','co mi přijde na účet','co mi prijde na ucet','co mi odejde z účtu','co mi odejde z uctu'],['money',null]],
+ [['money 2.0','money 2','peníze 2.0','penize 2.0','peníze 2','penize 2','finance 2.0','finance 2','moje finance','kolik mám peněz','kolik mam penez','kolik mám volného cash','kolik mam volneho cash','co mám ve financích','co mam ve financich'],['money',null]],
+ [['ukaž reality','ukaz reality','ukaž byty','ukaz byty','investiční byty','investicni byty','reality 2.0','reality 2','property hub','porovnej byty','srovnej byty'],['property',null]],
+ [['hypoteční scénáře','hypotecni scenare','financování bytu','financovani bytu'],['property',null]],
  [['historie majetku','net worth historie','vývoj majetku','vyvoj majetku'],['money','wealth-history']],
- [['vstupenky 2.0','vstupenky 2','tickets 2.0','tickets 2','ticket command center','co koupit vstupenky','co koupit dnes','co zlevnit vstupenky','co prodat vstupenky','volný kapitál vstupenky','volny kapital vstupenky'],['tickets','ticket-hub']],
- [['ticket risk','riziko vstupenek','exposure vstupenek'],['tickets','ticket-risk']],
+ [['vstupenky 2.0','vstupenky 2','tickets 2.0','tickets 2','ticket command center','co koupit vstupenky','co koupit dnes','co zlevnit vstupenky','co prodat vstupenky','volný kapitál vstupenky','volny kapital vstupenky'],['tickets',null]],
+ [['ticket risk','riziko vstupenek','exposure vstupenek'],['tickets',null]],
  [['rodinný týden','rodinny tyden','family hub'],['family','family-week']],
- [['sázky 2.0','sazky 2.0','sázky 2','sazky 2','betting 2.0','betting 2','betting command center','co vsadit','co mám vsadit','co mam vsadit'],['betting','betting-hub']]
+ [['sázky 2.0','sazky 2.0','sázky 2','sazky 2','betting 2.0','betting 2','betting command center','co vsadit','co mám vsadit','co mam vsadit'],['betting',null]]
  ];
  for(const [terms,target] of map)if(terms.includes(q))return{target:target[0],focus:target[1]};return null
 }

@@ -74,6 +74,31 @@ test('OS2000 loads Ticket assets only when Tickets opens',async({page})=>{
  expect(styles).toContain('./ticketDesk353.css');
 });
 
+test('OS1300 keeps Money, Tickets and Betting to one primary workspace',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('#view-money')).toHaveClass(/on/);
+ await expect(page.locator('#moneyView .money-page')).toBeVisible({timeout:10000});
+ await page.waitForTimeout(900);
+ await expect(page.locator('#moneyView [data-money-hub680]')).toHaveCount(0);
+ await expect(page.locator('#moneyView [data-property-hub620]')).toHaveCount(0);
+ await expect(page.locator('#moneyView [data-property-finance610]')).toHaveCount(0);
+
+ await page.locator('#mainNav [data-view="betting"]').click();
+ await expect(page.locator('#view-betting')).toHaveClass(/on/);
+ await expect(page.locator('#bettingView .bet144')).toBeVisible({timeout:10000});
+ await page.waitForTimeout(900);
+ await expect(page.locator('#bettingView [data-betting-hub630]')).toHaveCount(0);
+
+ await page.locator('#mainNav [data-view="tickets"]').click();
+ await expect(page.locator('#view-tickets')).toHaveClass(/on/);
+ await expect(page.locator('#ticketIntelView .td331')).toBeVisible({timeout:15000});
+ await page.waitForTimeout(900);
+ await expect(page.locator('#ticketIntelView [data-ticket-hub640]')).toHaveCount(0);
+});
+
 test('OS2010 keeps primary workspaces contained on desktop',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);

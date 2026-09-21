@@ -61,3 +61,12 @@ html[data-product-reset1300="1"] #todayView .os333-exec{display:none!important}
  .pr1300-head{align-items:flex-start;flex-direction:column}.pr1300-head h1{font-size:25px}.pr1300-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.pr1300-domains{grid-template-columns:1fr 1fr}.pr1300-hero{grid-template-columns:1fr}.pr1300-hero-value{text-align:left}.pr1300-grid{gap:12px}.pr1300-shell{gap:14px}
 }
 @media(max-width:460px){.pr1300-domains{grid-template-columns:1fr}.pr1300-kpis{grid-template-columns:1fr 1fr}.pr1300-attention button{grid-template-columns:10px minmax(0,1fr)}.pr1300-attention em{display:none}}
+
+
+/* OS1300 deep-view ownership: one primary interface per domain.
+   Legacy command hubs stay in source for diagnostics/on-demand compatibility, never as stacked primary UI. */
+html[data-product-reset1300="1"] #moneyView [data-money-hub680],
+html[data-product-reset1300="1"] #moneyView [data-property-hub620],
+html[data-product-reset1300="1"] #moneyView [data-property-finance610],
+html[data-product-reset1300="1"] #bettingView [data-betting-hub630],
+html[data-product-reset1300="1"] #ticketIntelView [data-ticket-hub640]{display:none!important}

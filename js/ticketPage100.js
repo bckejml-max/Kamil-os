@@ -18,8 +18,8 @@ const CRITICAL=[
   ['./ticketConsolidation466.js','installTicketConsolidation466','EXECUTION UI 466']
 ];
 const EARLY_BACKGROUND=[
-  ['./ticketMarketEngine426.js','installTicketMarketEngine426','ENGINE 426'],
-  ['./ticketHub640.js','installTicketHub640','TICKETS 2.0 640']
+  // OS1300: keep the market engine, but do not auto-mount a second Ticket Command Center.
+  ['./ticketMarketEngine426.js','installTicketMarketEngine426','ENGINE 426']
 ];
 const ESSENTIAL_ANALYTICS=[
   ['./ticketMarketHealth397.js','installTicketMarketHealth397','MARKET HEALTH 397'],

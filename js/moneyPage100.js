@@ -4,10 +4,9 @@ import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 
 const OWNER='money.page100';
 let backgroundScheduled=false,backgroundRunning=false,resumeBound=false;
-const OPTIONAL_STYLES=[
- ['moneyvisual138','./moneyVisual138.css'],['upgrade610','./upgrade610.css'],
- ['propertyhub620','./propertyHub620.css'],['moneyhub680','./moneyHub680.css']
-];
+// OS1300 keeps Money focused. Advanced market/property dashboards remain available in source
+// and through their dedicated product views, but they no longer auto-mount over the core page.
+const OPTIONAL_STYLES=[['upgrade610','./upgrade610.css']];
 
 const moneyActive=()=>!!document.querySelector('#view-money.on');
 function ensureOptionalStyles(){
@@ -31,15 +30,8 @@ async function loadBackground(){
   ensureOptionalStyles();
   const jobs=[
    ['./personalDebtSummary737.js',m=>m.appendPersonalDebtSummary737?.()],
-   ['./moneyHub680.js',m=>m.appendMoneyHub680?.()],
    ['./wealthHistory610.js',m=>m.appendWealthHistory610?.()],
-   ['./propertyFinance610.js',m=>m.appendPropertyFinance610?.()],
-   ['./propertyHub620.js',m=>m.appendPropertyHub620?.()],
-   ['./marketIntelligence100.js',async m=>{m.appendXtbIntelligence100?.();await m.appendCapitalBrain100?.()}],
-   ['./marketDetails100.js',m=>m.appendXtbDetails100?.()],
-   ['./dataQa144.js',m=>m.applyMoneyDataQa144?.()],
-   ['./moneyVisual138.js',m=>m.enhanceMoneyVisual138?.()],
-   ['./unifiedCapital160.js',m=>m.enhanceUnifiedCapital160?.()]
+   ['./dataQa144.js',m=>m.applyMoneyDataQa144?.()]
   ];
   let loaded=0;
   for(let i=0;i<jobs.length;i++){

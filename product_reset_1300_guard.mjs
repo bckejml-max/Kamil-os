@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const read=p=>fs.readFileSync(p,'utf8');
-const index=read('index.html'),runtime=read('js/viewRuntime41.js'),app=read('js/app.js'),today=read('js/todayPage2000.js'),work=read('js/workPage1300.js'),property=read('js/propertyPage1300.js'),css=read('productReset1300.css'),sw=read('sw.js');
+const index=read('index.html'),runtime=read('js/viewRuntime41.js'),app=read('js/app.js'),today=read('js/todayPage2000.js'),work=read('js/workPage1300.js'),property=read('js/propertyPage1300.js'),ticket=read('js/ticketPage100.js'),money=read('js/moneyPage100.js'),betting=read('js/bettingPage527.js'),commands=read('js/commandSearch610.js'),css=read('productReset1300.css'),sw=read('sw.js');
 assert.match(index,/data-product-reset1300="1"/);
 assert.match(index,/data-view="work"/);assert.match(index,/data-view="property"/);
 assert.match(index,/id="workView"/);assert.match(index,/id="propertyView"/);
@@ -13,5 +13,16 @@ assert.match(today,/Potřebuje tvoji pozornost/);assert.match(today,/data-produc
 assert.match(work,/data-work-page1300/);assert.match(work,/Finanční expozice/);
 assert.match(property,/data-property-page1300/);assert.match(property,/Investiční byty jako samostatné rozhodnutí/);
 assert.match(css,/Historical experimental decorators/);assert.match(css,/\[data-today-hub650\]/);assert.match(css,/repeat\(6,minmax\(0,1fr\)\)/);
+assert.match(runtime,/productReset1300\.css/,'product reset CSS must be restored after lazy view CSS');
+assert.match(runtime,/appendChild\(product\)/,'product reset CSS must be the final canonical layer');
+assert.doesNotMatch(ticket,/ticketHub640\.js/,'Ticket Hub640 must not auto-mount over the canonical ticket desk');
+for(const legacy of ['moneyHub680.js','propertyFinance610.js','propertyHub620.js','marketIntelligence100.js','marketDetails100.js','moneyVisual138.js','unifiedCapital160.js'])assert.doesNotMatch(money,new RegExp(legacy.replace('.','\\.')),'Money must not auto-mount legacy panel '+legacy);
+for(const kept of ['personalDebtSummary737.js','wealthHistory610.js','dataQa144.js'])assert.match(money,new RegExp(kept.replace('.','\\.')),'Money must retain focused support module '+kept);
+assert.match(betting,/const ENABLE_HUB630=false/,'Betting Hub630 must be opt-in, not a second automatic command center');
+for(const selector of ['data-money-hub680','data-property-hub620','data-betting-hub630','data-ticket-hub640'])assert.match(css,new RegExp(selector),'product CSS fallback must suppress '+selector);
+assert.match(commands,/\['property',null\]/,'Reality commands must open the dedicated Reality view');
+assert.match(commands,/\['money',null\]/,'Money commands must open the canonical Money view without a duplicate hub');
+assert.match(commands,/\['tickets',null\]/,'Ticket commands must open the canonical Ticket view without Hub640');
+assert.match(commands,/\['betting',null\]/,'Betting commands must open the canonical Betting view without Hub630');
 assert.match(sw,/productReset1300\.css/);assert.match(sw,/workPage1300\.js/);assert.match(sw,/propertyPage1300\.js/);
 console.log('OS1300 product reset guard PASS');
