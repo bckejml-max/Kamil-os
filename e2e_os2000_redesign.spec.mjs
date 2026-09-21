@@ -553,3 +553,38 @@ test('OS1308 accepting cloud conflict checkpoints the accepted cloud version',as
  expect(result.queue).toBeNull();
  expect(result.cloudTask).toBe(true);
 });
+
+
+test('OS1309 frame and idle schedulers cancel stale callbacks by key',async({page})=>{
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const {scheduleFrame1110,scheduleIdle1110}=await import('./js/osHardening1110.js');
+  const calls=[];
+  scheduleFrame1110('same-key',()=>calls.push('frame-old'));
+  scheduleFrame1110('same-key',()=>calls.push('frame-new'));
+  scheduleIdle1110('same-idle',()=>calls.push('idle-old'),100);
+  scheduleIdle1110('same-idle',()=>calls.push('idle-new'),100);
+  await new Promise(resolve=>setTimeout(resolve,180));
+  return calls;
+ });
+ expect(result.filter(x=>x.startsWith('frame'))).toEqual(['frame-new']);
+ expect(result.filter(x=>x.startsWith('idle'))).toEqual(['idle-new']);
+});
+
+test('OS1309 service worker excludes auth and query URLs from cache surface',async({page})=>{
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const reg=await navigator.serviceWorker.ready;
+  const cacheNames=await caches.keys();
+  const requests=[];
+  for(const name of cacheNames){const cache=await caches.open(name);for(const req of await cache.keys())requests.push(req.url)}
+  return {
+   controlled:!!reg,
+   queryCached:requests.some(url=>new URL(url).search),
+   authCached:requests.some(url=>{const u=new URL(url);return u.searchParams.has('code')||u.searchParams.has('token_hash')||u.searchParams.has('access_token')||u.searchParams.has('refresh_token')||u.searchParams.get('type')==='recovery'})
+  };
+ });
+ expect(result.controlled).toBe(true);
+ expect(result.queryCached).toBe(false);
+ expect(result.authCached).toBe(false);
+});
