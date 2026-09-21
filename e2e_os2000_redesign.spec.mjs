@@ -119,12 +119,25 @@ test('OS2010 keeps primary workspaces contained on desktop',async({page})=>{
  }
 });
 
-test('OS737 personal views use one clear visual hierarchy',async({page})=>{
+test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
+
+ await page.locator('#mainNav [data-view="inbox"]').click();
+ await expect(page.locator('#view-inbox')).toHaveClass(/on/);
+ await expect(page.locator('#inboxView [data-inbox-hub660]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#inboxView [data-inbox-hub660] h1')).toContainText(/Co čeká na tebe/i);
+ await page.waitForTimeout(500);
+ await expect(page.locator('#inboxView .inbox69-page')).toHaveCount(0);
+
+ await page.locator('#mainNav [data-view="family"]').click();
+ await expect(page.locator('#view-family')).toHaveClass(/on/);
+ await expect(page.locator('#ticketsView .hf140-hero')).toBeVisible({timeout:10000});
+ await expect(page.locator('#ticketsView .hf140-hero h1')).toContainText(/Rodina/i);
+ await page.waitForTimeout(500);
+ await expect(page.locator('#ticketsView [data-family-hub610]')).toHaveCount(0);
+
  const cases=[
-  ['inbox','#inboxView','.id141-hero','Co potřebuje tvoji pozornost'],
-  ['family','#ticketsView','.hf140-hero','Rodina'],
   ['home','#homeView','.hf140-hero','Domov'],
   ['more','#moreView','.id141-hero','Dokumenty pod kontrolou']
  ];

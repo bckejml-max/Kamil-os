@@ -69,4 +69,5 @@ html[data-product-reset1300="1"] #moneyView [data-money-hub680],
 html[data-product-reset1300="1"] #moneyView [data-property-hub620],
 html[data-product-reset1300="1"] #moneyView [data-property-finance610],
 html[data-product-reset1300="1"] #bettingView [data-betting-hub630],
-html[data-product-reset1300="1"] #ticketIntelView [data-ticket-hub640]{display:none!important}
+html[data-product-reset1300="1"] #ticketIntelView [data-ticket-hub640],
+html[data-product-reset1300="1"] #ticketsView [data-family-hub610]{display:none!important}

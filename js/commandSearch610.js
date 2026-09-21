@@ -35,7 +35,7 @@ function navIntent(raw){const q=norm(raw);const map=[
  [['historie majetku','net worth historie','vývoj majetku','vyvoj majetku'],['money','wealth-history']],
  [['vstupenky 2.0','vstupenky 2','tickets 2.0','tickets 2','ticket command center','co koupit vstupenky','co koupit dnes','co zlevnit vstupenky','co prodat vstupenky','volný kapitál vstupenky','volny kapital vstupenky'],['tickets',null]],
  [['ticket risk','riziko vstupenek','exposure vstupenek'],['tickets',null]],
- [['rodinný týden','rodinny tyden','family hub'],['family','family-week']],
+ [['rodinný týden','rodinny tyden','family hub'],['family',null]],
  [['sázky 2.0','sazky 2.0','sázky 2','sazky 2','betting 2.0','betting 2','betting command center','co vsadit','co mám vsadit','co mam vsadit'],['betting',null]]
  ];
  for(const [terms,target] of map)if(terms.includes(q))return{target:target[0],focus:target[1]};return null

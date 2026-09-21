@@ -3,6 +3,8 @@ import {enhanceFamilyVisual140} from './homeFamilyVisual140.js';
 import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 
 const OWNER='family.page140';
+// OS1300: the core Family page owns the primary UX; Hub610 stays optional and never stacks automatically.
+const ENABLE_FAMILY_HUB610=false;
 let hubScheduled=false,hubRunning=false,bound=false;
 const active=()=>!!document.querySelector('#view-family.on');
 
@@ -27,9 +29,11 @@ async function enrichFamily(){
  finally{hubRunning=false}
 }
 function scheduleHub(delay=180){
- if(hubScheduled||hubRunning||!active())return;
+ if(!ENABLE_FAMILY_HUB610)return false;
+ if(hubScheduled||hubRunning||!active())return false;
  hubScheduled=true;
  schedule1100(OWNER,'hub',()=>{hubScheduled=false;if(active())void enrichFamily()},delay,{pauseWhenHidden:true});
+ return true;
 }
 function bindResume(){
  if(bound)return;bound=true;
@@ -40,7 +44,7 @@ export function renderFamilyPage140(){
  renderPersonalFamily640();
  ensureStyle();
  try{enhanceFamilyVisual140(data())}catch(e){console.warn('[family140]',e)}
- window.__KAMIL_FAMILY140__={healthy:true,core:'local-first',hub:'deferred',at:Date.now()};
+ window.__KAMIL_FAMILY140__={healthy:true,core:'local-first',hub:'off-product-reset',at:Date.now()};
  scheduleHub();
  return true;
 }
