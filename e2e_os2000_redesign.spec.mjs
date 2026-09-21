@@ -588,3 +588,107 @@ test('OS1309 service worker excludes auth and query URLs from cache surface',asy
  expect(result.queryCached).toBe(false);
  expect(result.authCached).toBe(false);
 });
+
+
+test('OS1310 cold partition compacts hot state and hydrates Money on demand',async({page})=>{
+ await page.addInitScript(()=>{
+  const history=[{id:'tx-cold-1',date:'2026-09-20',amount:-1234,merchant:'Cold test'}];
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   personalSpending:{transactions:history},
+   importCenter:{history:[{id:'imp-cold-1',at:new Date().toISOString()}]},
+   netWorthBook:{items:[],history:[{id:'nw-cold-1',asOf:'2026-09-20',netKnown:123456}]},
+   tradeJournal:{trades:[{id:'trade-cold-1',at:'2026-09-20'}]}
+  }));
+ });
+ await boot(page);
+ await page.waitForTimeout(500);
+ const compacted=await page.evaluate(()=>{
+  const main=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');
+  const cold=JSON.parse(localStorage.getItem('kamil-os-41-2-cold-v1')||'{}');
+  return {
+   hotTransactions:main.personalSpending?.transactions?.length||0,
+   coldTransactions:cold.money?.['personalSpending.transactions']?.length||0,
+   coldNetWorth:cold.money?.['netWorthBook.history']?.length||0,
+   layout:JSON.parse(localStorage.getItem('kamil-os-41-boot-summary')||'{}')?.storage?.layoutVersion||0
+  };
+ });
+ expect(compacted.hotTransactions).toBe(0);
+ expect(compacted.coldTransactions).toBe(1);
+ expect(compacted.coldNetWorth).toBe(1);
+ expect(compacted.layout).toBe(4);
+
+ await page.reload({waitUntil:'domcontentloaded'});
+ await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
+ const before=await page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().personalSpending?.transactions?.length||0});
+ expect(before).toBe(0);
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('#moneyView [data-money-overview]')).toBeVisible();
+ const after=await page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().personalSpending?.transactions?.map(x=>x.id)||[]});
+ expect(after).toContain('tx-cold-1');
+});
+
+test('OS1310 canonical backup includes cold history before Money hydration',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   personalSpending:{transactions:[]},
+   netWorthBook:{items:[],history:[]}
+  }));
+  localStorage.setItem('kamil-os-41-2-cold-v1',JSON.stringify({money:{
+   'personalSpending.transactions':[{id:'cold-backup-tx',date:'2026-09-20',amount:-55}],
+   'netWorthBook.history':[{id:'cold-backup-nw',asOf:'2026-09-20',netKnown:555}]
+  }}));
+  localStorage.setItem('kamil-os-41-boot-summary',JSON.stringify({storage:{partitioned:true,layoutVersion:4}}));
+ });
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const [{store},{createBackupEnvelope}]=await Promise.all([import('./js/state.js'),import('./js/backupGuard26.js')]);
+  const env=createBackupEnvelope(store.get());
+  return {
+   hot:store.get().personalSpending?.transactions?.length||0,
+   backupTx:env.payload.personalSpending?.transactions?.map(x=>x.id)||[],
+   backupNw:env.payload.netWorthBook?.history?.map(x=>x.id)||[]
+  };
+ });
+ expect(result.hot).toBe(0);
+ expect(result.backupTx).toContain('cold-backup-tx');
+ expect(result.backupNw).toContain('cold-backup-nw');
+});
+
+test('OS1310 accepted empty cloud history clears stale cold data',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   personalSpending:{transactions:[]},
+   netWorthBook:{items:[],history:[]}
+  }));
+  localStorage.setItem('kamil-os-41-2-cold-v1',JSON.stringify({money:{
+   'personalSpending.transactions':[{id:'stale-cold-tx'}],
+   'netWorthBook.history':[{id:'stale-cold-nw'}]
+  }}));
+  localStorage.setItem('kamil-os-41-boot-summary',JSON.stringify({storage:{partitioned:true,layoutVersion:4}}));
+ });
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const [{store},{resolveConflict},{mergeColdState42}]=await Promise.all([import('./js/state.js'),import('./js/cloud.js'),import('./js/coldPartition42.js')]);
+  const cloud={
+   meta:{schemaVersion:80,createdAt:'2026-09-01T00:00:00.000Z'},
+   personalSpending:{transactions:[]},
+   netWorthBook:{items:[],history:[]}
+  };
+  await resolveConflict('cloud',cloud,'2026-09-21T20:00:00.000Z');
+  const merged=mergeColdState42(store.get());
+  const cold=JSON.parse(localStorage.getItem('kamil-os-41-2-cold-v1')||'{}');
+  return {
+   mergedTx:merged.personalSpending?.transactions?.length||0,
+   mergedNw:merged.netWorthBook?.history?.length||0,
+   coldTx:cold.money?.['personalSpending.transactions']?.length||0,
+   coldNw:cold.money?.['netWorthBook.history']?.length||0
+  };
+ });
+ expect(result.mergedTx).toBe(0);
+ expect(result.mergedNw).toBe(0);
+ expect(result.coldTx).toBe(0);
+ expect(result.coldNw).toBe(0);
+});
