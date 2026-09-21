@@ -60,6 +60,8 @@ function scheduleRender(force=false){
 function navigate(v){
  const next=validViews41.has(v)?v:'today';
  if(next===current){updateChrome();if(viewRevision.get(current)!==stateRevision)scheduleRender();return}
+ const leavingHost=hostForView(current);
+ if(leavingHost?.dataset.productAdvanced==='1'){leavingHost.removeAttribute('data-product-advanced');leavingHost.removeAttribute('data-view-ready');viewRevision.delete(current)}
  current=next;qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');updateChrome();quickShell(current);
  if(viewRevision.get(current)!==stateRevision)scheduleRender();
  void prefetchView41(current);window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:current}));window.scrollTo({top:0,behavior:'auto'});
