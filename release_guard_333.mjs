@@ -10,6 +10,10 @@ const views=read('./js/viewRuntime41.js');
 const app=read('./js/app.js');
 const today=read('./js/todayPage2000.js');
 const ticketPage=read('./js/ticketPage100.js');
+const ticketOverview=read('./js/ticketOverview.js');
+const moneyOverview=read('./js/moneyOverview.js');
+const bettingOverview=read('./js/bettingOverview.js');
+const tasksOverview=read('./js/tasksOverview.js');
 const ticketCloud=read('./js/ticketCloud660.js');
 const betting=read('./js/bettingPage527.js');
 const pkg=JSON.parse(read('./package.json'));
@@ -18,6 +22,7 @@ if(pkg.version!==releaseVersion)fail(`package version ${pkg.version} does not ma
 
 for(const p of [
  './os2.css','./productReset1300.css','./js/todayPage2000.js','./js/workPage1300.js','./js/propertyPage1300.js','./js/app.js','./js/viewRuntime41.js','./js/runtimeOwnership1100.js',
+ './js/tasksOverview.js','./js/moneyOverview.js','./js/ticketOverview.js','./js/bettingOverview.js',
  './js/ticketPage100.js','./js/ticketDesk331.js','./js/ticketUi421.js','./js/ticketCloud660.js',
  './js/bettingPage527.js','./js/bettingBootstrap543.js','./js/command.js','./js/commandSearch610.js'
 ])if(!exists(p))fail(`missing required OS2 file ${p}`);
@@ -38,18 +43,22 @@ for(const token of [
  "today:['./todayPage2000.js','renderTodayPage2000']",
  "work:['./workPage1300.js','renderWorkPage1300']",
  "property:['./propertyPage1300.js','renderPropertyPage1300']",
- "inbox:['./inboxPage141.js','renderInboxPage141']",
- "money:['./moneyPage100.js','renderMoneyPage100']",
- "tickets:['./ticketPage100.js','renderTicketPage100']",
- "betting:['./bettingPage527.js','renderBettingPage527']"
+ "inbox:['./tasksOverview.js','renderTasksOverview']",
+ "money:['./moneyOverview.js','renderMoneyOverview']",
+ "tickets:['./ticketOverview.js','renderTicketOverview']",
+ "betting:['./bettingOverview.js','renderBettingOverview']"
 ])if(!views.includes(token))fail(`view runtime missing ${token}`);
 if(!views.includes('ensureViewStyles'))fail('view-specific CSS must remain lazy');
-if(!views.includes("tickets:['./ticket68.css'"))fail('Ticket styles must remain view-scoped');
+for(const view of ['inbox','money','tickets','betting'])if(!views.includes(`${view}:[]`))fail(`${view} simple overview must not eager-load legacy view styles`);
 
 for(const symbol of ['data-os2-today','data-product-home1300','pr1300-attention','pr1300-domains','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today OS2 missing ${symbol}`);
 if(!app.includes("const input=qs('#commandInput')")||!app.includes('executeCommand41(v)'))fail('canonical command bar missing');
-if(!ticketPage.includes("import('./ticketDesk331.js')"))fail('Ticket Desk must remain on-demand from ticketPage100');
-if(!betting.includes("import('./bettingBootstrap543.js')"))fail('Betting enrichment must remain on-demand from bettingPage527');
+if(!ticketOverview.includes("ticketAdvanced100.js"))fail('Ticket advanced desk must remain a second-step action');
+if(!moneyOverview.includes("moneyAdvanced100.js"))fail('Money advanced view must remain a second-step action');
+if(!bettingOverview.includes("bettingAdvanced527.js"))fail('Betting advanced view must remain a second-step action');
+if(!tasksOverview.includes("inboxAdvanced141.js"))fail('Tasks advanced queue must remain a second-step action');
+if(!ticketPage.includes("import('./ticketDesk331.js')"))fail('Ticket Desk must remain on-demand from advanced ticketPage100');
+if(!betting.includes("import('./bettingBootstrap543.js')"))fail('Betting enrichment must remain on-demand from advanced bettingPage527');
 if(!ticketCloud.includes("from('ticket_inventory')"))fail('ticket inventory cloud contract missing');
 if(/service[_-]?role/i.test(ticketCloud))fail('service-role reference in browser ticket code');
 
