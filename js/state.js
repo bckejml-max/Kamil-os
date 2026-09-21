@@ -139,7 +139,8 @@ class Store{
   const raw=this.readLocal(),legacyUndo=Array.isArray(raw?.undo)&&raw.undo.length?raw.undo:null;
   if(raw&&typeof raw==='object')raw.undo=[];
   this.s=migrate(raw);this.s.undo=[];this.undoLoaded=false;this.legacyUndo=legacyUndo;
-  const boot=this.readBootSummary();this.undoCountCache=legacyUndo?.length||Number(boot?.undoCount||0);
+  const boot=this.readBootSummary(),bootUndoCount=Number(boot?.undoCount||0),fallbackUndoCount=!legacyUndo?.length&&!bootUndoCount&&localStorage.getItem(UNDO_KEY)?this.readUndo().length:0;
+  this.undoCountCache=legacyUndo?.length||bootUndoCount||fallbackUndoCount;
   this.writeBootSummary();
   schedule1100(OWNER,'compact-legacy-storage',()=>this.compactLegacyStorage(),2200,{pauseWhenHidden:true});
  }
