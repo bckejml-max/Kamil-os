@@ -191,11 +191,15 @@ class Store{
   if(this.undoLoaded)this.writeUndo();
   this.writeBootSummary();
  }
- replace(next,reason='replace'){
+ replace(next,reason='replace',{cloud=false,audit=false}={}){
   const currentUndo=this.undoLoaded?this.s.undo:null,incomingUndo=Array.isArray(next?.undo)&&next.undo.length?next.undo:null,base=next&&typeof next==='object'?{...next,undo:[]}:next;
   this.s=migrate(base);this.s.undo=this.undoLoaded?(currentUndo||[]):[];
   if(!this.undoLoaded&&incomingUndo?.length&&!this.undoCountCache){this.legacyUndo=incomingUndo;this.undoCountCache=incomingUndo.length}
-  this.persist();this.emit(reason)
+  if(cloud)this.s.meta.lastMutationAt=new Date().toISOString();
+  if(audit){this.s.audit=this.s.audit||[];this.s.audit.unshift({id:uid('audit'),label:reason,at:new Date().toISOString()});this.s.audit=this.s.audit.slice(0,100)}
+  this.persist();
+  if(cloud){this.dirty=true;this.queueSync(this.s)}
+  this.emit(reason);if(cloud&&this.cloudWriter)this.cloudWriter()
  }
  mutate(label,fn,{undo=true,cloud=true,audit=true}={}){
    if(undo)this.ensureUndoLoaded();
