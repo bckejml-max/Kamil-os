@@ -4,13 +4,13 @@ import {ownEvent1100} from './runtimeOwnership1100.js';
 
 const OWNER='core.viewRuntime41';
 const modules=new Map(),warmViews=new Map(),stylePromises=new Map();
-const titles={today:'DNES',work:'PRÁCE',tickets:'VSTUPENKY',property:'REALITY',money:'PENÍZE',betting:'SÁZENÍ',inbox:'INBOX',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
+const titles={today:'DNES',work:'PRÁCE',tickets:'VSTUPENKY',property:'REALITY',money:'PENÍZE',betting:'SÁZENÍ',inbox:'ÚKOLY',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
 const quick={today:'Přidat',work:'Pracovní úkol',tickets:'Úkol k ticketům',property:'Úkol k realitě',money:'Finanční úkol',betting:'Přidat',inbox:'Úkol',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
 const heavyViews=new Set(['money','tickets','betting']);
 const viewDefs={
  today:['./todayPage2000.js','renderTodayPage2000'],
  work:['./workPage1300.js','renderWorkPage1300'],
- inbox:['./inboxPage141.js','renderInboxPage141'],
+ inbox:['./tasksOverview.js','renderTasksOverview'],
  money:['./moneyOverview.js','renderMoneyOverview'],
  tickets:['./ticketOverview.js','renderTicketOverview'],
  property:['./propertyPage1300.js','renderPropertyPage1300'],
@@ -20,7 +20,7 @@ const viewDefs={
  more:['./documentsPage141.js','renderDocumentsPage141']
 };
 const viewStyles={
- inbox:['./core70.css','./personal64.css'],
+ inbox:[],
  money:[],
  tickets:[],
  betting:[],
