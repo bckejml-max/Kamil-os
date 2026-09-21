@@ -14,7 +14,7 @@ assert.ok(hardening.includes("pathname.startsWith('/api/')"),'fetch hardening mu
 assert.ok(hardening.includes('AbortController'),'API calls must have abort timeout protection');
 
 for(const token of ['validateState','RECOVERY_KEY','settledBaseline','settledViolations','repairSettled','integrity-auto-repair','store.subscribe','ownEvent1100','schedule1100'])assert.ok(dataIntegrity.includes(token),`data integrity missing ${token}`);
-assert.ok(dataIntegrity.includes("store.replace(corrected,'integrity-auto-repair')"),'settled bet / duplicate transaction violations must be actively repaired, not only observed');
+assert.ok(dataIntegrity.includes("store.replace(corrected,'integrity-auto-repair',{cloud:true"),'settled bet / duplicate transaction violations must be actively repaired and queued for cloud sync');
 assert.equal((dataIntegrity.match(/\bwindow\.addEventListener\s*\(/g)||[]).length,0,'data integrity must not own raw window listeners');
 assert.equal((dataIntegrity.match(/\bsetTimeout\s*\(/g)||[]).length,0,'data integrity must not own raw timeouts');
 
@@ -26,7 +26,7 @@ assert.ok(cloud.includes("ownEvent1100(OWNER,window,'offline'"),'offline status 
 assert.ok(cloud.includes('futureSchema'),'future cloud schema must fail closed');
 assert.ok(cloud.includes("choice==='cloud'")&&cloud.includes("choice==='local'"),'cloud conflict resolution must stay explicit');
 
-for(const token of ['validateState','repairState','compactUndo','MAX_UNDO','queueSync','undo:[]','Duplicitní ID'])assert.ok(state.includes(token),`state safety missing ${token}`);
+for(const token of ['validateState','repairState','compactUndo','MAX_UNDO','queueSync','undo:[]','Duplicitní ID',"replace(next,reason='replace',{cloud=false,audit=false}={})"])assert.ok(state.includes(token),`state safety missing ${token}`);
 assert.ok(state.includes('schemaVersion=SCHEMA_VERSION'),'state writes must retain current schema');
 
 for(const token of ['AUTH_REQUIRED','GMAIL_ACCOUNT_NOT_AUTHORIZED','AbortController','timeoutMs','retryableStatus',"req.method!=='POST'"])assert.ok(gmail.includes(token),`gmail safety missing ${token}`);
