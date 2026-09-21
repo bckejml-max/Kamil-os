@@ -7,7 +7,7 @@ const UNDO_KEY='kamil-os-41-undo';
 const BOOT_KEY='kamil-os-41-boot-summary';
 const STAGE_KEY='kamil-os-state-stage-1132';
 const RECOVERY_KEY='kamil-os-state-recovery-1131';
-const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED']);
+const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED','PAYOUT_RECEIVED','CANCELLED','CANCELED']);
 
 const blank=()=>({
  meta:{schemaVersion:SCHEMA_VERSION,createdAt:new Date().toISOString(),lastMutationAt:null,lastCloudAt:null},
