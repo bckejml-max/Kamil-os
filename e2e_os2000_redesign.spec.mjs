@@ -524,3 +524,32 @@ test('OS1308 invalid primary state recovers from valid staging copy',async({page
  expect(result.stageGone).toBe(true);
  expect(result.recoveryReason).toBe('invalid-primary-shape');
 });
+
+
+test('OS1308 accepting cloud conflict checkpoints the accepted cloud version',async({page})=>{
+ await boot(page);
+ const acceptedAt='2026-09-21T18:30:00.000Z';
+ const result=await page.evaluate(async acceptedAt=>{
+  const [{store},{resolveConflict}]=await Promise.all([import('./js/state.js'),import('./js/cloud.js')]);
+  const cloud={
+   meta:{schemaVersion:80,createdAt:'2026-09-01T00:00:00.000Z'},
+   tasks:[{id:'cloud-task',title:'Cloud truth',status:'OPEN'}]
+  };
+  store.dirty=true;store.queueSync(store.get());
+  const resolved=await resolveConflict('cloud',cloud,acceptedAt);
+  return {
+   ok:resolved?.ok===true,
+   stateLastCloudAt:store.get().meta?.lastCloudAt||null,
+   metaLastCloudAt:store.meta().lastCloudAt||null,
+   dirty:store.dirty,
+   queue:store.readQueue(),
+   cloudTask:store.get().tasks.some(x=>x.id==='cloud-task')
+  };
+ },acceptedAt);
+ expect(result.ok).toBe(true);
+ expect(result.stateLastCloudAt).toBe(acceptedAt);
+ expect(result.metaLastCloudAt).toBe(acceptedAt);
+ expect(result.dirty).toBe(false);
+ expect(result.queue).toBeNull();
+ expect(result.cloudTask).toBe(true);
+});
