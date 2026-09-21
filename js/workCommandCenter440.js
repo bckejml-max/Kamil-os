@@ -4,7 +4,7 @@ import {h,money,modal} from './utils.js';
 const A=v=>Array.isArray(v)?v:[];
 const N=v=>Number(v||0);
 const U=v=>String(v||'').toUpperCase();
-const CLOSED=/HOTOV|ARCHIV|DONE|CLOSED|RESOLVED|PAID|SOLD/;
+const CLOSED=/HOTOV|ARCHIV|DONE|CLOSED|RESOLVED|PAID|SOLD|CANCELLED|CANCELED/;
 const open=x=>!CLOSED.test(U(x?.status||x?.workflow));
 const has=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));
 const num=v=>has(v)?Math.max(0,Number(v)):null;
