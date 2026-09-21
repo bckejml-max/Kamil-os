@@ -4,8 +4,8 @@ import {ticketIdentity1188,reconcileQuantity1190,payoutReconciliation1192,transf
 
 const RECOVERY_KEY='kamil-os-recovery-1130';
 const OWNER='data.integrity1130';
-const SETTLED=new Set(['WON','LOST','VOID','CASHED_OUT','SETTLED','PAID','PAYOUT RECEIVED']);
-const criticalBetFields=['status','result','outcome','payout','payoutCzk','profit','profitCzk','settledAt','settled_at'];
+const SETTLED=new Set(['WIN','LOSS','WON','LOST','VOID','CASHED_OUT','SETTLED','PAID','PAYOUT RECEIVED','PAYOUT_RECEIVED']);
+const criticalBetFields=['status','result','outcome','payout','payoutCzk','profit','profitCzk','pnlCzk','closingOdds','settledAt','settled_at'];
 let started=false,stop=()=>{},checking=false,settledBaseline=new Map();
 installRuntimeOwnership1100();
 const clone=x=>{try{return structuredClone(x)}catch{return JSON.parse(JSON.stringify(x))}};
@@ -36,7 +36,7 @@ async function start(){
     corrected.audit=Array.isArray(corrected.audit)?corrected.audit:[];
     corrected.audit.unshift({id:`integrity-${Date.now()}`,label:`Integrity auto-repair: ${violations.length} settled bet field set(s), ${dedupe?.duplicates?.length||0} duplicate transaction(s)`,at:new Date().toISOString()});
     corrected.audit=corrected.audit.slice(0,100);
-    store.replace(corrected,'integrity-auto-repair');
+    store.replace(corrected,'integrity-auto-repair',{cloud:true,audit:false});
     captureSettled(corrected);
     globalThis.__KAMIL_HEALTH1159__?.warnings?.push?.({type:'integrity-auto-repair',settledIds:violations.map(x=>x.id),financeDuplicates:dedupe?.duplicates?.length||0,at:Date.now()});
     return;

@@ -11,10 +11,10 @@ const parse=(raw,fallback=null)=>{try{return JSON.parse(raw)}catch{return fallba
 function applyTheme(){try{root.classList.remove('theme-light');root.classList.add('theme-dark');root.dataset.theme='dark';root.dataset.os2='1';root.style.colorScheme='dark'}catch{}document.title='Kamil OS'}
 function fallbackHtml(){
  const s=parse(localStorage.getItem('kamil-os-state')||'null',{})||{};
- const closed=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED']);
+ const closed=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED','PAYOUT_RECEIVED','CANCELLED','CANCELED']);
  const tasks=(s.tasks||[]).filter(x=>!closed.has(String(x?.status||'').toUpperCase())).length;
  const waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[])].filter(x=>!closed.has(String(x?.status||'').toUpperCase())).length;
- const tickets=(s.ticketBook?.items||[]).filter(x=>['HOLD','LISTED','OPEN'].includes(String(x?.workflow||'HOLD').toUpperCase())).length;
+ const tickets=(s.ticketBook?.items||[]).filter(x=>['HOLD','LISTED'].includes(String(x?.workflow||'HOLD').toUpperCase())).length;
  return `<div class="os2-today"><div class="os2-welcome"><section class="os2-hero"><div><div class="os2-kicker">KAMIL OS 2.0</div><h1>Načítám přehled…</h1><p>Shell je připravený. Data se skládají bez spouštění analytiky na pozadí.</p></div><div class="os2-hero-bottom"><span class="os2-pill good">● rychlý režim</span></div></section></div><div class="os2-kpis"><div class="os2-kpi"><span>Otevřené</span><b>${tasks}</b></div><div class="os2-kpi"><span>Čekám na</span><b>${waiting}</b></div><div class="os2-kpi"><span>Vstupenky</span><b>${tickets}</b></div><div class="os2-kpi"><span>Start</span><b>OS2</b></div></div></div>`
 }
 function paintInstant(){

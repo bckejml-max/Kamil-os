@@ -41,7 +41,7 @@ const bootSummary=(s={},undoCount=0)=>({
 });
 
 export function migrate(input){
- const s=input&&typeof input==='object'?clone(input):blank();
+ const s=input&&typeof input==='object'&&!Array.isArray(input)?clone(input):blank();
  s.meta=s.meta||{};
  const from=Number(s.meta.schemaVersion||0);
  s.tasks=Array.isArray(s.tasks)?s.tasks:[];
@@ -139,7 +139,8 @@ class Store{
   const raw=this.readLocal(),legacyUndo=Array.isArray(raw?.undo)&&raw.undo.length?raw.undo:null;
   if(raw&&typeof raw==='object')raw.undo=[];
   this.s=migrate(raw);this.s.undo=[];this.undoLoaded=false;this.legacyUndo=legacyUndo;
-  const boot=this.readBootSummary();this.undoCountCache=legacyUndo?.length||Number(boot?.undoCount||0);
+  const boot=this.readBootSummary(),bootUndoCount=Number(boot?.undoCount||0),fallbackUndoCount=!legacyUndo?.length&&!bootUndoCount&&localStorage.getItem(UNDO_KEY)?this.readUndo().length:0;
+  this.undoCountCache=legacyUndo?.length||bootUndoCount||fallbackUndoCount;
   this.writeBootSummary();
   schedule1100(OWNER,'compact-legacy-storage',()=>this.compactLegacyStorage(),2200,{pauseWhenHidden:true});
  }
@@ -149,10 +150,13 @@ class Store{
   try{return JSON.parse(raw)}catch(error){this.saveRecovery('parse-failed',raw,{key,error:String(error?.message||error)});return null}
  }
  readLocal(){
+  const validShape=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
   const primaryRaw=localStorage.getItem(LOCAL_KEY),primary=this.parseStored(primaryRaw,LOCAL_KEY);
-  if(primary)return primary;
+  if(validShape(primary))return primary;
+  if(primaryRaw&&primary!==null)this.saveRecovery('invalid-primary-shape',primaryRaw,{key:LOCAL_KEY});
   const stageRaw=localStorage.getItem(STAGE_KEY),stage=this.parseStored(stageRaw,STAGE_KEY);
-  if(stage){try{localStorage.setItem(LOCAL_KEY,stageRaw);localStorage.removeItem(STAGE_KEY)}catch{}return stage}
+  if(validShape(stage)){try{localStorage.setItem(LOCAL_KEY,stageRaw);localStorage.removeItem(STAGE_KEY)}catch{}return stage}
+  if(stageRaw&&stage!==null)this.saveRecovery('invalid-stage-shape',stageRaw,{key:STAGE_KEY});
   return null;
  }
  readBootSummary(){try{return JSON.parse(localStorage.getItem(BOOT_KEY)||'null')}catch{return null}}
@@ -191,11 +195,15 @@ class Store{
   if(this.undoLoaded)this.writeUndo();
   this.writeBootSummary();
  }
- replace(next,reason='replace'){
+ replace(next,reason='replace',{cloud=false,audit=false}={}){
   const currentUndo=this.undoLoaded?this.s.undo:null,incomingUndo=Array.isArray(next?.undo)&&next.undo.length?next.undo:null,base=next&&typeof next==='object'?{...next,undo:[]}:next;
   this.s=migrate(base);this.s.undo=this.undoLoaded?(currentUndo||[]):[];
   if(!this.undoLoaded&&incomingUndo?.length&&!this.undoCountCache){this.legacyUndo=incomingUndo;this.undoCountCache=incomingUndo.length}
-  this.persist();this.emit(reason)
+  if(cloud)this.s.meta.lastMutationAt=new Date().toISOString();
+  if(audit){this.s.audit=this.s.audit||[];this.s.audit.unshift({id:uid('audit'),label:reason,at:new Date().toISOString()});this.s.audit=this.s.audit.slice(0,100)}
+  this.persist();
+  if(cloud){this.dirty=true;this.queueSync(this.s)}
+  this.emit(reason);if(cloud&&this.cloudWriter)this.cloudWriter()
  }
  mutate(label,fn,{undo=true,cloud=true,audit=true}={}){
    if(undo)this.ensureUndoLoaded();

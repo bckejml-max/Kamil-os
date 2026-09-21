@@ -126,7 +126,7 @@ export function conflictSummary(local,cloud){
   {label:'Pohledávky',local:count(local,'debtBook.items'),cloud:count(cloud,'debtBook.items')}
  ];
 }
-export async function resolveConflict(choice,cloudPayload){if(choice==='cloud'){const schema=cloudSchema32(cloudPayload,SCHEMA_VERSION);if(schema.future)return {ok:false,futureSchema:true};store.replace(mergeCloudIntoDevice32(store.get(),cloudPayload,SCHEMA_VERSION),'cloud-conflict');store.dirty=false;store.clearQueue();store.setMeta({lastCloudSchema:schema.remote||null});status('ok');if(cloudPayloadNeedsNormalize32(cloudPayload,SCHEMA_VERSION))await saveNow();return {ok:true}}if(choice==='local')return saveNow();return {ok:false,reason:'NO_CHOICE'}}
+export async function resolveConflict(choice,cloudPayload,updatedAt=null){if(choice==='cloud'){const schema=cloudSchema32(cloudPayload,SCHEMA_VERSION);if(schema.future)return {ok:false,futureSchema:true};const merged=mergeCloudIntoDevice32(store.get(),cloudPayload,SCHEMA_VERSION),acceptedAt=updatedAt||cloudPayload?.meta?.lastCloudAt||null;merged.meta=merged.meta||{};if(acceptedAt)merged.meta.lastCloudAt=acceptedAt;store.replace(merged,'cloud-conflict');store.dirty=false;store.clearQueue();store.setMeta({lastCloudAt:acceptedAt||store.meta().lastCloudAt||null,lastCloudSchema:schema.remote||null});status('ok');if(cloudPayloadNeedsNormalize32(cloudPayload,SCHEMA_VERSION))await saveNow();return {ok:true,updatedAt:acceptedAt}}if(choice==='local')return saveNow();return {ok:false,reason:'NO_CHOICE'}}
 
 export async function loadDataHubs(){
  const c=await getClient(),sess=c?await currentSession(c):null;if(!sess)return;

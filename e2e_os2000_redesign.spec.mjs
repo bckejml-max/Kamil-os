@@ -395,3 +395,161 @@ test('OS1307 canceled items stay closed across primary dashboards',async({page})
  await page.locator('#mainNav [data-view="money"]').click();
  await expect(page.locator('#moneyView')).not.toContainText('Zrušený finanční úkol');
 });
+
+
+test('OS1308 advanced betting cannot resurrect stale legacy bets',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil_betting_ledger_543',JSON.stringify({bets:[{id:'legacy-zombie',status:'OPEN',stakeCzk:1234,label:'Legacy zombie'}],bankrollCzk:5000,updatedAt:'2026-01-01T00:00:00.000Z'}));
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   bettingLedger:{bets:[],bankrollCzk:0,unitCzk:100,updatedAt:new Date().toISOString()}
+  }));
+ });
+ await boot(page);
+ await page.locator('#mainNav [data-view="betting"]').click();
+ await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
+ await expect(page.locator('#bettingView')).not.toContainText('Legacy zombie');
+ await page.locator('#bettingView [data-betting-advanced]').click();
+ await expect(page.locator('#bettingView .bet144')).toBeVisible({timeout:15000});
+ await page.waitForTimeout(500);
+ const state=await page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().bettingLedger});
+ expect(state.bets).toHaveLength(0);
+ expect(state.unitCzk).toBe(100);
+});
+
+test('OS1308 store.replace cloud option queues and schedules repaired state',async({page})=>{
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  let writes=0;store.setCloudWriter(()=>{writes+=1});
+  const next=structuredClone(store.get());
+  next.tasks=[...(next.tasks||[]),{id:'repair-task',title:'Repaired item',status:'OPEN'}];
+  store.replace(next,'integrity-test',{cloud:true,audit:true});
+  const queued=store.readQueue();
+  return {
+   dirty:store.dirty,
+   writes,
+   lastMutationAt:store.get().meta?.lastMutationAt||null,
+   audit:store.get().audit?.[0]?.label||null,
+   queuedTask:queued?.payload?.tasks?.some(x=>x.id==='repair-task')===true
+  };
+ });
+ expect(result.dirty).toBe(true);
+ expect(result.writes).toBe(1);
+ expect(result.lastMutationAt).toBeTruthy();
+ expect(result.audit).toBe('integrity-test');
+ expect(result.queuedTask).toBe(true);
+});
+
+
+test('OS1308 lazy undo history is actionable immediately after reload',async({page})=>{
+ await page.addInitScript(()=>{
+  const base={meta:{schemaVersion:80,createdAt:new Date().toISOString()},tasks:[]};
+  localStorage.setItem('kamil-os-state',JSON.stringify(base));
+  localStorage.setItem('kamil-os-41-undo',JSON.stringify([{label:'Předchozí změna',at:new Date().toISOString(),state:{...base,tasks:[{id:'restored',title:'Obnovený úkol',status:'OPEN'}]}}]));
+ });
+ await boot(page);
+ await expect(page.locator('#undoBtn')).toBeEnabled();
+ await page.locator('#undoBtn').click();
+ await expect.poll(()=>page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().tasks.some(x=>x.id==='restored')})).toBe(true);
+});
+
+
+test('OS1308 explicit zero cash replaces stale personal-vault cash truthfully',async({page})=>{
+ await page.addInitScript(()=>{
+  const updatedAt=new Date().toISOString();
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   financePlan:{cashNow:0,expectedIncome:0,reserveFloor:0,plannedInvestment:0,updatedAt},
+   personalVault:{version:1,items:[{id:'manual-cash-20260912',section:'money',recordType:'bank-data',title:'Likvidní hotovost',balance:100000,asOf:'2026-09-12',sourceBasis:'stale'}]}
+  }));
+ });
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const bridge=await import('./js/personalMoneyBridge737.js');
+  const {store}=await import('./js/state.js');
+  bridge.ensurePersonalMoneyBridge737();
+  const item=store.get().personalVault.items.find(x=>x.id==='manual-cash-20260912');
+  return {balance:item?.balance,asOf:item?.asOf,sourceBasis:item?.sourceBasis,planAt:store.get().financePlan.updatedAt};
+ });
+ expect(result.balance).toBe(0);
+ expect(result.asOf).toBe(result.planAt.slice(0,10));
+ expect(result.sourceBasis).toContain('0 Kč');
+ expect(result.sourceBasis).not.toContain('100 000 Kč');
+});
+
+test('OS1308 settled WIN pnl is immutable under integrity guard',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   bettingLedger:{bets:[{id:'settled-win',status:'WIN',stakeCzk:1000,odds:1.5,pnlCzk:500,settledAt:new Date().toISOString()}],bankrollCzk:5000,unitCzk:100,updatedAt:new Date().toISOString()}
+  }));
+ });
+ await boot(page);
+ await expect.poll(()=>page.evaluate(()=>!!window.__KAMIL_DATA_INTEGRITY1130__),{timeout:10000}).toBe(true);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('tamper settled pnl',s=>{const bet=s.bettingLedger.bets.find(x=>x.id==='settled-win');bet.pnlCzk=9999;bet.closingOdds=9.99},{undo:false,cloud:false,audit:false});
+ });
+ const result=await page.evaluate(async()=>{const {store}=await import('./js/state.js');const bet=store.get().bettingLedger.bets.find(x=>x.id==='settled-win');return{pnlCzk:bet.pnlCzk,closingOdds:bet.closingOdds??null,recovery:!!localStorage.getItem('kamil-os-recovery-1130')}});
+ expect(result.pnlCzk).toBe(500);
+ expect(result.closingOdds).toBeNull();
+ expect(result.recovery).toBe(true);
+});
+
+
+test('OS1308 invalid primary state recovers from valid staging copy',async({page})=>{
+ await page.addInitScript(()=>{
+  const staged={
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   tasks:[{id:'stage-survivor',title:'Přežil staging',status:'OPEN'}]
+  };
+  localStorage.setItem('kamil-os-state','[]');
+  localStorage.setItem('kamil-os-state-stage-1132',JSON.stringify(staged));
+ });
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  let recovery=null;try{recovery=JSON.parse(localStorage.getItem('kamil-os-state-recovery-1131')||'null')}catch{}
+  let primary=null;try{primary=JSON.parse(localStorage.getItem('kamil-os-state')||'null')}catch{}
+  return {
+   hasTask:store.get().tasks.some(x=>x.id==='stage-survivor'),
+   primaryIsArray:Array.isArray(primary),
+   stageGone:localStorage.getItem('kamil-os-state-stage-1132')===null,
+   recoveryReason:recovery?.reason||null
+  };
+ });
+ expect(result.hasTask).toBe(true);
+ expect(result.primaryIsArray).toBe(false);
+ expect(result.stageGone).toBe(true);
+ expect(result.recoveryReason).toBe('invalid-primary-shape');
+});
+
+
+test('OS1308 accepting cloud conflict checkpoints the accepted cloud version',async({page})=>{
+ await boot(page);
+ const acceptedAt='2026-09-21T18:30:00.000Z';
+ const result=await page.evaluate(async acceptedAt=>{
+  const [{store},{resolveConflict}]=await Promise.all([import('./js/state.js'),import('./js/cloud.js')]);
+  const cloud={
+   meta:{schemaVersion:80,createdAt:'2026-09-01T00:00:00.000Z'},
+   tasks:[{id:'cloud-task',title:'Cloud truth',status:'OPEN'}]
+  };
+  store.dirty=true;store.queueSync(store.get());
+  const resolved=await resolveConflict('cloud',cloud,acceptedAt);
+  return {
+   ok:resolved?.ok===true,
+   stateLastCloudAt:store.get().meta?.lastCloudAt||null,
+   metaLastCloudAt:store.meta().lastCloudAt||null,
+   dirty:store.dirty,
+   queue:store.readQueue(),
+   cloudTask:store.get().tasks.some(x=>x.id==='cloud-task')
+  };
+ },acceptedAt);
+ expect(result.ok).toBe(true);
+ expect(result.stateLastCloudAt).toBe(acceptedAt);
+ expect(result.metaLastCloudAt).toBe(acceptedAt);
+ expect(result.dirty).toBe(false);
+ expect(result.queue).toBeNull();
+ expect(result.cloudTask).toBe(true);
+});

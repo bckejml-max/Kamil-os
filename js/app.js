@@ -30,14 +30,14 @@ function updateChrome(){
  const page=qs('#pageTitle');if(page)page.textContent=pageTitles[current]||'KAMIL OS';
  qsa('.version').forEach(x=>x.textContent=APP_VERSION);
  qsa('[data-view]').forEach(x=>{const on=x.dataset.view===current;x.classList.toggle('on',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
- const undo=qs('#undoBtn');if(undo)undo.disabled=!(s.undo||[]).length;
+ const undo=qs('#undoBtn');if(undo)undo.disabled=store.undoCount()===0;
  const add=qs('#quickAddBtn');if(add){const hidden=current==='betting';add.classList.toggle('hidden',hidden);if(!hidden){const text=qs('b',add),name=quickLabels[current]||'Přidat';if(text)text.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`}}
  refreshRiskBadge41(s);
 }
 function quickShell(view){
  const host=hostForView(view);if(!host||host.dataset.fastShell==='1'||host.dataset.viewReady==='1')return;host.dataset.fastShell='1';
  if(view==='today'){
-  const s=store.get(),open=(s.tasks||[]).filter(x=>!['DONE','CLOSED','ARCHIVED'].includes(String(x.status||'').toUpperCase())).length,waiting=(s.directorBook?.waiting||[]).filter(x=>!['DONE','CLOSED','ARCHIVED'].includes(String(x.status||'OPEN').toUpperCase())).length,tickets=(s.ticketBook?.items||[]).filter(x=>['HOLD','LISTED'].includes(String(x.workflow||'HOLD').toUpperCase())).length;
+  const s=store.get(),closed=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED','PAYOUT_RECEIVED','CANCELLED','CANCELED']),open=(s.tasks||[]).filter(x=>!closed.has(String(x.status||'').toUpperCase())).length,waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[])].filter(x=>!closed.has(String(x.status||'OPEN').toUpperCase())).length,tickets=(s.ticketBook?.items||[]).filter(x=>['HOLD','LISTED'].includes(String(x.workflow||'HOLD').toUpperCase())).length;
   host.innerHTML=`<div class="view-head"><div><div class="eyebrow">KAMIL OS ${APP_VERSION}</div><h1>Načítám detail. Základ už je připravený.</h1><p>Nejdřív ukazuju uložená data z tohoto zařízení; cloud a těžší analýzy se dotáhnou potom.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${open}</b></div><div class="metric"><span>Waiting For</span><b>${waiting}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div><div class="metric"><span>Režim</span><b>rychlý start</b></div></div>`;
  }else host.innerHTML=`<div class="view-head"><div><div class="eyebrow">${pageTitles[view]||'KAMIL OS'}</div><h1>Načítám modul…</h1><p>Obsah se dotahuje až při otevření této sekce, aby nezpomaloval start celé aplikace.</p></div></div>`;
 }
@@ -118,7 +118,7 @@ async function handleSession(sess){
  if(sess){
   setCloudLoadingStatus();store.setMeta({lastCloudEmail:sess.user?.email||store.meta().lastCloudEmail||null});const result=await loadCloud();if(seq!==sessionSeq)return;
   if(result?.futureSchema){await modal('Cloudová data jsou z novější verze',`<p class="muted">Cloud používá schema <b>${result.remoteSchema}</b>, tato aplikace umí <b>${result.currentSchema}</b>. Nic jsem nepřepsal. Otevři nejnovější Kamil OS na stabilní adrese.</p>`,[{label:'Rozumím',value:'ok',primary:true}]);if(seq!==sessionSeq)return;localSyncStatus();return}
-  if(result?.conflict){const diff=conflictSummary(store.get(),result.cloud),rows=diff.map(x=>`<div class="row"><span>${x.label}</span><span>toto zařízení <b>${x.local}</b> · cloud <b>${x.cloud}</b></span></div>`).join('');const choice=await modal('Cloud a zařízení mají různé osobní změny',`<p class="muted">Nic nepřepisuju automaticky. Osobní data porovnám po hlavních skupinách:</p>${rows}<p class="muted">Pokud si nejsi jistý, zvol toto zařízení a potom udělej export zálohy.</p>`,[{label:'Použít cloud',value:'cloud'},{label:'Použít toto zařízení',value:'local',primary:true}]);if(seq!==sessionSeq)return;if(choice)await resolveConflict(choice,result.cloud)}
+  if(result?.conflict){const diff=conflictSummary(store.get(),result.cloud),rows=diff.map(x=>`<div class="row"><span>${x.label}</span><span>toto zařízení <b>${x.local}</b> · cloud <b>${x.cloud}</b></span></div>`).join('');const choice=await modal('Cloud a zařízení mají různé osobní změny',`<p class="muted">Nic nepřepisuju automaticky. Osobní data porovnám po hlavních skupinách:</p>${rows}<p class="muted">Pokud si nejsi jistý, zvol toto zařízení a potom udělej export zálohy.</p>`,[{label:'Použít cloud',value:'cloud'},{label:'Použít toto zařízení',value:'local',primary:true}]);if(seq!==sessionSeq)return;if(choice)await resolveConflict(choice,result.cloud,result.updatedAt)}
   if(seq!==sessionSeq)return;await flushQueue();if(seq!==sessionSeq)return;setCloudConnectedStatus(sess,result);scheduleRender(true);
   loadDataHubs().then(()=>{if(seq!==sessionSeq)return;setCloudConnectedStatus(sess,result);scheduleRender(true);markPerf41('cloud-hubs-ready')}).catch(error=>console.warn('[app41:cloud-hubs]',error));
  }else localSyncStatus();
