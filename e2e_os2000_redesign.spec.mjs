@@ -282,3 +282,55 @@ test('OS1307 mobile audit reaches every secondary section with no horizontal ove
  }
  await expect(page.locator('.view.on')).toHaveCount(1);
 });
+
+
+test('OS1307 Today treats date-only today as due today and uses canonical betting ledger',async({page})=>{
+ await page.addInitScript(()=>{
+  const now=new Date(),today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+  localStorage.setItem('kamil_betting_ledger_543',JSON.stringify({bets:[],bankrollCzk:0}));
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   tasks:[{id:'due-today',title:'Úkol splatný dnes',status:'OPEN',due:today,area:'test'}],
+   bettingLedger:{bets:[{id:'bet-1',status:'OPEN',stakeCzk:700,label:'Test sázka'}],bankrollCzk:10000,unitCzk:100,updatedAt:new Date().toISOString()}
+  }));
+ });
+ await boot(page);
+ const todayRow=page.locator('[data-today1300-task="due-today"]');
+ await expect(todayRow).toBeVisible();
+ await expect(todayRow.locator('.pr1300-row-side')).not.toHaveClass(/bad/);
+ const overdueRow=page.locator('.pr1300-row').filter({hasText:'Úkoly po termínu'});
+ await expect(overdueRow.locator('.pr1300-row-side')).toHaveText('0');
+ const bettingDomain=page.locator('.pr1300-domain').filter({hasText:'Sázení'});
+ await expect(bettingDomain).toContainText('1 otevřených');
+ await expect(bettingDomain).toContainText('700 Kč expozice');
+});
+
+test('OS1307 Work recognizes followUpAt as the waiting deadline',async({page})=>{
+ await page.addInitScript(()=>{
+  const now=new Date(),today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   delegations:[{id:'wait-1',title:'Čekám na potvrzení',status:'OPEN',followUpAt:today,createdAt:new Date().toISOString()}]
+  }));
+ });
+ await boot(page);
+ await page.locator('#mainNav [data-view="work"]').click();
+ await expect(page.locator('#workView [data-work-page1300]')).toBeVisible();
+ await expect(page.locator('#workView')).toContainText('Čekám na potvrzení');
+ await expect(page.locator('#workView')).toContainText('dnes');
+});
+
+test('OS1307 Money opens the concrete financial task action',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   tasks:[{id:'money-task-1',title:'Zkontrolovat bankovní poplatek',status:'OPEN',category:'finance',area:'personal',notes:'Ověřit poslední výpis'}]
+  }));
+ });
+ await boot(page);
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('#moneyView [data-money-overview]')).toBeVisible();
+ await page.locator('#moneyView [data-money-task="money-task-1"]').click();
+ await expect(page.locator('#modalHost')).toContainText('Zkontrolovat bankovní poplatek');
+ await expect(page.getByRole('button',{name:'Hotovo',exact:true})).toBeVisible();
+});
