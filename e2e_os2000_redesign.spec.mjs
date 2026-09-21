@@ -453,3 +453,46 @@ test('OS1308 lazy undo history is actionable immediately after reload',async({pa
  await page.locator('#undoBtn').click();
  await expect.poll(()=>page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().tasks.some(x=>x.id==='restored')})).toBe(true);
 });
+
+
+test('OS1308 explicit zero cash replaces stale personal-vault cash truthfully',async({page})=>{
+ await page.addInitScript(()=>{
+  const updatedAt=new Date().toISOString();
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   financePlan:{cashNow:0,expectedIncome:0,reserveFloor:0,plannedInvestment:0,updatedAt},
+   personalVault:{version:1,items:[{id:'manual-cash-20260912',section:'money',recordType:'bank-data',title:'Likvidní hotovost',balance:100000,asOf:'2026-09-12',sourceBasis:'stale'}]}
+  }));
+ });
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const bridge=await import('./js/personalMoneyBridge737.js');
+  const {store}=await import('./js/state.js');
+  bridge.ensurePersonalMoneyBridge737();
+  const item=store.get().personalVault.items.find(x=>x.id==='manual-cash-20260912');
+  return {balance:item?.balance,asOf:item?.asOf,sourceBasis:item?.sourceBasis,planAt:store.get().financePlan.updatedAt};
+ });
+ expect(result.balance).toBe(0);
+ expect(result.asOf).toBe(result.planAt.slice(0,10));
+ expect(result.sourceBasis).toContain('0 Kč');
+ expect(result.sourceBasis).not.toContain('100 000 Kč');
+});
+
+test('OS1308 settled WIN pnl is immutable under integrity guard',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   bettingLedger:{bets:[{id:'settled-win',status:'WIN',stakeCzk:1000,odds:1.5,pnlCzk:500,settledAt:new Date().toISOString()}],bankrollCzk:5000,unitCzk:100,updatedAt:new Date().toISOString()}
+  }));
+ });
+ await boot(page);
+ await expect.poll(()=>page.evaluate(()=>!!window.__KAMIL_DATA_INTEGRITY1130__),{timeout:10000}).toBe(true);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('tamper settled pnl',s=>{const bet=s.bettingLedger.bets.find(x=>x.id==='settled-win');bet.pnlCzk=9999;bet.closingOdds=9.99},{undo:false,cloud:false,audit:false});
+ });
+ const result=await page.evaluate(async()=>{const {store}=await import('./js/state.js');const bet=store.get().bettingLedger.bets.find(x=>x.id==='settled-win');return{pnlCzk:bet.pnlCzk,closingOdds:bet.closingOdds??null,recovery:!!localStorage.getItem('kamil-os-recovery-1130')}});
+ expect(result.pnlCzk).toBe(500);
+ expect(result.closingOdds).toBeNull();
+ expect(result.recovery).toBe(true);
+});
