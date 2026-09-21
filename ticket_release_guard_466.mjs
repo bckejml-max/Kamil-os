@@ -34,7 +34,8 @@ if(essentialStart>=0&&legacyStart>=0&&essentialStart>legacyStart)fail('essential
 const criticalBlock=criticalStart>=0&&earlyStart>criticalStart?page.slice(criticalStart,earlyStart):'';
 for(const path of ['./ticketUi421.js','./ticketCommander465.js','./ticketConsolidation466.js']){if(!criticalBlock.includes(path))fail(`critical boot missing ${path}`);if(count(page,path)!==1)fail(`${path} must appear exactly once in ticketPage100`)}
 const earlyBlock=earlyStart>=0&&essentialStart>earlyStart?page.slice(earlyStart,essentialStart):'';
-for(const path of ['./ticketMarketEngine426.js','./ticketHub640.js']){if(!earlyBlock.includes(path))fail(`early background missing ${path}`);if(count(page,path)!==1)fail(`${path} must appear exactly once in ticketPage100`)}
+for(const path of ['./ticketMarketEngine426.js']){if(!earlyBlock.includes(path))fail(`early background missing ${path}`);if(count(page,path)!==1)fail(`${path} must appear exactly once in ticketPage100`)}
+if(earlyBlock.includes('./ticketHub640.js')||count(page,'./ticketHub640.js')!==0)fail('OS1300 forbids Hub640 auto-mount; canonical Ticket Desk + Commander own the primary UX')
 for(const token of ['state.criticalDone=true','state.legacyDone=true','BACKGROUND_MODULES','loadBackground','LEGACY_DELAY_MS=12000','healthMounted','alertsReady','isTicketViewActive','backgroundDeferred'])if(!page.includes(token))fail(`critical-first boot missing ${token}`);
 if(/\.refresh\?\.\(/.test(page))fail('canonical adapter must not call renderer refresh methods directly');
 const essentialBlock=essentialStart>=0&&legacyStart>essentialStart?page.slice(essentialStart,legacyStart):'';
