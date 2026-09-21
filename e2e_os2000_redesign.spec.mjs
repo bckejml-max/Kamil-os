@@ -334,3 +334,28 @@ test('OS1307 Money opens the concrete financial task action',async({page})=>{
  await expect(page.locator('#modalHost')).toContainText('Zkontrolovat bankovní poplatek');
  await expect(page.getByRole('button',{name:'Hotovo',exact:true})).toBeVisible();
 });
+
+
+test('OS1307 untouched zero cash stays unknown while explicit zero remains valid',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   financePlan:{cashNow:0,expectedIncome:0,reserveFloor:0,plannedInvestment:0}
+  }));
+ });
+ await boot(page);
+ const moneyDomain=page.locator('.pr1300-domain').filter({hasText:'Peníze'});
+ await expect(moneyDomain).toContainText('otevřít finance');
+ await expect(moneyDomain).toContainText('hotovost není zadaná');
+
+ await page.evaluate(()=>{
+  const raw=JSON.parse(localStorage.getItem('kamil-os-state'));
+  raw.financePlan.updatedAt=new Date().toISOString();
+  localStorage.setItem('kamil-os-state',JSON.stringify(raw));
+ });
+ await page.reload();
+ await page.waitForLoadState('networkidle');
+ const explicit=page.locator('.pr1300-domain').filter({hasText:'Peníze'});
+ await expect(explicit).toContainText('0 Kč');
+ await expect(explicit).toContainText('zadaná volná hotovost');
+});
