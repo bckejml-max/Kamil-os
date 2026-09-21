@@ -74,6 +74,11 @@ test('OS1300 keeps the heavy Ticket Desk behind an explicit detail action',async
  await page.locator('#ticketIntelView [data-ticket-advanced]').click();
  await expect.poll(()=>page.evaluate(()=>performance.getEntriesByType('resource').some(x=>x.name.includes('ticketDesk331.js'))),{timeout:15000}).toBe(true);
  await expect(page.locator('#ticketIntelView .td331')).toBeVisible({timeout:15000});
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('#moneyView [data-money-overview]')).toBeVisible({timeout:10000});
+ await page.locator('#mainNav [data-view="tickets"]').click();
+ await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#ticketIntelView .td331')).toHaveCount(0);
 });
 
 test('OS1300 keeps Money, Tickets and Betting to one primary workspace',async({page})=>{
