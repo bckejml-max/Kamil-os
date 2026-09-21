@@ -50,7 +50,7 @@ function changeRows(s={}){
 }
 
 function waitingRows(s={}){
- return [...A(s.directorBook?.waiting),...A(s.delegations)].filter(open).map(x=>{const due=dayDiff(x.due||x.nextFollowUpAt);const at=dateMs(x.lastContactAt||x.updatedAt||x.createdAt),age=at===null?null:Math.max(0,Math.floor((Date.now()-at)/86400000));return{title:x.title||x.person||x.name||'Waiting For',person:x.person||x.owner||'',due,age,urgent:due!==null?due<=1:(age!==null&&age>=5)}}).sort((a,b)=>Number(b.urgent)-Number(a.urgent)||(a.due??999)-(b.due??999)||(b.age??0)-(a.age??0));
+ return [...A(s.directorBook?.waiting),...A(s.delegations)].filter(open).map(x=>{const due=dayDiff(x.due||x.followUpAt||x.nextFollowUpAt);const at=dateMs(x.lastContactAt||x.updatedAt||x.createdAt),age=at===null?null:Math.max(0,Math.floor((Date.now()-at)/86400000));return{title:x.title||x.person||x.name||'Waiting For',person:x.person||x.owner||'',due,age,urgent:due!==null?due<=1:(age!==null&&age>=5)}}).sort((a,b)=>Number(b.urgent)-Number(a.urgent)||(a.due??999)-(b.due??999)||(b.age??0)-(a.age??0));
 }
 
 export function workCommandCenter440(s=store.get()){
