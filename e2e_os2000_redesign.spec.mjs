@@ -172,3 +172,22 @@ test('OS1300 mobile keeps the seven primary workflows one tap away',async({page}
  }
  await expect(page.locator('body')).toHaveCSS('overflow-x','hidden');
 });
+
+test('OS1306 exposes cloud login controls when local mode asks to connect',async({page})=>{
+ await boot(page);
+ await page.locator('#syncStatus').click();
+ await expect(page.locator('#authView')).toBeVisible();
+ await expect(page.locator('#loginEmail')).toBeVisible();
+ await expect(page.locator('#magicLinkBtn')).toBeVisible();
+ await page.locator('summary').filter({hasText:'Přihlásit se heslem'}).click();
+ await expect(page.locator('#loginPassword')).toBeVisible();
+});
+
+test('OS1306 mobile menu reaches secondary personal sections',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await boot(page);
+ await expect(page.locator('#mobileMenuBtn')).toBeVisible();
+ await page.locator('#mobileMenuBtn').click();
+ await page.getByRole('button',{name:'Rodina',exact:true}).click();
+ await expect(page.locator('#view-family')).toHaveClass(/on/);
+});
