@@ -359,3 +359,19 @@ test('OS1307 untouched zero cash stays unknown while explicit zero remains valid
  await expect(explicit).toContainText('0 Kč');
  await expect(explicit).toContainText('zadaná volná hotovost');
 });
+
+
+test('OS1307 empty canonical betting ledger does not revive legacy bets',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil_betting_ledger_543',JSON.stringify({bets:[{id:'legacy-open',status:'OPEN',stakeCzk:999,label:'Stará sázka'}],bankrollCzk:5000}));
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   bettingLedger:{bets:[],bankrollCzk:0,unitCzk:100,updatedAt:new Date().toISOString()}
+  }));
+ });
+ await boot(page);
+ await page.locator('#mainNav [data-view="betting"]').click();
+ await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
+ await expect(page.locator('#bettingView')).toContainText('0 otevřených');
+ await expect(page.locator('#bettingView')).not.toContainText('Stará sázka');
+});
