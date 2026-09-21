@@ -395,3 +395,48 @@ test('OS1307 canceled items stay closed across primary dashboards',async({page})
  await page.locator('#mainNav [data-view="money"]').click();
  await expect(page.locator('#moneyView')).not.toContainText('Zrušený finanční úkol');
 });
+
+
+test('OS1308 advanced betting cannot resurrect stale legacy bets',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil_betting_ledger_543',JSON.stringify({bets:[{id:'legacy-zombie',status:'OPEN',stakeCzk:1234,label:'Legacy zombie'}],bankrollCzk:5000,updatedAt:'2026-01-01T00:00:00.000Z'}));
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   bettingLedger:{bets:[],bankrollCzk:0,unitCzk:100,updatedAt:new Date().toISOString()}
+  }));
+ });
+ await boot(page);
+ await page.locator('#mainNav [data-view="betting"]').click();
+ await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
+ await expect(page.locator('#bettingView')).not.toContainText('Legacy zombie');
+ await page.locator('#bettingView [data-betting-advanced]').click();
+ await expect(page.locator('#bettingView .bet144')).toBeVisible({timeout:15000});
+ await page.waitForTimeout(500);
+ const state=await page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().bettingLedger});
+ expect(state.bets).toHaveLength(0);
+ expect(state.unitCzk).toBe(100);
+});
+
+test('OS1308 store.replace cloud option queues and schedules repaired state',async({page})=>{
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  let writes=0;store.setCloudWriter(()=>{writes+=1});
+  const next=structuredClone(store.get());
+  next.tasks=[...(next.tasks||[]),{id:'repair-task',title:'Repaired item',status:'OPEN'}];
+  store.replace(next,'integrity-test',{cloud:true,audit:true});
+  const queued=store.readQueue();
+  return {
+   dirty:store.dirty,
+   writes,
+   lastMutationAt:store.get().meta?.lastMutationAt||null,
+   audit:store.get().audit?.[0]?.label||null,
+   queuedTask:queued?.payload?.tasks?.some(x=>x.id==='repair-task')===true
+  };
+ });
+ expect(result.dirty).toBe(true);
+ expect(result.writes).toBe(1);
+ expect(result.lastMutationAt).toBeTruthy();
+ expect(result.audit).toBe('integrity-test');
+ expect(result.queuedTask).toBe(true);
+});
