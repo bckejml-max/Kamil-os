@@ -2,6 +2,7 @@ import {APP_VERSION,SCHEMA_VERSION,STATE_TABLE} from './config.js';
 import {store} from './state.js';
 import {cloudClient} from './cloud.js';
 import {cloudPayload32,cloudSchema32,mergeCloudIntoDevice32} from './cloudPayload32.js';
+import {replaceColdState42} from './coldPartition42.js';
 
 const TABLE='kamil_os_snapshots';
 const FORMAT='KAMIL_OS_RECOVERY';
@@ -42,7 +43,7 @@ export async function restoreRecoverySnapshot32(row){
  const c=await cloudClient(false);if(!c)return {ok:false,reason:'LOCAL_ONLY'};const sess=(await c.auth.getSession()).data.session;if(!sess)return {ok:false,reason:'NO_SESSION'};
  const backup=await maybeCreateRecoverySnapshot32({force:true,reason:'PRE_RESTORE'});if(!backup.ok)return {ok:false,reason:'PRE_RESTORE_BACKUP_FAILED',error:backup.error||backup.reason};
  const merged=mergeCloudIntoDevice32(store.get(),valid.envelope.payload,SCHEMA_VERSION),payload=cloudPayload32(merged,SCHEMA_VERSION),updatedAt=new Date().toISOString(),save=await c.from(STATE_TABLE).upsert({user_id:sess.user.id,payload,updated_at:updatedAt}).select('updated_at').single();if(save.error)return {ok:false,error:String(save.error.message||save.error)};
- store.replace(merged,'recovery-restore');store.dirty=false;store.clearQueue();store.setMeta({lastCloudAt:save.data?.updated_at||updatedAt,lastCloudSchema:SCHEMA_VERSION,lastRestoreAt:new Date().toISOString()});lastError=null;return {ok:true,updatedAt:save.data?.updated_at||updatedAt,counts:valid.counts,preRestoreSnapshotId:backup.id};
+ replaceColdState42(merged);store.replace(merged,'recovery-restore');store.dirty=false;store.clearQueue();store.setMeta({lastCloudAt:save.data?.updated_at||updatedAt,lastCloudSchema:SCHEMA_VERSION,lastRestoreAt:new Date().toISOString()});lastError=null;return {ok:true,updatedAt:save.data?.updated_at||updatedAt,counts:valid.counts,preRestoreSnapshotId:backup.id};
 }
 export function recoveryShieldStatus32(){return {table:TABLE,format:FORMAT,lastCreatedAt,lastError,automaticDaily:true,preRestoreBackup:true,clientDelete:false}}
 export const recoveryShield32Info={table:TABLE,format:FORMAT,formatVersion:FORMAT_VERSION,automaticDaily:true,restoreRequiresExplicitUiConfirm:true,sourceOfTruth:'kamil_os_state'};
