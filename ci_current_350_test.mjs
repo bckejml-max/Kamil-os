@@ -6,6 +6,8 @@ const boot=read('js/instantShell64.js');
 const app=read('js/app.js');
 const views=read('js/viewRuntime41.js');
 const ticketPage=read('js/ticketPage100.js');
+const ticketOverview=read('js/ticketOverview.js');
+const bettingOverview=read('js/bettingOverview.js');
 const ticketUi=read('js/ticketUi421.js');
 const ticketConsolidation=read('js/ticketConsolidation466.js');
 const ticketCloud=read('js/ticketCloud660.js');
@@ -35,10 +37,12 @@ assert.ok(index.includes('id="view-inbox"')&&index.includes('id="view-betting"')
 assert.ok(ticketPage.includes("import('./ticketDesk331.js')"),'ticketPage100 must delegate to Ticket Desk 331');
 assert.ok(ticketPage.includes("'./ticketUi421.js','installTicketUi421','CANONICAL UI 421/466'")&&ticketUi.includes('canonical-466'),'ticketPage100 must boot the canonical Ticket DOM owner first');
 assert.ok(ticketConsolidation.includes('logicOnly:true')&&!ticketConsolidation.includes('function reorder('),'ticket consolidation must remain logic-only');
-assert.ok(views.includes("tickets:['./ticketPage100.js','renderTicketPage100']"),'Tickets must be lazy through viewRuntime41');
+assert.ok(views.includes("tickets:['./ticketOverview.js','renderTicketOverview']"),'Simple Tickets overview must be lazy through viewRuntime41');
+assert.ok(ticketOverview.includes("import('./ticketAdvanced100.js')"),'Advanced Ticket Desk must remain explicit/on-demand');
 
 // Betting enrichment is lazy and must only start from the Betting view.
-assert.ok(views.includes("betting:['./bettingPage527.js','renderBettingPage527']"),'Betting view must be lazy through viewRuntime41');
+assert.ok(views.includes("betting:['./bettingOverview.js','renderBettingOverview']"),'Simple Betting overview must be lazy through viewRuntime41');
+assert.ok(bettingOverview.includes("import('./bettingAdvanced527.js')"),'Advanced betting must remain explicit/on-demand');
 const betting=read('js/bettingPage527.js');
 assert.ok(betting.includes("import('./bettingBootstrap543.js')"),'Betting enrichment must boot on-demand from the Betting page');
 assert.ok(!index.includes('bettingBootstrap543.js'),'Betting bootstrap must not be an index script');
