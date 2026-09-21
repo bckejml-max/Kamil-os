@@ -348,13 +348,13 @@ test('OS1307 untouched zero cash stays unknown while explicit zero remains valid
  await expect(moneyDomain).toContainText('otevřít finance');
  await expect(moneyDomain).toContainText('hotovost není zadaná');
 
- await page.evaluate(()=>{
-  const raw=JSON.parse(localStorage.getItem('kamil-os-state'));
-  raw.financePlan.updatedAt=new Date().toISOString();
-  localStorage.setItem('kamil-os-state',JSON.stringify(raw));
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('test explicit zero cash',state=>{state.financePlan.updatedAt=new Date().toISOString()},{undo:false,cloud:false,audit:false});
  });
- await page.reload();
- await page.waitForLoadState('networkidle');
+ await page.locator('#mainNav [data-view="money"]').click();
+ await page.locator('#mainNav [data-view="today"]').click();
+ await expect(page.locator('#todayView [data-os2-today]')).toBeVisible();
  const explicit=page.locator('.pr1300-domain').filter({hasText:'Peníze'});
  await expect(explicit).toContainText('0 Kč');
  await expect(explicit).toContainText('zadaná volná hotovost');
