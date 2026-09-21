@@ -26,8 +26,9 @@ test('OS2000 idle phase does not revive old analytics',async({page})=>{
  const critical=s.order.find(x=>x.name==='critical'),deferred=s.order.find(x=>x.name==='deferred');expect(critical).toBeTruthy();expect(deferred).toBeTruthy();expect(deferred.at).toBeGreaterThanOrEqual(critical.at);
 });
 
-test('OS2000 critical snapshot stays immutable after Tickets loads',async({page})=>{
+test('OS2000 critical snapshot stays immutable after the simple Tickets overview loads',async({page})=>{
  await boot(page);const before=await page.evaluate(()=>({count:window.__KAMIL_BOOT_BUDGET343__.modules.length,paths:window.__KAMIL_BOOT_BUDGET343__.modules.map(x=>x.path)}));
- await page.locator('#mainNav [data-view="tickets"]').click();await expect(page.locator('#view-tickets')).toHaveClass(/on/);await expect.poll(()=>page.evaluate(()=>performance.getEntriesByType('resource').some(x=>x.name.includes('ticketDesk331.js'))),{timeout:15000}).toBe(true);
+ await page.locator('#mainNav [data-view="tickets"]').click();await expect(page.locator('#view-tickets')).toHaveClass(/on/);await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible({timeout:10000});
+ const resources=await page.evaluate(()=>performance.getEntriesByType('resource').map(x=>x.name));expect(resources.some(x=>x.includes('ticketDesk331.js'))).toBe(false);
  const after=await page.evaluate(()=>({count:window.__KAMIL_BOOT_BUDGET343__.modules.length,paths:window.__KAMIL_BOOT_BUDGET343__.modules.map(x=>x.path)}));expect(after).toEqual(before);
 });
