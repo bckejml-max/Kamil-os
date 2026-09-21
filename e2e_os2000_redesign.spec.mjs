@@ -375,3 +375,23 @@ test('OS1307 empty canonical betting ledger does not revive legacy bets',async({
  await expect(page.locator('#bettingView')).toContainText('0 otevřených');
  await expect(page.locator('#bettingView')).not.toContainText('Stará sázka');
 });
+
+
+test('OS1307 canceled items stay closed across primary dashboards',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   tasks:[
+    {id:'cancel-a',title:'Zrušený obecný úkol',status:'CANCELED',due:'2000-01-01'},
+    {id:'cancel-b',title:'Zrušený finanční úkol',status:'CANCELLED',category:'finance',area:'personal'}
+   ],
+   delegations:[{id:'cancel-wait',title:'Zrušené čekání',status:'CANCELED',followUpAt:'2000-01-01'}]
+  }));
+ });
+ await boot(page);
+ await expect(page.locator('#todayView')).not.toContainText('Zrušený obecný úkol');
+ await page.locator('#mainNav [data-view="work"]').click();
+ await expect(page.locator('#workView')).not.toContainText('Zrušené čekání');
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('#moneyView')).not.toContainText('Zrušený finanční úkol');
+});
