@@ -278,7 +278,7 @@ async function chancePageDiscovery(res,url){
  const key=String(process.env.PULSESCORE_API_KEY||'').trim();
  if(!key)return json(res,503,{ok:false,error:'PULSESCORE_NOT_CONFIGURED'});
  const days=clampInt(url.searchParams.get('days'),5,1,14);
- const maxPages=clampInt(url.searchParams.get('maxPages'),40,1,60);
+ const maxPages=clampInt(url.searchParams.get('maxPages'),2,1,2);
  const now=Date.now();
  const until=now+days*86400000;
  try{
