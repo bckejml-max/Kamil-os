@@ -73,7 +73,7 @@ test('OS1300 keeps the heavy Ticket Desk behind an explicit detail action',async
  expect(resources.some(x=>x.includes('ticketDesk331.js'))).toBe(false);
  await page.locator('#ticketIntelView [data-ticket-advanced]').click();
  await expect.poll(()=>page.evaluate(()=>performance.getEntriesByType('resource').some(x=>x.name.includes('ticketDesk331.js'))),{timeout:15000}).toBe(true);
- await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#ticketIntelView .td331')).toBeVisible({timeout:15000});
 });
 
 test('OS1300 keeps Money, Tickets and Betting to one primary workspace',async({page})=>{
@@ -96,8 +96,8 @@ test('OS1300 keeps Money, Tickets and Betting to one primary workspace',async({p
 
  await page.locator('#mainNav [data-view="tickets"]').click();
  await expect(page.locator('#view-tickets')).toHaveClass(/on/);
- await expect(page.locator('#ticketIntelView .td331')).toBeVisible({timeout:15000});
- await page.waitForTimeout(900);
+ await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible({timeout:10000});
+ await page.waitForTimeout(300);
  await expect(page.locator('#ticketIntelView [data-ticket-hub640]')).toHaveCount(0);
 });
 
