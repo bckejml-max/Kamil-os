@@ -305,9 +305,8 @@ test('OS1307 Today treats date-only today as due today and uses canonical bettin
  const todayRow=page.locator('[data-today1300-task="due-today"]');
  await expect(todayRow).toBeVisible();
  await expect(todayRow.locator('.pr1300-row-side')).not.toHaveClass(/bad/);
- const overdueRow=page.locator('.pr1300-row').filter({hasText:'Úkoly po termínu'});
- await expect(overdueRow.locator('.pr1300-row-side')).toHaveText('0');
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
+ expect(diag.overdue).toBe(0);
  expect(diag.bettingOpen).toBe(1);
  expect(diag.bettingExposure).toBe(700);
 });
