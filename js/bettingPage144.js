@@ -334,7 +334,7 @@ async function loadBetting(host,force=false){
    if(open.length){renderData(host,{ok:true,bets:open,ledger:{knownTicketExposureCzk:open.reduce((sum,b)=>sum+Number(b.stakeCzk||0),0)}},healthClientCache.value||{});window.__KAMIL_BETTING_144__={...(window.__KAMIL_BETTING_144__||{}),fallback:'canonical-state',apiError:String(error?.message||error)};return}
    host.innerHTML=`<div class="bet144"><section class="bet144-hero"><div><div class="eyebrow">SÁZENÍ · CHANCE</div><h1>Betting centrum</h1></div></section><div class="bet144-error"><b>Betting centrum se nepodařilo načíst.</b><div class="muted" style="margin-top:6px">${escapeHtml(error?.message||error)}</div><button class="btn" style="margin-top:12px" type="button" data-bet144-retry>Zkusit znovu</button></div></div>`;
    host.querySelector('[data-bet144-retry]')?.addEventListener('click',()=>loadBetting(host,true));
-   window.__KAMIL_BETTING_144__={ok:false,error:String(error?.message||error)};
+   window.__KAMIL_BETTING_144__={...(window.__KAMIL_BETTING_144__||{}),ok:false,loading:false,error:String(error?.message||error)};
  }
 }
 
