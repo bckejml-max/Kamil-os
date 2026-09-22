@@ -20,7 +20,7 @@ assert.match(property,/data-property-page1300/);assert.match(property,/Investič
 assert.match(moneyOverview,/data-money-overview/);assert.match(moneyOverview,/productAdvanced='1'/);assert.match(moneyOverview,/Detail financí/);assert.match(moneyOverview,/moneyAdvanced100\.js/);
 assert.match(ticketOverview,/data-ticket-overview/);assert.match(ticketOverview,/productAdvanced='1'/);assert.match(ticketOverview,/Synchronizovat Viagogo/);assert.match(ticketOverview,/ticketAdvanced100\.js/);
 assert.match(bettingOverview,/data-betting-overview/);assert.match(bettingOverview,/productAdvanced='1'/);assert.match(bettingOverview,/Scanner a detail sázek/);assert.match(bettingOverview,/bettingAdvanced527\.js/);
-assert.match(tasksOverview,/data-tasks-overview/);assert.match(tasksOverview,/productAdvanced='1'/);assert.match(tasksOverview,/Úkoly a čekání/);assert.match(tasksOverview,/inboxAdvanced141\.js/);
+assert.match(tasksOverview,/data-tasks-overview/);assert.match(tasksOverview,/productAdvanced='1'/);assert.match(tasksOverview,/Co je potřeba vyřídit/);assert.match(tasksOverview,/inboxAdvanced141\.js/);
 assert.match(css,/Historical experimental decorators/);assert.match(css,/\[data-today-hub650\]/);assert.match(css,/repeat\(5,minmax\(0,1fr\)\)/);
 assert.match(runtime,/productReset1300\.css/,'product reset CSS must be restored after lazy view CSS');
 assert.match(runtime,/appendChild\(product\)/,'product reset CSS must be the final canonical layer');
