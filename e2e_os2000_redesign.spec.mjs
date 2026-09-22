@@ -140,7 +140,7 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  await page.locator('#mainNav [data-view="inbox"]').click();
  await expect(page.locator('#view-inbox')).toHaveClass(/on/);
  await expect(page.locator('#inboxView [data-tasks-overview]')).toBeVisible({timeout:10000});
- await expect(page.locator('#inboxView [data-tasks-overview] h1')).toContainText(/Jedna fronta všeho/i);
+ await expect(page.locator('#inboxView [data-tasks-overview] h1')).toContainText(/Co je potřeba vyřídit/i);
  await page.waitForTimeout(300);
  await expect(page.locator('#inboxView [data-inbox-hub660]')).toHaveCount(0);
 
