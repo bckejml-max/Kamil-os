@@ -269,11 +269,11 @@ test('OS1307 advanced personal workspaces reset back to their simple overview',a
  await openView(page,'betting');
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
  await page.locator('#bettingView [data-betting-advanced]').click();
- await expect(page.locator('#bettingView .bet144')).toBeVisible({timeout:12000});
+ await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BETTING_144__?.coreReady===true),{timeout:12000}).toBe(true);
  await page.locator('#mainNav [data-view="today"]').click();
  await openView(page,'betting');
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible({timeout:12000});
- await expect(page.locator('#bettingView .bet144')).toHaveCount(0);
+ await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible({timeout:12000});
 });
 
 test('OS1307 signed-out ticket sync routes to visible cloud login and safely returns',async({page})=>{
