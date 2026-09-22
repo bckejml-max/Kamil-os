@@ -10,7 +10,7 @@ function when(x){if(x.days===null||x.days===undefined)return'bez termínu';if(x.
 function rows(items){if(!items.length)return '<div class="pr1300-empty">Nic otevřeného.</div>';return items.slice(0,8).map(x=>'<button type="button" class="pr1300-row pr1300-clickrow" data-task-open="'+esc(x.id)+'" data-task-route="'+esc(x.route||'today')+'"><div class="pr1300-row-main"><b>'+esc(x.title)+'</b><small>'+esc(x.sourceLabel||x.bucket||'Úkol')+(x.detail?' · '+esc(x.detail).slice(0,90):'')+'</small></div><div class="pr1300-row-side '+(x.days!==null&&x.days<0?'bad':x.days===0?'warn':'')+'">'+esc(when(x))+'</div></button>').join('')}
 
 export function renderTasksOverview(){
- const host=document.querySelector('#inboxView');if(!host)return false;const m=localInboxSummary660(),top=m.top;lastModel=m;
+ const host=document.querySelector('#inboxView');if(!host)return false;if(host.dataset.productAdvanced==='1')return true;const m=localInboxSummary660(),top=m.top;lastModel=m;
  host.innerHTML='<div class="pr1300-shell" data-tasks-overview>' +
  '<div class="pr1300-head"><div><div class="pr1300-kicker">Úkoly</div><h1>Co je potřeba vyřídit.</h1><p>Jedna fronta úkolů, odpovědí, čekání a termínů. Bez dalších dashboardů.</p></div><span class="pr1300-status '+(m.counts.urgent?'bad':m.counts.total?'warn':'good')+'">'+(m.counts.total?m.counts.total+' otevřených':'čisto')+'</span></div>' +
  '<section class="pr1320-now"><div><div class="pr1300-kicker">Teď</div><h2>'+esc(top?.title||'Nic akutního')+'</h2><p>'+esc(top?.detail||'Žádná otevřená položka teď nemá vysokou prioritu.')+'</p></div><div class="pr1320-now-actions"><button class="pr1300-btn primary" type="button" data-task-add>＋ Úkol</button></div></section>' +
