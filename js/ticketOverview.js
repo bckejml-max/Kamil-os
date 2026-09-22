@@ -27,7 +27,7 @@ function attentionHtml(rows){if(!rows.length)return '<div class="pr1300-empty">�
 function eventRows(events){if(!events.length)return '<div class="pr1300-empty">Žádné aktivní vstupenky.</div>';return events.slice(0,8).map(x=>'<div class="pr1300-row"><div class="pr1300-row-main"><b>'+esc(x.name)+'</b><small>'+x.qty+' ks · kapitál '+money(x.capitalAtRisk)+' · '+esc(x.nextAction||'sledovat')+'</small></div><div class="pr1300-row-side '+(x.priority>=85?'bad':x.priority>=70?'warn':'')+'">'+x.priority+'/100</div></div>').join('')}
 
 export function renderTicketOverview(){
- const host=document.querySelector('#ticketIntelView');if(!host)return false;const d=data(),top=d.p.top;
+ const host=document.querySelector('#ticketIntelView');if(!host)return false;if(host.dataset.productAdvanced==='1')return true;const d=data(),top=d.p.top;
  host.innerHTML='<div class="pr1300-shell" data-ticket-overview>' +
  '<div class="pr1300-head"><div><div class="pr1300-kicker">Vstupenky</div><h1>Co je potřeba udělat s tickety.</h1><p>Nejdřív převody, payouty a chybějící ceny. Market desk a predikce jsou až detail.</p></div><span class="pr1300-status '+(d.transfer.length?'bad':d.attention.length?'warn':'good')+'">'+(d.attention.length?d.attention.length+' k řešení':'klid')+'</span></div>' +
  '<section class="pr1320-now"><div><div class="pr1300-kicker">Teď</div><h2>'+esc(d.attention[0]?.title||top?.name||'Nic urgentního')+'</h2><p>'+esc(d.attention[0]?.detail||top?.nextAction||'Aktivní portfolio teď nevyžaduje okamžitý zásah.')+'</p></div><div class="pr1320-now-actions"><button class="pr1300-btn primary" type="button" data-ticket-sync>Synchronizovat Viagogo</button></div></section>' +
