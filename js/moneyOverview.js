@@ -17,7 +17,7 @@ function data(){
  const s=store.get(),v=personalVault640(s),plan=personalMoneyPlan650(s);
  const debt=v.records.filter(x=>['mortgage','loan','debt'].includes(x.recordType)).reduce((a,x)=>a+Math.abs(val(x,'balance','debtBalance')),0);
  const property=v.records.filter(x=>x.recordType==='property').reduce((a,x)=>a+val(x,'marketValue','estimatedValue','value'),0);
- const bank=v.records.filter(x=>x.recordType==='bank-data').reduce((a,x)=>a+val(x,'balance','cashBalance','currentBalance'),0);
+ const vaultBank=v.records.filter(x=>x.recordType==='bank-data').reduce((a,x)=>a+val(x,'balance','cashBalance','currentBalance'),0),planCash=Number(s.financePlan?.cashNow||0),bank=vaultBank>0?vaultBank:(s.financePlan?.updatedAt&&Number.isFinite(planCash)?Math.max(0,planCash):0);
  const xtb=Object.values(s.xtbHub?.accounts||{}).reduce((a,x)=>a+val(x,'totalValueCzk','marketValueCzk','valueCzk'),0);
  const generic=[...(s.investments?.positions||[]),...(s.portfolio?.positions||[])].reduce((a,x)=>a+val(x,'marketValueCzk','valueCzk'),0);
  const tickets=(s.ticketBook?.items||[]).filter(x=>['HOLD','LISTED','OPEN'].includes(String(x.workflow||'').toUpperCase())).reduce((a,x)=>a+Number(x.buy||x.buyTotalCzk||0),0);
