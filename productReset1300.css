@@ -96,3 +96,51 @@ html[data-usability-reset1320="1"] .pr1320-calendar{opacity:.88}
  html[data-usability-reset1320="1"] .pr1320-now h2{font-size:21px}
  html[data-usability-reset1320="1"] .pr1320-now-actions{justify-content:flex-start}
 }
+
+
+/* OS1321 shell ownership hotfix: stop legacy shell/layout styles from leaking into OS1320. */
+html[data-usability-reset1320="1"] .os2-command{
+  position:relative!important;
+  top:auto!important;
+  margin:0!important;
+  background:transparent!important;
+  backdrop-filter:none!important;
+}
+html[data-usability-reset1320="1"] #commandResults{
+  top:100%!important;
+  margin-top:8px!important;
+  left:34px!important;
+  right:78px!important;
+}
+@media(max-width:760px){
+  html[data-usability-reset1320="1"] #commandResults{
+    left:12px!important;
+    right:12px!important;
+  }
+}
+
+/* Primary OS1320 views own their host once ready. Any legacy injector that appends a sibling
+   is hidden unless the user explicitly opens the advanced workspace. */
+html[data-usability-reset1320="1"] #todayView[data-view-ready="1"] > :not([data-os2-today]),
+html[data-usability-reset1320="1"] #workView[data-view-ready="1"] > :not([data-work-page1300]),
+html[data-usability-reset1320="1"] #inboxView[data-view-ready="1"] > :not([data-tasks-overview]),
+html[data-usability-reset1320="1"] #ticketIntelView[data-view-ready="1"]:not([data-product-advanced]) > :not([data-ticket-overview]),
+html[data-usability-reset1320="1"] #propertyView[data-view-ready="1"] > :not([data-property-page1300]),
+html[data-usability-reset1320="1"] #moneyView[data-view-ready="1"]:not([data-product-advanced]) > :not([data-money-overview]),
+html[data-usability-reset1320="1"] #bettingView[data-view-ready="1"]:not([data-product-advanced]) > :not([data-betting-overview]){
+  display:none!important;
+}
+
+/* The new product panels win over the OS737 legacy compatibility layer. */
+html[data-usability-reset1320="1"] #workView .pr1300-panel,
+html[data-usability-reset1320="1"] #inboxView .pr1300-panel,
+html[data-usability-reset1320="1"] #ticketIntelView:not([data-product-advanced]) .pr1300-panel,
+html[data-usability-reset1320="1"] #propertyView .pr1300-panel,
+html[data-usability-reset1320="1"] #moneyView:not([data-product-advanced]) .pr1300-panel,
+html[data-usability-reset1320="1"] #bettingView:not([data-product-advanced]) .pr1300-panel,
+html[data-usability-reset1320="1"] #todayView .pr1300-panel{
+  background:var(--pr-panel)!important;
+  border:1px solid var(--pr-line)!important;
+  border-radius:18px!important;
+  box-shadow:none!important;
+}
