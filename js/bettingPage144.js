@@ -304,7 +304,7 @@ function renderData(host,payload,health){
  host.querySelector('[data-bet144-refresh]')?.addEventListener('click',()=>loadBetting(host,true));
  host.querySelector('[data-bet144-scan]')?.addEventListener('click',()=>runValueScan(host));
  window.__KAMIL_BETTING_HEALTH_144__=health||{};
- window.__KAMIL_BETTING_144__={ok:true,openCount:bets.length,exposureCzk:exposure,modelReady:hasBuiltInModel(health),chanceFeed:feed.level!=='bad',chanceFeedState:feed.level,chanceFeedVerified:feed.verified,chanceFeedStatus:feed.status,bets:bets.map(b=>({id:b.id,label:b.label,odds:b.odds,stakeCzk:b.stakeCzk,status:b.status}))};
+ window.__KAMIL_BETTING_144__={...(window.__KAMIL_BETTING_144__||{}),ok:true,loading:false,openCount:bets.length,exposureCzk:exposure,modelReady:hasBuiltInModel(health),chanceFeed:feed.level!=='bad',chanceFeedState:feed.level,chanceFeedVerified:feed.verified,chanceFeedStatus:feed.status,bets:bets.map(b=>({id:b.id,label:b.label,odds:b.odds,stakeCzk:b.stakeCzk,status:b.status}))};
 }
 
 async function getHealth(){
