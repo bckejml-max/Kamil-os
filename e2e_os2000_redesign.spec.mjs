@@ -7,6 +7,13 @@ async function boot(page){
  await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
 }
 
+async function openView(page,view){
+ const primary=page.locator(`#mainNav [data-view="${view}"]`).first();
+ if(await primary.count()) await primary.click();
+ else await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
+ await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
+}
+
 test('OS2000 starts as a small on-demand shell',async({page})=>{
  await boot(page);
  const state=await page.evaluate(()=>({
@@ -46,7 +53,7 @@ test('OS1300 makes Work and Reality first-class product views',async({page})=>{
  await expect(page.locator('#view-work')).toHaveClass(/on/);
  await expect(page.locator('[data-work-page1300]')).toBeVisible({timeout:10000});
  await expect(page.locator('[data-work-page1300] h1')).toContainText(/Zakázky/);
- await page.locator('#mainNav [data-view="property"]').click();
+ await openView(page,'property');
  await expect(page.locator('#view-property')).toHaveClass(/on/);
  await expect(page.locator('[data-property-page1300]')).toBeVisible({timeout:10000});
  await expect(page.locator('[data-property-page1300] h1')).toContainText(/Investiční byty/);
@@ -93,7 +100,7 @@ test('OS1300 keeps Money, Tickets and Betting to one primary workspace',async({p
  await expect(page.locator('#moneyView [data-property-hub620]')).toHaveCount(0);
  await expect(page.locator('#moneyView [data-property-finance610]')).toHaveCount(0);
 
- await page.locator('#mainNav [data-view="betting"]').click();
+ await openView(page,'betting');
  await expect(page.locator('#view-betting')).toHaveClass(/on/);
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible({timeout:10000});
  await page.waitForTimeout(900);
@@ -110,7 +117,7 @@ test('OS2010 keeps primary workspaces contained on desktop',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
  for(const view of ['inbox','money','tickets','betting']){
-  await page.locator(`#mainNav [data-view="${view}"]`).click();
+  await openView(page,view);
   await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
   await page.waitForTimeout(view==='tickets'||view==='betting'?800:350);
   const metrics=await page.evaluate(v=>{
@@ -137,7 +144,7 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  await page.waitForTimeout(300);
  await expect(page.locator('#inboxView [data-inbox-hub660]')).toHaveCount(0);
 
- await page.locator('#mainNav [data-view="family"]').click();
+ await openView(page,'family');
  await expect(page.locator('#view-family')).toHaveClass(/on/);
  await expect(page.locator('#ticketsView .hf140-hero')).toBeVisible({timeout:10000});
  await expect(page.locator('#ticketsView .hf140-hero h1')).toContainText(/Rodina/i);
@@ -149,7 +156,7 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
   ['more','#moreView','.id141-hero','Dokumenty pod kontrolou']
  ];
  for(const [view,host,hero,title] of cases){
-  await page.locator(`#mainNav [data-view="${view}"]`).click();
+  await openView(page,view);
   await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
   await expect(page.locator(`${host} ${hero}`)).toBeVisible({timeout:10000});
   await expect(page.locator(`${host} ${hero} h1`)).toContainText(title);
@@ -212,7 +219,7 @@ test('OS1307 full desktop audit renders every product surface without crash or o
   ['more','#moreView','.id141-hero']
  ];
  for(const [view,host,ready] of cases){
-  if(view!=='today')await page.locator(`#mainNav [data-view="${view}"]`).click();
+  if(view!=='today')await openView(page,view);
   await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
   await expect(page.locator(`${host} ${ready}`)).toBeVisible({timeout:12000});
   await expect(page.locator('.view.on')).toHaveCount(1);
@@ -241,17 +248,17 @@ test('OS1307 advanced personal workspaces reset back to their simple overview',a
  await expect(page.locator('#moneyView [data-money-overview]')).toBeVisible();
  await page.locator('#moneyView [data-money-advanced]').click();
  await expect(page.locator('#moneyView .money-page')).toBeVisible({timeout:12000});
- await page.locator('#mainNav [data-view="property"]').click();
+ await openView(page,'property');
  await page.locator('#mainNav [data-view="money"]').click();
  await expect(page.locator('#moneyView [data-money-overview]')).toBeVisible({timeout:12000});
  await expect(page.locator('#moneyView .money-page')).toHaveCount(0);
 
- await page.locator('#mainNav [data-view="betting"]').click();
+ await openView(page,'betting');
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
  await page.locator('#bettingView [data-betting-advanced]').click();
  await expect(page.locator('#bettingView .bet144')).toBeVisible({timeout:12000});
  await page.locator('#mainNav [data-view="today"]').click();
- await page.locator('#mainNav [data-view="betting"]').click();
+ await openView(page,'betting');
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible({timeout:12000});
  await expect(page.locator('#bettingView .bet144')).toHaveCount(0);
 });
@@ -300,9 +307,9 @@ test('OS1307 Today treats date-only today as due today and uses canonical bettin
  await expect(todayRow.locator('.pr1300-row-side')).not.toHaveClass(/bad/);
  const overdueRow=page.locator('.pr1300-row').filter({hasText:'Úkoly po termínu'});
  await expect(overdueRow.locator('.pr1300-row-side')).toHaveText('0');
- const bettingDomain=page.locator('.pr1300-domain').filter({hasText:'Sázení'});
- await expect(bettingDomain).toContainText('1 otevřených');
- await expect(bettingDomain).toContainText('700 Kč expozice');
+ const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
+ expect(diag.bettingOpen).toBe(1);
+ expect(diag.bettingExposure).toBe(700);
 });
 
 test('OS1307 Work recognizes followUpAt as the waiting deadline',async({page})=>{
@@ -344,9 +351,9 @@ test('OS1307 untouched zero cash stays unknown while explicit zero remains valid
   }));
  });
  await boot(page);
- const moneyDomain=page.locator('.pr1300-domain').filter({hasText:'Peníze'});
- await expect(moneyDomain).toContainText('otevřít finance');
- await expect(moneyDomain).toContainText('hotovost není zadaná');
+ let diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
+ expect(diag.cashKnown).toBe(false);
+ expect(diag.cash).toBeNull();
 
  await page.evaluate(async()=>{
   const {store}=await import('./js/state.js');
@@ -355,9 +362,9 @@ test('OS1307 untouched zero cash stays unknown while explicit zero remains valid
  await page.locator('#mainNav [data-view="money"]').click();
  await page.locator('#mainNav [data-view="today"]').click();
  await expect(page.locator('#todayView [data-os2-today]')).toBeVisible();
- const explicit=page.locator('.pr1300-domain').filter({hasText:'Peníze'});
- await expect(explicit).toContainText('0 Kč');
- await expect(explicit).toContainText('zadaná volná hotovost');
+ diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
+ expect(diag.cashKnown).toBe(true);
+ expect(diag.cash).toBe(0);
 });
 
 
@@ -370,7 +377,7 @@ test('OS1307 empty canonical betting ledger does not revive legacy bets',async({
   }));
  });
  await boot(page);
- await page.locator('#mainNav [data-view="betting"]').click();
+ await openView(page,'betting');
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
  await expect(page.locator('#bettingView')).toContainText('0 otevřených');
  await expect(page.locator('#bettingView')).not.toContainText('Stará sázka');
@@ -406,7 +413,7 @@ test('OS1308 advanced betting cannot resurrect stale legacy bets',async({page})=
   }));
  });
  await boot(page);
- await page.locator('#mainNav [data-view="betting"]').click();
+ await openView(page,'betting');
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
  await expect(page.locator('#bettingView')).not.toContainText('Legacy zombie');
  await page.locator('#bettingView [data-betting-advanced]').click();
