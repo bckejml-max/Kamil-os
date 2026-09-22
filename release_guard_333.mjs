@@ -21,7 +21,7 @@ const releaseVersion=release.match(/APP_VERSION='([^']+)'/)?.[1]||'';
 if(pkg.version!==releaseVersion)fail(`package version ${pkg.version} does not match releaseMeta ${releaseVersion}`);
 
 for(const p of [
- './os2.css','./productReset1300.css','./js/todayPage2000.js','./js/workPage1300.js','./js/propertyPage1300.js','./js/app.js','./js/viewRuntime41.js','./js/runtimeOwnership1100.js',
+ './os2.css','./productReset1300.css','./js/todayPage2000.js','./js/privateSnapshot1320.js','./js/privateSnapshotImport1320.js','./js/workPage1300.js','./js/propertyPage1300.js','./js/app.js','./js/viewRuntime41.js','./js/runtimeOwnership1100.js',
  './js/ticketOverview.js','./js/ticketAdvanced100.js','./js/ticketPage100.js','./js/ticketDesk331.js','./js/ticketUi421.js','./js/ticketCloud660.js','./js/moneyOverview.js','./js/moneyAdvanced100.js','./js/bettingOverview.js','./js/bettingAdvanced527.js','./js/tasksOverview.js','./js/inboxAdvanced141.js',
  './js/bettingPage527.js','./js/bettingBootstrap543.js','./js/command.js','./js/commandSearch610.js'
 ])if(!exists(p))fail(`missing required OS2 file ${p}`);
@@ -50,8 +50,9 @@ for(const token of [
 if(!views.includes('ensureViewStyles'))fail('view-specific CSS must remain lazy');
 if(!views.includes("tickets:[]"))fail('Heavy Ticket styles must stay off the default simple view');
 
-for(const symbol of ['data-os2-today','data-product-home1300','pr1300-attention','pr1300-domains','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today OS2 missing ${symbol}`);
+for(const symbol of ['data-os2-today','data-product-home1300','pr1320-now','pr1320-queue','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today OS2 missing ${symbol}`);
 if(!app.includes("const input=qs('#commandInput')")||!app.includes('executeCommand41(v)'))fail('canonical command bar missing');
+if(!app.includes("import('./privateSnapshotImport1320.js')"))fail('private current-data importer wiring missing');
 if(!ticketOverview.includes("import('./ticketAdvanced100.js')"))fail('Advanced Ticket Desk must be explicit/on-demand from the simple overview');
 if(!moneyOverview.includes("import('./moneyAdvanced100.js')"))fail('Advanced Money view must be explicit/on-demand from the simple overview');
 if(!bettingOverview.includes("import('./bettingAdvanced527.js')"))fail('Advanced Betting scanner must be explicit/on-demand from the simple overview');

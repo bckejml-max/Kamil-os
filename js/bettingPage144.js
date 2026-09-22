@@ -1,3 +1,4 @@
+import {store} from './state.js';
 const LEDGER_API='/api/core70-health?source=ledger';
 const HEALTH_API='/api/core70-health';
 const DISCOVERY_API='/api/chance-model-pages?days=5&maxPages=2';
@@ -289,21 +290,21 @@ function scannerHtml(health){
 }
 
 function renderData(host,payload,health){
- const summary=payload?.ledger||{};
- const bets=(Array.isArray(payload?.bets)?payload.bets:[]).filter(b=>String(b?.status||'').toUpperCase()==='OPEN');
+ const summary=payload?.ledger||{},canonical=store.get()?.bettingLedger||{},apiBets=Array.isArray(payload?.bets)?payload.bets:[],canonicalBets=Array.isArray(canonical.bets)?canonical.bets:[],sourceBets=apiBets.length?apiBets:canonicalBets;
+ const bets=sourceBets.filter(b=>String(b?.status||'').toUpperCase()==='OPEN');
  const exposure=Number(summary.knownTicketExposureCzk??bets.reduce((sum,b)=>sum+Number(b.stakeCzk||0),0));
- const totalReturn=bets.reduce((sum,b)=>sum+Number(b.stakeCzk||0)*Number(b.odds||0),0);
+ const knownReturn=bets.filter(b=>Number(b.odds)>1).reduce((sum,b)=>sum+Number(b.stakeCzk||0)*Number(b.odds||0),0),unknownReturn=bets.some(b=>!(Number(b.odds)>1));
  const feed=chanceFeedState(health);
  const rows=bets.map(b=>{
    const payout=Number(b.stakeCzk||0)*Number(b.odds||0);
-   return `<article class="bet144-ticket" data-bet-id="${escapeHtml(b.id)}"><div><div class="bet144-title"><strong>${escapeHtml(b.label||b.event)}</strong><span class="bet144-lock">🔒 OTEVŘENO</span></div><div class="bet144-event">${escapeHtml(b.event||'')}</div><div class="bet144-meta"><span class="bet144-chip">Chance</span><span class="bet144-chip">${escapeHtml(marketLabel(b.market))}</span>${b.line!=null?`<span class="bet144-chip">linie ${escapeHtml(String(b.line).replace('.',','))}</span>`:''}</div></div><div class="bet144-numbers"><div class="bet144-number"><span>Kurz</span><b>${decimal(b.odds)}</b></div><div class="bet144-number"><span>Vklad</span><b>${money(b.stakeCzk)}</b></div><div class="bet144-number"><span>Výplata</span><b>${money(Math.round(payout))}</b></div></div></article>`;
+   return `<article class="bet144-ticket" data-bet-id="${escapeHtml(b.id)}"><div><div class="bet144-title"><strong>${escapeHtml(b.label||b.event)}</strong><span class="bet144-lock">🔒 OTEVŘENO</span></div><div class="bet144-event">${escapeHtml(b.event||'')}</div><div class="bet144-meta"><span class="bet144-chip">${escapeHtml(b.bookmaker||b.provider||'Evidováno')}</span><span class="bet144-chip">${escapeHtml(marketLabel(b.market))}</span>${b.line!=null?`<span class="bet144-chip">linie ${escapeHtml(String(b.line).replace('.',','))}</span>`:''}</div></div><div class="bet144-numbers"><div class="bet144-number"><span>Kurz</span><b>${Number(b.odds)>1?decimal(b.odds):'—'}</b></div><div class="bet144-number"><span>Vklad</span><b>${money(b.stakeCzk)}</b></div><div class="bet144-number"><span>Výplata</span><b>${Number(b.odds)>1?money(Math.round(payout)):'—'}</b></div></div></article>`;
  }).join('');
  const heroText=feed.level==='bad'?'Ledger a historie sázek jsou dostupné. Živý Chance feed je teď nedostupný, takže nové value tipy nevymýšlím.':'Chance kurzy porovnávám s nezávislým modelem; tip se zobrazí jen pokud projde EV/edge filtrem a už vsazené tikety znovu nenabízím.';
- host.innerHTML=`<div class="bet144"><section class="bet144-hero"><div><div class="eyebrow">SÁZENÍ · CHANCE</div><h1>Betting centrum</h1><p>${heroText}</p></div><button class="btn bet144-refresh" type="button" data-bet144-refresh>↻ Aktualizovat</button></section><section class="bet144-metrics"><div class="bet144-metric"><span>Otevřené tikety</span><b>${bets.length}</b></div><div class="bet144-metric"><span>Celkem vsazeno</span><b>${money(exposure)}</b></div><div class="bet144-metric"><span>Možná výplata</span><b>${money(Math.round(totalReturn))}</b></div><div class="bet144-metric"><span>Chance feed</span><b>${feed.metric}</b></div></section>${scannerHtml(health)}<div class="bet144-section-title">Otevřené tikety</div><section class="bet144-list">${rows||'<div class="bet144-note">Nemáš žádnou otevřenou potvrzenou sázku.</div>'}</section><div class="bet144-note">🔒 Zamčený tiket už znovu nedoporučuju ani nepřepisuju. Aktuálně eviduju ${bets.length} otevřené tikety za ${money(exposure)}. Automatická fotbalová vrstva umí full-time 1X2 a BTTS, půlgólové gólové/týmové totaly, full-time O/U rohy a žluté karty a půlgólové handicapy. Poločasové rohy/karty a čtvrtkové či celé handicapové linie zůstávají bez automatického BET; tenis zatím modelovaný není.</div></div>`;
+ host.innerHTML=`<div class="bet144"><section class="bet144-hero"><div><div class="eyebrow">SÁZENÍ · CHANCE</div><h1>Betting centrum</h1><p>${heroText}</p></div><button class="btn bet144-refresh" type="button" data-bet144-refresh>↻ Aktualizovat</button></section><section class="bet144-metrics"><div class="bet144-metric"><span>Otevřené tikety</span><b>${bets.length}</b></div><div class="bet144-metric"><span>Celkem vsazeno</span><b>${money(exposure)}</b></div><div class="bet144-metric"><span>${unknownReturn?'Známá možná výplata':'Možná výplata'}</span><b>${money(Math.round(knownReturn))}</b></div><div class="bet144-metric"><span>Chance feed</span><b>${feed.metric}</b></div></section>${scannerHtml(health)}<div class="bet144-section-title">Otevřené tikety</div><section class="bet144-list">${rows||'<div class="bet144-note">Nemáš žádnou otevřenou potvrzenou sázku.</div>'}</section><div class="bet144-note">🔒 Zamčený tiket už znovu nedoporučuju ani nepřepisuju. Aktuálně eviduju ${bets.length} otevřené tikety za ${money(exposure)}. Automatická fotbalová vrstva umí full-time 1X2 a BTTS, půlgólové gólové/týmové totaly, full-time O/U rohy a žluté karty a půlgólové handicapy. Poločasové rohy/karty a čtvrtkové či celé handicapové linie zůstávají bez automatického BET; tenis zatím modelovaný není.</div></div>`;
  host.querySelector('[data-bet144-refresh]')?.addEventListener('click',()=>loadBetting(host,true));
  host.querySelector('[data-bet144-scan]')?.addEventListener('click',()=>runValueScan(host));
  window.__KAMIL_BETTING_HEALTH_144__=health||{};
- window.__KAMIL_BETTING_144__={ok:true,openCount:bets.length,exposureCzk:exposure,modelReady:hasBuiltInModel(health),chanceFeed:feed.level!=='bad',chanceFeedState:feed.level,chanceFeedVerified:feed.verified,chanceFeedStatus:feed.status,bets:bets.map(b=>({id:b.id,label:b.label,odds:b.odds,stakeCzk:b.stakeCzk,status:b.status}))};
+ window.__KAMIL_BETTING_144__={...(window.__KAMIL_BETTING_144__||{}),ok:true,loading:false,openCount:bets.length,exposureCzk:exposure,modelReady:hasBuiltInModel(health),chanceFeed:feed.level!=='bad',chanceFeedState:feed.level,chanceFeedVerified:feed.verified,chanceFeedStatus:feed.status,bets:bets.map(b=>({id:b.id,label:b.label,odds:b.odds,stakeCzk:b.stakeCzk,status:b.status}))};
 }
 
 async function getHealth(){
@@ -329,9 +330,11 @@ async function loadBetting(host,force=false){
    if(!payload?.ok)throw new Error(payload?.error||'Ledger není dostupný');
    renderData(host,payload,health);
  }catch(error){
+   const canonical=store.get()?.bettingLedger||{},open=(Array.isArray(canonical.bets)?canonical.bets:[]).filter(b=>String(b?.status||'').toUpperCase()==='OPEN');
+   if(open.length){renderData(host,{ok:true,bets:open,ledger:{knownTicketExposureCzk:open.reduce((sum,b)=>sum+Number(b.stakeCzk||0),0)}},healthClientCache.value||{});window.__KAMIL_BETTING_144__={...(window.__KAMIL_BETTING_144__||{}),fallback:'canonical-state',apiError:String(error?.message||error)};return}
    host.innerHTML=`<div class="bet144"><section class="bet144-hero"><div><div class="eyebrow">SÁZENÍ · CHANCE</div><h1>Betting centrum</h1></div></section><div class="bet144-error"><b>Betting centrum se nepodařilo načíst.</b><div class="muted" style="margin-top:6px">${escapeHtml(error?.message||error)}</div><button class="btn" style="margin-top:12px" type="button" data-bet144-retry>Zkusit znovu</button></div></div>`;
    host.querySelector('[data-bet144-retry]')?.addEventListener('click',()=>loadBetting(host,true));
-   window.__KAMIL_BETTING_144__={ok:false,error:String(error?.message||error)};
+   window.__KAMIL_BETTING_144__={...(window.__KAMIL_BETTING_144__||{}),ok:false,loading:false,error:String(error?.message||error)};
  }
 }
 
