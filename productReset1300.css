@@ -123,7 +123,7 @@ html[data-usability-reset1320="1"] #commandResults{
    is hidden unless the user explicitly opens the advanced workspace. */
 html[data-usability-reset1320="1"] #todayView[data-view-ready="1"] > :not([data-os2-today]),
 html[data-usability-reset1320="1"] #workView[data-view-ready="1"] > :not([data-work-page1300]),
-html[data-usability-reset1320="1"] #inboxView[data-view-ready="1"] > :not([data-tasks-overview]),
+html[data-usability-reset1320="1"] #inboxView[data-view-ready="1"]:not([data-product-advanced]) > :not([data-tasks-overview]),
 html[data-usability-reset1320="1"] #ticketIntelView[data-view-ready="1"]:not([data-product-advanced]) > :not([data-ticket-overview]),
 html[data-usability-reset1320="1"] #propertyView[data-view-ready="1"] > :not([data-property-page1300]),
 html[data-usability-reset1320="1"] #moneyView[data-view-ready="1"]:not([data-product-advanced]) > :not([data-money-overview]),
@@ -133,7 +133,7 @@ html[data-usability-reset1320="1"] #bettingView[data-view-ready="1"]:not([data-p
 
 /* The new product panels win over the OS737 legacy compatibility layer. */
 html[data-usability-reset1320="1"] #workView .pr1300-panel,
-html[data-usability-reset1320="1"] #inboxView .pr1300-panel,
+html[data-usability-reset1320="1"] #inboxView:not([data-product-advanced]) .pr1300-panel,
 html[data-usability-reset1320="1"] #ticketIntelView:not([data-product-advanced]) .pr1300-panel,
 html[data-usability-reset1320="1"] #propertyView .pr1300-panel,
 html[data-usability-reset1320="1"] #moneyView:not([data-product-advanced]) .pr1300-panel,
