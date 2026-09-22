@@ -29,12 +29,12 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
  expect(state.resources.some(x=>x.includes('ticketDesk331.js'))).toBe(false);
 });
 
-test('OS2000 Today is the canonical lightweight dashboard',async({page})=>{
+test('OS1320 Today is the canonical action-first screen',async({page})=>{
  await boot(page);
  await expect(page.locator('.pr1300-head h1')).toContainText(/Kamile/i);
  await expect(page.locator('[data-product-home1300]')).toBeVisible();
- await expect(page.locator('.pr1300-panel').first()).toContainText(/Potřebuje tvoji pozornost/i);
- await expect(page.locator('.pr1300-domains .pr1300-domain')).toHaveCount(6);
+ await expect(page.locator('.pr1320-now')).toBeVisible();
+ await expect(page.locator('.pr1300-domains .pr1300-domain')).toHaveCount(0);
  const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(today?.healthy).toBe(true);
  expect(today?.version).toBe(2000);
@@ -158,12 +158,12 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
-test('OS1300 mobile keeps the seven primary workflows one tap away',async({page})=>{
+test('OS1320 mobile keeps five primary workflows one tap away',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  await expect(page.locator('#bottomNav')).toBeVisible();
- await expect(page.locator('#bottomNav [data-view]')).toHaveCount(7);
- for(const view of ['inbox','work','tickets','money','property','betting']){
+ await expect(page.locator('#bottomNav [data-view]')).toHaveCount(5);
+ for(const view of ['inbox','work','tickets','money']){
   await page.locator(`#bottomNav [data-view="${view}"]`).click();
   await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
   await page.waitForTimeout(view==='tickets'||view==='betting'?700:250);
