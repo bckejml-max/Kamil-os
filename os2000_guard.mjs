@@ -25,7 +25,7 @@ assert.equal(views.includes('ensureInboxShell'),false,'Inbox must be static shel
 assert.equal(views.includes('ensureBettingShell'),false,'Betting must be static shell, not runtime DOM injection');
 assert.match(views,/data-os2-lazy|dataset\.os2Lazy/,'lazy view stylesheet marker missing');
 
-for(const symbol of ['pr1300-shell','pr1300-attention','pr1300-domains','__KAMIL_TODAY_OS2000__'])assert.match(today,new RegExp(symbol),`Today OS2 missing ${symbol}`);
+for(const symbol of ['pr1320-today','pr1320-now','pr1320-queue','__KAMIL_TODAY_OS2000__'])assert.match(today,new RegExp(symbol),`Today OS2 missing ${symbol}`);
 assert.ok((today.match(/ownEvent1100\s*\(/g)||[]).length<=1,'Today OS2 should own at most one delegated UI listener');
 assert.match(betting,/export function installBettingBootstrap543/,'Betting bootstrap must be explicitly view-owned');
 assert.equal(betting.includes('runtimeCoordinator1050'),false,'Betting must not revive legacy global runtime');
