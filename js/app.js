@@ -106,7 +106,7 @@ ownEvent1100(OWNER,document,'keydown',e=>{
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='n'){e.preventDefault();openCapture().catch(error=>warnAction('shortcut-add',error))}
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)){e.preventDefault();if(!store.undo())toast('Není co vrátit')}
 });
-ownEvent1100(OWNER,document,'click',e=>{if(!e.target.closest('.command-wrap')&&input.value)renderCommandResults41('').catch(()=>{})});
+ownEvent1100(OWNER,document,'click',e=>{if(!e.target.closest('.os2-command')&&input.value)renderCommandResults41('').catch(()=>{})});
 
 const stopSyncStatus=onSyncStatus((s,detail)=>{const el=qs('#syncStatus');if(!el)return;el.className='sync '+(s==='ok'?'ok':s);el.innerHTML=`<i></i> ${s==='ok'?'Cloud • Uloženo':s==='saving'?'Cloud • Ukládám…':s==='offline'?'Offline – uložím později':s==='conflict'?'Konflikt dat':'Cloud'}`;el.onclick=null;el.onkeydown=null;el.removeAttribute('role');el.removeAttribute('tabindex');el.style.cursor='default';if(detail)el.title=detail});
 ownCleanup1100(OWNER,stopSyncStatus);
