@@ -60,7 +60,7 @@ html[data-product-reset1300="1"] #todayView .os333-exec{display:none!important}
 
 @media(max-width:1080px){.pr1300-grid{grid-template-columns:1fr}.pr1300-domains{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){
- html[data-product-reset1300="1"] .os2-bottom{grid-template-columns:repeat(7,minmax(0,1fr))!important}
+ html[data-product-reset1300="1"] .os2-bottom{grid-template-columns:repeat(5,minmax(0,1fr))!important}
  html[data-product-reset1300="1"] .os2-bottom button{font-size:8.5px!important;padding-inline:2px!important}
  .pr1300-head{align-items:flex-start;flex-direction:column}.pr1300-head h1{font-size:25px}.pr1300-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.pr1300-domains{grid-template-columns:1fr 1fr}.pr1300-hero{grid-template-columns:1fr}.pr1300-hero-value{text-align:left}.pr1300-grid{gap:12px}.pr1300-shell{gap:14px}
 }
@@ -75,3 +75,24 @@ html[data-product-reset1300="1"] #moneyView [data-property-finance610],
 html[data-product-reset1300="1"] #bettingView [data-betting-hub630],
 html[data-product-reset1300="1"] #ticketIntelView [data-ticket-hub640],
 html[data-product-reset1300="1"] #ticketsView [data-family-hub610]{display:none!important}
+
+
+/* OS1320 usability reset: fewer choices, stronger action hierarchy. */
+html[data-usability-reset1320="1"] #allSectionsBtn{margin-top:4px!important;border:1px dashed rgba(255,255,255,.08)!important}
+html[data-usability-reset1320="1"] .pr1320-today{display:grid;gap:14px}
+html[data-usability-reset1320="1"] .pr1320-now{border:1px solid rgba(122,167,255,.20);border-radius:20px;background:linear-gradient(145deg,#151d28,#10161e);padding:22px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}
+html[data-usability-reset1320="1"] .pr1320-now h2{margin:6px 0 7px;font-size:24px;line-height:1.12;letter-spacing:-.035em}
+html[data-usability-reset1320="1"] .pr1320-now p{margin:0;color:var(--pr-muted);font-size:12px;line-height:1.55;max-width:760px}
+html[data-usability-reset1320="1"] .pr1320-now-actions{display:flex;gap:8px;align-items:center}
+html[data-usability-reset1320="1"] .pr1320-queue{display:grid}
+html[data-usability-reset1320="1"] .pr1320-queue .pr1300-row{min-height:62px}
+html[data-usability-reset1320="1"] .pr1320-meta{display:flex;gap:8px;flex-wrap:wrap}
+html[data-usability-reset1320="1"] .pr1320-meta span{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;border:1px solid var(--pr-line);border-radius:999px;background:#0e1319;color:var(--pr-muted);font-size:10px}
+html[data-usability-reset1320="1"] .pr1320-calendar{opacity:.88}
+@media(max-width:760px){
+ html[data-usability-reset1320="1"] .os2-bottom{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+ html[data-usability-reset1320="1"] .os2-bottom button{font-size:9px!important;padding-inline:4px!important}
+ html[data-usability-reset1320="1"] .pr1320-now{grid-template-columns:1fr;padding:18px}
+ html[data-usability-reset1320="1"] .pr1320-now h2{font-size:21px}
+ html[data-usability-reset1320="1"] .pr1320-now-actions{justify-content:flex-start}
+}
