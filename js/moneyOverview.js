@@ -29,7 +29,7 @@ const tone=n=>n>=90?'bad':n>=65?'warn':'good';
 function attentionHtml(rows){if(!rows.length)return '<div class="pr1300-empty">Nic finančního teď nevyžaduje zásah.</div>';return '<div class="pr1300-attention">'+rows.map(x=>'<button type="button" data-money-record="'+esc(x.kind==='record'?x.id:'')+'" data-money-task="'+esc(x.kind==='task'?x.id:'')+'"><i class="pr1300-dot '+tone(x.severity)+'"></i><span><b>'+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></span><em>'+(x.kind==='record'?'otevřít':'úkol')+' →</em></button>').join('')+'</div>'}
 
 export function renderMoneyOverview(){
- const host=document.querySelector('#moneyView');if(!host)return false;const d=data(),complete=d.property>0&&d.bank>0&&(d.invest>0||d.tickets>0);
+ const host=document.querySelector('#moneyView');if(!host)return false;if(host.dataset.productAdvanced==='1')return true;const d=data(),complete=d.property>0&&d.bank>0&&(d.invest>0||d.tickets>0);
  const headline=complete?money(d.net):(d.bank?money(d.bank):'Doplnit aktuální stav');
  const detail=complete?'Známé čisté jmění podle uložených aktiv a dluhů.':(d.bank?'Zatím ukazuju známou hotovost. Pro přesné čisté jmění chybí část majetku nebo investic.':'Nejdřív doplň aktuální bankovní stav; bez něj nechci ukazovat falešně přesné součty.');
  host.innerHTML='<div class="pr1300-shell" data-money-overview>' +
