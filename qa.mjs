@@ -40,7 +40,7 @@ assert.equal(release,version,'APP_RELEASE must equal APP_VERSION');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 
-const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage2000.js','js/workPage1300.js','js/propertyPage1300.js','js/ticketPage100.js','js/bettingPage527.js','js/moneyOverview.js','js/ticketOverview.js','js/bettingOverview.js','js/tasksOverview.js','js/bettingBootstrap543.js','js/state.js','js/cloudPayload32.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','os2000_guard.mjs','runtime_boot_guard.mjs','runtime_ownership_1100_guard.mjs','release_guard_333.mjs'];
+const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage2000.js','js/workPage1300.js','js/propertyPage1300.js','js/ticketPage100.js','js/bettingPage527.js','js/moneyOverview.js','js/ticketOverview.js','js/bettingOverview.js','js/tasksOverview.js','js/bettingBootstrap543.js','js/state.js','js/privateSnapshot1320.js','js/privateSnapshotImport1320.js','js/cloudPayload32.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','os2000_guard.mjs','runtime_boot_guard.mjs','runtime_ownership_1100_guard.mjs','release_guard_333.mjs'];
 for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 
 // OS 1300 product shell keeps the four legacy base layers plus one focused product layer.
