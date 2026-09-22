@@ -19,7 +19,7 @@ function data(){
 function rows(items){if(!items.length)return '<div class="pr1300-empty">Žádná otevřená sázka.</div>';return items.slice(0,8).map(x=>'<div class="pr1300-row"><div class="pr1300-row-main"><b>'+esc(x.label||x.selection||x.event||'Sázka')+(x.odds?' @ '+Number(x.odds).toFixed(2):'')+'</b><small>'+esc(x.event||'')+' · '+esc(x.market||'')+' · '+money(x.stakeCzk||0)+'</small></div><div class="pr1300-row-side">'+(x.units?esc(x.units+'u'):'OPEN')+'</div></div>').join('')}
 
 export function renderBettingOverview(){
- const host=document.querySelector('#bettingView');if(!host)return false;const d=data(),risk=d.bankrollCzk&&d.exposure>d.bankrollCzk*.2;
+ const host=document.querySelector('#bettingView');if(!host)return false;if(host.dataset.productAdvanced==='1')return true;const d=data(),risk=d.bankrollCzk&&d.exposure>d.bankrollCzk*.2;
  host.innerHTML='<div class="pr1300-shell" data-betting-overview>' +
  '<div class="pr1300-head"><div><div class="pr1300-kicker">Sázení</div><h1>Otevřené sázky a riziko.</h1><p>Scanner, modely a historie jsou detail. Tady jsou jen peníze, které jsou právě ve hře.</p></div><span class="pr1300-status '+(risk?'warn':'good')+'">'+d.open.length+' otevřených</span></div>' +
  '<section class="pr1320-now"><div><div class="pr1300-kicker">Expozice</div><h2>'+money(d.exposure)+'</h2><p>'+(risk?'Expozice je vyšší než 20 % uloženého bankrollu. Další vstup nejdřív zkontroluj.':'Otevřená expozice podle uloženého bankrollu není mimo běžný rámec.')+'</p></div><div class="pr1320-now-actions"><button class="pr1300-btn primary" type="button" data-betting-advanced>Scanner a detail sázek</button></div></section>' +
