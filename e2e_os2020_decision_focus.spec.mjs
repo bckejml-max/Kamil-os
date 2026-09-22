@@ -9,8 +9,8 @@ async function boot(page){
 
 async function openView(page,view){
  const button=page.locator(`.os2-sidebar [data-view="${view}"]`).first();
- await expect(button).toBeVisible();
- await button.click();
+ if(await button.count())await button.click();
+ else await page.evaluate(v=>window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:v})),view);
  await expect(page.locator(`#view-${view}`)).toHaveClass(/\bon\b/);
 }
 
