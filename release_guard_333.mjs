@@ -50,7 +50,7 @@ for(const token of [
 if(!views.includes('ensureViewStyles'))fail('view-specific CSS must remain lazy');
 if(!views.includes("tickets:[]"))fail('Heavy Ticket styles must stay off the default simple view');
 
-for(const symbol of ['data-os2-today','data-product-home1300','pr1300-attention','pr1300-domains','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today OS2 missing ${symbol}`);
+for(const symbol of ['data-os2-today','data-product-home1300','pr1320-now','pr1320-queue','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today OS2 missing ${symbol}`);
 if(!app.includes("const input=qs('#commandInput')")||!app.includes('executeCommand41(v)'))fail('canonical command bar missing');
 if(!ticketOverview.includes("import('./ticketAdvanced100.js')"))fail('Advanced Ticket Desk must be explicit/on-demand from the simple overview');
 if(!moneyOverview.includes("import('./moneyAdvanced100.js')"))fail('Advanced Money view must be explicit/on-demand from the simple overview');
