@@ -165,6 +165,19 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
+test('OS1320 desktop secondary sections are reachable from one menu',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ await page.locator('#allSectionsBtn').click();
+ await page.getByRole('button',{name:'Reality',exact:true}).click();
+ await expect(page.locator('#view-property')).toHaveClass(/on/);
+ await expect(page.locator('#propertyView [data-property-page1300]')).toBeVisible({timeout:10000});
+ await page.locator('#allSectionsBtn').click();
+ await page.getByRole('button',{name:'Sázení',exact:true}).click();
+ await expect(page.locator('#view-betting')).toHaveClass(/on/);
+ await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible({timeout:10000});
+});
+
 test('OS1320 mobile keeps five primary workflows one tap away',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
