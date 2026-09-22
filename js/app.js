@@ -22,6 +22,11 @@ const pageTitles={today:'DNES',work:'PRÁCE',tickets:'VSTUPENKY',property:'REALI
 const viewHosts={today:'todayView',work:'workView',tickets:'ticketIntelView',property:'propertyView',money:'moneyView',betting:'bettingView',inbox:'inboxView',family:'ticketsView',home:'homeView',more:'moreView'};
 const quickLabels={today:'Přidat',work:'Pracovní úkol',tickets:'Úkol k ticketům',property:'Úkol k realitě',money:'Finanční úkol',inbox:'Úkol',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
 const captureTypeForView=()=>({today:'task',work:'work-task',tickets:'ticket-task',property:'property-task',money:'money-task',inbox:'task',family:'family-task',home:'home-task',more:'document-source'})[current]||'task';
+const hasPrivateSnapshotKey=()=>{try{return new URLSearchParams(location.hash.replace(/^#/,'')).has('privateSnapshotKey')}catch{return false}};
+async function importPrivateSnapshotIfPresent(){
+ if(!hasPrivateSnapshotKey())return false;
+ try{const m=await import('./privateSnapshotImport1320.js');const result=await m.importPrivateSnapshot1320();if(result?.ok){stateRevision++;scheduleRender(true);toast('Aktuální soukromá data byla načtena do Kamil OS.');return true}toast('Soukromý snapshot se nepodařilo načíst.');return false}catch(error){console.warn('[app41:private-snapshot]',error);toast('Soukromý snapshot se nepodařilo načíst.');return false}
+}
 const hostForView=view=>qs(`#${viewHosts[view]||`${view}View`}`);
 const openCapture=(type=null)=>withActionLock(()=>openCapture41(type||captureTypeForView()));
 const warnAction=(scope,error)=>{console.warn(`[app41:${scope}]`,error);toast('Akci se nepodařilo dokončit')};
@@ -142,7 +147,7 @@ qs('#resetPassword2').onkeydown=e=>{if(e.key==='Enter')qs('#setPasswordBtn').cli
 // Rychlý start: lokální data vykreslíme dřív, než čekáme na SDK/cloud session.
 showApp();localSyncStatus();quickShell('today');scheduleRender(true);warmRuntime41();markPerf41('shell-visible');
 const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
-if(hashParams.get('error')){recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search);toast(hashParams.get('error_code')==='otp_expired'?'Přihlašovací/resetovací odkaz vypršel. Pošli si nový a otevři vždy nejnovější e-mail.':'Cloudové přihlášení se nepodařilo. Kamil OS běží lokálně.');await handleSession(await session())}else if(recoveryMode){await session();showResetView();await startAuthWatch()}else{const sess=await session();if(sess){await handleSession(sess);await startAuthWatch()}else{store.get().meta.cloudMode='local';schedulePreflight();markPerf41('session-check-complete')}}
+if(hashParams.get('error')){recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search);toast(hashParams.get('error_code')==='otp_expired'?'Přihlašovací/resetovací odkaz vypršel. Pošli si nový a otevři vždy nejnovější e-mail.':'Cloudové přihlášení se nepodařilo. Kamil OS běží lokálně.');await handleSession(await session())}else if(recoveryMode){await session();showResetView();await startAuthWatch()}else{const sess=await session();if(sess){await handleSession(sess);await importPrivateSnapshotIfPresent();await startAuthWatch()}else{store.get().meta.cloudMode='local';await importPrivateSnapshotIfPresent();schedulePreflight();markPerf41('session-check-complete')}}
 
 if('serviceWorker'in navigator){try{const reg=await (window.__KAMIL_SW_PROMISE__||(window.__KAMIL_SW_PROMISE__=navigator.serviceWorker.register('./sw.js')));if(reg){ownEvent1100(OWNER,reg,'updatefound',()=>{const w=reg.installing;if(!w)return;ownEvent1100(OWNER,w,'statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)qs('#updateBanner').classList.remove('hidden')})});qs('#reloadAppBtn').onclick=()=>location.reload()}}catch(error){console.warn('[app41:service-worker]',error)}}
 ownEvent1100(OWNER,window,'beforeunload',()=>{if(store.dirty){store.queueSync(store.get());store.setMeta({pendingAt:new Date().toISOString()})}});
