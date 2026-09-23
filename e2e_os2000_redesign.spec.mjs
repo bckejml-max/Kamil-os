@@ -165,6 +165,27 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
+test('OS1327 Money prioritizes actions and Tickets collapse empty states',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+
+ await openView(page,'money');
+ await expect(page.locator('#moneyView [data-money-overview]')).toBeVisible();
+ const moneyAttention=page.locator('#moneyView .pr1327-money-attention');
+ if(await moneyAttention.count()){
+  const attentionTop=await moneyAttention.boundingBox();
+  const stateTop=await page.locator('#moneyView .pr1327-money-state').boundingBox();
+  expect(attentionTop.y).toBeLessThan(stateTop.y);
+ }
+
+ await openView(page,'tickets');
+ await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible();
+ const diag=await page.evaluate(()=>window.__KAMIL_TICKET_OVERVIEW__);
+ if(diag.events===0&&diag.attention===0){
+  await expect(page.locator('#ticketIntelView .pr1327-ticket-clear')).toHaveCount(1);
+  await expect(page.locator('#ticketIntelView .pr1300-panel')).toHaveCount(1);
+ }
+});
 test('OS1326 Today shows five compact system rows with live cross-section data',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
