@@ -23,6 +23,7 @@ async function editPolicy(id=null){
  const body=`<div class="form-grid capture-form">
   <label class="wide-field">Název pojistky<input id="insTitle" autofocus value="${h(v('title'))}" placeholder="Např. Pojištění domu"></label>
   <label>Typ<select id="insKind">${opts(INSURANCE_KINDS,iv('kind','OTHER'))}</select></label>
+  <label>Stav smlouvy<select id="insLifecycle">${opts(INSURANCE_LIFECYCLES,iv('lifecycle',x?.status==='ARCHIVED'?'HISTORY':'ACTIVE'))}</select></label>
   <label>Pojištěná osoba / majetek<input id="insInsured" value="${h(iv('insured'))}" placeholder="Např. dům / rodina / auto"></label>
   <label>Pojišťovna<input id="insProvider" value="${h(v('provider'))}"></label>
   <label>Číslo smlouvy<input id="insNumber" value="${h(iv('policyNumber'))}"></label>
@@ -43,7 +44,7 @@ async function editPolicy(id=null){
  const num=id=>{const raw=qs(id)?.value?.trim();if(raw==='')return null;const z=Number(raw);return Number.isFinite(z)&&z>=0?z:NaN};
  const amount=num('#insPremium'),coverageAmount=num('#insCoverage'),deductible=num('#insDeductible');if([amount,coverageAmount,deductible].some(z=>Number.isNaN(z)))return toast('Číselné hodnoty musí být platné');
  const now=new Date().toISOString();
- const next={id:id||uid('personal'),title,category:'INSURANCE',provider:qs('#insProvider').value.trim(),amount,currency:qs('#insCurrency').value,cadence:qs('#insCadence').value,nextDue:qs('#insDue').value||null,renewalDate:qs('#insRenewal').value||null,noticeDate:qs('#insNotice').value||null,autoPay:qs('#insAuto').value==='true',notes:qs('#insNotes').value.trim(),status:'ACTIVE',updatedAt:now,createdAt:x?.createdAt||now,insurance:{kind:qs('#insKind').value,insured:qs('#insInsured').value.trim(),policyNumber:qs('#insNumber').value.trim(),contact:qs('#insContact').value.trim(),coverageAmount,deductible}};
+ const next={id:id||uid('personal'),title,category:'INSURANCE',provider:qs('#insProvider').value.trim(),amount,currency:qs('#insCurrency').value,cadence:qs('#insCadence').value,nextDue:qs('#insDue').value||null,renewalDate:qs('#insRenewal').value||null,noticeDate:qs('#insNotice').value||null,autoPay:qs('#insAuto').value==='true',notes:qs('#insNotes').value.trim(),status:qs('#insLifecycle').value==='HISTORY'?'ARCHIVED':'ACTIVE',updatedAt:now,createdAt:x?.createdAt||now,insurance:{kind:qs('#insKind').value,lifecycle:qs('#insLifecycle').value,insured:qs('#insInsured').value.trim(),policyNumber:qs('#insNumber').value.trim(),contact:qs('#insContact').value.trim(),coverageAmount,deductible}};
  store.mutate(`${id?'Upravena':'Přidána'} pojistka: ${title}`,z=>{z.personalAdmin=z.personalAdmin||{items:[]};z.personalAdmin.items=Array.isArray(z.personalAdmin.items)?z.personalAdmin.items:[];if(id){const i=z.personalAdmin.items.findIndex(y=>y.id===id);if(i>=0)z.personalAdmin.items[i]=next}else z.personalAdmin.items.unshift(next)});toast('Pojistka uložena');renderInsurance();
 }
 
