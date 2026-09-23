@@ -165,6 +165,23 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
+test('OS1330 Betting does not pretend risk is known without bankroll',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   bettingLedger:{bets:[{id:'open-no-bankroll',status:'OPEN',stakeCzk:10000,label:'Test open bet'}],bankrollCzk:0,unitCzk:0,updatedAt:new Date().toISOString()}
+  }));
+ });
+ await boot(page);
+ await openView(page,'betting');
+ await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
+ await expect(page.locator('#bettingView .pr1320-now p')).toContainText('bankroll není nastavený');
+ const meta=await page.locator('#bettingView .pr1320-meta span').allTextContents();
+ expect(meta).toEqual(['Bankroll: nenastaven','Profit: —','ROI: —','Win rate: —']);
+ const diag=await page.evaluate(()=>window.__KAMIL_BETTING_OVERVIEW__);
+ expect(diag.riskUnknown).toBe(true);
+ expect(diag.hasHistory).toBe(false);
+});
 test('OS1329 Tasks show all buckets and keep far-future documents out of Teď',async({page})=>{
  await page.addInitScript(()=>{
   const due=new Date(Date.now()+183*86400000).toISOString().slice(0,10);
