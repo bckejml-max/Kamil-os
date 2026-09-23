@@ -1,0 +1,61 @@
+/* OS1332: command palette appears only on focus, keeping the normal shell calm. */
+html[data-command-palette1332="1"] .os2-command{z-index:65!important}
+html[data-command-palette1332="1"] .command-results{
+  left:28px!important;
+  right:72px!important;
+  margin-top:50px!important;
+  max-height:min(560px,calc(100vh - 150px));
+  overflow:auto!important;
+  border-color:#2b3948!important;
+  background:#0d141c!important;
+  box-shadow:0 24px 70px rgba(0,0,0,.42)!important;
+}
+html[data-command-palette1332="1"] .os1332-command-home{padding:12px}
+html[data-command-palette1332="1"] .os1332-command-head{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;padding:3px 4px 11px
+}
+html[data-command-palette1332="1"] .os1332-command-head>div{display:grid;gap:2px}
+html[data-command-palette1332="1"] .os1332-command-head b{font-size:12px}
+html[data-command-palette1332="1"] .os1332-command-head span{font-size:9.5px;color:#7f8c9b}
+html[data-command-palette1332="1"] .os1332-command-grid{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px
+}
+html[data-command-palette1332="1"] .os1332-command-grid button{
+  min-width:0;height:54px;border:1px solid #243241;border-radius:11px;background:#111a23;color:#aeb9c7;
+  display:flex;align-items:center;gap:8px;padding:0 10px;cursor:pointer;text-align:left
+}
+html[data-command-palette1332="1"] .os1332-command-grid button:hover{
+  background:#172332;border-color:#36506d;color:#eef5fd
+}
+html[data-command-palette1332="1"] .os1332-command-grid button i{
+  width:25px;height:25px;display:grid;place-items:center;flex:0 0 auto;border-radius:7px;
+  background:#1c2a39;color:#bdd6f5;font-size:10px;font-style:normal;font-weight:800
+}
+html[data-command-palette1332="1"] .os1332-command-grid button span{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px;font-weight:700
+}
+html[data-command-palette1332="1"] .os1332-command-actions{
+  display:flex;align-items:center;gap:10px;margin-top:9px;padding-top:9px;border-top:1px solid rgba(148,163,184,.11)
+}
+html[data-command-palette1332="1"] .os1332-command-actions button{
+  min-height:32px;border:1px solid #f3f6fa;border-radius:9px;background:#f3f6fa;color:#0b1118;
+  padding:0 11px;font-size:10px;font-weight:800;cursor:pointer
+}
+html[data-command-palette1332="1"] .os1332-command-actions span{font-size:9.5px;color:#788697}
+html[data-command-palette1332="1"] .command-results .search-row,
+html[data-command-palette1332="1"] .command-results .os610-search-row{
+  min-height:56px;padding:10px 12px;border-top:1px solid rgba(148,163,184,.10)
+}
+@media(max-width:900px){
+ html[data-command-palette1332="1"] .os1332-command-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+ html[data-command-palette1332="1"] .command-results{
+   left:11px!important;right:11px!important;margin-top:46px!important;max-height:calc(100vh - 170px)
+ }
+ html[data-command-palette1332="1"] .os1332-command-home{padding:10px}
+ html[data-command-palette1332="1"] .os1332-command-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ html[data-command-palette1332="1"] .os1332-command-grid button{height:48px;padding:0 8px}
+ html[data-command-palette1332="1"] .os1332-command-actions{align-items:flex-start;flex-direction:column}
+ html[data-command-palette1332="1"] .os1332-command-actions button{width:100%}
+}
