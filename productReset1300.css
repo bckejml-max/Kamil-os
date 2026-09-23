@@ -197,3 +197,270 @@ html[data-usability-reset1320="1"] .pr1300-panel{background:#10151c!important}
   html[data-usability-reset1320="1"] .os2-bottom button span{font-size:14px!important}
   html[data-usability-reset1320="1"] .os2-bottom button{white-space:nowrap!important}
 }
+
+
+/* OS1324 visual polish: one calm visual language across every canonical section. */
+html[data-usability-reset1320="1"]{
+  --pr-bg:#090d12;
+  --pr-panel:#111820;
+  --pr-panel-2:#17212c;
+  --pr-line:rgba(148,163,184,.16);
+  --pr-text:#f4f7fb;
+  --pr-muted:#9aa7b6;
+  --ux64-bg:#090d12;
+  --ux64-card:#111820;
+  --ux64-text:#f4f7fb;
+  --ux64-muted:#9aa7b6;
+  --ux64-line:#263241;
+  --ux64-soft:#192433;
+}
+
+html[data-usability-reset1320="1"] body{background:#090d12!important}
+html[data-usability-reset1320="1"] .os2-app{background:#090d12!important}
+html[data-usability-reset1320="1"] .os2-sidebar{
+  background:#0c1117!important;
+  border-right-color:#1d2834!important;
+}
+html[data-usability-reset1320="1"] .os2-brand-copy span,
+html[data-usability-reset1320="1"] .os2-account-copy span{color:#7f8b9b!important}
+html[data-usability-reset1320="1"] .os2-nav button{color:#8f9cad!important}
+html[data-usability-reset1320="1"] .os2-nav button:hover{background:#121a23!important;color:#e9eef5!important}
+html[data-usability-reset1320="1"] .os2-nav button.on{
+  background:#182538!important;
+  color:#f1f6ff!important;
+}
+html[data-usability-reset1320="1"] .os2-nav button.on .os2-nav-icon{background:#243b5a!important}
+html[data-usability-reset1320="1"] .os2-side-foot{border-top-color:#1d2834!important}
+
+html[data-usability-reset1320="1"] .os2-topbar{
+  height:60px!important;
+  padding-inline:30px!important;
+  border-bottom-color:#1d2834!important;
+  background:rgba(9,13,18,.92)!important;
+  backdrop-filter:blur(18px)!important;
+}
+html[data-usability-reset1320="1"] .os2-title strong{font-size:14px!important;letter-spacing:.01em!important}
+html[data-usability-reset1320="1"] .os2-title span{color:#788596!important}
+html[data-usability-reset1320="1"] .os2-chip{
+  height:32px!important;
+  border-color:#263241!important;
+  background:#101720!important;
+}
+html[data-usability-reset1320="1"] .os2-primary,
+html[data-usability-reset1320="1"] .btn.primary,
+html[data-usability-reset1320="1"] .pr1300-btn.primary{
+  background:#f3f6fa!important;
+  border-color:#f3f6fa!important;
+  color:#0b1118!important;
+  box-shadow:none!important;
+}
+
+html[data-usability-reset1320="1"] .os2-command{
+  width:min(1216px,100%)!important;
+  margin-inline:auto!important;
+  padding:12px 28px 0!important;
+}
+html[data-usability-reset1320="1"] .os2-command-box{
+  height:42px!important;
+  background:#0e151d!important;
+  border-color:#263241!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+}
+html[data-usability-reset1320="1"] .os2-command-box:focus-within{
+  border-color:#43658a!important;
+  box-shadow:0 0 0 3px rgba(105,167,255,.08)!important;
+}
+html[data-usability-reset1320="1"] #commandGo{
+  min-height:42px!important;
+  background:#101720!important;
+  border-color:#263241!important;
+  color:#dce4ed!important;
+}
+html[data-usability-reset1320="1"] .os2-main{
+  width:min(1160px,100%)!important;
+  max-width:1160px!important;
+  padding:24px 24px 72px!important;
+}
+html[data-usability-reset1320="1"] .pr1300-shell,
+html[data-usability-reset1320="1"] .pr1320-today{gap:16px!important}
+html[data-usability-reset1320="1"] .pr1300-head{align-items:center!important}
+html[data-usability-reset1320="1"] .pr1300-head h1{
+  font-size:30px!important;
+  line-height:1.06!important;
+  letter-spacing:-.04em!important;
+}
+html[data-usability-reset1320="1"] .pr1300-head p{font-size:12.5px!important;color:#96a2b1!important}
+html[data-usability-reset1320="1"] .pr1300-kicker,
+html[data-usability-reset1320="1"] .eyebrow{
+  color:#8290a2!important;
+  letter-spacing:.12em!important;
+}
+html[data-usability-reset1320="1"] .pr1320-now,
+html[data-usability-reset1320="1"] .pr1300-panel,
+html[data-usability-reset1320="1"] .pr1300-hero{
+  background:#111820!important;
+  border-color:#263241!important;
+  box-shadow:none!important;
+}
+html[data-usability-reset1320="1"] .pr1320-now{padding:20px!important}
+html[data-usability-reset1320="1"] .pr1320-now h2{font-size:23px!important}
+html[data-usability-reset1320="1"] .pr1320-meta span{
+  background:#0e151d!important;
+  border-color:#263241!important;
+  color:#91a0b1!important;
+}
+html[data-usability-reset1320="1"] .pr1300-row{border-top-color:rgba(148,163,184,.10)!important}
+html[data-usability-reset1320="1"] .pr1300-row-main small{color:#8e9aaa!important}
+html[data-usability-reset1320="1"] .pr1300-btn{
+  background:#17212c!important;
+  border-color:#2a3746!important;
+  color:#dde5ee!important;
+}
+html[data-usability-reset1320="1"] .pr1300-btn:hover{background:#1d2a38!important}
+
+/* Personal sections now use the same surfaces instead of the older blue dashboard look. */
+html[data-usability-reset1320="1"] .ux64-page{
+  color:#f4f7fb!important;
+  gap:14px!important;
+}
+html[data-usability-reset1320="1"] .family-page,
+html[data-usability-reset1320="1"] .home-page,
+html[data-usability-reset1320="1"] .documents-page{
+  max-width:none!important;
+  width:100%!important;
+}
+html[data-usability-reset1320="1"] .hf140-hero{gap:14px!important}
+html[data-usability-reset1320="1"] .hf140-main,
+html[data-usability-reset1320="1"] .hf140-now,
+html[data-usability-reset1320="1"] .id141-hero,
+html[data-usability-reset1320="1"] .ux64-contract,
+html[data-usability-reset1320="1"] .ux64-doc,
+html[data-usability-reset1320="1"] .family-section,
+html[data-usability-reset1320="1"] .home-section{
+  background:#111820!important;
+  border:1px solid #263241!important;
+  border-radius:16px!important;
+  box-shadow:none!important;
+}
+html[data-usability-reset1320="1"] .hf140-main{background:#111820!important}
+html[data-usability-reset1320="1"] .hf140-main h1,
+html[data-usability-reset1320="1"] .id141-hero h1{font-size:30px!important}
+html[data-usability-reset1320="1"] .hf140-now{background:#101720!important}
+html[data-usability-reset1320="1"] .hf140-nowhead{border-bottom-color:#263241!important}
+html[data-usability-reset1320="1"] .ux64-next{
+  background:#192433!important;
+  color:#e7edf5!important;
+  border-radius:10px!important;
+}
+html[data-usability-reset1320="1"] .ux64-status{
+  background:#1a2838!important;
+  color:#dbe5f0!important;
+}
+html[data-usability-reset1320="1"] .ux64-row{border-top-color:rgba(148,163,184,.12)!important}
+html[data-usability-reset1320="1"] .muted,
+html[data-usability-reset1320="1"] .ux64-page p{color:#96a2b1!important}
+
+/* Filters should feel like controls, not another full-width dashboard card. */
+html[data-usability-reset1320="1"] .family-filters,
+html[data-usability-reset1320="1"] .home-filters,
+html[data-usability-reset1320="1"] .document-filters{
+  position:static!important;
+  display:flex!important;
+  gap:7px!important;
+  flex-wrap:wrap!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+}
+html[data-usability-reset1320="1"] .family-filters .btn,
+html[data-usability-reset1320="1"] .home-filters .btn,
+html[data-usability-reset1320="1"] .document-filters .btn{
+  min-height:34px!important;
+  padding:0 12px!important;
+  background:#121b25!important;
+  border-color:#2a3746!important;
+  color:#aeb9c7!important;
+  border-radius:9px!important;
+}
+html[data-usability-reset1320="1"] .family-filters .btn.on,
+html[data-usability-reset1320="1"] .home-filters .btn.on,
+html[data-usability-reset1320="1"] .document-filters .btn.on{
+  background:#223652!important;
+  border-color:#38577f!important;
+  color:#edf5ff!important;
+}
+html[data-usability-reset1320="1"] .document-action-summary{
+  display:grid!important;
+  gap:10px!important;
+  padding:16px!important;
+  background:#0f161e!important;
+  border:1px solid #263241!important;
+  border-radius:14px!important;
+}
+html[data-usability-reset1320="1"] .document-action-row{
+  display:grid!important;
+  grid-template-columns:28px minmax(0,1fr)!important;
+  gap:10px!important;
+  align-items:start!important;
+}
+html[data-usability-reset1320="1"] .document-action-rank{
+  width:26px!important;
+  height:26px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:8px!important;
+  background:#1d2a38!important;
+  color:#a8c8ef!important;
+  font-weight:800!important;
+}
+html[data-usability-reset1320="1"] .ux64-doc{
+  padding:16px!important;
+}
+html[data-usability-reset1320="1"] .ux64-doc h2,
+html[data-usability-reset1320="1"] .ux64-contract h2{font-size:16px!important}
+html[data-usability-reset1320="1"] .ux64-big{font-size:20px!important}
+
+@media(max-width:760px){
+  html[data-usability-reset1320="1"] .os2-topbar{
+    height:54px!important;
+    padding-inline:12px!important;
+  }
+  html[data-usability-reset1320="1"] .os2-command{
+    width:100%!important;
+    padding:9px 11px 0!important;
+  }
+  html[data-usability-reset1320="1"] .os2-command-box{height:40px!important}
+  html[data-usability-reset1320="1"] .os2-main{
+    width:100%!important;
+    padding:16px 12px 116px!important;
+  }
+  html[data-usability-reset1320="1"] .pr1300-head{align-items:flex-start!important}
+  html[data-usability-reset1320="1"] .pr1300-head h1,
+  html[data-usability-reset1320="1"] .hf140-main h1,
+  html[data-usability-reset1320="1"] .id141-hero h1{font-size:27px!important}
+  html[data-usability-reset1320="1"] .pr1320-now{padding:16px!important}
+  html[data-usability-reset1320="1"] .hf140-main,
+  html[data-usability-reset1320="1"] .hf140-now,
+  html[data-usability-reset1320="1"] .id141-hero{padding:17px!important}
+  html[data-usability-reset1320="1"] .family-filters,
+  html[data-usability-reset1320="1"] .home-filters,
+  html[data-usability-reset1320="1"] .document-filters{
+    display:flex!important;
+    overflow-x:auto!important;
+    flex-wrap:nowrap!important;
+    scrollbar-width:none!important;
+    padding-bottom:2px!important;
+  }
+  html[data-usability-reset1320="1"] .family-filters .btn,
+  html[data-usability-reset1320="1"] .home-filters .btn,
+  html[data-usability-reset1320="1"] .document-filters .btn{
+    flex:0 0 auto!important;
+    width:auto!important;
+  }
+  html[data-usability-reset1320="1"] .os2-bottom{height:98px!important}
+  html[data-usability-reset1320="1"] .os2-app{padding-bottom:104px!important}
+  html[data-usability-reset1320="1"] .os2-bottom button{font-size:9.5px!important}
+}
