@@ -170,7 +170,7 @@ test('OS1328 empty Work and Reality stay truthful instead of manufacturing alert
  await boot(page);
 
  await page.evaluate(()=>localStorage.removeItem('kamil_betting_ledger_543'));
- await page.evaluate(()=>window.__KAMIL_STORE__?.mutate?.('qa clear work reality',s=>{s.projects=[];s.recurringDuties={};s.propertyBook=s.propertyBook||{};s.propertyBook.candidates=[];}));
+ await page.evaluate(async()=>{const {store}=await import('./js/state.js');store.mutate('qa clear work reality',s=>{s.projects=[];s.recurringDuties={};s.propertyBook=s.propertyBook||{};s.propertyBook.candidates=[];},{undo:false,cloud:false,audit:false});});
  await page.waitForTimeout(120);
 
  await openView(page,'work');
