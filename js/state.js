@@ -1,4 +1,6 @@
 import {applyBettingMaster1335} from './bettingMaster1335.js';
+import {applyTicketMaster1336} from './ticketMaster1336.js';
+import {applyInsuranceMaster1336} from './insuranceMaster1336.js';
 import {LOCAL_KEY,META_KEY,QUEUE_KEY,SCHEMA_VERSION,MAX_UNDO} from './config.js';
 import {clone,uid} from './utils.js';
 import {schedule1100} from './runtimeOwnership1100.js';
@@ -52,10 +54,12 @@ export function migrate(input){
  s.xtbReport={czkValue:0,eurValue:0,czkProfit:0,eurProfit:0,...(s.xtbReport||{})};
  s.xtbStrategy={overrides:{},...(s.xtbStrategy||{})};s.xtbStrategy.overrides=s.xtbStrategy.overrides&&typeof s.xtbStrategy.overrides==='object'?s.xtbStrategy.overrides:{};
  s.ticketBook=s.ticketBook||{items:[],watchlist:[],history:[],review:[]};s.ticketBook.items=Array.isArray(s.ticketBook.items)?s.ticketBook.items:[];s.ticketBook.watchlist=Array.isArray(s.ticketBook.watchlist)?s.ticketBook.watchlist:[];
+ applyTicketMaster1336(s);
  s.bettingLedger={bets:[],bankrollCzk:0,unitCzk:0,updatedAt:null,...(s.bettingLedger||{})};s.bettingLedger.bets=Array.isArray(s.bettingLedger.bets)?s.bettingLedger.bets:[];
  applyBettingMaster1335(s);
  s.debtBook=s.debtBook||{items:[],review:[]};s.debtBook.items=Array.isArray(s.debtBook.items)?s.debtBook.items:[];
  s.personalAdmin={items:[],...(s.personalAdmin||{})};s.personalAdmin.items=Array.isArray(s.personalAdmin.items)?s.personalAdmin.items:[];
+ applyInsuranceMaster1336(s);
  s.familyHome={members:[],...(s.familyHome||{})};s.familyHome.members=Array.isArray(s.familyHome.members)?s.familyHome.members:[];
  s.personalSettings={maskSensitive:true,notificationMode:'IMPORTANT',...(s.personalSettings||{})};
  s.emergencyFile={contacts:[],assets:[],...(s.emergencyFile||{})};s.emergencyFile.contacts=Array.isArray(s.emergencyFile.contacts)?s.emergencyFile.contacts:[];s.emergencyFile.assets=Array.isArray(s.emergencyFile.assets)?s.emergencyFile.assets:[];
