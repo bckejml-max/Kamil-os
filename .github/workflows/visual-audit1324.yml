@@ -2,7 +2,7 @@ name: OS1324 Visual Audit
 
 on:
   push:
-    branches: [os1324-visual-audit]
+    branches: [os1324-visual-polish]
   workflow_dispatch:
 
 jobs:
