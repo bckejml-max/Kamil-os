@@ -165,6 +165,45 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
+test('OS1324 visual polish keeps the shell compact and consistent',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ const desktop=await page.evaluate(()=>{
+  const main=document.querySelector('.os2-main');
+  const command=document.querySelector('.os2-command');
+  const sidebar=document.querySelector('.os2-sidebar');
+  const csMain=getComputedStyle(main),csCommand=getComputedStyle(command),csSidebar=getComputedStyle(sidebar);
+  return{
+   mainWidth:main.getBoundingClientRect().width,
+   commandWidth:command.getBoundingClientRect().width,
+   sidebarOverflowY:csSidebar.overflowY,
+   bodyOverflow:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-innerWidth,
+   mainBg:csMain.backgroundColor,
+   commandBg:csCommand.backgroundColor
+  };
+ });
+ expect(desktop.mainWidth).toBeLessThanOrEqual(1161);
+ expect(desktop.commandWidth).toBeLessThanOrEqual(1217);
+ expect(desktop.sidebarOverflowY).toBe('auto');
+ expect(desktop.bodyOverflow).toBeLessThanOrEqual(2);
+
+ await openView(page,'family');
+ const familySurface=await page.locator('#ticketsView .hf140-main').evaluate(el=>getComputedStyle(el).backgroundColor);
+ await openView(page,'home');
+ const homeSurface=await page.locator('#homeView .ux64-contract').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+ expect(familySurface).toBe(homeSurface);
+
+ await page.setViewportSize({width:390,height:844});
+ await page.reload({waitUntil:'domcontentloaded'});
+ await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
+ const mobile=await page.evaluate(()=>{
+  const nav=document.querySelector('#bottomNav');
+  return{height:nav.getBoundingClientRect().height,overflow:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-innerWidth};
+ });
+ expect(mobile.height).toBeLessThanOrEqual(100);
+ expect(mobile.overflow).toBeLessThanOrEqual(2);
+});
+
 test('OS1323 canonical shell has one visual owner per section',async({page})=>{
  await page.setViewportSize({width:1440,height:900});
  await boot(page);
