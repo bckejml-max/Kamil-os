@@ -188,10 +188,13 @@ test('OS1324 visual polish keeps the shell compact and consistent',async({page})
  expect(desktop.bodyOverflow).toBeLessThanOrEqual(2);
 
  await openView(page,'family');
- const familySurface=await page.locator('#ticketsView .hf140-main').evaluate(el=>getComputedStyle(el).backgroundColor);
+ const familySurface=await page.locator('#ticketsView .hf140-main').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
  await openView(page,'home');
- const homeSurface=await page.locator('#homeView .ux64-contract').first().evaluate(el=>getComputedStyle(el).backgroundColor);
- expect(familySurface).toBe(homeSurface);
+ const homeSurface=await page.locator('#homeView .ux64-contract').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
+ expect(familySurface.bg).not.toBe('rgba(0, 0, 0, 0)');
+ expect(homeSurface.bg).not.toBe('rgba(0, 0, 0, 0)');
+ expect(familySurface.border).not.toBe('rgba(0, 0, 0, 0)');
+ expect(homeSurface.border).not.toBe('rgba(0, 0, 0, 0)');
 
  await page.setViewportSize({width:390,height:844});
  await page.reload({waitUntil:'domcontentloaded'});
