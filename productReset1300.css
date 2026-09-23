@@ -144,3 +144,56 @@ html[data-usability-reset1320="1"] #todayView .pr1300-panel{
   border-radius:18px!important;
   box-shadow:none!important;
 }
+
+
+/* OS1322: every section is always visible. No hidden secondary navigation. */
+html[data-usability-reset1320="1"] .os2-sidebar{overflow:hidden!important}
+html[data-usability-reset1320="1"] .os2-nav{display:grid!important;gap:3px!important}
+html[data-usability-reset1320="1"] .os2-nav button{
+  min-height:35px!important;
+  height:35px!important;
+  margin:0!important;
+  padding:0 9px!important;
+  border-radius:10px!important;
+  font-size:12px!important;
+}
+html[data-usability-reset1320="1"] .os2-nav-icon{
+  width:23px!important;
+  height:23px!important;
+  border-radius:7px!important;
+  font-size:10px!important;
+}
+html[data-usability-reset1320="1"] .os2-side-foot{padding-top:10px!important}
+html[data-usability-reset1320="1"] .os2-brand{padding-bottom:12px!important}
+html[data-usability-reset1320="1"] .os2-main{padding-top:22px!important}
+html[data-usability-reset1320="1"] .os2-command{padding-top:10px!important}
+html[data-usability-reset1320="1"] .pr1300-head h1{font-size:28px!important}
+html[data-usability-reset1320="1"] .pr1320-now{background:#111820!important;border-color:rgba(255,255,255,.08)!important}
+html[data-usability-reset1320="1"] .pr1300-panel{background:#10151c!important}
+
+@media(max-width:1060px) and (min-width:761px){
+  html[data-usability-reset1320="1"] .os2-sidebar{width:190px!important}
+  html[data-usability-reset1320="1"] .os2-brand-copy,
+  html[data-usability-reset1320="1"] .os2-nav button>span:last-child,
+  html[data-usability-reset1320="1"] .os2-account-copy{display:block!important}
+  html[data-usability-reset1320="1"] .os2-nav button{justify-content:flex-start!important}
+}
+
+@media(max-width:760px){
+  html[data-usability-reset1320="1"] .os2-app{padding-bottom:112px!important}
+  html[data-usability-reset1320="1"] .os2-main{padding-bottom:124px!important}
+  html[data-usability-reset1320="1"] .os2-bottom{
+    height:106px!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    grid-template-rows:repeat(2,1fr)!important;
+    gap:2px!important;
+    padding:4px max(5px,env(safe-area-inset-right)) max(5px,env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left))!important;
+  }
+  html[data-usability-reset1320="1"] .os2-bottom button{
+    min-width:0!important;
+    font-size:8px!important;
+    padding:3px 1px!important;
+    line-height:1!important;
+  }
+  html[data-usability-reset1320="1"] .os2-bottom button span{font-size:13px!important}
+}
