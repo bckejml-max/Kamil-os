@@ -1,0 +1,32 @@
+name: OS1325 Visual Audit
+
+on:
+  push:
+    branches: [os1325-density-pass]
+  workflow_dispatch:
+
+jobs:
+  visual-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start static app
+        run: |
+          python3 -m http.server 4173 > /tmp/kamil-os-http.log 2>&1 &
+          for i in {1..20}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/kamil-os-http.log
+          exit 1
+      - name: Capture desktop and mobile screenshots
+        run: npx playwright test e2e_visual_audit1325.spec.mjs --reporter=line --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: os1325-visual-audit
+          path: visual-audit1325
+          if-no-files-found: error
