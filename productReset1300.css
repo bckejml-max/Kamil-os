@@ -78,7 +78,6 @@ html[data-product-reset1300="1"] #ticketsView [data-family-hub610]{display:none!
 
 
 /* OS1320 usability reset: fewer choices, stronger action hierarchy. */
-html[data-usability-reset1320="1"] #allSectionsBtn{margin-top:4px!important;border:1px dashed rgba(255,255,255,.08)!important}
 html[data-usability-reset1320="1"] .pr1320-today{display:grid;gap:14px}
 html[data-usability-reset1320="1"] .pr1320-now{border:1px solid rgba(122,167,255,.20);border-radius:20px;background:linear-gradient(145deg,#151d28,#10161e);padding:22px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}
 html[data-usability-reset1320="1"] .pr1320-now h2{margin:6px 0 7px;font-size:24px;line-height:1.12;letter-spacing:-.035em}
@@ -147,7 +146,7 @@ html[data-usability-reset1320="1"] #todayView .pr1300-panel{
 
 
 /* OS1322: every section is always visible. No hidden secondary navigation. */
-html[data-usability-reset1320="1"] .os2-sidebar{overflow:hidden!important}
+html[data-usability-reset1320="1"] .os2-sidebar{overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin}
 html[data-usability-reset1320="1"] .os2-nav{display:grid!important;gap:3px!important}
 html[data-usability-reset1320="1"] .os2-nav button{
   min-height:35px!important;
@@ -191,9 +190,10 @@ html[data-usability-reset1320="1"] .pr1300-panel{background:#10151c!important}
   }
   html[data-usability-reset1320="1"] .os2-bottom button{
     min-width:0!important;
-    font-size:8px!important;
+    font-size:9px!important;
     padding:3px 1px!important;
     line-height:1!important;
   }
-  html[data-usability-reset1320="1"] .os2-bottom button span{font-size:13px!important}
+  html[data-usability-reset1320="1"] .os2-bottom button span{font-size:14px!important}
+  html[data-usability-reset1320="1"] .os2-bottom button{white-space:nowrap!important}
 }
