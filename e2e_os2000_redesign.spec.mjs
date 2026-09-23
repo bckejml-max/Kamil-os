@@ -27,8 +27,8 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
  expect(state.boot.modules.some(x=>x.path==='./app.js'&&x.ok)).toBe(true);
  expect(state.boot.failures).toHaveLength(0);
  expect(state.styles).toContain('./os2.css');
- expect(state.styles).toContain('./os2010.css');
- expect(state.styles).toContain('./os737.css');
+ expect(state.styles).not.toContain('./os2010.css');
+ expect(state.styles).not.toContain('./os737.css');
  expect(state.styles).toContain('./productReset1300.css');
  expect(state.styles).toContain('./styles.css');
  expect(state.styles).not.toContain('./ticketDesk353.css');
@@ -163,6 +163,32 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
   const duplicateVisible=await page.locator(`${host} .view-head:not(.hidden)`).count();
   expect(duplicateVisible).toBe(0);
  }
+});
+
+test('OS1323 canonical shell has one visual owner per section',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});
+ await boot(page);
+ const cases=[
+  ['today','#todayView','[data-os2-today]'],
+  ['inbox','#inboxView','[data-tasks-overview]'],
+  ['work','#workView','[data-work-page1300]'],
+  ['tickets','#ticketIntelView','[data-ticket-overview]'],
+  ['money','#moneyView','[data-money-overview]'],
+  ['property','#propertyView','[data-property-page1300]'],
+  ['betting','#bettingView','[data-betting-overview]'],
+  ['family','#ticketsView','.hf140-hero'],
+  ['home','#homeView','.hf140-hero'],
+  ['more','#moreView','.id141-hero']
+ ];
+ for(const [view,host,root] of cases){
+  if(view!=='today')await openView(page,view);
+  await expect(page.locator(`${host} ${root}`)).toBeVisible({timeout:12000});
+  await expect(page.locator(`${host} h1:visible`)).toHaveCount(1);
+  const legacyVisible=await page.locator(`${host} [data-today-hub650]:visible,${host} [data-os333-exec]:visible,${host} [data-money-hub680]:visible,${host} [data-property-hub620]:visible,${host} [data-property-finance610]:visible,${host} [data-betting-hub630]:visible,${host} [data-ticket-hub640]:visible,${host} [data-family-hub610]:visible`).count();
+  expect(legacyVisible,`legacy visual owner visible in ${view}`).toBe(0);
+ }
+ const globalLegacy=await page.evaluate(()=>[...document.querySelectorAll('link[rel="stylesheet"]')].map(x=>x.getAttribute('href')||'').filter(x=>/os2010\.css|os737\.css/.test(x)));
+ expect(globalLegacy).toEqual([]);
 });
 
 test('OS1322 desktop keeps every section directly visible',async({page})=>{
