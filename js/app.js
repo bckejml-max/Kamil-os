@@ -31,12 +31,46 @@ const hostForView=view=>qs(`#${viewHosts[view]||`${view}View`}`);
 const openCapture=(type=null)=>withActionLock(()=>openCapture41(type||captureTypeForView()));
 const warnAction=(scope,error)=>{console.warn(`[app41:${scope}]`,error);toast('Akci se nepodařilo dokončit')};
 
+const NAV_CLOSED1333=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED','PAYOUT_RECEIVED','CANCELLED','CANCELED']);
+const navOpen1333=x=>!NAV_CLOSED1333.has(String(x?.status||x?.workflow||x?.market_status||'OPEN').toUpperCase());
+const navArea1333=x=>String(x?.area||x?.category||'').toLowerCase();
+const navDue1333=x=>x?.due||x?.followUpAt||x?.dueAt||x?.due_at||x?.dueDate||x?.due_date||x?.deadline||null;
+const navDueTime1333=x=>{const raw=String(navDue1333(x)||'');if(!raw)return null;const d=Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(raw)?raw+'T23:59:59.999':raw);return Number.isFinite(d)?d:null};
+function navSignals1333(s){
+ const now=Date.now(),soon=now+2*86400000,tasks=(s.tasks||[]).filter(navOpen1333);
+ const overdue=tasks.filter(x=>{const t=navDueTime1333(x);return t!==null&&t<now}).length;
+ const workDue=tasks.filter(x=>{const a=navArea1333(x),t=navDueTime1333(x);return (a.includes('prac')||a.includes('zakaz'))&&t!==null&&t<=soon}).length;
+ const transfers=(s.ticketBook?.items||[]).filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(String(x?.market_status||x?.workflow||'').toUpperCase())).length;
+ return {
+  inbox:overdue?{count:overdue,tone:'bad',label:`${overdue} úkolů po termínu`}:null,
+  work:workDue?{count:workDue,tone:'warn',label:`${workDue} pracovní termíny do 2 dnů`}:null,
+  tickets:transfers?{count:transfers,tone:'bad',label:`${transfers} ticket transfery čekají`}:null
+ };
+}
+function applyNavSignals1333(s){
+ const signals=navSignals1333(s);
+ qsa('#mainNav [data-view],#bottomNav [data-view]').forEach(x=>{
+  const sig=signals[x.dataset.view];
+  if(sig?.count){
+   x.dataset.navBadge=String(Math.min(99,sig.count));
+   x.dataset.navTone=sig.tone;
+   x.dataset.navSignal=sig.label;
+  }else{
+   delete x.dataset.navBadge;
+   delete x.dataset.navTone;
+   delete x.dataset.navSignal;
+  }
+ });
+ window.__KAMIL_NAV_SIGNALS1333__={...signals,at:Date.now()};
+}
+
 function updateChrome(){
  const s=store.get();
  const label=qs('#todayLabel');if(label)label.textContent=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
  const page=qs('#pageTitle');if(page)page.textContent=pageTitles[current]||'KAMIL OS';
  qsa('.version').forEach(x=>x.textContent=APP_VERSION);
  qsa('[data-view]').forEach(x=>{const on=x.dataset.view===current;x.classList.toggle('on',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
+ applyNavSignals1333(s);
  const undo=qs('#undoBtn');if(undo)undo.disabled=store.undoCount()===0;
  const add=qs('#quickAddBtn');if(add){const hidden=current==='betting';add.classList.toggle('hidden',hidden);if(!hidden){const text=qs('b',add),name=quickLabels[current]||'Přidat';if(text)text.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`}}
  refreshRiskBadge41(s);
@@ -91,17 +125,31 @@ qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
 qs('#logoutBtn').onclick=()=>withActionLock(async()=>{await logout();await handleSession(null)}).catch(error=>warnAction('logout-button',error));
 const quickAdd=qs('#quickAddBtn');if(quickAdd)ownEvent1100(OWNER,quickAdd,'click',()=>openCapture().catch(error=>warnAction('quick-add',error)));
 
-const input=qs('#commandInput'),commandBox=qs('#commandResults');let commandSeq=0;
+const input=qs('#commandInput'),commandBox=qs('#commandResults');let commandSeq=0,commandHomeIndex1333=0;
 const commandNav1332=[
  ['today','Dnes','⌂'],['inbox','Úkoly','✓'],['work','Práce','W'],['tickets','Vstupenky','T'],['money','Peníze','Kč'],
  ['property','Reality','R'],['betting','Sázení','S'],['family','Rodina','F'],['home','Domov','D'],['more','Dokumenty','▤']
 ];
 function cancelCommandTimer(){cancelScheduled1100(OWNER,'command-debounce')}
 function hideCommand1332(){commandBox?.classList.add('hidden');if(commandBox)commandBox.innerHTML=''}
+function commandHomeButtons1333(){return [...(commandBox?.querySelectorAll('[data-command-nav1332]')||[])]}
+function paintCommandHome1333(){
+ const buttons=commandHomeButtons1333();if(!buttons.length)return false;
+ commandHomeIndex1333=((commandHomeIndex1333%buttons.length)+buttons.length)%buttons.length;
+ buttons.forEach((b,i)=>{const on=i===commandHomeIndex1333;b.classList.toggle('is-active',on);b.setAttribute('aria-selected',on?'true':'false')});
+ return true;
+}
+function moveCommandHome1333(delta){commandHomeIndex1333+=delta;paintCommandHome1333()}
+function openCommandHomeSelection1333(){
+ const buttons=commandHomeButtons1333(),b=buttons[commandHomeIndex1333];if(!b)return false;
+ hideCommand1332();input.blur();navigate(b.dataset.commandNav1332);return true
+}
 function showCommandHome1332(){
  if(!commandBox||String(input?.value||'').trim())return false;
  commandBox.classList.remove('hidden');
- commandBox.innerHTML='<div class="os1332-command-home" data-command-home1332><div class="os1332-command-head"><div><b>Rychle otevřít</b><span>bez hledání a bez dalšího menu</span></div><span>Esc zavře</span></div><div class="os1332-command-grid">'+commandNav1332.map(([view,label,icon])=>'<button type="button" data-command-nav1332="'+view+'"><i>'+icon+'</i><span>'+label+'</span></button>').join('')+'</div><div class="os1332-command-actions"><button type="button" class="primary" data-command-add1332>＋ Přidat podle aktuální sekce</button><span>Piš pro hledání v datech nebo příkaz, např. „ukaž práci“.</span></div></div>';
+ commandBox.innerHTML='<div class="os1332-command-home" data-command-home1332><div class="os1332-command-head"><div><b>Rychle otevřít</b><span>bez hledání a bez dalšího menu</span></div><span>Šipky · Enter · Esc</span></div><div class="os1332-command-grid">'+commandNav1332.map(([view,label,icon])=>'<button type="button" data-command-nav1332="'+view+'" aria-selected="false"><i>'+icon+'</i><span>'+label+'</span></button>').join('')+'</div><div class="os1332-command-actions"><button type="button" class="primary" data-command-add1332>＋ Přidat podle aktuální sekce</button><span>Piš pro hledání v datech nebo příkaz, např. „ukaž práci“.</span></div></div>';
+ commandHomeIndex1333=Math.max(0,commandNav1332.findIndex(([view])=>view===current));
+ paintCommandHome1333();
  return true;
 }
 function renderCommandSafe(value,seq){
@@ -111,9 +159,26 @@ function renderCommandSafe(value,seq){
 function runCommand(value){const v=String(value||'').trim();if(!v){showCommandHome1332();return}commandSeq++;return executeCommand41(v).then(()=>hideCommand1332()).catch(error=>warnAction('command-execute',error))}
 input.onfocus=()=>{if(!input.value.trim())showCommandHome1332()};
 input.oninput=()=>{cancelCommandTimer();const seq=++commandSeq,value=input.value;schedule1100(OWNER,'command-debounce',()=>void renderCommandSafe(value,seq),70)};
-input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();cancelCommandTimer();const v=input.value;input.value='';runCommand(v)}if(e.key==='Escape'){cancelCommandTimer();input.value='';commandSeq++;hideCommand1332();input.blur()}};
+input.onkeydown=e=>{
+ const homeVisible=!!commandBox?.querySelector('[data-command-home1332]')&&!input.value.trim();
+ if(homeVisible&&['ArrowRight','ArrowLeft','ArrowDown','ArrowUp','Home','End'].includes(e.key)){
+  e.preventDefault();
+  if(e.key==='ArrowRight')moveCommandHome1333(1);
+  if(e.key==='ArrowLeft')moveCommandHome1333(-1);
+  if(e.key==='ArrowDown')moveCommandHome1333(5);
+  if(e.key==='ArrowUp')moveCommandHome1333(-5);
+  if(e.key==='Home'){commandHomeIndex1333=0;paintCommandHome1333()}
+  if(e.key==='End'){commandHomeIndex1333=commandNav1332.length-1;paintCommandHome1333()}
+  return;
+ }
+ if(e.key==='Enter'){e.preventDefault();cancelCommandTimer();if(homeVisible&&openCommandHomeSelection1333())return;const v=input.value;input.value='';runCommand(v)}
+ if(e.key==='Escape'){cancelCommandTimer();input.value='';commandSeq++;hideCommand1332();input.blur()}
+};
 qs('#commandGo').onclick=()=>{cancelCommandTimer();const v=input.value;input.value='';runCommand(v)};
-if(commandBox)ownEvent1100(OWNER,commandBox,'click',e=>{const nav=e.target.closest('[data-command-nav1332]');if(nav){hideCommand1332();input.blur();navigate(nav.dataset.commandNav1332);return}if(e.target.closest('[data-command-add1332]')){hideCommand1332();input.blur();openCapture().catch(error=>warnAction('command-home-add',error))}});
+if(commandBox){
+ ownEvent1100(OWNER,commandBox,'pointerover',e=>{const nav=e.target.closest('[data-command-nav1332]');if(!nav)return;const buttons=commandHomeButtons1333(),i=buttons.indexOf(nav);if(i>=0){commandHomeIndex1333=i;paintCommandHome1333()}},{passive:true});
+ ownEvent1100(OWNER,commandBox,'click',e=>{const nav=e.target.closest('[data-command-nav1332]');if(nav){hideCommand1332();input.blur();navigate(nav.dataset.commandNav1332);return}if(e.target.closest('[data-command-add1332]')){hideCommand1332();input.blur();openCapture().catch(error=>warnAction('command-home-add',error))}});
+}
 ownEvent1100(OWNER,document,'keydown',e=>{
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();input.focus();input.select();if(!input.value.trim())showCommandHome1332();import('./command.js').catch(()=>{})}
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='n'){e.preventDefault();openCapture().catch(error=>warnAction('shortcut-add',error))}
