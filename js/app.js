@@ -74,9 +74,6 @@ function navigate(v){
  void prefetchView41(current);window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:current}));window.scrollTo({top:0,behavior:'auto'});
 }
 qsa('[data-view]').forEach(x=>{x.onclick=()=>navigate(x.dataset.view)});
-async function openAllSections(){const names={today:'Dnes',inbox:'Úkoly',work:'Práce',tickets:'Vstupenky',money:'Peníze',property:'Reality',betting:'Sázení',family:'Rodina',home:'Domov',more:'Dokumenty'};const choice=await modal('Všechny sekce','',[...Object.entries(names).map(([value,label])=>({label,value,primary:value===current})),{label:'Zavřít',value:null}]);if(choice)navigate(choice)}
-const mobileMenu=qs('#mobileMenuBtn');if(mobileMenu)mobileMenu.onclick=openAllSections;
-const allSections=qs('#allSectionsBtn');if(allSections)allSections.onclick=openAllSections;
 const warmNav=e=>{const x=e.target?.closest?.('[data-view]');if(x)void prefetchView41(x.dataset.view)};
 ownEvent1100(OWNER,document,'pointerover',warmNav,{passive:true});
 ownEvent1100(OWNER,document,'pointerdown',warmNav,{passive:true});
