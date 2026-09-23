@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 const read=p=>fs.readFileSync(p,'utf8');
 const index=read('index.html'),runtime=read('js/viewRuntime41.js'),app=read('js/app.js'),today=read('js/todayPage2000.js'),work=read('js/workPage1300.js'),property=read('js/propertyPage1300.js'),ticket=read('js/ticketPage100.js'),money=read('js/moneyPage100.js'),betting=read('js/bettingPage527.js'),ticketOverview=read('js/ticketOverview.js'),moneyOverview=read('js/moneyOverview.js'),bettingOverview=read('js/bettingOverview.js'),tasksOverview=read('js/tasksOverview.js'),inboxPage=read('js/inboxPage141.js'),inboxHub=read('js/inboxHub660.js'),familyPage=read('js/familyPage140.js'),commands=read('js/commandSearch610.js'),css=read('productReset1300.css'),sw=read('sw.js');
 assert.match(index,/data-product-reset1300="1"/);
-assert.match(index,/data-view="work"/);assert.match(index,/id="allSectionsBtn"/);
+for(const view of ["today","inbox","work","tickets","money","property","betting","family","home","more"])assert.match(index,new RegExp(`data-view="${view}"`));assert.doesNotMatch(index,/allSectionsBtn|mobileMenuBtn/);
 assert.match(index,/id="workView"/);assert.match(index,/id="propertyView"/);
 assert.match(index,/productReset1300\.css/);
 assert.match(runtime,/work:\['\.\/workPage1300\.js','renderWorkPage1300'\]/);
