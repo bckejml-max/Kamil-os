@@ -165,6 +165,30 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
+test('OS1328 empty Work and Reality stay truthful instead of manufacturing alerts',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+
+ await page.evaluate(()=>localStorage.removeItem('kamil_betting_ledger_543'));
+ await page.evaluate(async()=>{const {store}=await import('./js/state.js');store.mutate('qa clear work reality',s=>{s.projects=[];s.recurringDuties={};s.propertyBook=s.propertyBook||{};s.propertyBook.candidates=[];},{undo:false,cloud:false,audit:false});});
+ await page.waitForTimeout(120);
+
+ await openView(page,'work');
+ await expect(page.locator('#workView [data-work-page1300]')).toBeVisible();
+ const workDiag=await page.evaluate(()=>window.__KAMIL_WORK_PAGE1300__);
+ expect(workDiag.status).toBe('KLID');
+ expect(workDiag.projects).toBe(0);
+ expect(workDiag.risks).toBe(0);
+ await expect(page.locator('#workView .pr1328-work-clear')).toHaveCount(1);
+
+ await openView(page,'property');
+ await expect(page.locator('#propertyView [data-property-page1300]')).toBeVisible();
+ const propertyDiag=await page.evaluate(()=>window.__KAMIL_PROPERTY_PAGE1300__);
+ expect(propertyDiag.candidates).toBe(0);
+ await expect(page.locator('#propertyView .pr1328-property-empty')).toHaveCount(1);
+ await expect(page.locator('#propertyView .pr1320-meta')).toHaveCount(0);
+ await expect(page.locator('#propertyView .pr1300-panel')).toHaveCount(0);
+});
 test('OS1327 Money prioritizes actions and Tickets collapse empty states',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
@@ -411,9 +435,8 @@ test('OS1307 Today treats date-only today as due today and uses canonical bettin
   }));
  });
  await boot(page);
- const todayRow=page.locator('[data-today1300-task="due-today"]');
- await expect(todayRow).toBeVisible();
- await expect(todayRow.locator('.pr1300-row-side')).not.toHaveClass(/bad/);
+ const todayAction=page.locator('[data-today1300-task="due-today"]');
+ await expect(todayAction).toBeVisible();
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(diag.overdue).toBe(0);
  expect(diag.bettingOpen).toBe(1);

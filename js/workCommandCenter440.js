@@ -13,13 +13,17 @@ const dayDiff=v=>{const t=dateMs(v);if(t===null)return null;const a=new Date();a
 const measure=fn=>{const t=performance.now(),value=fn(),elapsed=Math.round((performance.now()-t)*10)/10;window.__KAMIL_WORK_440_LAST__={ms:elapsed,at:Date.now()};return{value,ms:elapsed}};
 
 function monthlyDuties(s={}){
- const now=new Date(),day=now.getDate(),last=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`,done=s.recurringDuties?.done||{};
- return [
+ const cfg=s.recurringDuties||{},items=A(cfg.items),done=cfg.done||{},configured=cfg.enabled===true||items.length>0||Object.keys(done).length>0;
+ if(!configured)return [];
+ const now=new Date(),day=now.getDate(),last=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+ const defaults=[
   {key:'issued-invoice-concepts',title:'Koncepty faktur vydaných',dueDay:1},
   {key:'project-card',title:'Aktualizace karty zakázky',dueDay:20},
   {key:'supplier-invoicing',title:'Fakturace na dodavatele',dueDay:25},
   {key:'travel-attendance',title:'Cesták + docházka',dueDay:last}
- ].map(x=>{const isDone=!!(done[`${ym}:${x.key}`]||done[x.key]);const delta=x.dueDay-day;return{...x,done:isDone,delta,status:isDone?'HOTOVO':delta<0?'PO TERMÍNU':delta===0?'DNES':delta<=3?'BRZY':'ČEKÁ'}});
+ ];
+ const source=items.length?items.map((x,i)=>({key:x.key||`duty-${i+1}`,title:x.title||x.name||'Pravidelný termín',dueDay:Math.max(1,Math.min(last,Number(x.dueDay)||last))})):defaults;
+ return source.map(x=>{const isDone=!!(done[`${ym}:${x.key}`]||done[x.key]);const delta=x.dueDay-day;return{...x,done:isDone,delta,status:isDone?'HOTOVO':delta<0?'PO TERMÍNU':delta===0?'DNES':delta<=3?'BRZY':'ČEKÁ'}});
 }
 
 function projectRows(s={}){
