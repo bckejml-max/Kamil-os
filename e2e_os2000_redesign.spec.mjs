@@ -165,6 +165,15 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
+test('OS1331 Documents keep every record once without duplicate action summary',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ await openView(page,'more');
+ await expect(page.locator('#moreView .id141-hero')).toBeVisible();
+ await expect(page.locator('#moreView .document-action-summary')).toHaveCount(0);
+ const diag=await page.evaluate(()=>window.__KAMIL_PERSONAL_DOCUMENTS_650_LAST__);
+ await expect(page.locator('#moreView .ux64-doc')).toHaveCount(diag.records);
+});
 test('OS1330 Betting does not pretend risk is known without bankroll',async({page})=>{
  await page.addInitScript(()=>{
   localStorage.setItem('kamil-os-state',JSON.stringify({
