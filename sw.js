@@ -1,6 +1,6 @@
-const CACHE='kamil-os-737.0.12-core-r20';
+const CACHE='kamil-os-737.0.13-core-r21';
 const CRITICAL=[
- './','./index.html','./manifest.webmanifest','./styles.css','./os2.css','./productReset1300.css','./os1331.css',
+ './','./index.html','./manifest.webmanifest','./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css',
  './js/osHardening1110.js','./js/dataIntegrity1130.js','./js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js',
  './js/state.js','./js/utils.js','./js/viewRuntime41.js','./js/runtimeOwnership1100.js','./js/todayPage2000.js','./js/workPage1300.js','./js/propertyPage1300.js','./js/tasksOverview.js','./js/moneyOverview.js','./js/ticketOverview.js','./js/bettingOverview.js',
  './js/cloud.js','./js/authUx32.js','./js/perf41.js','./js/coldPartition42.js'
