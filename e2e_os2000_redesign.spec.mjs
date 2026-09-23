@@ -180,7 +180,7 @@ test('OS1329 Tasks show all buckets and keep far-future documents out of Teď',a
  await expect(page.locator('#inboxView [data-task-open="task:far-doc"]')).toBeVisible();
  const chips=await page.locator('#inboxView .pr1329-task-meta span').allTextContents();
  expect(chips.slice(0,5)).toEqual(['Odpovědět: 0','Zaplatit: 0','Vyřešit: 0','Čekám: 0','Termíny: 0']);
- expect(Number(chips[5].match(/\\d+/)?.[0]||0)).toBeGreaterThanOrEqual(1);
+ expect(Number(chips[5].match(/\d+/)?.[0]||0)).toBeGreaterThanOrEqual(1);
 });
 test('OS1328 empty Work and Reality stay truthful instead of manufacturing alerts',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
