@@ -25,6 +25,14 @@ export const INSURANCE_MASTER_ITEMS_1336=[
   notes:'Aktuální výroční období 6. 5. 2026–5. 5. 2027. Povinné ručení 70 mil. Kč + asistence.',
   source:'Gmail · výroční dopis Pillow 29. 4. 2026',sourceStatus:'CONFIRMED'
  }),
+ policy('scala-798495213','Škoda Scala · MojeAuto','Allianz',null,'YEARLY','REVIEW','VEHICLE','Škoda Scala · 8C46678','798495213',{
+  notes:'Poslední doložená zelená karta byla do 6. 3. 2026. V aktuálních podkladech nemám nové potvrzení období po tomto datu — ověřit aktuální smlouvu / cenu.',
+  source:'Gmail · Allianz potvrzení a zelená karta',sourceStatus:'VERIFY'
+ }),
+ policy('roomster-allianz-799685843','Škoda Roomster · Allianz','Allianz',null,'YEARLY','HISTORY','VEHICLE','Škoda Roomster','799685843',{
+  notes:'Starší autopojištění sjednané v březnu 2025; později je pro Roomster doložena nová Pillow smlouva 26160739.',
+  source:'Gmail · Allianz/Srovnejto 19. 3. 2025',sourceStatus:'SUPERSEDED'
+ }),
  policy('tereza-nn-3350409671','Tereza · NN Orange Risk','NN',2000,'MONTHLY','UPCOMING','LIFE','Tereza','3350409671',{
   startDate:'2026-11-01',renewalDate:'2027-11-01',contact:'Alena Vlachová / OVB',
   notes:'Nová riziková životní smlouva. Počátek 1. 11. 2026, běžné pojistné 2 000 Kč měsíčně. Krytí zahrnuje úmrtí, invalidity, závažná onemocnění a trvalé následky.',
