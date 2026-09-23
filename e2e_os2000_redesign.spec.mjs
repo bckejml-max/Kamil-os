@@ -165,25 +165,25 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
-test('OS1320 desktop secondary sections are reachable from one menu',async({page})=>{
+test('OS1322 desktop keeps every section directly visible',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
- await page.locator('#allSectionsBtn').click();
- await page.getByRole('button',{name:'Reality',exact:true}).click();
- await expect(page.locator('#view-property')).toHaveClass(/on/);
+ await expect(page.locator('#mainNav [data-view]')).toHaveCount(10);
+ for(const view of ['today','inbox','work','tickets','money','property','betting','family','home','more'])await expect(page.locator(`#mainNav [data-view="${view}"]`)).toBeVisible();
+ await expect(page.locator('#allSectionsBtn')).toHaveCount(0);
+ await expect(page.locator('#mobileMenuBtn')).toHaveCount(0);
+ await page.locator('#mainNav [data-view="property"]').click();
  await expect(page.locator('#propertyView [data-property-page1300]')).toBeVisible({timeout:10000});
- await page.locator('#allSectionsBtn').click();
- await page.getByRole('button',{name:'Sázení',exact:true}).click();
- await expect(page.locator('#view-betting')).toHaveClass(/on/);
+ await page.locator('#mainNav [data-view="betting"]').click();
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible({timeout:10000});
 });
 
-test('OS1320 mobile keeps five primary workflows one tap away',async({page})=>{
+test('OS1322 mobile keeps all ten sections one tap away',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  await expect(page.locator('#bottomNav')).toBeVisible();
- await expect(page.locator('#bottomNav [data-view]')).toHaveCount(5);
- for(const view of ['inbox','work','tickets','money']){
+ await expect(page.locator('#bottomNav [data-view]')).toHaveCount(10);
+ for(const view of ['inbox','work','tickets','money','property','betting','family','home','more']){
   await page.locator(`#bottomNav [data-view="${view}"]`).click();
   await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
   await page.waitForTimeout(view==='tickets'||view==='betting'?700:250);
@@ -203,12 +203,11 @@ test('OS1306 exposes cloud login controls when local mode asks to connect',async
  await expect(page.locator('#loginPassword')).toBeVisible();
 });
 
-test('OS1306 mobile menu reaches secondary personal sections',async({page})=>{
+test('OS1322 mobile reaches personal sections directly',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
- await expect(page.locator('#mobileMenuBtn')).toBeVisible();
- await page.locator('#mobileMenuBtn').click();
- await page.getByRole('button',{name:'Rodina',exact:true}).click();
+ await expect(page.locator('#mobileMenuBtn')).toHaveCount(0);
+ await page.locator('#bottomNav [data-view="family"]').click();
  await expect(page.locator('#view-family')).toHaveClass(/on/);
 });
 
@@ -289,13 +288,11 @@ test('OS1307 signed-out ticket sync routes to visible cloud login and safely ret
  await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible({timeout:12000});
 });
 
-test('OS1307 mobile audit reaches every secondary section with no horizontal overflow',async({page})=>{
+test('OS1322 mobile audit reaches every section with no horizontal overflow',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
- for(const label of ['Rodina','Domov','Dokumenty']){
-  await page.locator('#mobileMenuBtn').click();
-  await page.getByRole('button',{name:label,exact:true}).click();
-  const view={Rodina:'family',Domov:'home',Dokumenty:'more'}[label];
+ for(const view of ['today','inbox','work','tickets','money','property','betting','family','home','more']){
+  await page.locator(`#bottomNav [data-view="${view}"]`).click();
   await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
   const overflow=await page.evaluate(()=>Math.max(document.body.scrollWidth,document.documentElement.scrollWidth)-innerWidth);
   expect(overflow,`mobile overflow in ${view}`).toBeLessThanOrEqual(2);

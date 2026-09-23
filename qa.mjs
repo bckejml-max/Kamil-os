@@ -52,7 +52,7 @@ assert.ok(index.includes('./os737.css'),'OS737 canonical visual stylesheet missi
 assert.ok(index.includes('./productReset1300.css')&&index.includes('data-product-reset1300="1"'),'OS1300 product reset shell missing');
 assert.ok(convergence.includes('#ticketIntelView')&&convergence.includes('#bettingView')&&convergence.includes('#moneyView')&&convergence.includes('#inboxView'),'OS2010 primary workspace convergence missing');
 assert.ok(visual.includes('--os-sidebar:248px')&&visual.includes('#ticketIntelView')&&visual.includes('#bettingView')&&visual.includes('#moneyView'),'OS737 unified visual system missing primary workspace coverage');
-for(const label of ['Dnes','Úkoly','Práce','Vstupenky','Peníze','Všechny sekce'])assert.ok(index.includes(label),`primary navigation missing: ${label}`);
+for(const label of ['Dnes','Úkoly','Práce','Vstupenky','Peníze','Reality','Sázení','Rodina','Domov','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
 for(const route of ['view-property','view-betting','view-family','view-home','view-more'])assert.ok(index.includes(`id="${route}"`),`secondary section shell missing: ${route}`);
 assert.ok(!index.includes('bettingBootstrap543.js'),'Betting bootstrap must not eager-load from index');
 assert.ok(instant.includes("architecture:'os2-on-demand'")&&instant.includes("await import('./app.js')"),'OS2 startup contract missing');
