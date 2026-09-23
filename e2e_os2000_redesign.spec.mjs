@@ -27,8 +27,8 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
  expect(state.boot.modules.some(x=>x.path==='./app.js'&&x.ok)).toBe(true);
  expect(state.boot.failures).toHaveLength(0);
  expect(state.styles).toContain('./os2.css');
- expect(state.styles).toContain('./os2010.css');
- expect(state.styles).toContain('./os737.css');
+ expect(state.styles).not.toContain('./os2010.css');
+ expect(state.styles).not.toContain('./os737.css');
  expect(state.styles).toContain('./productReset1300.css');
  expect(state.styles).toContain('./styles.css');
  expect(state.styles).not.toContain('./ticketDesk353.css');
