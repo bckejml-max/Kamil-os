@@ -635,3 +635,31 @@ html[data-usability-reset1320="1"] .id141-now{
     align-self:center!important;
   }
 }
+
+
+/* OS1326 Today system state: compact cross-section pulse, not another dashboard. */
+html[data-usability-reset1320="1"] .pr1326-system-panel{padding-bottom:2px!important}
+html[data-usability-reset1320="1"] .pr1326-system{display:grid}
+html[data-usability-reset1320="1"] .pr1326-system .pr1300-row{
+  min-height:52px!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+}
+html[data-usability-reset1320="1"] .pr1326-system .pr1300-row-main b{
+  font-size:12px!important;
+}
+html[data-usability-reset1320="1"] .pr1326-system .pr1300-row-main small{
+  font-size:10.5px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+html[data-usability-reset1320="1"] .pr1326-system .pr1300-row-side{
+  min-width:82px!important;
+  text-align:right!important;
+  font-size:10px!important;
+}
+@media(max-width:760px){
+  html[data-usability-reset1320="1"] .pr1326-system .pr1300-row{min-height:48px!important}
+  html[data-usability-reset1320="1"] .pr1326-system .pr1300-row-main small{max-width:230px!important}
+  html[data-usability-reset1320="1"] .pr1326-system .pr1300-row-side{min-width:68px!important}
+}
