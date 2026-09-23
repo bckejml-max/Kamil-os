@@ -28,8 +28,6 @@ const investmentSeed=read('js/externalInvestments33.js');
 const platform43=read('js/platform43.js');
 const stability431=read('js/platform431Stability.js');
 const diagnostics=read('js/systemDiagnostics421.js');
-const convergence=read('os2010.css');
-const visual=read('os737.css');
 const product=read('productReset1300.css');
 const rootPackage=JSON.parse(read('package.json'));
 
@@ -45,13 +43,9 @@ for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{st
 
 // OS 1300 product shell keeps the four legacy base layers plus one focused product layer.
 assert.ok(index.includes('data-os2="1"'),'OS2 shell marker missing');
-assert.equal((index.match(/rel="stylesheet"/g)||[]).length,5,'OS1300 shell may eager-load only base + OS2 + convergence + OS737 + product reset CSS');
+assert.equal((index.match(/rel="stylesheet"/g)||[]).length,3,'OS1323 shell may eager-load only base + OS2 + product reset CSS');
 assert.ok(index.includes('./os2.css'),'OS2 stylesheet missing');
-assert.ok(index.includes('./os2010.css'),'OS2010 convergence stylesheet missing');
-assert.ok(index.includes('./os737.css'),'OS737 canonical visual stylesheet missing');
 assert.ok(index.includes('./productReset1300.css')&&index.includes('data-product-reset1300="1"'),'OS1300 product reset shell missing');
-assert.ok(convergence.includes('#ticketIntelView')&&convergence.includes('#bettingView')&&convergence.includes('#moneyView')&&convergence.includes('#inboxView'),'OS2010 primary workspace convergence missing');
-assert.ok(visual.includes('--os-sidebar:248px')&&visual.includes('#ticketIntelView')&&visual.includes('#bettingView')&&visual.includes('#moneyView'),'OS737 unified visual system missing primary workspace coverage');
 for(const label of ['Dnes','Úkoly','Práce','Vstupenky','Peníze','Reality','Sázení','Rodina','Domov','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
 for(const route of ['view-property','view-betting','view-family','view-home','view-more'])assert.ok(index.includes(`id="${route}"`),`secondary section shell missing: ${route}`);
 assert.ok(!index.includes('bettingBootstrap543.js'),'Betting bootstrap must not eager-load from index');
@@ -88,7 +82,7 @@ assert.ok(!bettingBootstrap.includes('runtimeCoordinator1050')&&!bettingBootstra
 
 // Existing data and safety invariants.
 assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
-assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('os2010.css')&&sw.includes('os737.css')&&sw.includes('productReset1300.css')&&sw.includes('workPage1300.js')&&sw.includes('propertyPage1300.js'),'service-worker shell/cache missing');
+assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('productReset1300.css')&&sw.includes('workPage1300.js')&&sw.includes('propertyPage1300.js')&&!sw.includes('os2010.css')&&!sw.includes('os737.css'),'service-worker shell/cache missing');
 assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must never prefer stale cache');
 assert.ok(state.includes('export const store=new Store()'),'state store export missing');
 assert.ok(cloud.includes('mergeColdState42'),'cloud payload must restore cold history before upload');
