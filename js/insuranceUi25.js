@@ -1,11 +1,12 @@
 import {store} from './state.js';
-import {insuranceCenter,INSURANCE_KINDS} from './insurance25.js';
+import {insuranceCenter,INSURANCE_KINDS,INSURANCE_LIFECYCLES} from './insurance25.js';
 import {PERSONAL_CADENCES} from './personalAdmin25.js';
 import {h,date,uid,qs,qsa,modal,toast} from './utils.js';
 
 const tileId='insurance25Tile';
 const tone=s=>s==='URGENT'?'bad':s==='SOON'||s==='REVIEW'?'warn':'good';
-const label=s=>({URGENT:'ŘEŠIT',SOON:'BRZY',REVIEW:'DOPLNIT',OK:'OK'}[s]||s);
+const label=s=>({URGENT:'ŘEŠIT',SOON:'BRZY',REVIEW:'OVĚŘIT',OK:'OK'}[s]||s);
+const lifeTone=s=>({ACTIVE:'good',UPCOMING:'warn',TERMINATING:'warn',REVIEW:'bad',OFFER:'',HISTORY:''}[s]||'');
 const opts=(map,selected)=>Object.entries(map).map(([k,v])=>`<option value="${k}" ${k===selected?'selected':''}>${h(v)}</option>`).join('');
 const toDate=v=>v?String(v).slice(0,10):'';
 const fmt=(v,c='CZK')=>v===null||v===undefined?'—':`${Number(v).toLocaleString('cs-CZ',{maximumFractionDigits:2})} ${h(c)}`;
@@ -48,16 +49,20 @@ async function editPolicy(id=null){
 
 function costsHtml(costs){const rows=Object.entries(costs);return rows.length?rows.map(([c,v])=>`<span class="status">${h(c)} ${Number(v.monthly).toLocaleString('cs-CZ',{maximumFractionDigits:2})}/měs · ${Number(v.annual).toLocaleString('cs-CZ',{maximumFractionDigits:2})}/rok</span>`).join(' '):'<span class="status">Náklady nejsou zadané</span>'}
 
+function policyRows(rows,{archive=true}={}){
+ return rows.map(x=>`<div class="intel-row"><div class="intel-main"><div><span class="status ${lifeTone(x.lifecycle)}">${h(x.lifecycleLabel)} · ${h(x.kindLabel)}</span> <span class="status ${tone(x.status)}">${label(x.status)}</span>${x.autoPay?' <span class="status good">AUTOPAY</span>':''}</div><b>${h(x.title)}</b><span>${h(x.issues[0]||x.notes||x.insured||x.provider||'Bez aktuálního upozornění')}</span><small>${x.provider?h(x.provider)+' · ':''}${x.policyNumber?'smlouva '+h(x.policyNumber)+' · ':''}${x.premium!==null?'pojistné '+fmt(x.premium,x.currency||'CZK')+' · ':''}${x.startDate?'počátek '+date(x.startDate)+' · ':''}${x.renewal?'výročí '+date(x.renewal):''}</small></div><div class="row-actions"><button class="btn" data-ins-edit="${h(x.id)}">Detail</button>${archive?'<button class="btn quiet-action" data-ins-archive="'+h(x.id)+'">Archivovat</button>':''}</div></div>`).join('');
+}
 function renderInsurance(){
  const view=qs('#moreView'),a=insuranceCenter(store.get());if(!view)return;
  view.innerHTML=`<div class="subview-bar"><button class="btn" id="insuranceBack25">← Zpět</button><div><span>VÍCE</span><b>Pojištění</b></div></div>
- <div class="view-head compact"><div><div class="eyebrow">INSURANCE CENTER / 25.14</div><h1>Všechny pojistky na jednom místě</h1><p>Výročí, výpovědní lhůty, pojistné, limity, spoluúčast a co je potřeba doplnit.</p></div><div class="view-head-stat"><b class="${a.urgent?'bad':a.due30?'warn':'good'}">${a.urgent}</b><span>urgentních</span></div></div>
- <div class="metric-strip"><div class="metric"><span>Pojistek</span><b>${a.total}</b></div><div class="metric"><span>Do 30 dní</span><b class="${a.due30?'warn':'good'}">${a.due30}</b></div><div class="metric"><span>Pojištěných subjektů</span><b>${a.insuredSubjects}</b></div><div class="metric"><span>Neúplných</span><b class="${a.incomplete?'warn':'good'}">${a.incomplete}</b></div></div>
- <div class="card"><div class="card-head"><div><div class="eyebrow">NÁKLADY PO MĚNÁCH</div><h2>Pojistné bez falešných FX součtů</h2></div><div>${costsHtml(a.costs)}</div></div></div>
- <div class="card"><div class="card-head"><div><div class="eyebrow">RADAR POJISTEK</div><h2>Co zkontrolovat jako první</h2></div><button class="btn primary" id="insuranceAdd25">＋ Pojistka</button></div>
- <div class="intel-list">${a.policies.map(x=>`<div class="intel-row"><div class="intel-main"><div><span class="status ${tone(x.status)}">${label(x.status)} · ${h(x.kindLabel)}</span>${x.autoPay?' <span class="status good">AUTOPAY</span>':''}</div><b>${h(x.title)}</b><span>${h(x.issues[0]||x.insured||x.provider||'Bez aktuálního upozornění')}</span><small>${x.insured?`Pojištěno: ${h(x.insured)} · `:''}pojistné ${fmt(x.premium,x.currency||'CZK')} · limit ${fmt(x.coverage,x.currency||'CZK')} · spoluúčast ${fmt(x.deductible,x.currency||'CZK')} · výročí/expirace ${x.renewal?date(x.renewal):'—'}</small></div><div class="row-actions"><button class="btn" data-ins-edit="${h(x.id)}">Detail</button><button class="btn quiet-action" data-ins-archive="${h(x.id)}">Archivovat</button></div></div>`).join('')||'<div class="empty">Zatím není evidovaná žádná pojistka.</div>'}</div>
- <div class="decision-note">${h(a.note)} „Neúplná“ znamená pouze chybějící evidenční údaje; není to tvrzení, že je pojistka špatně nastavená.</div></div>`;
- qs('#insuranceBack25').onclick=()=>window.dispatchEvent(new CustomEvent('kamil:more',{detail:'menu'}));qs('#insuranceAdd25').onclick=()=>editPolicy();qsa('[data-ins-edit]',view).forEach(b=>b.onclick=()=>editPolicy(b.dataset.insEdit));qsa('[data-ins-archive]',view).forEach(b=>b.onclick=()=>{const id=b.dataset.insArchive;store.mutate('Archivována pojistka',s=>{const x=s.personalAdmin?.items?.find(y=>y.id===id);if(x){x.status='ARCHIVED';x.updatedAt=new Date().toISOString()}});renderInsurance()});
+ <div class="view-head compact"><div><div class="eyebrow">INSURANCE CENTER / OS1336</div><h1>Všechny pojistky na jednom místě</h1><p>Aktivní smlouvy, nové smlouvy, ukončované pojistky, nabídky a historie jsou oddělené.</p></div><div class="view-head-stat"><b class="${a.review?'bad':a.terminating?'warn':'good'}">${a.active}</b><span>aktivních</span></div></div>
+ <div class="metric-strip"><div class="metric"><span>Aktivní</span><b>${a.active}</b></div><div class="metric"><span>Začíná</span><b class="${a.upcoming?'warn':'good'}">${a.upcoming}</b></div><div class="metric"><span>Ukončované</span><b class="${a.terminating?'warn':'good'}">${a.terminating}</b></div><div class="metric"><span>Ověřit</span><b class="${a.review?'bad':'good'}">${a.review}</b></div></div>
+ <div class="card"><div class="card-head"><div><div class="eyebrow">AKTIVNÍ + ZAČÍNAJÍCÍ</div><h2>Co teď skutečně platí nebo začne platit</h2></div><div>${costsHtml(a.costs)}</div></div><div class="intel-list">${policyRows(a.policies)||'<div class="empty">Žádná aktuální pojistka.</div>'}</div></div>
+ <div class="card"><div class="card-head"><div><div class="eyebrow">NABÍDKY</div><h2>Nesjednané varianty</h2></div><span class="status">${a.offers.length} nabídek</span></div><div class="intel-list">${policyRows(a.offers,{archive:false})||'<div class="empty">Žádná uložená nabídka.</div>'}</div></div>
+ <div class="card"><div class="card-head"><div><div class="eyebrow">HISTORIE</div><h2>Ukončené / jednorázové pojistky</h2></div><span class="status">${a.history.length} záznamů</span></div><details><summary>Zobrazit historii</summary><div class="intel-list">${policyRows(a.history,{archive:false})||'<div class="empty">Bez historie.</div>'}</div></details></div>
+ <div class="card"><div class="card-head"><div><div class="eyebrow">SPRÁVA</div><h2>Vlastní záznamy</h2></div><button class="btn primary" id="insuranceAdd25">＋ Pojistka</button></div><div class="decision-note">${h(a.note)} Náklady nahoře zahrnují jen aktivní a začínající pojistky s potvrzenou částkou; nabídky a historie se do nich nepočítají.</div></div>`;
+ qs('#insuranceBack25').onclick=()=>window.dispatchEvent(new CustomEvent('kamil:more',{detail:'menu'}));qs('#insuranceAdd25').onclick=()=>editPolicy();qsa('[data-ins-edit]',view).forEach(b=>b.onclick=()=>editPolicy(b.dataset.insEdit));qsa('[data-ins-archive]',view).forEach(b=>b.onclick=()=>{const id=b.dataset.insArchive;store.mutate('Archivována pojistka',z=>{const x=z.personalAdmin?.items?.find(y=>y.id===id);if(x){x.status='ARCHIVED';x.insurance=x.insurance||{};x.insurance.lifecycle='HISTORY';x.updatedAt=new Date().toISOString()}});renderInsurance()});
+ window.__KAMIL_INSURANCE_CENTER1336__={healthy:true,active:a.active,upcoming:a.upcoming,terminating:a.terminating,review:a.review,offers:a.offers.length,history:a.history.length,total:a.all.length,at:Date.now()};
 }
 
 const start=()=>{const view=qs('#moreView');if(!view)return;new MutationObserver(()=>queueMicrotask(ensureTile)).observe(view,{childList:true,subtree:true});ensureTile()};
