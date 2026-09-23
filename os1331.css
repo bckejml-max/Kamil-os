@@ -1,0 +1,91 @@
+/* OS1331 command-center pass: clearer information architecture without hiding any section. */
+html[data-command-center1331="1"] .os1331-nav-group{
+  padding:10px 10px 4px;
+  color:#5f6d7d;
+  font-size:8.5px;
+  font-weight:800;
+  letter-spacing:.14em;
+  line-height:1;
+  text-transform:uppercase;
+  user-select:none;
+}
+html[data-command-center1331="1"] .os1331-nav-group:first-child{padding-top:2px}
+html[data-command-center1331="1"] #mainNav{gap:2px!important}
+html[data-command-center1331="1"] #mainNav button{
+  position:relative;
+  border:1px solid transparent!important;
+}
+html[data-command-center1331="1"] #mainNav button.on{
+  border-color:rgba(105,167,255,.14)!important;
+  box-shadow:inset 2px 0 0 #69a7ff!important;
+}
+html[data-command-center1331="1"] #mainNav button.on .os2-nav-icon{
+  color:#dceaff!important;
+}
+
+html[data-command-center1331="1"] .os1331-command-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.22fr) minmax(330px,.78fr);
+  gap:14px;
+  align-items:start;
+}
+html[data-command-center1331="1"] .os1331-focus-stack{
+  display:grid;
+  gap:12px;
+  min-width:0;
+}
+html[data-command-center1331="1"] .os1331-command-grid .pr1320-now{
+  min-height:148px;
+  border-radius:18px!important;
+}
+html[data-command-center1331="1"] .os1331-next-panel,
+html[data-command-center1331="1"] .os1331-system-panel{
+  border-radius:16px!important;
+}
+html[data-command-center1331="1"] .os1331-system-panel{
+  align-self:start;
+}
+html[data-command-center1331="1"] .os1331-system-panel .pr1300-panel-head{
+  padding:13px 15px!important;
+}
+html[data-command-center1331="1"] .os1331-system-panel .pr1300-row{
+  min-height:46px!important;
+  padding:10px 14px!important;
+}
+html[data-command-center1331="1"] .os1331-system-panel .pr1300-row-main b{
+  font-size:11.5px!important;
+}
+html[data-command-center1331="1"] .os1331-system-panel .pr1300-row-main small{
+  max-width:270px;
+  font-size:10px!important;
+}
+html[data-command-center1331="1"] .os1331-system-panel .pr1300-row-side{
+  min-width:70px!important;
+  font-size:9.5px!important;
+}
+html[data-command-center1331="1"] .os1331-meta{
+  margin-top:0!important;
+}
+html[data-command-center1331="1"] .os1331-meta span{
+  min-height:28px;
+  display:inline-flex;
+  align-items:center;
+}
+html[data-command-center1331="1"] #todayView .pr1300-actions{
+  justify-content:flex-end;
+}
+
+@media(max-width:1120px){
+  html[data-command-center1331="1"] .os1331-command-grid{grid-template-columns:1fr}
+  html[data-command-center1331="1"] .os1331-system-panel .pr1300-row-main small{max-width:none}
+}
+@media(max-width:760px){
+  html[data-command-center1331="1"] .os1331-command-grid{gap:11px}
+  html[data-command-center1331="1"] .os1331-focus-stack{gap:10px}
+  html[data-command-center1331="1"] .os1331-command-grid .pr1320-now{min-height:0}
+  html[data-command-center1331="1"] .os1331-system-panel .pr1300-row{
+    min-height:44px!important;
+    padding:9px 12px!important;
+  }
+  html[data-command-center1331="1"] #todayView .pr1300-actions{justify-content:flex-start}
+}
