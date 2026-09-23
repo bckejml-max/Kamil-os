@@ -464,3 +464,114 @@ html[data-usability-reset1320="1"] .ux64-big{font-size:20px!important}
   html[data-usability-reset1320="1"] .os2-app{padding-bottom:104px!important}
   html[data-usability-reset1320="1"] .os2-bottom button{font-size:9.5px!important}
 }
+
+
+/* OS1325 density pass: keep all information visible without turning every record into a tall card. */
+html[data-usability-reset1320="1"] .ux64-contract,
+html[data-usability-reset1320="1"] .ux64-doc{
+  padding:13px!important;
+}
+html[data-usability-reset1320="1"] .ux64-contract-grid{gap:9px!important}
+html[data-usability-reset1320="1"] .ux64-doc-list{gap:8px!important}
+html[data-usability-reset1320="1"] .ux64-contract h2,
+html[data-usability-reset1320="1"] .ux64-doc h2{
+  margin:5px 0 4px!important;
+  line-height:1.2!important;
+}
+html[data-usability-reset1320="1"] .ux64-next{
+  margin:8px 0!important;
+  padding:8px 9px!important;
+  font-size:11px!important;
+  line-height:1.35!important;
+}
+html[data-usability-reset1320="1"] .ux64-status{
+  padding:4px 7px!important;
+  font-size:10px!important;
+}
+html[data-usability-reset1320="1"] .ux64-type{font-size:9.5px!important}
+html[data-usability-reset1320="1"] .ux64-big{
+  margin:6px 0!important;
+  font-size:18px!important;
+}
+html[data-usability-reset1320="1"] .family-section .empty,
+html[data-usability-reset1320="1"] .home-section .empty{
+  padding:11px 0!important;
+  min-height:0!important;
+  font-size:11px!important;
+}
+html[data-usability-reset1320="1"] .document-action-summary{gap:7px!important}
+html[data-usability-reset1320="1"] .document-action-row{padding:2px 0!important}
+html[data-usability-reset1320="1"] .document-action-row .muted{font-size:11px!important}
+html[data-usability-reset1320="1"] .ux65-footnote{font-size:10px!important}
+
+/* Give sparse primary pages a tighter rhythm without reintroducing dashboard clutter. */
+html[data-usability-reset1320="1"] #todayView .pr1300-panel,
+html[data-usability-reset1320="1"] #propertyView .pr1300-panel,
+html[data-usability-reset1320="1"] #bettingView .pr1300-panel,
+html[data-usability-reset1320="1"] #ticketIntelView:not([data-product-advanced]) .pr1300-panel{
+  min-height:0!important;
+}
+html[data-usability-reset1320="1"] .pr1300-empty{padding:15px 16px!important}
+html[data-usability-reset1320="1"] .pr1300-actions{margin-top:-2px!important}
+
+@media(max-width:760px){
+  html[data-usability-reset1320="1"] .os2-title span{display:none!important}
+  html[data-usability-reset1320="1"] .os2-title strong{font-size:12px!important}
+  html[data-usability-reset1320="1"] .os2-primary{
+    min-height:30px!important;
+    padding:0 9px!important;
+    font-size:9.5px!important;
+    border-radius:8px!important;
+  }
+  html[data-usability-reset1320="1"] .os2-chip{
+    width:26px!important;
+    height:26px!important;
+    padding:0!important;
+  }
+  html[data-usability-reset1320="1"] .os2-command{padding-top:7px!important}
+  html[data-usability-reset1320="1"] .os2-main{padding-top:13px!important}
+
+  html[data-usability-reset1320="1"] .ux64-doc{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:start!important;
+    gap:9px!important;
+    padding:12px!important;
+  }
+  html[data-usability-reset1320="1"] .ux64-doc-main{min-width:0!important}
+  html[data-usability-reset1320="1"] .ux64-doc .btn{
+    width:auto!important;
+    min-height:31px!important;
+    padding:0 9px!important;
+    font-size:10px!important;
+    align-self:start!important;
+  }
+  html[data-usability-reset1320="1"] .ux64-doc .ux64-contract-head{
+    display:block!important;
+  }
+  html[data-usability-reset1320="1"] .ux64-doc .ux64-status{
+    display:inline-flex!important;
+    margin-top:4px!important;
+  }
+  html[data-usability-reset1320="1"] .ux64-doc .ux64-next{
+    margin:7px 0 0!important;
+  }
+
+  html[data-usability-reset1320="1"] .ux64-contract{
+    padding:12px!important;
+  }
+  html[data-usability-reset1320="1"] .ux64-contract-head{
+    align-items:flex-start!important;
+  }
+  html[data-usability-reset1320="1"] .home-section[data-home-section="records"]{gap:8px!important}
+  html[data-usability-reset1320="1"] .document-action-summary{padding:13px!important}
+  html[data-usability-reset1320="1"] .document-action-row{
+    grid-template-columns:24px minmax(0,1fr)!important;
+    gap:8px!important;
+  }
+  html[data-usability-reset1320="1"] .document-action-rank{
+    width:23px!important;
+    height:23px!important;
+    font-size:10px!important;
+  }
+}
