@@ -40,8 +40,8 @@ test('OS1336 Insurance Center separates active upcoming terminating offers and h
  expect(d.active).toBe(3);
  expect(d.upcoming).toBe(1);
  expect(d.terminating).toBe(2);
- expect(d.review).toBe(1);
+ expect(d.review).toBe(2);
  expect(d.offers).toBe(2);
- expect(d.history).toBe(5);
- expect(d.total).toBe(14);
+ expect(d.history).toBe(6);
+ expect(d.total).toBe(16);
 });
