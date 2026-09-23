@@ -165,6 +165,22 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
+test('OS1329 Tasks show all buckets and keep far-future documents out of Teď',async({page})=>{
+ await page.addInitScript(()=>{
+  const due=new Date(Date.now()+183*86400000).toISOString().slice(0,10);
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+   tasks:[{id:'far-doc',title:'Doložit dokument',status:'OPEN',area:'osobní',category:'Dokumenty',due,notes:'Doklad je potřeba až později.'}]
+  }));
+ });
+ await boot(page);
+ await openView(page,'inbox');
+ await expect(page.locator('#inboxView [data-tasks-overview]')).toBeVisible();
+ await expect(page.locator('#inboxView .pr1320-now h2')).toHaveText('Nic akutního');
+ await expect(page.locator('#inboxView [data-task-open="task:far-doc"]')).toBeVisible();
+ const chips=await page.locator('#inboxView .pr1329-task-meta span').allTextContents();
+ expect(chips).toEqual(['Odpovědět: 0','Zaplatit: 0','Vyřešit: 0','Čekám: 0','Termíny: 0','Dokumenty: 1']);
+});
 test('OS1328 empty Work and Reality stay truthful instead of manufacturing alerts',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
