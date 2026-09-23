@@ -1,0 +1,72 @@
+/* OS1333: action-only navigation signals + keyboard-first command palette. */
+html[data-nav-signals1333="1"] #mainNav button[data-nav-badge]::after{
+  content:attr(data-nav-badge);
+  margin-left:auto;
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:#2a3542;
+  color:#c5d0dc;
+  font-size:9px;
+  font-weight:850;
+  line-height:1;
+}
+html[data-nav-signals1333="1"] #mainNav button[data-nav-tone="warn"]::after{
+  background:rgba(231,188,104,.13);
+  color:#e7bc68;
+  border:1px solid rgba(231,188,104,.22);
+}
+html[data-nav-signals1333="1"] #mainNav button[data-nav-tone="bad"]::after{
+  background:rgba(235,133,141,.12);
+  color:#eb858d;
+  border:1px solid rgba(235,133,141,.22);
+}
+html[data-nav-signals1333="1"] #bottomNav button[data-nav-badge]{position:relative}
+html[data-nav-signals1333="1"] #bottomNav button[data-nav-badge]::after{
+  content:attr(data-nav-badge);
+  position:absolute;
+  top:3px;
+  right:max(3px,calc(50% - 22px));
+  min-width:15px;
+  height:15px;
+  padding:0 4px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:#344251;
+  color:#dbe4ed;
+  border:1px solid rgba(255,255,255,.08);
+  font-size:8px;
+  font-weight:900;
+  line-height:1;
+}
+html[data-nav-signals1333="1"] #bottomNav button[data-nav-tone="warn"]::after{
+  background:#3a3120;color:#efc978;border-color:rgba(231,188,104,.24)
+}
+html[data-nav-signals1333="1"] #bottomNav button[data-nav-tone="bad"]::after{
+  background:#3a252b;color:#f09aa0;border-color:rgba(235,133,141,.24)
+}
+
+html[data-nav-signals1333="1"] .os1332-command-grid button.is-active{
+  background:#1a2a3a!important;
+  border-color:#55779b!important;
+  color:#f2f7fd!important;
+  box-shadow:inset 0 0 0 1px rgba(105,167,255,.12),0 0 0 2px rgba(105,167,255,.06);
+}
+html[data-nav-signals1333="1"] .os1332-command-grid button.is-active i{
+  background:#294461!important;
+  color:#eef7ff!important;
+}
+html[data-nav-signals1333="1"] .os1332-command-grid button:focus-visible{
+  outline:2px solid #69a7ff;
+  outline-offset:2px;
+}
+@media(max-width:760px){
+  html[data-nav-signals1333="1"] #bottomNav button[data-nav-badge]::after{
+    top:2px;
+    right:calc(50% - 20px);
+  }
+}
