@@ -165,6 +165,16 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
  }
 });
 
+test('OS1326 Today shows five compact system rows with live cross-section data',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ await expect(page.locator('#todayView .pr1326-system-panel')).toBeVisible();
+ await expect(page.locator('#todayView .pr1326-system .pr1300-row')).toHaveCount(5);
+ const labels=await page.locator('#todayView .pr1326-system .pr1300-row-main b').allTextContents();
+ expect(labels).toEqual(['Práce','Vstupenky','Peníze','Sázení','Reality']);
+ const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
+ expect(diag.systemRows).toBe(5);
+});
 test('OS1324 visual polish keeps the shell compact and consistent',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
