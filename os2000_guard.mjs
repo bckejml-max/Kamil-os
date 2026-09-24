@@ -4,10 +4,12 @@ const root=new URL('./',import.meta.url),read=p=>readFile(new URL(p,root),'utf8'
 const [index,boot,views,today,betting,css,product,sw]=await Promise.all([read('./index.html'),read('./js/instantShell64.js'),read('./js/viewRuntime41.js'),read('./js/todayPage2000.js'),read('./js/bettingBootstrap543.js'),read('./os2.css'),read('./productReset1300.css'),read('./sw.js')]);
 
 assert.match(index,/data-os2="1"/,'OS2 index marker missing');
-assert.equal((index.match(/rel="stylesheet"/g)||[]).length,3,'OS1323 shell may eager-load only base + OS2 + product reset CSS');
+const eagerStyles=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(x=>x[1]);
+assert.deepEqual(eagerStyles,['./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css'],'OS1336 shell eager styles must be the approved canonical layers only');
 assert.match(index,/\.\/styles\.css/,'base stylesheet missing');
 assert.match(index,/\.\/os2\.css/,'OS2 stylesheet missing');
 assert.match(index,/\.\/productReset1300\.css/,'OS1300 product reset stylesheet missing');
+for(const cssName of ['os1331.css','os1332.css','os1333.css','os1334.css'])assert.match(index,new RegExp(`\\.\\/${cssName.replace('.', '\\.')}`),`${cssName} canonical layer missing`);
 assert.equal(index.includes('bettingBootstrap543.js'),false,'Betting bootstrap must not be a global script');
 for(const id of ['view-today','view-work','view-tickets','view-property','view-money','view-betting','view-inbox','view-family','view-home','view-more'])assert.match(index,new RegExp(`id="${id}"`),`static OS2 shell missing ${id}`);
 
