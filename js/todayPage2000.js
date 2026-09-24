@@ -2,6 +2,7 @@ import {store} from './state.js';
 import {workCommandCenter440} from './workCommandCenter440.js';
 import {buildPropertyHub620} from './propertyHub620.js';
 import {personalDailyAssistant650} from './personalAssistant650.js';
+import {insuranceCenter} from './insurance25.js';
 import {ownEvent1100} from './runtimeOwnership1100.js';
 
 const OWNER='today.os2000';
@@ -24,8 +25,8 @@ function baseData(){
  const s=store.get();
  const tasks=(s.tasks||[]).filter(open),ticketTasks=tasks.filter(x=>['TICKETS','VIAGOGO'].includes(upper(x?.area||x?.category))),waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[]),...(s.personalInbox?.items||[]).filter(x=>String(x?.bucket||'').toLowerCase()==='waiting')].filter(open),tickets=(s.ticketBook?.items||[]).filter(open),calendar=(s.calendar?.events||[]).filter(x=>{const t=ts(x);return t&&t>Date.now()-6*3600000}).sort((a,b)=>(ts(a)||Infinity)-(ts(b)||Infinity));
  const urgentTasks=[...tasks].sort((a,b)=>{const ao=isOverdue(a),bo=isOverdue(b);if(ao!==bo)return bo-ao;const pa=Number(a?.priority||a?.score||0),pb=Number(b?.priority||b?.score||0);if(pb!==pa)return pb-pa;return(ts(a)||Infinity)-(ts(b)||Infinity)});
- const overdue=tasks.filter(isOverdue),transfer=tickets.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(upper(x.market_status||x.workflow))),activeTickets=tickets.filter(x=>!['PAID','PAYOUT_RECEIVED','SOLD'].includes(upper(x.market_status||x.workflow))),financePlan=s.financePlan||{},rawCash=financePlan.cashNow,cashPlanTouched=!!financePlan.updatedAt||[financePlan.cashNow,financePlan.expectedIncome,financePlan.reserveFloor,financePlan.plannedInvestment].some(v=>Number(v||0)!==0),cash=cashPlanTouched&&rawCash!==null&&rawCash!==undefined&&String(rawCash).trim()!==''&&Number.isFinite(Number(rawCash))?Number(rawCash):null,work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=betting(s),personal=personalDailyAssistant650(s);
- return{s,tasks,ticketTasks,waiting,tickets,activeTickets,transfer,calendar,urgentTasks,overdue,cash,work,property,bet,personal};
+ const overdue=tasks.filter(isOverdue),transfer=tickets.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(upper(x.market_status||x.workflow))),activeTickets=tickets.filter(x=>!['PAID','PAYOUT_RECEIVED','SOLD'].includes(upper(x.market_status||x.workflow))),financePlan=s.financePlan||{},rawCash=financePlan.cashNow,cashPlanTouched=!!financePlan.updatedAt||[financePlan.cashNow,financePlan.expectedIncome,financePlan.reserveFloor,financePlan.plannedInvestment].some(v=>Number(v||0)!==0),cash=cashPlanTouched&&rawCash!==null&&rawCash!==undefined&&String(rawCash).trim()!==''&&Number.isFinite(Number(rawCash))?Number(rawCash):null,work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=betting(s),personal=personalDailyAssistant650(s),insurance=insuranceCenter(s);
+ return{s,tasks,ticketTasks,waiting,tickets,activeTickets,transfer,calendar,urgentTasks,overdue,cash,work,property,bet,personal,insurance};
 }
 function greeting(){const h=new Date().getHours();return h<11?'Dobré ráno':h<18?'Dobré odpoledne':'Dobrý večer'}
 function attention(d){
@@ -34,6 +35,7 @@ function attention(d){
  const wr=d.work.topRisks[0];if(wr)add({title:wr.title,detail:`${wr.kind} · ${wr.detail}`,route:'work',tone:wr.score>=95?'bad':'warn',cta:'otevřít'},Math.max(90,Number(wr.score||0)+12));
  if(d.transfer.length)add({title:`${d.transfer.length} prodejů čeká na převod`,detail:'Vstupenky jsou prodané, ale předání kupujícímu ještě není dokončené.',route:'tickets',tone:'bad',cta:'převést'},126);
  for(const x of d.personal?.top||[])add({title:x.title,detail:x.why||x.next||'Osobní věc vyžaduje kontrolu.',route:personalRoute(x),personalId:x.id,tone:x.score>=110?'bad':x.score>=90?'warn':'',cta:String(x.cta||'vyřešit').toLowerCase()},x.score);
+ for(const x of (d.insurance?.policies||[]).filter(x=>x.status!=='OK').slice(0,2))add({title:x.title,detail:x.issues?.[0]||'Pojistku je potřeba zkontrolovat.',route:'more',tone:x.status==='URGENT'?'bad':'warn',cta:'pojištění'},Number(x.priority||0)+8);
  const dueWait=d.waiting.find(x=>{const t=ts(x);return t&&t<=Date.now()+86400000});if(dueWait)add({title:`Follow-up: ${titleOf(dueWait)}`,detail:isOverdue(dueWait)?'Čekání je po termínu.':'Follow-up je dnes nebo zítra.',route:'inbox',tone:isOverdue(dueWait)?'bad':'warn',cta:'zkontrolovat'},isOverdue(dueWait)?116:84);
  const tomorrow=d.personal?.tomorrow?.[0];if(tomorrow)add({title:tomorrow.title||tomorrow.summary||'Rodinný termín zítra',detail:'Osobní termín je zítra.',route:'family',tone:'',cta:'připravit'},76);
  const seen=new Set();
