@@ -57,5 +57,5 @@ jobs:
           exit 1
       - name: OS 2.0 critical-path performance gate
         run: npx playwright test e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
-      - name: OS 2.0 canonical browser smoke
-        run: npx playwright test e2e_os2000_redesign.spec.mjs e2e_os2020_decision_focus.spec.mjs e2e_os343_boot_budget.spec.mjs e2e_os345_deferred_boot.spec.mjs --reporter=line --workers=1
+      - name: Full canonical browser smoke
+        run: npm run test:e2e -- --workers=1
