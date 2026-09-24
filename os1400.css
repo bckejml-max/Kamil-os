@@ -130,3 +130,45 @@ html[data-os1400="1"] .pr1300-actions{display:flex!important;gap:8px!important;f
 html[data-os1400="1"] .pr1300-btn{min-height:34px!important;border-radius:9px!important;font-size:10.5px!important}
 html[data-os1400="1"] .pr1300-attention{gap:7px!important;padding:10px!important}
 html[data-os1400="1"] .pr1300-attention button{background:#0e141b!important;border-color:#242d39!important;border-radius:11px!important;padding:11px!important}
+
+/* Personal surfaces use the same OS1400 hierarchy instead of a second visual system. */
+html[data-os1400="1"] .ux64-page{display:grid!important;gap:15px!important;color:var(--os1400-text)!important}
+html[data-os1400="1"] .ux64-page .view-head{display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:18px!important;margin:0!important}
+html[data-os1400="1"] .ux64-page .view-head h1{margin:4px 0 5px!important;font-size:27px!important;line-height:1.08!important;letter-spacing:-.035em!important}
+html[data-os1400="1"] .ux64-page .view-head p{margin:0!important;max-width:720px!important;font-size:12px!important;line-height:1.5!important;color:#8e9baa!important}
+html[data-os1400="1"] .family-action-summary,
+html[data-os1400="1"] .home-action-summary,
+html[data-os1400="1"] .document-action-summary{
+  border:1px solid #2b3644!important;border-radius:16px!important;background:linear-gradient(180deg,#131a23,#0f151c)!important;padding:16px!important
+}
+html[data-os1400="1"] .family-action-row,
+html[data-os1400="1"] .home-action-row,
+html[data-os1400="1"] .document-action-row{border-top-color:rgba(148,163,184,.09)!important}
+html[data-os1400="1"] .metric-strip{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:9px!important}
+html[data-os1400="1"] .metric-strip .metric{
+  min-height:76px!important;padding:12px 13px!important;border:1px solid #242d39!important;border-radius:13px!important;background:#0d131a!important
+}
+html[data-os1400="1"] .metric-strip .metric span{font-size:9px!important;color:#748194!important;text-transform:uppercase!important;letter-spacing:.06em!important}
+html[data-os1400="1"] .metric-strip .metric b{margin-top:5px!important;font-size:18px!important}
+html[data-os1400="1"] .family-filters,
+html[data-os1400="1"] .home-filters,
+html[data-os1400="1"] .document-filters{display:flex!important;gap:7px!important;flex-wrap:wrap!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important}
+html[data-os1400="1"] .family-filters .btn,
+html[data-os1400="1"] .home-filters .btn,
+html[data-os1400="1"] .document-filters .btn{min-height:31px!important;border-radius:999px!important;background:#0d131a!important;border:1px solid #242d39!important;color:#8895a5!important}
+html[data-os1400="1"] .family-filters .btn.on,
+html[data-os1400="1"] .home-filters .btn.on,
+html[data-os1400="1"] .document-filters .btn.on{background:#182334!important;border-color:#31445d!important;color:#f3f6fa!important}
+html[data-os1400="1"] .family-section,
+html[data-os1400="1"] .home-section,
+html[data-os1400="1"] .ux64-doc,
+html[data-os1400="1"] .document-insurance-shortcut,
+html[data-os1400="1"] .ux64-contract{
+  background:#11161d!important;border:1px solid #242d39!important;border-radius:15px!important;box-shadow:none!important
+}
+html[data-os1400="1"] .ux64-row{border-top-color:rgba(148,163,184,.09)!important}
+html[data-os1400="1"] .ux64-next{background:#0d131a!important;border-radius:9px!important}
+@media(max-width:760px){
+  html[data-os1400="1"] .ux64-page .view-head{align-items:flex-start!important;flex-direction:column!important}
+  html[data-os1400="1"] .metric-strip{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
