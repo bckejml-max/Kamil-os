@@ -4,6 +4,7 @@ import {ensurePersonalVault640,personalVault640,personalVaultRecord640,confirmVa
 import {openVaultEdit641} from './personalVaultEdit641.js';
 import {openDocumentReferences646,createDocumentTaskModal646} from './personalDocumentActions646.js';
 import {personalDaysTo650} from './personalDate650.js';
+import {insuranceCenter} from './insurance25.js';
 
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
@@ -13,6 +14,7 @@ const daysTo=v=>personalDaysTo650(v.noticeBy||v.validUntil||v.reviewAt||null);
 const archived=v=>['ARCHIVED','CLOSED','DONE','RESOLVED'].includes(String(v.status?.code||v.status?.label||'').toUpperCase());
 const bucket=v=>archived(v)?'archive':v.status?.severity>0?'action':daysTo(v)!==null&&daysTo(v)>=0&&daysTo(v)<=90?'ending':'valid';
 const urgency=(a,b)=>b.status.severity-a.status.severity||(daysTo(a)??99999)-(daysTo(b)??99999)||a.title.localeCompare(b.title,'cs');
+const rerenderDocuments=async()=>{const m=await import('./documentsPage141.js');return m.renderDocumentsPage141?.()};
 const row=v=>`<article class="ux64-doc ux65-doc doc-filter-row" data-doc-bucket="${bucket(v)}"><div class="ux64-doc-main"><div class="ux64-contract-head"><div><span class="ux64-type">${typeLabel(v)}</span><h2>${h(v.title)}</h2></div><span class="ux64-status">${h(v.status.label)}</span></div><div class="muted">${h(validityLabel(v))}</div><div class="ux64-next"><b>Co dál:</b> ${h(v.nextAction)}</div></div><button class="btn ${v.status.severity?'primary':''}" data-vault-record="${h(v.id)}">${v.status.severity?'Vyřešit':'Otevřít'}</button></article>`;
 
 export async function openVaultRecord640(id){
@@ -31,14 +33,16 @@ async function addSourceInbox650(records){
 }
 
 export function renderPersonalDocuments640(){
- ensurePersonalVault640();const s=store.get(),v=personalVault640(s),host=qs('#moreView');if(!host)return;const records=[...v.records].sort(urgency),refs=records.reduce((n,x)=>n+(Array.isArray(x.attachments)?x.attachments.length:0),0);
+ ensurePersonalVault640();const s=store.get(),v=personalVault640(s),host=qs('#moreView');if(!host)return;const records=[...v.records].sort(urgency),refs=records.reduce((n,x)=>n+(Array.isArray(x.attachments)?x.attachments.length:0),0),insurance=insuranceCenter(s);
  const counts={action:0,ending:0,valid:0,archive:0};records.forEach(x=>counts[bucket(x)]++);const top=records.filter(x=>bucket(x)==='action'||bucket(x)==='ending').slice(0,3);
  host.innerHTML=`<div class="ux64-page documents-page"><div class="view-head"><div><div class="eyebrow">DOKUMENTY</div><h1>Co je potřeba hlídat</h1><p>Smlouvy, pojistky a důležité údaje. Nejdřív věci k řešení, potom archiv.</p></div><div class="row-actions"><button class="btn primary" id="documentInbox650">+ Přidat dokument / zdroj</button></div></div>
  <section class="document-action-summary ${top.length?'has-issues':''}"><div class="eyebrow">CO ŘEŠIT TEĎ</div>${top.length?top.map((x,i)=>`<div class="document-action-row"><span class="document-action-rank">${i+1}</span><div><b>${h(x.title)}</b><div class="muted">${h(validityLabel(x))} · ${h(x.nextAction)}</div></div></div>`).join(''):'<div class="document-clear"><b>Dokumenty jsou bez akutního problému.</b><span class="muted">Nic teď nevyžaduje zásah.</span></div>'}</section>
+ <section class="card document-insurance-shortcut"><div class="card-head"><div><div class="eyebrow">POJIŠTĚNÍ</div><h2>Všechny pojistky na jednom místě</h2><p class="muted">${insurance.active} aktivní · ${insurance.upcoming} začíná · ${insurance.terminating} ukončované · ${insurance.review} ověřit · ${insurance.offers.length} nabídky</p></div><button class="btn primary" id="insurance25Tile">Otevřít pojištění →</button></div></section>
  <section class="metric-strip document-metrics"><div class="metric"><span>Řešit</span><b>${counts.action}</b></div><div class="metric"><span>Končí do 90 dní</span><b>${counts.ending}</b></div><div class="metric"><span>Platné / v pořádku</span><b>${counts.valid}</b></div><div class="metric"><span>Archiv</span><b>${counts.archive}</b></div></section>
  <div class="document-filters"><button class="btn on" data-doc-filter="all">Vše</button><button class="btn" data-doc-filter="action">Řešit</button><button class="btn" data-doc-filter="valid">Platné</button><button class="btn" data-doc-filter="ending">Končící</button><button class="btn" data-doc-filter="archive">Archiv</button></div>
  <section class="ux64-doc-list">${records.map(row).join('')}</section><div class="muted ux65-footnote">Připojených zdrojů: ${refs} · ${s.meta?.cloudMode==='cloud'?'osobní metadata jsou synchronizovaná':'data jsou zatím jen na tomto zařízení'}</div></div>`;
- const applyFilter=f=>{host.querySelectorAll('[data-doc-filter]').forEach(b=>b.classList.toggle('on',b.dataset.docFilter===f));host.querySelectorAll('.doc-filter-row').forEach(r=>r.classList.toggle('hidden',f!=='all'&&r.dataset.docBucket!==f));};host.querySelectorAll('[data-doc-filter]').forEach(b=>b.addEventListener('click',()=>applyFilter(b.dataset.docFilter)));
- host.querySelector('#documentInbox650')?.addEventListener('click',async()=>{await addSourceInbox650(records);renderPersonalDocuments640()});host.querySelectorAll('[data-vault-record]').forEach(b=>b.addEventListener('click',async()=>{await openVaultRecord640(b.dataset.vaultRecord);renderPersonalDocuments640()}));
+ const applyFilter=f=>{host.querySelectorAll('[data-doc-filter]').forEach(b=>b.classList.toggle('on',b.dataset.docFilter===f));host.querySelectorAll('.doc-filter-row').forEach(r=>r.classList.toggle('hidden',f!=='all'&&r.dataset.docBucket!==f));};host.querySelectorAll('[data-doc-filter]').forEach(b=>{b.onclick=()=>applyFilter(b.dataset.docFilter)});
+ const insuranceBtn=host.querySelector('#insurance25Tile');if(insuranceBtn)insuranceBtn.onclick=async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()};
+ const sourceBtn=host.querySelector('#documentInbox650');if(sourceBtn)sourceBtn.onclick=async()=>{await addSourceInbox650(records);await rerenderDocuments()};host.querySelectorAll('[data-vault-record]').forEach(b=>{b.onclick=async()=>{await openVaultRecord640(b.dataset.vaultRecord);await rerenderDocuments()}});
  if(typeof window!=='undefined')window.__KAMIL_PERSONAL_DOCUMENTS_650_LAST__={at:Date.now(),records:v.records.length,needsUpdate:v.action.length,refs};
 }
