@@ -9,6 +9,7 @@ import {openPersonalAction641} from './personalActionExecution641.js';
 import {openPersonalCapture643} from './personalCapture643.js';
 import {openPersonalWaiting650} from './personalWaiting650.js';
 import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
+import {insurancePolicy} from './insurance25.js';
 
 const VERSION='660.0.0';
 const OWNER='core.inbox660';
@@ -41,12 +42,21 @@ function timing(days,due){if(days===null)return'bez termínu';if(days<0)return`$
 function priority(row){let score={reply:126,pay:122,do:92,waiting:56,deadline:108,document:101}[row.bucket]||80,d=row.days;if(d!==null){if(d<0)score+=84;else if(d===0)score+=64;else if(d===1)score+=42;else if(d<=3)score+=27;else if(d<=7)score+=14;else if(d<=14)score+=6}if(row.bucket==='waiting'&&d!==null&&d<=0)score+=58;if(U(row.priority)==='HIGH'||U(row.importance)==='HIGH')score+=18;if(row.unread)score+=5;if(row.sourceKind==='mail'&&row.confidence==='low')score-=15;return score}
 function makeRow(sourceKind,sourceId,x={},forcedBucket=null,extra={}){const due=dateOf(x),days=due?daysTo(due):null,bucket=classifyLocal(x,forcedBucket),title=clean(x.title||x.name||x.subject||'Inbox položka')||'Inbox položka',detail=detailOf(x),row={id:`${sourceKind}:${sourceId}`,sourceKind,sourceId:String(sourceId),title,detail,bucket,due,days,at:atOf(x)||Date.now(),route:extra.route||routeFor(`${title} ${detail}`),priority:x.priority||x.importance||null,...extra};row.score=priority(row);return row}
 function actionFor(kind,x){const title=clean(x.title||x.name||'Osobní věc'),due=dateOf(x),why=detailOf(x)||`${kind==='waiting'?'Čekáš na reakci':'Otevřená položka'} · ${timing(due?daysTo(due):null,due)}`;return{id:`${kind}:${x.id||x.title}`,kind,title,why,next:clean(x.nextAction||x.notes||x.note||'Vyřešit, dokončit nebo posunout další krok.'),recordId:x.recordId||null,minutes:Number(x.estimateMinutes||5),route:routeFor(`${title} ${why}`)}}
+function insuranceInboxRow(x){
+ const p=insurancePolicy(x),lc=p.lifecycle;
+ if(['HISTORY','OFFER'].includes(lc))return null;
+ if(lc==='ACTIVE'&&p.status==='OK')return null;
+ if(lc==='UPCOMING'&&p.startDays!==null&&p.startDays>60)return null;
+ const due=p.notice||p.expiry||p.startDate||null,detail=clean(p.issues[0]||x.notes||'Pojistku je potřeba zkontrolovat.');
+ const row=makeRow('admin',x.id,{...x,due,notes:detail},lc==='UPCOMING'?'deadline':'document',{sourceLabel:'Pojištění',route:'more'});
+ row.detail=detail;row.score=Math.max(40,Number(p.priority||0));row.insuranceLifecycle=lc;return row;
+}
 function buildLocalRows(s=store.get()){
  const rows=[];
  A(s.personalInbox?.items).forEach((x,i)=>{if(open(x))rows.push(makeRow('personalInbox',x.id||i,x,null,{sourceIndex:i,sourceLabel:'OS Inbox'}))});
  A(s.inbox).forEach((x,i)=>{if(open(x))rows.push(makeRow('inbox',x.id||i,x,null,{sourceIndex:i,sourceLabel:'Inbox'}))});
  A(s.tasks).filter(open).filter(isPersonalScope527).forEach(x=>rows.push(makeRow('task',x.id,x,null,{sourceLabel:'Úkol',action:actionFor('task',x)})));
- A(s.personalAdmin?.items).filter(open).filter(isPersonalScope527).filter(x=>!String(x.id||'').startsWith('recovered-')).forEach(x=>rows.push(makeRow('admin',x.id,x,null,{sourceLabel:'Administrativa',action:actionFor('admin',x)})));
+ A(s.personalAdmin?.items).filter(open).filter(isPersonalScope527).filter(x=>!String(x.id||'').startsWith('recovered-')).forEach(x=>{if(x.category==='INSURANCE'){const row=insuranceInboxRow(x);if(row)rows.push(row);return}rows.push(makeRow('admin',x.id,x,null,{sourceLabel:'Administrativa',action:actionFor('admin',x)}))});
  A(s.delegations).filter(open).filter(isPersonalScope527).forEach(x=>rows.push(makeRow('waiting',x.id||x.title,x,'waiting',{sourceLabel:'Čekání',action:actionFor('waiting',x),counterparty:x.waitingOn||x.person||x.owner||x.contact||x.counterparty||null})));
  A(s.calendar?.events).filter(isPersonalScope527).forEach((x,i)=>{const due=x.start||x.date||x.when,d=due?daysTo(due):null;if(d!==null&&d>=0&&d<=7)rows.push(makeRow('calendar',x.id||i,{...x,due},'deadline',{sourceLabel:'Kalendář',action:{id:`calendar:${x.id||x.title||i}`,kind:'calendar',title:x.title||x.summary||'Událost',why:'Kalendář · blízký termín',next:'Připravit se na událost.',minutes:5,route:'family'},route:'family'}))});
  const vault=personalVault640(s);A(vault.action).forEach(x=>rows.push(makeRow('vault',x.id,{...x,due:x.noticeBy||x.validUntil||x.reviewAt||null},'document',{sourceLabel:'Dokumenty',action:{id:`vault:${x.id}`,kind:'data',title:x.title,why:x.status?.detail||detailOf(x),next:x.nextAction||'Ověřit aktuální doklad.',minutes:5,route:x.section==='home'?'home':x.section==='money'?'money':'more',recordId:x.id},route:x.section==='home'?'home':x.section==='money'?'money':'more'})));
