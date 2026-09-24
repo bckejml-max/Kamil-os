@@ -172,3 +172,6 @@ html[data-os1400="1"] .ux64-next{background:#0d131a!important;border-radius:9px!
   html[data-os1400="1"] .ux64-page .view-head{align-items:flex-start!important;flex-direction:column!important}
   html[data-os1400="1"] .metric-strip{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+/* Hidden legacy heads must stay hidden even under canonical personal layout. */
+html[data-os1400="1"] .ux64-page .view-head.hidden{display:none!important}
