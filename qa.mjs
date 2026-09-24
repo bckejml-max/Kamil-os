@@ -44,7 +44,7 @@ for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{st
 // Canonical product shell eagerly loads only the approved shared visual layers.
 assert.ok(index.includes('data-os2="1"'),'OS2 shell marker missing');
 const eagerStyles=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(x=>x[1]);
-assert.deepEqual(eagerStyles,['./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css'],'canonical shell eager styles changed unexpectedly');
+assert.deepEqual(eagerStyles,['./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css','./os1400.css'],'canonical shell eager styles changed unexpectedly');
 assert.ok(index.includes('./os2.css'),'OS2 stylesheet missing');
 assert.ok(index.includes('./productReset1300.css')&&index.includes('data-product-reset1300="1"'),'OS1300 product reset shell missing');
 for(const label of ['Dnes','Úkoly','Práce','Vstupenky','Peníze','Reality','Sázení','Rodina','Domov','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
@@ -61,7 +61,7 @@ assert.ok(runtime.includes("money:['./moneyOverview.js','renderMoneyOverview']")
 for(const [name,file,marker] of [['Money',moneyOverview,'data-money-overview'],['Tickets',ticketOverview,'data-ticket-overview'],['Betting',bettingOverview,'data-betting-overview'],['Tasks',tasksOverview,'data-tasks-overview']])assert.ok(file.includes(marker),`${name} simple overview missing`);
 assert.ok(runtime.includes('ensureViewStyles')&&runtime.includes('dataset.os2Lazy'),'view-specific CSS lazy loading missing');
 assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateColdView42(key)'),'lazy view hydration/cache missing');
-for(const symbol of ['data-os2-today','data-product-home1300','pr1320-now','pr1320-queue','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today OS2 missing ${symbol}`);
+for(const symbol of ['data-os2-today','data-product-home1300','data-os1400-home','os1400-focus','os1400-list','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today OS1400 missing ${symbol}`);
 assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');
 assert.ok(app.includes("scheduleFrame1110('app-render'")&&app.includes('renderQueued=true')&&app.includes('renderQueued=false'),'UI renders must remain coalesced through runtime-owned frame scheduling');
 assert.ok(!app.includes('requestAnimationFrame('),'app render scheduling must not bypass runtime ownership');
@@ -83,7 +83,7 @@ assert.ok(!bettingBootstrap.includes('runtimeCoordinator1050')&&!bettingBootstra
 
 // Existing data and safety invariants.
 assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
-assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('productReset1300.css')&&sw.includes('workPage1300.js')&&sw.includes('propertyPage1300.js')&&!sw.includes('os2010.css')&&!sw.includes('os737.css'),'service-worker shell/cache missing');
+assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('productReset1300.css')&&sw.includes('os1400.css')&&sw.includes('workPage1300.js')&&sw.includes('propertyPage1300.js')&&!sw.includes('os2010.css')&&!sw.includes('os737.css'),'service-worker shell/cache missing');
 assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must never prefer stale cache');
 assert.ok(state.includes('export const store=new Store()'),'state store export missing');
 assert.ok(cloud.includes('mergeColdState42'),'cloud payload must restore cold history before upload');
