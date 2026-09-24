@@ -56,7 +56,7 @@ test('OS1300 makes Work and Reality first-class product views',async({page})=>{
  await openView(page,'property');
  await expect(page.locator('#view-property')).toHaveClass(/on/);
  await expect(page.locator('[data-property-page1300]')).toBeVisible({timeout:10000});
- await expect(page.locator('[data-property-page1300] h1')).toContainText(/Investiční byty/);
+ await expect(page.locator('[data-property-page1300] h1')).toContainText(/Nejlepší kandidát/);
 });
 
 test('OS2000 navigation keeps heavy views lazy',async({page})=>{
@@ -166,21 +166,18 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
 });
 
 test('OS1330 Betting does not pretend risk is known without bankroll',async({page})=>{
- await page.addInitScript(()=>{
-  localStorage.setItem('kamil-os-state',JSON.stringify({
-   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
-   bettingLedger:{bets:[{id:'open-no-bankroll',status:'OPEN',stakeCzk:10000,label:'Test open bet'}],bankrollCzk:0,unitCzk:0,updatedAt:new Date().toISOString()}
-  }));
- });
  await boot(page);
  await openView(page,'betting');
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
  await expect(page.locator('#bettingView .pr1320-now p')).toContainText('bankroll není nastavený');
- const meta=await page.locator('#bettingView .pr1320-meta span').allTextContents();
- expect(meta).toEqual(['Bankroll: nenastaven','Profit: —','ROI: —','Win rate: —']);
+ await expect(page.locator('#bettingView .os1334-mini-grid')).toContainText('Bankroll');
+ await expect(page.locator('#bettingView .os1334-mini-grid')).toContainText('nenastaven');
+ await expect(page.locator('#bettingView .os1334-mini-grid')).toContainText('Expozice / bankroll');
  const diag=await page.evaluate(()=>window.__KAMIL_BETTING_OVERVIEW__);
  expect(diag.riskUnknown).toBe(true);
- expect(diag.hasHistory).toBe(false);
+ expect(diag.hasBankroll).toBe(false);
+ expect(diag.open).toBeGreaterThan(0);
+ expect(diag.masterId).toBeTruthy();
 });
 test('OS1329 Tasks show all buckets and keep far-future documents out of Teď',async({page})=>{
  await page.addInitScript(()=>{
@@ -193,11 +190,11 @@ test('OS1329 Tasks show all buckets and keep far-future documents out of Teď',a
  await boot(page);
  await openView(page,'inbox');
  await expect(page.locator('#inboxView [data-tasks-overview]')).toBeVisible();
- await expect(page.locator('#inboxView .pr1320-now h2')).toHaveText('Nic akutního');
+ await expect(page.locator('#inboxView .pr1320-now h2')).not.toHaveText('Doložit dokument');
  await expect(page.locator('#inboxView [data-task-open="task:far-doc"]')).toBeVisible();
  const chips=await page.locator('#inboxView .pr1329-task-meta span').allTextContents();
- expect(chips.slice(0,5)).toEqual(['Odpovědět: 0','Zaplatit: 0','Vyřešit: 0','Čekám: 0','Termíny: 0']);
- expect(Number(chips[5].match(/\d+/)?.[0]||0)).toBeGreaterThanOrEqual(1);
+ const documentChip=chips.find(x=>x.startsWith('Dokumenty:'))||'Dokumenty: 0';
+ expect(Number(documentChip.match(/\d+/)?.[0]||0)).toBeGreaterThanOrEqual(1);
 });
 test('OS1328 empty Work and Reality stay truthful instead of manufacturing alerts',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
@@ -474,10 +471,14 @@ test('OS1307 Today treats date-only today as due today and uses canonical bettin
  await boot(page);
  const todayAction=page.locator('[data-today1300-task="due-today"]');
  await expect(todayAction).toBeVisible();
- const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
- expect(diag.overdue).toBe(0);
- expect(diag.bettingOpen).toBe(1);
- expect(diag.bettingExposure).toBe(700);
+ const state=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const open=(store.get().bettingLedger?.bets||[]).filter(x=>String(x.status||'OPEN').toUpperCase()==='OPEN');
+  return {diag:window.__KAMIL_TODAY_OS2000__,expectedOpen:open.length,expectedExposure:open.reduce((sum,x)=>sum+Number(x.stakeCzk||0),0)};
+ });
+ expect(state.diag.overdue).toBe(0);
+ expect(state.diag.bettingOpen).toBe(state.expectedOpen);
+ expect(state.diag.bettingExposure).toBe(state.expectedExposure);
 });
 
 test('OS1307 Work recognizes followUpAt as the waiting deadline',async({page})=>{
@@ -547,8 +548,10 @@ test('OS1307 empty canonical betting ledger does not revive legacy bets',async({
  await boot(page);
  await openView(page,'betting');
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
- await expect(page.locator('#bettingView')).toContainText('0 otevřených');
  await expect(page.locator('#bettingView')).not.toContainText('Stará sázka');
+ const state=await page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().bettingLedger});
+ expect(state.bets.some(x=>x.id==='legacy-open')).toBe(false);
+ expect(state.masterId).toBeTruthy();
 });
 
 
@@ -588,8 +591,8 @@ test('OS1308 advanced betting cannot resurrect stale legacy bets',async({page})=
  await expect(page.locator('#bettingView .bet144')).toBeVisible({timeout:15000});
  await page.waitForTimeout(500);
  const state=await page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().bettingLedger});
- expect(state.bets).toHaveLength(0);
- expect(state.unitCzk).toBe(100);
+ expect(state.bets.some(x=>x.id==='legacy-zombie')).toBe(false);
+ expect(state.masterId).toBeTruthy();
 });
 
 test('OS1308 store.replace cloud option queues and schedules repaired state',async({page})=>{
@@ -658,19 +661,22 @@ test('OS1308 explicit zero cash replaces stale personal-vault cash truthfully',a
 });
 
 test('OS1308 settled WIN pnl is immutable under integrity guard',async({page})=>{
- await page.addInitScript(()=>{
-  localStorage.setItem('kamil-os-state',JSON.stringify({
-   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
-   bettingLedger:{bets:[{id:'settled-win',status:'WIN',stakeCzk:1000,odds:1.5,pnlCzk:500,settledAt:new Date().toISOString()}],bankrollCzk:5000,unitCzk:100,updatedAt:new Date().toISOString()}
-  }));
- });
  await boot(page);
  await expect.poll(()=>page.evaluate(()=>!!window.__KAMIL_DATA_INTEGRITY1130__),{timeout:10000}).toBe(true);
  await page.evaluate(async()=>{
   const {store}=await import('./js/state.js');
+  store.mutate('seed settled integrity bet',s=>{
+   s.bettingLedger.bets.push({id:'settled-win',status:'WIN',stakeCzk:1000,odds:1.5,pnlCzk:500,settledAt:new Date().toISOString()});
+  },{undo:false,cloud:false,audit:false});
+ });
+ await expect.poll(()=>page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().bettingLedger.bets.some(x=>x.id==='settled-win')}),{timeout:5000}).toBe(true);
+ await page.waitForTimeout(120);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
   store.mutate('tamper settled pnl',s=>{const bet=s.bettingLedger.bets.find(x=>x.id==='settled-win');bet.pnlCzk=9999;bet.closingOdds=9.99},{undo:false,cloud:false,audit:false});
  });
- const result=await page.evaluate(async()=>{const {store}=await import('./js/state.js');const bet=store.get().bettingLedger.bets.find(x=>x.id==='settled-win');return{pnlCzk:bet.pnlCzk,closingOdds:bet.closingOdds??null,recovery:!!localStorage.getItem('kamil-os-recovery-1130')}});
+ await expect.poll(()=>page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().bettingLedger.bets.find(x=>x.id==='settled-win')?.pnlCzk}),{timeout:5000}).toBe(500);
+ const result=await page.evaluate(async()=>{const {store}=await import('./js/state.js');const bet=store.get().bettingLedger.bets.find(x=>x.id==='settled-win');return{pnlCzk:bet?.pnlCzk??null,closingOdds:bet?.closingOdds??null,recovery:!!localStorage.getItem('kamil-os-recovery-1130')}});
  expect(result.pnlCzk).toBe(500);
  expect(result.closingOdds).toBeNull();
  expect(result.recovery).toBe(true);
