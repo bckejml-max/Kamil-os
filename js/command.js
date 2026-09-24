@@ -27,7 +27,7 @@ const WRITE_TYPES=new Set(copilotWrite32Contract.knownWriteTypes);
 
 export function search(q){
  q=norm(q);if(!q)return[];const out=[],add=(kind,title,detail,target,id,extra={})=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,...extra})};
- for(const t of S().tasks||[])if(active(t)&&personalTask(t))add('Osobní úkol',t.title||t.name||'Úkol',t.area||t.category||'Osobní',taskTarget(t),t.id);
+ for(const t of S().tasks||[])if(active(t))add(personalTask(t)?'Osobní úkol':'Úkol',t.title||t.name||'Úkol',t.area||t.category||'Úkol',taskTarget(t),t.id);
  for(const x of S().personalAdmin?.items||[]){if(!active(x))continue;const cat=PERSONAL_CATEGORIES[x.category]||PERSONAL_CATEGORIES.OTHER,ins=x.insurance||{},doc=x.document||{},target=['INSURANCE','DOCUMENT'].includes(x.category)?'more':'home',mode=x.category==='INSURANCE'?'insurance':target==='home'?homeModeFor(x):null;const detail=[cat,x.provider,x.notes,ins.insured,INSURANCE_KINDS[ins.kind],doc.holder,DOCUMENT_KINDS[doc.kind],doc.issuer].filter(Boolean).join(' · ');add(cat,x.title||cat,detail,target,x.id,{homeMode:mode})}
  for(const m of S().familyHome?.members||[])if(active(m))add('Rodina',m.name,[FAMILY_RELATIONS[m.relation]||'',m.notes||''].filter(Boolean).join(' · '),'family',m.id);
  for(const x of S().emergencyFile?.contacts||[])if(active(x))add('Nouzový kontakt',x.name||'Kontakt',EMERGENCY_CONTACT_ROLES[x.role]||EMERGENCY_CONTACT_ROLES.OTHER,'home',x.id,{homeMode:'dashboard'});
