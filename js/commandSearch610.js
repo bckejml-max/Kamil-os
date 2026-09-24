@@ -1,11 +1,13 @@
 import {store} from './state.js';
 import {norm,h,money} from './utils.js';
 import {search as baseSearch} from './command.js';
+import {schedule1100} from './runtimeOwnership1100.js';
 
 const A=v=>Array.isArray(v)?v:[];
+const OWNER='product.commandSearch610';
 const S=()=>store.get?.()||{};
 const fireFocus=(target,focus)=>window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{focus,target}}));
-const openTarget=(target,focus=null)=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));if(focus)for(const ms of [120,420,900])setTimeout(()=>fireFocus(target,focus),ms)};
+const openTarget=(target,focus=null)=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));if(focus)for(const ms of [120,420,900])schedule1100(OWNER,`focus:${target}:${focus}:${ms}`,()=>fireFocus(target,focus),ms,{pauseWhenHidden:true})};
 const addMatch=(out,q,kind,title,detail,target,id,focus)=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,focus})};
 
 export function searchExtended610(raw){
