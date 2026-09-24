@@ -2,7 +2,7 @@ import {APP_VERSION} from './releaseMeta.js';
 import {store} from './state.js';
 import {login,logout,session,loadCloud,loadDataHubs,resolveConflict,conflictSummary,onSyncStatus,flushQueue,sendPasswordReset,sendMagicLink,updatePassword,watchAuth} from './cloud.js';
 import {authCooldownSeconds32,authErrorMessage32,authConnectedLabel32} from './authUx32.js';
-import {qs,qsa,toast,modal} from './utils.js';
+import {qs,qsa,toast,modal,norm} from './utils.js';
 import {validViews41,getViewRenderer41,prefetchView41,setMoreMode41,openCapture41,renderCommandResults41,executeCommand41,renderExtras41,refreshRiskBadge41,runPreflight41,scheduleNotifications41,warmRuntime41} from './viewRuntime41.js';
 import {markPerf41,markFirstView41} from './perf41.js';
 import {startColdPartition42} from './coldPartition42.js';
@@ -33,7 +33,7 @@ const warnAction=(scope,error)=>{console.warn(`[app41:${scope}]`,error);toast('A
 
 const NAV_CLOSED1333=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED','PAYOUT_RECEIVED','CANCELLED','CANCELED']);
 const navOpen1333=x=>!NAV_CLOSED1333.has(String(x?.status||x?.workflow||x?.market_status||'OPEN').toUpperCase());
-const navArea1333=x=>String(x?.area||x?.category||'').toLowerCase();
+const navArea1333=x=>norm(x?.area||x?.category||'');
 const navDue1333=x=>x?.due||x?.followUpAt||x?.dueAt||x?.due_at||x?.dueDate||x?.due_date||x?.deadline||null;
 const navDueTime1333=x=>{const raw=String(navDue1333(x)||'');if(!raw)return null;const d=Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(raw)?raw+'T23:59:59.999':raw);return Number.isFinite(d)?d:null};
 function navSignals1333(s){
