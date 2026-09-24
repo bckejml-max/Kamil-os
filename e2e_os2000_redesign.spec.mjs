@@ -36,12 +36,12 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
  expect(state.resources.some(x=>x.includes('ticketDesk331.js'))).toBe(false);
 });
 
-test('OS1320 Today is the canonical action-first screen',async({page})=>{
+test('OS1400 Today is the canonical action-first screen',async({page})=>{
  await boot(page);
- await expect(page.locator('.pr1300-head h1')).toContainText(/Kamile/i);
+ await expect(page.locator('.os1400-hero h1')).toContainText(/Kamile/i);
  await expect(page.locator('[data-product-home1300]')).toBeVisible();
- await expect(page.locator('.pr1320-now')).toBeVisible();
- await expect(page.locator('.pr1300-domains .pr1300-domain')).toHaveCount(0);
+ await expect(page.locator('.os1400-focus')).toBeVisible();
+ await expect(page.locator('.os1400-domains .os1400-domain')).toHaveCount(5);
  const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(today?.healthy).toBe(true);
  expect(today?.version).toBe(2000);
@@ -244,13 +244,13 @@ test('OS1327 Money prioritizes actions and Tickets collapse empty states',async(
   await expect(page.locator('#ticketIntelView .pr1300-panel')).toHaveCount(1);
  }
 });
-test('OS1326 Today shows five compact system rows with live cross-section data',async({page})=>{
+test('OS1400 Today shows five compact system rows with live cross-section data',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
- await expect(page.locator('#todayView .pr1326-system-panel')).toBeVisible();
- await expect(page.locator('#todayView .pr1326-system .pr1300-row')).toHaveCount(5);
- const labels=await page.locator('#todayView .pr1326-system .pr1300-row-main b').allTextContents();
- expect(labels).toEqual(['Práce','Vstupenky','Peníze','Sázení','Reality']);
+ await expect(page.locator('#todayView .os1331-system-panel')).toBeVisible();
+ await expect(page.locator('#todayView .os1400-domains .os1400-domain')).toHaveCount(5);
+ const labels=await page.locator('#todayView .os1400-domains .os1400-domain b').allTextContents();
+ expect(labels).toEqual(['Práce','Vstupenky','Peníze','Reality','Sázení']);
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(diag.systemRows).toBe(5);
 });
