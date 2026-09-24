@@ -10,7 +10,7 @@ const money=value=>`${Number(value||0).toLocaleString('cs-CZ',{maximumFractionDi
 const pct=value=>`${Number(value||0).toLocaleString('cs-CZ',{minimumFractionDigits:1,maximumFractionDigits:1})} %`;
 const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 function legacyRead(){try{return JSON.parse(localStorage.getItem(LEGACY_STORE)||'{}')}catch{return{}}}
-function ledgerShape(v){return{bets:Array.isArray(v?.bets)?v.bets:[],bankrollCzk:Number(v?.bankrollCzk||0),unitCzk:Number(v?.unitCzk||0),updatedAt:v?.updatedAt||null}}
+function ledgerShape(v){return{bets:Array.isArray(v?.bets)?v.bets:[],bankrollCzk:Number(v?.bankrollCzk||0),unitCzk:Number(v?.unitCzk||0),updatedAt:v?.updatedAt||null,masterId:v?.masterId||null,masterMeta:v?.masterMeta&&typeof v.masterMeta==='object'?{...v.masterMeta}:null}}
 function canonicalAuthoritative(v){return!!(v?.updatedAt||Number(v?.bankrollCzk||0)!==0||Number(v?.unitCzk||0)!==0||(Array.isArray(v?.bets)&&v.bets.length>0))}
 function read(){const canonical=ledgerShape(store.get()?.bettingLedger),legacy=ledgerShape(legacyRead()),useCanonical=canonicalAuthoritative(canonical);return useCanonical?canonical:legacy}
 function write(state,{cloud=true}={}){const next={...ledgerShape(state),updatedAt:new Date().toISOString()};store.mutate('Aktualizována historie sázek',s=>{s.bettingLedger=next},{undo:false,cloud,audit:false});try{localStorage.setItem(LEGACY_STORE,JSON.stringify(next))}catch{}window.dispatchEvent(new CustomEvent('kamil:betting-ledger543-updated',{detail:{bets:next.bets.length,bankrollCzk:next.bankrollCzk,unitCzk:next.unitCzk,at:Date.now()}}));return next}
