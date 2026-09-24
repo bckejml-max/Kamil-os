@@ -88,9 +88,9 @@ function render(){
     metric('Transfery',String(d.transfer.length))+
     metric('Práce',String(d.work.status||'—'))+
   '</div>'+
-  '<div class="os1400-grid">'+
-   '<section class="os1400-card"><div class="os1400-card-head"><h3>Další kroky</h3><span>podle naléhavosti</span></div>'+actionRows(rest)+'</section>'+
-   '<section class="os1400-card"><div class="os1400-card-head"><h3>Přehled OS</h3><span>5 oblastí</span></div>'+systemRows(system)+'</section>'+
+  '<div class="os1400-grid os1331-command-grid" data-os1331-command-grid>'+
+   '<section class="os1400-card os1331-focus-stack"><div class="os1400-card-head"><h3>Další kroky</h3><span>podle naléhavosti</span></div>'+actionRows(rest)+'</section>'+
+   '<section class="os1400-card os1331-system-panel"><div class="os1400-card-head"><h3>Přehled OS</h3><span>5 oblastí</span></div>'+systemRows(system)+'</section>'+
   '</div>'+
   (d.calendar.length?'<section class="os1400-card os1400-calendar"><div class="os1400-card-head"><h3>Nejbližší v kalendáři</h3><span>max. 3 události</span></div>'+calendarRows(d.calendar)+'</section>':'')+
   '<div style="display:flex;justify-content:flex-start"><button class="os1400-button" type="button" data-today1300-add>＋ Přidat úkol</button></div>'+
@@ -106,7 +106,7 @@ function render(){
    if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))
   })
  }
- window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1400,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
+ window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1400,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
  return true;
 }
 export function renderTodayPage2000(){return render()}
