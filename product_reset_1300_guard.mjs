@@ -14,12 +14,12 @@ assert.match(runtime,/betting:\['\.\/bettingOverview\.js','renderBettingOverview
 assert.match(runtime,/inbox:\['\.\/tasksOverview\.js','renderTasksOverview'\]/);
 assert.match(index,/>Úkoly<\/span>/);
 assert.match(app,/work:'workView'/);assert.match(app,/property:'propertyView'/);assert.match(app,/productAdvanced==='1'/,'leaving an advanced surface must invalidate it so the simple overview returns');
-assert.match(today,/data-product-home1300/);assert.match(today,/Teď/);assert.match(today,/Potom/);assert.match(today,/workCommandCenter440/);assert.match(today,/buildPropertyHub620/);
+assert.match(today,/data-product-home1300/);assert.match(today,/Teď/);assert.match(today,/Další kroky/);assert.match(today,/Přehled OS/);assert.match(today,/workCommandCenter440/);assert.match(today,/buildPropertyHub620/);
 assert.match(work,/data-work-page1300/);assert.match(work,/Finanční expozice/);
-assert.match(property,/data-property-page1300/);assert.match(property,/Investiční byty jako samostatné rozhodnutí/);
+assert.match(property,/data-property-page1300/);assert.match(property,/Nejlepší kandidát a čísla pro rozhodnutí/);assert.match(property,/Shortlist/);
 assert.match(moneyOverview,/data-money-overview/);assert.match(moneyOverview,/productAdvanced='1'/);assert.match(moneyOverview,/Detail financí/);assert.match(moneyOverview,/moneyAdvanced100\.js/);
 assert.match(ticketOverview,/data-ticket-overview/);assert.match(ticketOverview,/productAdvanced='1'/);assert.match(ticketOverview,/Synchronizovat Viagogo/);assert.match(ticketOverview,/ticketAdvanced100\.js/);
-assert.match(bettingOverview,/data-betting-overview/);assert.match(bettingOverview,/productAdvanced='1'/);assert.match(bettingOverview,/Scanner a detail sázek/);assert.match(bettingOverview,/bettingAdvanced527\.js/);
+assert.match(bettingOverview,/data-betting-overview/);assert.match(bettingOverview,/productAdvanced='1'/);assert.match(bettingOverview,/Scanner a detail/);assert.match(bettingOverview,/Otevřít detail sázek/);assert.match(bettingOverview,/bettingAdvanced527\.js/);
 assert.match(tasksOverview,/data-tasks-overview/);assert.match(tasksOverview,/productAdvanced='1'/);assert.match(tasksOverview,/Co je potřeba vyřídit/);assert.match(tasksOverview,/inboxAdvanced141\.js/);
 assert.match(css,/Historical experimental decorators/);assert.match(css,/\[data-today-hub650\]/);assert.match(css,/repeat\(5,minmax\(0,1fr\)\)/);
 assert.match(runtime,/productReset1300\.css/,'product reset CSS must be restored after lazy view CSS');
