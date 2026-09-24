@@ -1,6 +1,7 @@
 import {store} from './state.js';
 import {workCommandCenter440} from './workCommandCenter440.js';
 import {buildPropertyHub620} from './propertyHub620.js';
+import {personalDailyAssistant650} from './personalAssistant650.js';
 import {ownEvent1100} from './runtimeOwnership1100.js';
 
 const OWNER='today.os2000';
@@ -13,6 +14,8 @@ const dateOf=x=>x?.due||x?.followUpAt||x?.dueAt||x?.due_at||x?.dueDate||x?.due_d
 const ts=x=>{const d=Date.parse(dateOf(x)||'');return Number.isFinite(d)?d:null};
 const overdueAt=x=>{const raw=String(dateOf(x)||'');if(!raw)return null;if(/^\d{4}-\d{2}-\d{2}$/.test(raw)){const d=new Date(raw+'T23:59:59.999');return Number.isFinite(d.getTime())?d.getTime():null}return ts(x)};
 const isOverdue=x=>{const t=overdueAt(x);return t!==null&&t<Date.now()};
+const personalRoute=x=>x?.route==='documents'?'more':['waiting','today'].includes(x?.route)?'inbox':x?.route||'today';
+const actionAttr=x=>x?.personalId?`data-today1300-personal="${esc(x.personalId)}"`:x?.taskId?`data-today1300-task="${esc(x.taskId)}"`:`data-today1300-nav="${esc(x?.route||'today')}"`;
 const fmtDate=x=>{const t=ts(x);if(!t)return'bez termínu';return new Date(t).toLocaleDateString('cs-CZ',{day:'numeric',month:'short'})};
 const money=v=>Number.isFinite(Number(v))?`${Math.round(Number(v)).toLocaleString('cs-CZ')} Kč`:'—';
 
@@ -21,19 +24,22 @@ function baseData(){
  const s=store.get();
  const tasks=(s.tasks||[]).filter(open),ticketTasks=tasks.filter(x=>['TICKETS','VIAGOGO'].includes(upper(x?.area||x?.category))),waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[]),...(s.personalInbox?.items||[]).filter(x=>String(x?.bucket||'').toLowerCase()==='waiting')].filter(open),tickets=(s.ticketBook?.items||[]).filter(open),calendar=(s.calendar?.events||[]).filter(x=>{const t=ts(x);return t&&t>Date.now()-6*3600000}).sort((a,b)=>(ts(a)||Infinity)-(ts(b)||Infinity));
  const urgentTasks=[...tasks].sort((a,b)=>{const ao=isOverdue(a),bo=isOverdue(b);if(ao!==bo)return bo-ao;const pa=Number(a?.priority||a?.score||0),pb=Number(b?.priority||b?.score||0);if(pb!==pa)return pb-pa;return(ts(a)||Infinity)-(ts(b)||Infinity)});
- const overdue=tasks.filter(isOverdue),transfer=tickets.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(upper(x.market_status||x.workflow))),activeTickets=tickets.filter(x=>!['PAID','PAYOUT_RECEIVED','SOLD'].includes(upper(x.market_status||x.workflow))),financePlan=s.financePlan||{},rawCash=financePlan.cashNow,cashPlanTouched=!!financePlan.updatedAt||[financePlan.cashNow,financePlan.expectedIncome,financePlan.reserveFloor,financePlan.plannedInvestment].some(v=>Number(v||0)!==0),cash=cashPlanTouched&&rawCash!==null&&rawCash!==undefined&&String(rawCash).trim()!==''&&Number.isFinite(Number(rawCash))?Number(rawCash):null,work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=betting(s);
- return{s,tasks,ticketTasks,waiting,tickets,activeTickets,transfer,calendar,urgentTasks,overdue,cash,work,property,bet};
+ const overdue=tasks.filter(isOverdue),transfer=tickets.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(upper(x.market_status||x.workflow))),activeTickets=tickets.filter(x=>!['PAID','PAYOUT_RECEIVED','SOLD'].includes(upper(x.market_status||x.workflow))),financePlan=s.financePlan||{},rawCash=financePlan.cashNow,cashPlanTouched=!!financePlan.updatedAt||[financePlan.cashNow,financePlan.expectedIncome,financePlan.reserveFloor,financePlan.plannedInvestment].some(v=>Number(v||0)!==0),cash=cashPlanTouched&&rawCash!==null&&rawCash!==undefined&&String(rawCash).trim()!==''&&Number.isFinite(Number(rawCash))?Number(rawCash):null,work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=betting(s),personal=personalDailyAssistant650(s);
+ return{s,tasks,ticketTasks,waiting,tickets,activeTickets,transfer,calendar,urgentTasks,overdue,cash,work,property,bet,personal};
 }
 function greeting(){const h=new Date().getHours();return h<11?'Dobré ráno':h<18?'Dobré odpoledne':'Dobrý večer'}
 function attention(d){
- const out=[];
- for(const x of d.overdue.slice(0,2))out.push({title:titleOf(x),detail:`Úkol po termínu · ${fmtDate(x)}`,route:'inbox',taskId:x.id,tone:'bad',cta:'vyřešit'});
- const wr=d.work.topRisks[0];if(wr)out.push({title:wr.title,detail:`${wr.kind} · ${wr.detail}`,route:'work',tone:wr.score>=95?'bad':'warn',cta:'otevřít'});
- if(d.transfer.length)out.push({title:`${d.transfer.length} prodejů čeká na převod`,detail:'Vstupenky jsou prodané, ale ještě nejsou dokončené.',route:'tickets',tone:'bad',cta:'převést'});
- const dueWait=d.waiting.find(x=>{const t=ts(x);return t&&t<=Date.now()+86400000});if(dueWait)out.push({title:`Follow-up: ${titleOf(dueWait)}`,detail:isOverdue(dueWait)?'Čekání je po termínu.':'Follow-up je dnes nebo zítra.',route:'inbox',tone:'warn',cta:'zkontrolovat'});
- return out.slice(0,4);
+ const out=[],add=(row,score=0)=>out.push({...row,score:Number(score||0)});
+ for(const x of d.overdue.slice(0,2))add({title:titleOf(x),detail:`Úkol po termínu · ${fmtDate(x)}`,route:'inbox',taskId:x.id,tone:'bad',cta:'vyřešit'},132);
+ const wr=d.work.topRisks[0];if(wr)add({title:wr.title,detail:`${wr.kind} · ${wr.detail}`,route:'work',tone:wr.score>=95?'bad':'warn',cta:'otevřít'},Math.max(90,Number(wr.score||0)+12));
+ if(d.transfer.length)add({title:`${d.transfer.length} prodejů čeká na převod`,detail:'Vstupenky jsou prodané, ale předání kupujícímu ještě není dokončené.',route:'tickets',tone:'bad',cta:'převést'},126);
+ for(const x of d.personal?.top||[])add({title:x.title,detail:x.why||x.next||'Osobní věc vyžaduje kontrolu.',route:personalRoute(x),personalId:x.id,tone:x.score>=110?'bad':x.score>=90?'warn':'',cta:String(x.cta||'vyřešit').toLowerCase()},x.score);
+ const dueWait=d.waiting.find(x=>{const t=ts(x);return t&&t<=Date.now()+86400000});if(dueWait)add({title:`Follow-up: ${titleOf(dueWait)}`,detail:isOverdue(dueWait)?'Čekání je po termínu.':'Follow-up je dnes nebo zítra.',route:'inbox',tone:isOverdue(dueWait)?'bad':'warn',cta:'zkontrolovat'},isOverdue(dueWait)?116:84);
+ const tomorrow=d.personal?.tomorrow?.[0];if(tomorrow)add({title:tomorrow.title||tomorrow.summary||'Rodinný termín zítra',detail:'Osobní termín je zítra.',route:'family',tone:'',cta:'připravit'},76);
+ const seen=new Set();
+ return out.sort((a,b)=>b.score-a.score).filter(x=>{const key=String(x.title||'').toLocaleLowerCase('cs-CZ');if(seen.has(key))return false;seen.add(key);return true}).slice(0,4);
 }
-function actionRows(items){if(!items.length)return '<div class="pr1300-empty">Teď nic dalšího nevyžaduje tvoji pozornost.</div>';return '<div class="pr1320-queue">'+items.map((x,i)=>'<button type="button" class="pr1300-row pr1300-clickrow" '+(x.taskId?'data-today1300-task="'+esc(x.taskId)+'"':'data-today1300-nav="'+esc(x.route)+'"')+'><div class="pr1300-row-main"><b>'+(i+1)+'. '+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></div><div class="pr1300-row-side '+esc(x.tone||'')+'">'+esc(x.cta||'otevřít')+' →</div></button>').join('')+'</div>'}
+function actionRows(items){if(!items.length)return '<div class="pr1300-empty">Teď nic dalšího nevyžaduje tvoji pozornost.</div>';return '<div class="pr1320-queue">'+items.map((x,i)=>'<button type="button" class="pr1300-row pr1300-clickrow" '+actionAttr(x)+'><div class="pr1300-row-main"><b>'+(i+1)+'. '+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></div><div class="pr1300-row-side '+esc(x.tone||'')+'">'+esc(x.cta||'otevřít')+' →</div></button>').join('')+'</div>'}
 function calendarRows(items){if(!items.length)return '';return items.slice(0,3).map(x=>'<div class="pr1300-row"><div class="pr1300-row-main"><b>'+esc(titleOf(x))+'</b><small>'+esc(x?.location||x?.calendar||'')+'</small></div><div class="pr1300-row-side">'+new Date(ts(x)).toLocaleString('cs-CZ',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</div></div>').join('')}
 function systemState(d){
  const workRisk=d.work.topRisks?.[0],best=d.property.best,ticketOpen=d.ticketTasks.length||d.activeTickets.length;
@@ -66,17 +72,17 @@ function render(){
   '<div class="pr1300-head"><div><div class="pr1300-kicker">'+esc(today)+'</div><h1>'+greeting()+', Kamile.</h1><p>Nejdůležitější krok a živý stav celého OS na jednom místě.</p></div><span class="pr1300-status '+(items.some(x=>x.tone==='bad')?'bad':items.length?'warn':'good')+'">'+(items.length?items.length+' kroků':'hotovo')+'</span></div>' +
   '<div class="os1331-command-grid" data-os1331-command-grid>' +
    '<div class="os1331-focus-stack">' +
-    '<section class="pr1320-now"><div><div class="pr1300-kicker">Teď</div><h2>'+esc(primary?.title||'Nic akutního. Můžeš jet podle plánu.')+'</h2><p>'+esc(primary?.detail||'OS teď nevidí žádný prošlý termín, urgentní převod ani follow-up, který by potřeboval okamžitý zásah.')+'</p></div><div class="pr1320-now-actions">'+(primary?'<button class="pr1300-btn primary" type="button" '+(primary.taskId?'data-today1300-task="'+esc(primary.taskId)+'"':'data-today1300-nav="'+esc(primary.route)+'"')+'>'+esc(primary.cta||'Otevřít')+' →</button>':'<button class="pr1300-btn primary" type="button" data-today1300-add>＋ Přidat úkol</button>')+'</div></section>' +
+    '<section class="pr1320-now"><div><div class="pr1300-kicker">Teď</div><h2>'+esc(primary?.title||'Nic akutního. Můžeš jet podle plánu.')+'</h2><p>'+esc(primary?.detail||'OS teď nevidí žádný prošlý termín, urgentní převod ani follow-up, který by potřeboval okamžitý zásah.')+'</p></div><div class="pr1320-now-actions">'+(primary?'<button class="pr1300-btn primary" type="button" '+actionAttr(primary)+'>'+esc(primary.cta||'Otevřít')+' →</button>':'<button class="pr1300-btn primary" type="button" data-today1300-add>＋ Přidat úkol</button>')+'</div></section>' +
     (rest.length?'<section class="pr1300-panel os1331-next-panel"><div class="pr1300-panel-head"><h2>Další kroky</h2><span>v pořadí podle naléhavosti</span></div>'+actionRows(rest)+'</section>':'') +
-    '<div class="pr1320-meta os1331-meta"><span>Úkoly po termínu: '+d.overdue.length+'</span><span>Waiting for: '+d.waiting.length+'</span><span>Transfery: '+d.transfer.length+'</span><span>Práce: '+esc(d.work.status)+'</span></div>' +
+    '<div class="pr1320-meta os1331-meta"><span>Úkoly po termínu: '+d.overdue.length+'</span><span>Waiting for: '+d.waiting.length+'</span><span>Transfery: '+d.transfer.length+'</span><span>Práce: '+esc(d.work.status)+'</span><span>Osobní priority: '+Number(d.personal?.top?.length||0)+'</span></div>' +
    '</div>' +
    '<section class="pr1300-panel pr1326-system-panel os1331-system-panel"><div class="pr1300-panel-head"><h2>Přehled OS</h2><span>5 oblastí · jedním klikem</span></div>'+systemRows(system)+'</section>' +
   '</div>' +
   (d.calendar.length?'<section class="pr1300-panel pr1320-calendar"><div class="pr1300-panel-head"><h3>Nejbližší v kalendáři</h3><span>max. 3 události</span></div>'+calendarRows(d.calendar)+'</section>':'') +
   '<div class="pr1300-actions"><button class="pr1300-btn" type="button" data-today1300-add>＋ Přidat úkol</button></div>' +
  '</div>';
- if(!host.dataset.today1300Bound){host.dataset.today1300Bound='1';ownEvent1100(OWNER,host,'click',async e=>{const taskButton=e.target.closest('[data-today1300-task]');if(taskButton){const task=(store.get().tasks||[]).find(x=>String(x.id)===taskButton.dataset.today1300Task);if(task){const {openPersonalAction641}=await import('./personalActionExecution641.js');await openPersonalAction641({id:'task:'+task.id,kind:'task',title:titleOf(task),why:'Termín: '+fmtDate(task),next:task.notes||'Dokončit nebo posunout termín.',route:'today'})}return}const nav=e.target.closest('[data-today1300-nav]');if(nav){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:nav.dataset.today1300Nav}));return}if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))})}
- window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingExposure:d.bet.exposure,overdue:d.overdue.length,systemRows:system.length,at:Date.now()};
+ if(!host.dataset.today1300Bound){host.dataset.today1300Bound='1';ownEvent1100(OWNER,host,'click',async e=>{const personalButton=e.target.closest('[data-today1300-personal]');if(personalButton){const action=personalDailyAssistant650(store.get()).top.find(x=>String(x.id)===personalButton.dataset.today1300Personal);if(action){const {openPersonalAction641}=await import('./personalActionExecution641.js');await openPersonalAction641(action);render()}return}const taskButton=e.target.closest('[data-today1300-task]');if(taskButton){const task=(store.get().tasks||[]).find(x=>String(x.id)===taskButton.dataset.today1300Task);if(task){const {openPersonalAction641}=await import('./personalActionExecution641.js');await openPersonalAction641({id:'task:'+task.id,kind:'task',title:titleOf(task),why:'Termín: '+fmtDate(task),next:task.notes||'Dokončit nebo posunout termín.',route:'today'})}return}const nav=e.target.closest('[data-today1300-nav]');if(nav){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:nav.dataset.today1300Nav}));return}if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))})}
+ window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
  return true;
 }
 export function renderTodayPage2000(){return render()}
