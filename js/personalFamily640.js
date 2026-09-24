@@ -11,6 +11,7 @@ const familyRe=/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/i;
 const daysTo=personalDaysTo650;
 const row=(title,meta='',button='')=>`<div class="row ux64-row"><div><b>${h(title)}</b>${meta?`<div class="muted">${h(meta)}</div>`:''}</div>${button}</div>`;
 const when=x=>x.d===0?'dnes':x.d===1?'zítra':x.d<0?`${Math.abs(x.d)} d po termínu`:`za ${x.d} dní`;
+const rerenderFamily=async()=>{const m=await import('./familyPage140.js');return m.renderFamilyPage140?.()};
 
 export function renderPersonalFamily640(){
  const s=store.get(),host=qs('#ticketsView');if(!host)return;
@@ -31,10 +32,10 @@ export function renderPersonalFamily640(){
  <section class="card family-section" data-family-section="tasks"><div class="eyebrow">RODINNÉ ÚKOLY</div>${tasks.length?tasks.slice(0,10).map((x,i)=>row(x.title||'Úkol',x.due?`termín ${new Date(x.due).toLocaleDateString('cs-CZ')}`:'bez termínu',`<button class="btn" data-family-task="${i}">Řešit</button>`)).join(''):'<div class="empty success-empty">Žádný otevřený rodinný úkol.</div>'}</section>
  <section class="card family-section" data-family-section="weekend"><div class="eyebrow">VÍKEND</div>${weekend.length?weekend.map(x=>row(x.title||x.summary||'Událost',when(x))).join(''):'<div class="empty">Na nejbližší víkend tu zatím nemám plán.</div>'}</section>
  <section class="card family-section" data-family-section="members"><div class="eyebrow">DOMÁCNOST</div>${members.length?members.map(x=>row(x.name||x.title||'Člen domácnosti',x.role||x.relation||'')).join(''):'<div class="empty">Členové domácnosti zatím nejsou ve strukturovaných datech.</div>'}</section></div>`;
- host.querySelector('#familyAdd650')?.addEventListener('click',async()=>{await openPersonalCapture643('task',{area:'rodina',category:'rodina'});renderPersonalFamily640()});
- host.querySelectorAll('[data-family-event]').forEach(b=>b.addEventListener('click',()=>{const x=events[Number(b.dataset.familyEvent)];prepareFamilyEvent644(x);renderPersonalFamily640()}));
- host.querySelectorAll('[data-family-task]').forEach(b=>b.addEventListener('click',async()=>{const x=tasks[Number(b.dataset.familyTask)];await openPersonalAction641({id:`task:${x.id}`,kind:'task',title:x.title||x.name,why:'Rodinný úkol.',next:'Dokončit, odložit nebo dát do čekání.',minutes:Number(x.estimateMinutes||15),route:'family'});renderPersonalFamily640()}));
- host.querySelectorAll('[data-family-urgent]').forEach(b=>b.addEventListener('click',async()=>{const x=urgent[Number(b.dataset.familyUrgent)];if(x?.kind==='event')prepareFamilyEvent644(x.src);else if(x?.kind==='task')await openPersonalAction641({id:`task:${x.src.id}`,kind:'task',title:x.src.title||x.src.name,why:'Rodinný úkol.',next:'Dokončit, odložit nebo dát do čekání.',minutes:Number(x.src.estimateMinutes||15),route:'family'});renderPersonalFamily640()}));
+ const addBtn=host.querySelector('#familyAdd650');if(addBtn)addBtn.onclick=async()=>{await openPersonalCapture643('task',{area:'rodina',category:'rodina'});await rerenderFamily()};
+ host.querySelectorAll('[data-family-event]').forEach(b=>{b.onclick=async()=>{const x=events[Number(b.dataset.familyEvent)];prepareFamilyEvent644(x);await rerenderFamily()}});
+ host.querySelectorAll('[data-family-task]').forEach(b=>{b.onclick=async()=>{const x=tasks[Number(b.dataset.familyTask)];await openPersonalAction641({id:`task:${x.id}`,kind:'task',title:x.title||x.name,why:'Rodinný úkol.',next:'Dokončit, odložit nebo dát do čekání.',minutes:Number(x.estimateMinutes||15),route:'family'});await rerenderFamily()}});
+ host.querySelectorAll('[data-family-urgent]').forEach(b=>{b.onclick=async()=>{const x=urgent[Number(b.dataset.familyUrgent)];if(x?.kind==='event')prepareFamilyEvent644(x.src);else if(x?.kind==='task')await openPersonalAction641({id:`task:${x.src.id}`,kind:'task',title:x.src.title||x.src.name,why:'Rodinný úkol.',next:'Dokončit, odložit nebo dát do čekání.',minutes:Number(x.src.estimateMinutes||15),route:'family'});await rerenderFamily()}});
  host.querySelectorAll('[data-family-filter]').forEach(b=>b.addEventListener('click',()=>{const f=b.dataset.familyFilter;host.querySelectorAll('[data-family-filter]').forEach(x=>x.classList.toggle('on',x===b));host.querySelectorAll('[data-family-section]').forEach(x=>x.classList.toggle('hidden',f!=='all'&&x.dataset.familySection!==f));}));
  if(typeof window!=='undefined')window.__KAMIL_PERSONAL_FAMILY_650_LAST__={at:Date.now(),events:events.length,tasks:tasks.length,weekend:weekend.length,members:members.length,urgent:urgent.length};
 }
