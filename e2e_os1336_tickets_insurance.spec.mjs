@@ -44,4 +44,7 @@ test('OS1336 Insurance Center separates active upcoming terminating offers and h
  expect(d.offers).toBe(2);
  expect(d.history).toBe(6);
  expect(d.total).toBe(16);
+ await page.locator('#insuranceBack25').click();
+ await expect(page.locator('#moreView .id141-hero')).toBeVisible();
+ await expect(page.locator('#insurance25Tile')).toBeVisible();
 });
