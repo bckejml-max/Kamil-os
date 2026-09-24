@@ -26,7 +26,7 @@ function data(){
  return {s,p,items,master,issues,transfer,payout,ticketTasks,attention:attention.slice(0,6)};
 }
 function attentionHtml(rows){if(!rows.length)return '<div class="pr1300-empty">Žádný transfer, payout ani pricing problém teď nehoří.</div>';return '<div class="pr1300-attention">'+rows.map(x=>'<button type="button" data-ticket-action="'+x.action+'" '+(x.taskId?'data-ticket-task-id="'+esc(x.taskId)+'"':'')+'><i class="pr1300-dot '+x.tone+'"></i><span><b>'+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></span><em>řešit →</em></button>').join('')+'</div>'}
-function eventRows(events){if(!events.length)return '<div class="pr1300-empty">Žádné aktivní vstupenky.</div>';return events.slice(0,8).map(x=>'<div class="pr1300-row"><div class="pr1300-row-main"><b>'+esc(x.name)+'</b><small>'+x.qty+' ks · kapitál '+money(x.capitalAtRisk)+' · '+esc(x.nextAction||'sledovat')+'</small></div><div class="pr1300-row-side '+(x.priority>=85?'bad':x.priority>=70?'warn':'')+'">'+x.priority+'/100</div></div>').join('')}
+function eventRows(events){if(!events.length)return '<div class="pr1300-empty">Žádné aktivní vstupenky.</div>';return events.map(x=>'<div class="pr1300-row"><div class="pr1300-row-main"><b>'+esc(x.name)+'</b><small>'+x.qty+' ks · kapitál '+money(x.capitalAtRisk)+' · '+esc(x.nextAction||'sledovat')+'</small></div><div class="pr1300-row-side '+(x.priority>=85?'bad':x.priority>=70?'warn':'')+'">'+x.priority+'/100</div></div>').join('')}
 
 export function renderTicketOverview(){
  const host=document.querySelector('#ticketIntelView');if(!host)return false;if(host.dataset.productAdvanced==='1')return true;const d=data(),top=d.p.top,hasAttention=d.attention.length>0,hasEvents=d.p.events.length>0;
