@@ -6,6 +6,9 @@ const css=read('os1400.css');
 const today=read('js/todayPage2000.js');
 const runtime=read('js/viewRuntime41.js');
 const sw=read('sw.js');
+const work=read('js/workPage1300.js');
+const tasks=read('js/tasksOverview.js');
+const tickets=read('js/ticketOverview.js');
 
 assert.match(index,/data-os1400="1"/,'OS1400 shell flag missing');
 assert.match(index,/os1400\.css/,'OS1400 stylesheet must be loaded');
