@@ -28,6 +28,16 @@ test('OS1332 command understands work and reality navigation explicitly',async({
  await input.press('Enter');
  await expect(page.locator('#view-property')).toHaveClass(/on/);
 });
+test('OS1332 insurance command opens the canonical Insurance Center',async({page})=>{
+ await boot(page);
+ const input=page.locator('#commandInput');
+ await input.fill('ukaž pojištění');
+ await input.press('Enter');
+ await expect(page.locator('#view-more')).toHaveClass(/on/);
+ await expect(page.locator('#moreView')).toContainText('Všechny pojistky na jednom místě',{timeout:10000});
+ await expect(page.locator('#moreView')).toContainText('Fiat Croma');
+});
+
 test('OS1332 command search routes domain tasks to their domain instead of Today',async({page})=>{
  await page.addInitScript(()=>{
   localStorage.setItem('kamil-os-state',JSON.stringify({
