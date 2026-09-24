@@ -9,6 +9,8 @@ const sw=read('sw.js');
 const work=read('js/workPage1300.js');
 const tasks=read('js/tasksOverview.js');
 const tickets=read('js/ticketOverview.js');
+const family=read('js/personalFamily640.js');
+const home=read('js/personalHome640.js');
 
 assert.match(index,/data-os1400="1"/,'OS1400 shell flag missing');
 assert.match(index,/os1400\.css/,'OS1400 stylesheet must be loaded');
