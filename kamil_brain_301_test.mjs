@@ -12,6 +12,6 @@ assert.match(memory,/kamil-os-brain-memory-301/);
 assert.match(memory,/brainMemoryStats301/);
 assert.match(follow,/followUpSummary301/);
 assert.match(shell,/kamilBrain301\.js/);
-assert.doesNotMatch(shell,/kamilBrain300\.js','boot must use v301 overlay');
+assert.doesNotMatch(shell,/kamilBrain300\.js/,'boot must use v301 overlay');
 assert.match(css,/brain300-confidence/);
 console.log('Kamil Brain 301 static guard OK');
