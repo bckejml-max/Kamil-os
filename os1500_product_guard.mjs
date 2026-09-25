@@ -110,8 +110,11 @@ assert.match(propertyHub,/export function openPropertyDetail620/);
 assert.match(propertyHub,/filter\(isActivePropertyCandidate472\)/,'Property Hub must exclude explicitly closed candidates from the active shortlist');
 
 assert.match(betting,/data-betting-open-index/,'Open bets must be directly inspectable');
+assert.match(betting,/export function bettingData1334/,'Betting canonical state must be reusable by Today');
 assert.match(betting,/openTickets=open\.reduce/,'Betting must distinguish ticket count from aggregated positions');
-assert.match(today,/bettingTickets:d\.bet\.tickets/,'Today must expose betting ticket count separately from positions');
+assert.match(today,/bettingTickets:d\.bet\.openTickets/,'Today must expose canonical betting ticket count separately from positions');
+assert.match(today,/bet=bettingData1334\(s\)/,'Today Betting card must read canonical Betting state');
+assert.match(today,/d\.bet\.risk\|\|d\.bet\.unknownRisk/,'Today Betting tone must use canonical risk semantics');
 assert.match(betting,/detail:'betting-task'/,'Betting task must retain betting scope');
 assert.match(betting,/directRows:true/);
 
