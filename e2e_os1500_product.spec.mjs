@@ -594,3 +594,23 @@ test('OS737.0.64 Today calendar hides closed events',async({page})=>{
  await expect(page.locator('#todayView')).toContainText('Otevřený termín 64');
  await expect(page.locator('#todayView')).not.toContainText('Uzavřený termín 64');
 });
+
+test('OS737.0.65 money event tomorrow does not become a Family priority',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const tomorrow=new Date(Date.now()+86400000).toISOString();
+  store.mutate('test Tomorrow scope',s=>{
+   s.tasks=[];
+   s.personalAdmin={items:[]};
+   s.delegations=[];
+   s.calendar={events:[{id:'money-tomorrow-65',title:'Banka schůzka zítra',area:'Peníze',status:'OPEN',start:tomorrow}]};
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ const bankRow=page.locator('#todayView .os1400-row').filter({hasText:'Banka schůzka zítra'}).first();
+ await expect(bankRow).toHaveAttribute('data-today1300-nav','money');
+ const familyArea=page.locator('#todayView .os1600-area').filter({hasText:'Rodina'}).first();
+ await expect(familyArea).not.toContainText('Nejbližší rodinná věc je zítra');
+ await expect(familyArea).toContainText('klid');
+});

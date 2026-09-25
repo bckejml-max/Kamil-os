@@ -19,6 +19,7 @@ const ts=x=>{const d=Date.parse(dateOf(x)||'');return Number.isFinite(d)?d:null}
 const overdueAt=x=>{const raw=String(dateOf(x)||'');if(!raw)return null;if(/^\d{4}-\d{2}-\d{2}$/.test(raw)){const d=new Date(raw+'T23:59:59.999');return Number.isFinite(d.getTime())?d.getTime():null}return ts(x)};
 const isOverdue=x=>{const t=overdueAt(x);return t!==null&&t<Date.now()};
 const personalRoute=x=>x?.route==='documents'?'more':['waiting','today'].includes(x?.route)?'inbox':x?.route||'today';
+const tomorrowRoute=x=>{const raw=String(`${x?.area||''} ${x?.category||''} ${x?.title||''} ${x?.summary||''} ${x?.subject||''}`).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(/dokument|doklad|smlouv/.test(raw))return'more';if(/rodin|dit|dcera|manzel|mam|tat|babi|ded/.test(raw))return'family';if(/domov|dum|home|energie|servis|reviz|udrzb/.test(raw))return'home';if(/peniz|finance|money|bank|platb|faktur|hypot|sporen/.test(raw))return'money';return x?.sourceKind==='calendar'?'today':'inbox'};
 const actionAttr=x=>x?.insurance?`data-today1300-insurance="1"`:x?.personalId?`data-today1300-personal="${esc(x.personalId)}"`:x?.taskId?`data-today1300-task="${esc(x.taskId)}"`:`data-today1300-nav="${esc(x?.route||'today')}"`;
 const fmtDate=x=>{const t=ts(x);if(!t)return'bez termínu';return new Date(t).toLocaleDateString('cs-CZ',{day:'numeric',month:'short'})};
 const money=v=>Number.isFinite(Number(v))?`${Math.round(Number(v)).toLocaleString('cs-CZ')} Kč`:'—';
@@ -40,7 +41,7 @@ function attention(d){
  for(const x of d.personal?.top||[])add({title:x.title,detail:x.why||x.next||'Osobní věc vyžaduje kontrolu.',route:personalRoute(x),personalId:x.id,tone:x.score>=110?'bad':x.score>=90?'warn':'',cta:String(x.cta||'vyřešit').toLowerCase()},x.score);
  for(const x of (d.insurance?.actions||[]).slice(0,2))add({title:x.title,detail:x.issues?.[0]||'Pojistku je potřeba zkontrolovat.',route:'more',insurance:true,tone:x.status==='URGENT'?'bad':'warn',cta:'pojištění'},Number(x.priority||0)+8);
  const dueWait=d.waiting.find(x=>{const t=ts(x);return t&&t<=Date.now()+86400000});if(dueWait)add({title:`Follow-up: ${titleOf(dueWait)}`,detail:isOverdue(dueWait)?'Čekání je po termínu.':'Follow-up je dnes nebo zítra.',route:'inbox',tone:isOverdue(dueWait)?'bad':'warn',cta:'zkontrolovat'},isOverdue(dueWait)?116:84);
- const tomorrow=d.personal?.tomorrow?.[0];if(tomorrow)add({title:tomorrow.title||tomorrow.summary||'Rodinný termín zítra',detail:'Osobní termín je zítra.',route:'family',tone:'',cta:'připravit'},76);
+ const tomorrow=d.personal?.tomorrow?.[0];if(tomorrow)add({title:tomorrow.title||tomorrow.summary||'Osobní termín zítra',detail:'Osobní termín je zítra.',route:tomorrowRoute(tomorrow),tone:'',cta:'připravit'},76);
  const seen=new Set();
  return out.sort((a,b)=>b.score-a.score).filter(x=>{const key=String(x.title||'').toLocaleLowerCase('cs-CZ');if(seen.has(key))return false;seen.add(key);return true}).slice(0,4);
 }
@@ -58,7 +59,7 @@ function systemState(d){
  const familyTasks=d.tasks.filter(x=>/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/.test(area(x)));
  const homeTasks=d.tasks.filter(x=>/domov|d[uů]m|energie|servis|reviz|údržb|udrzb/.test(area(x)+' '+String(x?.title||'').toLocaleLowerCase('cs-CZ')));
  const docIssues=d.insurance?.actionCount||0;
- const familySoon=(d.personal?.tomorrow||[]).length;
+ const familySoon=(d.personal?.tomorrow||[]).filter(x=>tomorrowRoute(x)==='family').length;
  return [
   {route:'inbox',title:'Úkoly',detail:d.overdue.length?d.overdue.length+' po termínu':d.personalTasks.length?d.personalTasks.length+' otevřených položek':'Fronta je prázdná',side:d.overdue.length?d.overdue.length+' po term.':d.personalTasks.length?d.personalTasks.length+' otevř.':'čisto',tone:d.overdue.length?'bad':d.personalTasks.length?'warn':'good'},
   {route:'work',title:'Práce',detail:workRisk?workRisk.title:(d.work.status==='KLID'?'Bez akutního zásahu':'Otevřít pracovní přehled'),side:d.work.status,tone:d.work.status==='ZÁSAH'?'bad':d.work.status==='SLEDOVAT'?'warn':'good'},
@@ -66,7 +67,7 @@ function systemState(d){
   {route:'money',title:'Peníze',detail:d.cash!==null?'Potvrzená volná hotovost':'Hotovost není potvrzená',side:d.cash!==null?money(d.cash):'doplnit',tone:d.cash!==null?'good':'warn'},
   {route:'property',title:'Reality',detail:best?best.name+' · '+best.decision.action:'Žádný kandidát v shortlistu',side:best?best.score+'/100':'—',tone:best?(best.decision.code==='PASS'?'bad':best.decision.code==='NEGOTIATE'?'warn':'good'):''},
   {route:'betting',title:'Sázení',detail:d.bet.positions?d.bet.tickets+' tiketů v '+d.bet.positions+' pozicích':'Žádná otevřená pozice',side:d.bet.positions?d.bet.positions+' pozic':'klid',tone:d.bet.exposure?'warn':'good'},
-  {route:'family',title:'Rodina',detail:familySoon?'Nejbližší rodinná věc je zítra':familyTasks[0]?.title||'Žádný akutní rodinný úkol',side:familyTasks.length?familyTasks.length+' úkolů':'klid',tone:familySoon?'warn':familyTasks.length?'warn':'good'},
+  {route:'family',title:'Rodina',detail:familySoon?'Nejbližší rodinná věc je zítra':familyTasks[0]?.title||'Žádný akutní rodinný úkol',side:familySoon?familySoon+' zítra':familyTasks.length?familyTasks.length+' úkolů':'klid',tone:familySoon?'warn':familyTasks.length?'warn':'good'},
   {route:'home',title:'Domov',detail:homeTasks[0]?.title||'Žádný akutní servis nebo úkol',side:homeTasks.length?homeTasks.length+' otevř.':'klid',tone:homeTasks.length?'warn':'good'},
   {route:'more',title:'Dokumenty',detail:docIssues?docIssues+' pojistek / smluv k ověření':'Bez akutního problému',side:docIssues?docIssues+' řešit':'klid',tone:docIssues?'warn':'good'}
  ];
