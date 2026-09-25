@@ -11,8 +11,8 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 const upper=v=>String(v||'').toUpperCase();
 
-function data(){
- const s=store.get(),p=ticketEventPortfolio32(s),items=s.ticketBook?.items||[],master=s.ticketBook?.masterMeta||null;
+export function ticketData1300(input=null){
+ const s=input||store.get(),p=ticketEventPortfolio32(s),items=s.ticketBook?.items||[],master=s.ticketBook?.masterMeta||null;
  const transfer=items.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(upper(x.market_status||x.workflow)));
  const payout=items.filter(x=>['PAYOUT_WAIT','SOLD_WAITING_PAYMENT','WAITING_PAYOUT'].includes(upper(x.market_status||x.workflow)));
  const issues=items.filter(x=>x.issue);
@@ -26,6 +26,7 @@ function data(){
  for(const t of ticketTasks.slice(0,4))attention.push({tone:Number(t.priority||0)>=90?'bad':'warn',title:t.title||'Ticket úkol',detail:t.notes||'Otevřený ticketový úkol.',action:'task',taskId:t.id});
  return {s,p,items,master,issues,transfer,payout,ticketTasks,attention:attention.slice(0,6)};
 }
+const data=()=>ticketData1300();
 function attentionHtml(rows){if(!rows.length)return '<div class="pr1300-empty">Žádný transfer, payout ani pricing problém teď nehoří.</div>';return '<div class="pr1300-attention">'+rows.map(x=>'<button type="button" data-ticket-action="'+x.action+'" '+(x.taskId?'data-ticket-task-id="'+esc(x.taskId)+'"':'')+'><i class="pr1300-dot '+x.tone+'"></i><span><b>'+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></span><em>řešit →</em></button>').join('')+'</div>'}
 function eventRows(events){if(!events.length)return '<div class="pr1300-empty">Žádné aktivní vstupenky.</div>';return events.map((x,i)=>'<button type="button" class="pr1300-row pr1300-clickrow" data-ticket-event="'+i+'"><div class="pr1300-row-main"><b>'+esc(x.name)+'</b><small>'+x.qty+' ks · kapitál '+money(x.capitalAtRisk)+' · '+esc(x.nextAction||'sledovat')+'</small></div><div class="pr1300-row-side '+(x.priority>=85?'bad':x.priority>=70?'warn':'')+'">'+x.priority+'/100 <span class="os1500-row-arrow">→</span></div></button>').join('')}
 function primaryAction(x,topEvent){if(x?.action==='sync')return '<button class="pr1300-btn primary" type="button" data-ticket-sync>Synchronizovat Viagogo →</button>';if(x?.action==='advanced')return '<button class="pr1300-btn primary" type="button" data-ticket-advanced>Otevřít případ →</button>';if(x?.action==='task'&&x.taskId)return '<button class="pr1300-btn primary" type="button" data-ticket-task-id="'+esc(x.taskId)+'">Vyřešit úkol →</button>';if(topEvent)return '<button class="pr1300-btn primary" type="button" data-ticket-event="0">Otevřít event →</button>';return '<button class="pr1300-btn primary" type="button" data-ticket-task>＋ Úkol k ticketům</button>'}

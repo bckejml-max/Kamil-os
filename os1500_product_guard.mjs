@@ -56,9 +56,9 @@ assert.match(today,/moneyState=moneyData1300\(s\)/,'Today Money card must read c
 assert.match(today,/d\.moneyState\?\.attention\?\.length/,'Today Money status must surface canonical Money attention');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
 assert.match(today,/usabilityReset:1500/);
 assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
-assert.match(today,/SOLD_TICKET_STATES/,'Today must explicitly exclude sold/settlement ticket states from active inventory');
-assert.match(today,/tickets=\(s\.ticketBook\?\.items\|\|\[\]\)/,'Today transfer detection must inspect all ticket rows, not generic open rows');
-assert.match(today,/activeTicketQty=d\.activeTickets\.reduce/,'Today ticket card must display active quantity, not ticket-task or row count');
+assert.match(today,/ticketState=ticketData1300\(s\)/,'Today Tickets must use canonical Ticket Overview state');
+assert.match(today,/activeTicketQty=d\.ticketState\?\.p\?\.queue\?\.activeQty/,'Today ticket card must display canonical active quantity');
+assert.match(today,/ticketAlert=d\.ticketState\?\.attention\?\.\[0\]/,'Today ticket priority must use canonical Ticket attention');
 assert.match(today,/data-today1300-insurance/,'Today insurance priorities must deep-link to Insurance Center');
 assert.match(app,/x=>!x\.issue&&\['HOLD','LISTED'\]/,'quick shell must exclude disputed tickets from active count');
 assert.match(app,/tasks\.filter\(isPersonalScope527\)\.filter/,'Inbox navigation badge must count the same personal task scope as Inbox');
@@ -73,10 +73,13 @@ assert.match(workCenter,/CLOSED_EXACT/,'Work must treat explicit handed-over Cze
 assert.doesNotMatch(work,/data-work1300-today/,'Work risks must not bounce back to Today');
 
 assert.match(tickets,/function primaryAction/,'Ticket primary CTA must be contextual');
+assert.match(tickets,/export function ticketData1300/,'Ticket canonical state must be reusable by Today');
 assert.match(tickets,/transfer\.length\)attention\.push\(\{tone:'bad'[\s\S]*action:'advanced'/,'ticket transfer action must open Ticket desk, not trigger sync');
 assert.match(tickets,/payout\.length\)attention\.push\(\{tone:'warn'[\s\S]*action:'advanced'/,'ticket payout action must open Ticket desk, not trigger sync');
 assert.match(tickets,/data-ticket-event/,'Ticket events must be directly actionable');
 assert.match(tickets,/dynamicPrimary:true/);
+assert.match(ticketPortfolio,/CLOSED_TICKET_STATES_32/,'Ticket active inventory must share explicit sold and settlement lifecycle states');
+assert.match(ticketPortfolio,/market_status\|\|x\?\.marketStatus/,'Ticket active lifecycle must consider market status as well as workflow');
 assert.match(ticketPortfolio,/!x\?\.issue/,'disputed ticket rows must not inflate active inventory');
 assert.match(ticketPortfolio,/sectionLike32/,'ticket event naming must preserve matchup identity while stripping seat/section suffixes');
 assert.match(money,/!x\.issue&&\['HOLD','LISTED','OPEN'\]/,'Money must exclude disputed tickets from active asset value');
