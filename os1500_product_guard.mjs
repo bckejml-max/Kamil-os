@@ -27,6 +27,7 @@ const home=read('js/homePage140.js');
 const documents=read('js/documentsPage141.js');
 const inboxHub=read('js/inboxHub660.js');
 const personalActionExecution=read('js/personalActionExecution641.js');
+const familyHomeActions=read('js/personalFamilyHomeActions644.js');
 const sw=read('sw.js');
 
 assert.match(index,/data-os1500="1"/,'OS1500 shell flag missing');
@@ -124,6 +125,8 @@ assert.match(personalActionExecution,/calendarScope641/,'calendar preparation ta
 assert.match(personalActionExecution,/calendarPrepDue641/,'calendar preparation tasks must use the source event date');
 assert.match(inboxHub,/minutes:5,route,due/,'Inbox calendar actions must carry the source event due date');
 assert.doesNotMatch(personalActionExecution,/category:'Rodina',area:'Rodina'/,'generic calendar preparation must not force every event into Family');
+assert.match(personalActionExecution,/CALENDAR_PREP_CLOSED_641/,'generic calendar prep must ignore closed prior prep tasks');
+assert.match(familyHomeActions,/PREP_CLOSED_644/,'family calendar prep must ignore closed prior prep tasks');
 assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must not hide content behind filters');
 
 assert.match(app,/betting:'betting-task'/,'shell quick add must support betting');

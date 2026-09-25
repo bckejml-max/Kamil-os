@@ -543,3 +543,20 @@ test('OS737.0.61 cancelled calendar events disappear from active personal surfac
  expect(out.next7).toContain('active-cal');
  expect(out.next7).not.toContain('cancelled-cal');
 });
+
+test('OS737.0.62 closed calendar prep does not block a new preparation task',async({page})=>{
+ await boot(page);
+ const out=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {prepareFamilyEvent644}=await import('./js/personalFamilyHomeActions644.js');
+  store.mutate('test closed family prep',s=>{
+   s.tasks=[{id:'old-prep',title:'Old prep',status:'CANCELLED',sourceEventId:'event-reopen-test',area:'Rodina',category:'Rodina'}];
+  });
+  prepareFamilyEvent644({id:'event-reopen-test',title:'Rodinná událost',start:new Date(Date.now()+3*86400000).toISOString()});
+  const tasks=store.get().tasks.filter(x=>x.sourceEventId==='event-reopen-test');
+  return tasks.map(x=>({id:x.id,status:x.status}));
+ });
+ expect(out.length).toBe(2);
+ expect(out.some(x=>x.status==='OPEN')).toBe(true);
+ expect(out.some(x=>x.status==='CANCELLED')).toBe(true);
+});

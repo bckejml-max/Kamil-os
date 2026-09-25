@@ -32,9 +32,10 @@ export function completePersonalAction641(action){
  },{undo:true,cloud:true,audit:true});return changed;
 }
 
+const CALENDAR_PREP_CLOSED_641=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','CANCELLED','CANCELED']);
 const calendarScope641=action=>({family:'Rodina',home:'Domov',money:'Peníze',more:'Dokumenty'}[String(action?.route||'')]||'Osobní');
 const calendarPrepDue641=action=>{const t=Date.parse(action?.due||'');if(!Number.isFinite(t))return now();const prep=t-86400000;return new Date(Math.max(Date.now(),prep)).toISOString()};
-function prepareCalendarAction641(action){let created=null;const sourceEventId=String(action.id||action.title||'calendar').replace(/^calendar:/,''),scope=calendarScope641(action);store.mutate(`Přidána příprava: ${action.title}`,s=>{s.tasks=Array.isArray(s.tasks)?s.tasks:[];const existing=s.tasks.find(x=>String(x.sourceEventId||'')===sourceEventId&&String(x.status||'OPEN').toUpperCase()!=='DONE');if(existing){created=existing;return}created={id:uid('calendar-prep'),title:`Připravit: ${action.title||'událost'}`,status:'OPEN',category:scope,area:scope,due:calendarPrepDue641(action),sourceEventId,createdAt:now()};s.tasks.push(created)},{undo:true,cloud:true,audit:true});return created}
+function prepareCalendarAction641(action){let created=null;const sourceEventId=String(action.id||action.title||'calendar').replace(/^calendar:/,''),scope=calendarScope641(action);store.mutate(`Přidána příprava: ${action.title}`,s=>{s.tasks=Array.isArray(s.tasks)?s.tasks:[];const existing=s.tasks.find(x=>String(x.sourceEventId||'')===sourceEventId&&!CALENDAR_PREP_CLOSED_641.has(String(x.status||'OPEN').toUpperCase()));if(existing){created=existing;return}created={id:uid('calendar-prep'),title:`Připravit: ${action.title||'událost'}`,status:'OPEN',category:scope,area:scope,due:calendarPrepDue641(action),sourceEventId,createdAt:now()};s.tasks.push(created)},{undo:true,cloud:true,audit:true});return created}
 
 export async function openPersonalAction641(action){
  if(!action)return null;

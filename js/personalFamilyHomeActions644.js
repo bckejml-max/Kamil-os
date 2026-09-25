@@ -5,6 +5,7 @@ import {openVaultEdit641} from './personalVaultEdit641.js';
 
 const iso=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?new Date(t).toISOString():null};
 const minusDay=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?new Date(t-86400000).toISOString():null};
+const PREP_CLOSED_644=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','CANCELLED','CANCELED']);
 
 export function prepareFamilyEvent644(event={}){
  const eventId=String(event.id||event.title||event.summary||'');if(!eventId)return null;
@@ -12,7 +13,7 @@ export function prepareFamilyEvent644(event={}){
  let created=null;
  store.mutate(`Přidána příprava rodinné události: ${title}`,s=>{
   s.tasks=Array.isArray(s.tasks)?s.tasks:[];
-  const existing=s.tasks.find(x=>String(x.sourceEventId||'')===eventId&&String(x.status||'OPEN').toUpperCase()!=='DONE');
+  const existing=s.tasks.find(x=>String(x.sourceEventId||'')===eventId&&!PREP_CLOSED_644.has(String(x.status||'OPEN').toUpperCase()));
   if(existing){created=existing;return}
   created={id:uid('family-prep'),title,status:'OPEN',category:'Rodina',area:'Rodina',due:minusDay(event.start||event.date||event.when)||iso(event.start||event.date||event.when),sourceEventId:eventId,createdAt:new Date().toISOString()};
   s.tasks.push(created);
