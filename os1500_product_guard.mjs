@@ -75,6 +75,8 @@ assert.match(property,/openPropertyDetail620/);
 assert.match(propertyHub,/export function openPropertyDetail620/);
 
 assert.match(betting,/data-betting-open-index/,'Open bets must be directly inspectable');
+assert.match(betting,/openTickets=open\.reduce/,'Betting must distinguish ticket count from aggregated positions');
+assert.match(today,/bettingTickets:d\.bet\.tickets/,'Today must expose betting ticket count separately from positions');
 assert.match(betting,/detail:'betting-task'/,'Betting task must retain betting scope');
 assert.match(betting,/directRows:true/);
 
