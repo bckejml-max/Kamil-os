@@ -51,7 +51,9 @@ assert.match(today,/docIssues=\(d\.vault\?\.action\?\.length\|\|0\)\+\(d\.insura
 assert.match(today,/homeTimeline=personalHomeTimeline650\(s\)/,'Today Home card must read the canonical home timeline');
 assert.match(today,/homeUrgent=\(d\.homeTimeline\|\|\[\]\)\.filter/,'Today Home status must derive from the canonical 30-day home timeline');
 assert.match(today,/family=familyData140\(s\)/,'Today Family card must read canonical Family state');
-assert.match(today,/family\.overdue\?family\.overdue\+' po term\.'/,'Today Family status must mirror canonical overdue and 7-day state');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
+assert.match(today,/family\.overdue\?family\.overdue\+' po term\.'/,'Today Family status must mirror canonical overdue and 7-day state');
+assert.match(today,/moneyState=moneyData1300\(s\)/,'Today Money card must read canonical Money state');
+assert.match(today,/d\.moneyState\?\.attention\?\.length/,'Today Money status must surface canonical Money attention');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
 assert.match(today,/usabilityReset:1500/);
 assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
 assert.match(today,/SOLD_TICKET_STATES/,'Today must explicitly exclude sold/settlement ticket states from active inventory');
@@ -79,6 +81,7 @@ assert.match(ticketPortfolio,/!x\?\.issue/,'disputed ticket rows must not inflat
 assert.match(ticketPortfolio,/sectionLike32/,'ticket event naming must preserve matchup identity while stripping seat/section suffixes');
 assert.match(money,/!x\.issue&&\['HOLD','LISTED','OPEN'\]/,'Money must exclude disputed tickets from active asset value');
 assert.match(money,/knownNumber=v=>/,'Money must distinguish explicit zero from unknown numeric values');
+assert.match(money,/export function moneyData1300/,'Money canonical state must be reusable by Today');
 assert.match(money,/bankKnown=vaultBankKnown\|\|planCashKnown/,'Money bank fallback must depend on knownness, not positive balance');
 assert.match(moneyAdvanced,/!x\.issue&&\['HOLD','LISTED'\]/,'advanced Money must exclude disputed tickets from ticket capital');
 assert.match(moneyAdvanced,/knownNumber=v=>/,'advanced Money must distinguish explicit zero from unknown values');
