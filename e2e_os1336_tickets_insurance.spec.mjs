@@ -41,14 +41,16 @@ test('OS1336 Insurance Center separates active upcoming terminating offers and h
  await expect(page.locator('#moreView')).toContainText('Tereza · NN Orange Risk');
  await expect(page.locator('#moreView')).toContainText('Fiat Croma');
  await expect(page.locator('#moreView')).toContainText('Pasohlávky 157 · MaxDomov VIP');
+ await expect(page.locator('#moreView')).toContainText('Kamil · Allianz ŽIVOT');
+ await expect(page.locator('#moreView')).toContainText('Dům Vlasatice · pojištění nemovitosti');
  const d=await page.evaluate(()=>window.__KAMIL_INSURANCE_CENTER1336__);
- expect(d.active).toBe(3);
+ expect(d.active).toBe(4);
  expect(d.upcoming).toBe(1);
  expect(d.terminating).toBe(2);
- expect(d.review).toBe(2);
+ expect(d.review).toBe(3);
  expect(d.offers).toBe(2);
  expect(d.history).toBe(6);
- expect(d.total).toBe(16);
+ expect(d.total).toBe(18);
  await page.locator('#insuranceBack25').click();
  await expect(page.locator('#moreView [data-documents-page1500]')).toBeVisible();
  await expect(page.locator('#insurance25Tile')).toBeVisible();
@@ -62,4 +64,6 @@ test('OS737.0.24 keeps superseded recovery insurance out of active attention',as
  expect(text).toContain('Nahrazeno registrem');
  expect(text).not.toContain('Najít novější platbu 574 Kč');
  expect(text).not.toContain('Najít aktuální zelenou kartu nebo poslední zaplacené pojistné');
+ expect(text).not.toContain('Při dalším bankovním výpisu potvrdit pravidelnou platbu 915 Kč');
+ expect(text).not.toContain('Potvrdit, že smlouva je stále aktivní a kryje současný stav rekonstrukce');
 });
