@@ -9,6 +9,7 @@ const advancedStyles=read('js/productAdvancedStyles.js');
 const today=read('js/todayPage2000.js');
 const personalQuery=read('js/personalQuery29.js');
 const work=read('js/workPage1300.js');
+const workCommand=read('js/workCommandCenter440.js');
 const tickets=read('js/ticketOverview.js');
 const ticketPortfolio=read('js/ticketPortfolio32.js');
 const money=read('js/moneyOverview.js');
@@ -49,6 +50,8 @@ assert.match(work,/data-work1300-project/);
 assert.match(work,/Pracovní riziko/);
 assert.match(work,/Zakázka/);
 assert.doesNotMatch(work,/data-work1300-today/,'Work risks must not bounce back to Today');
+assert.match(workCommand,/workTasks=tasks\.filter\(x=>workScope440\(x,refs\)\)/,'Work overdue metric must use work-scoped tasks only');
+assert.match(workCommand,/A\(s\.delegations\)\.filter\(x=>workScope440\(x,refs\)\)/,'Work Waiting For must exclude personal delegations');
 
 assert.match(tickets,/function primaryAction/,'Ticket primary CTA must be contextual');
 assert.match(tickets,/data-ticket-event/,'Ticket events must be directly actionable');
