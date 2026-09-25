@@ -28,6 +28,8 @@ test('OS1334 Betting renders every open bet on the primary screen',async({page})
   }));
  });
  await boot(page); await openView(page,'betting');
+ await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible({timeout:10000});
+ await expect.poll(()=>page.evaluate(()=>!!window.__KAMIL_BETTING_OVERVIEW__),{timeout:10000}).toBe(true);
  const d=await page.evaluate(()=>window.__KAMIL_BETTING_OVERVIEW__);
  expect(d.open).toBeGreaterThan(0);
  await expect(page.locator('#bettingView [data-betting-open-row]')).toHaveCount(d.open);
