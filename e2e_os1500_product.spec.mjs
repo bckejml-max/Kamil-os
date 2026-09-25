@@ -122,3 +122,14 @@ test('OS737.0.30 Money separates current and upcoming insurance and excludes dis
  expect(diag.upcomingInsuranceMonthly).toBeGreaterThanOrEqual(2000);
  expect(diag.wealth.tickets).toBeCloseTo(45692,2);
 });
+
+test('OS737.0.31 command bar ticket capital excludes disputes',async({page})=>{
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const m=await import('./js/personalQuery29.js');
+  const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');
+  return m.personalQuery('kolik mám kapitálu ve vstupenkách',s,{});
+ });
+ expect(String(result?.title||'').replace(/\D/g,'')).toContain('45692');
+ expect(result?.lines?.join(' ')).toContain('bez reklamací');
+});
