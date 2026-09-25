@@ -23,7 +23,11 @@ test('OS1335 replaces stale betting data with the final Sep 23 master once',asyn
  expect(d.overview.masterId).toBe('sazky_portfolio_FINAL_2026-09-23');
  expect(d.overview.ticketCount).toBe(140);
  expect(d.overview.positionCount).toBe(58);
+ expect(d.overview.openPositions).toBe(58);
+ expect(d.overview.openTickets).toBe(140);
  expect(d.overview.exposure).toBe(277000);
+ await expect(page.locator('#bettingView')).toContainText('58 pozic');
+ await expect(page.locator('#bettingView')).toContainText('140 tiketů');
  expect(d.ledger.masterMeta.totalStakedCzk).toBe(277000);
  expect(d.ledger.masterMeta.potentialPayoutCzk).toBe(1779165);
  expect(d.ledger.masterMeta.remainingToPlaceCzk).toBe(0);
