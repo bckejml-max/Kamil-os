@@ -35,7 +35,7 @@ export function personalActions640(s=store.get()){
   const d=daysTo(dueOf(w));if(!belongsToday(d))continue;push({id:`waiting:${w.id||w.title}`,score:Math.max(78,dueScore(d)-6),title:w.title||w.name||'Čekám na odpověď',why:`Čekáš na reakci · ${whenLabel(d)}`,next:'Udělej follow-up, pokud je termín splněný.',minutes:3,kind:'waiting',route:'waiting',area:taskArea(w)});
  }
  for(const a of (s.personalAdmin?.items||[]).filter(open).filter(personal).filter(x=>!x.waitingFor)){
-  if(String(a.id||'').startsWith('recovered-'))continue;
+  if(a.category==='INSURANCE'||String(a.id||'').startsWith('recovered-'))continue;
   const d=daysTo(dueOf(a));if(!belongsToday(d))continue;push({id:`admin:${a.id}`,score:Math.max(55,dueScore(d)-4),title:a.title||a.name||'Osobní administrativa',why:`Administrativa · ${whenLabel(d)}`,next:'Vyřídit nebo doložit další krok.',minutes:5,kind:'admin',route:'today',area:taskArea(a)});
  }
  for(const e of (s.calendar?.events||[]).filter(personal)){
