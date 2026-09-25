@@ -185,3 +185,13 @@ test('OS737.0.37 Today insurance priority deep-links to Insurance Center',async(
  await insurancePriority.click();
  await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
 });
+
+test('OS737.0.39 Documents top status includes Insurance Center actions',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="more"]').click();
+ await expect(page.locator('[data-documents-page1500]')).toBeVisible({timeout:10000});
+ const diag=await page.evaluate(()=>window.__KAMIL_DOCUMENTS141__);
+ expect(diag.insuranceAction).toBeGreaterThan(0);
+ expect(diag.action).toBeGreaterThanOrEqual(diag.insuranceAction);
+ await expect(page.locator('#moreView .pr1300-status')).not.toHaveText('klid');
+});
