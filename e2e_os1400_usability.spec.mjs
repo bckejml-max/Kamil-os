@@ -13,9 +13,9 @@ test('OS1500 preserves the focused desktop cockpit',async({page})=>{
  await expect(page.locator('html[data-os1400="1"]')).toHaveCount(1);
  await expect(page.locator('link[href="./os1400.css"]')).toHaveCount(1);
  await expect(page.locator('#commandInput')).toHaveAttribute('placeholder',/Co chceš udělat/);
- await expect(page.locator('.os1400-focus')).toBeVisible();
- await expect(page.locator('.os1400-metrics .os1400-metric')).toHaveCount(4);
- await expect(page.locator('.os1400-grid')).toBeVisible();
+ await expect(page.locator('.os1600-attention')).toBeVisible();
+ await expect(page.locator('.os1600-summary .os1600-summary-item')).toHaveCount(4);
+ await expect(page.locator('.os1600-areas')).toBeVisible();
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(diag.usabilityReset).toBe(1500);
  expect(diag.systemRows).toBe(9);
@@ -26,11 +26,12 @@ test('OS1500 keeps direct mobile destinations and stacks primary content',async(
  await boot(page);
  await expect(page.locator('#bottomNav [data-view]')).toHaveCount(10);
  const layout=await page.evaluate(()=>{
-  const grid=document.querySelector('.os1400-grid');
-  const cards=[...grid.querySelectorAll(':scope > .os1400-card')].map(x=>x.getBoundingClientRect());
-  const metrics=getComputedStyle(document.querySelector('.os1400-metrics')).gridTemplateColumns.split(' ').filter(Boolean).length;
-  return {stacked:cards.length<2||cards[1].top>=cards[0].bottom-2,metrics};
+  const summary=document.querySelector('.os1600-summary');
+  const areas=document.querySelector('.os1600-areas');
+  const metrics=getComputedStyle(summary).gridTemplateColumns.split(' ').filter(Boolean).length;
+  const areaColumns=getComputedStyle(areas).gridTemplateColumns.split(' ').filter(Boolean).length;
+  return {metrics,areaColumns};
  });
- expect(layout.stacked).toBe(true);
  expect(layout.metrics).toBe(2);
+ expect(layout.areaColumns).toBe(2);
 });
