@@ -2,24 +2,27 @@ import {store} from './state.js';
 import {norm,h,money} from './utils.js';
 import {search as baseSearch} from './command.js';
 import {schedule1100} from './runtimeOwnership1100.js';
+import {isActivePropertyCandidate472} from './propertyDecision472.js';
 
 const A=v=>Array.isArray(v)?v:[];
 const OWNER='product.commandSearch610';
 const S=()=>store.get?.()||{};
+const CLOSED610=new Set(['DONE','HOTOVO','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','CANCELLED','CANCELED','COMPLETED','FINISHED']);
+const active610=x=>!CLOSED610.has(String(x?.status||x?.workflow||x?.state||'OPEN').trim().toUpperCase());
 const fireFocus=(target,focus)=>window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{focus,target}}));
-const openTarget=(target,focus=null)=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));if(focus)for(const ms of [120,420,900])schedule1100(OWNER,`focus:${target}:${focus}:${ms}`,()=>fireFocus(target,focus),ms,{pauseWhenHidden:true})};
+const openTarget=(target,focus=null)=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));if(target==='more'&&focus==='insurance')schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true});if(focus&&focus!=='insurance')for(const ms of [120,420,900])schedule1100(OWNER,`focus:${target}:${focus}:${ms}`,()=>fireFocus(target,focus),ms,{pauseWhenHidden:true})};
 const addMatch=(out,q,kind,title,detail,target,id,focus)=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,focus})};
 
 export function searchExtended610(raw){
  const q=norm(raw);if(!q)return[];const s=S(),out=[];
- for(const x of A(s.propertyBook?.candidates))addMatch(out,q,'Reality 2.0',x.name||x.title||'Nemovitost',[x.location,x.purchasePrice||x.priceCzk||x.price?money(x.purchasePrice||x.priceCzk||x.price):'',x.monthlyRent||x.rentCzk?`nájem ${money(x.monthlyRent||x.rentCzk)}`:'',x.areaM2||x.sizeM2||x.floorArea||x.area?`${x.areaM2||x.sizeM2||x.floorArea||x.area} m²`:''].filter(Boolean).join(' · '),'property',x.id,null);
+ for(const x of A(s.propertyBook?.candidates).filter(isActivePropertyCandidate472))addMatch(out,q,'Reality 2.0',x.name||x.title||'Nemovitost',[x.location,x.purchasePrice||x.priceCzk||x.price?money(x.purchasePrice||x.priceCzk||x.price):'',x.monthlyRent||x.rentCzk?`nájem ${money(x.monthlyRent||x.rentCzk)}`:'',x.areaM2||x.sizeM2||x.floorArea||x.area?`${x.areaM2||x.sizeM2||x.floorArea||x.area} m²`:''].filter(Boolean).join(' · '),'property',x.id,null);
  for(const x of A(s.ticketBook?.watchlist))addMatch(out,q,'Vstupenky 2.0 · watchlist',x.name||x.event||x.title||'Sledovaná akce',[x.city,x.venue,x.date||x.eventDate].filter(Boolean).join(' · '),'tickets',x.id,null);
  for(const x of A(s.ticketBook?.opportunities||s.ticketOpportunities||s.ticket_market_opportunities))addMatch(out,q,'Vstupenky 2.0 · příležitost',x.name||x.event||x.title||'Příležitost',[x.city,x.category,x.maxBuyPrice||x.maxBuyPriceCzk?`max ${money(x.maxBuyPrice||x.maxBuyPriceCzk)}`:''].filter(Boolean).join(' · '),'tickets',x.id,null);
  for(const x of A(s.netWorthBook?.history))addMatch(out,q,'Historie majetku',x.title||x.label||`Snapshot ${x.asOf||x.date||''}`,[x.netKnown!=null?`netto ${money(x.netKnown)}`:'',x.knownAssets!=null?`aktiva ${money(x.knownAssets)}`:''].filter(Boolean).join(' · '),'money',x.id,'wealth-history');
  for(const x of A(s.personalSpending?.transactions).slice(0,250))addMatch(out,q,'Výdaj / transakce',x.merchant||x.title||x.name||x.category||'Transakce',[x.category,x.amount!=null?money(Math.abs(Number(x.amount||0))):'',x.date||x.bookedAt].filter(Boolean).join(' · '),'money',x.id,'spending');
- for(const x of A(s.personalInbox?.items))addMatch(out,q,'Inbox 2.0',x.title||x.subject||x.name||'Inbox položka',[x.category,x.description||x.notes||x.summary,x.due||x.deadline].filter(Boolean).join(' · '),'inbox',x.id,'inbox-hub');
- for(const x of A(s.inbox))addMatch(out,q,'Inbox 2.0',x.title||x.subject||x.name||'Inbox položka',[x.category,x.description||x.notes||x.summary,x.due||x.deadline].filter(Boolean).join(' · '),'inbox',x.id,'inbox-hub');
- for(const x of A(s.delegations))addMatch(out,q,'Waiting Center 2.0',x.title||x.name||x.waitingFor||'Čekající věc',[x.waitingOn||x.person||x.owner,x.expected||x.waitingForWhat,x.due||x.followUpAt].filter(Boolean).join(' · '),'inbox',x.id,'waiting-center');
+ for(const x of A(s.personalInbox?.items).filter(active610))addMatch(out,q,'Inbox 2.0',x.title||x.subject||x.name||'Inbox položka',[x.category,x.description||x.notes||x.summary,x.due||x.deadline].filter(Boolean).join(' · '),'inbox',x.id,'inbox-hub');
+ for(const x of A(s.inbox).filter(active610))addMatch(out,q,'Inbox 2.0',x.title||x.subject||x.name||'Inbox položka',[x.category,x.description||x.notes||x.summary,x.due||x.deadline].filter(Boolean).join(' · '),'inbox',x.id,'inbox-hub');
+ for(const x of A(s.delegations).filter(active610))addMatch(out,q,'Waiting Center 2.0',x.title||x.name||x.waitingFor||'Čekající věc',[x.waitingOn||x.person||x.owner,x.expected||x.waitingForWhat,x.due||x.followUpAt].filter(Boolean).join(' · '),'inbox',x.id,'waiting-center');
  return out.slice(0,15)
 }
 function navIntent(raw){const q=norm(raw);const map=[
@@ -40,7 +43,8 @@ function navIntent(raw){const q=norm(raw);const map=[
  [['rodina','family','rodinný týden','rodinny tyden','family hub'],['family',null]],
  [['práce','prace','zakázky','zakazky','work'],['work',null]],
  [['domov','dům','dum','home'],['home',null]],
- [['dokumenty','pojistky','pojištění','pojisteni','smlouvy'],['more',null]],
+ [['pojistky','pojištění','pojisteni'],['more','insurance']],
+ [['dokumenty','smlouvy'],['more',null]],
  [['sázky','sazky','betting','sázky 2.0','sazky 2.0','sázky 2','sazky 2','betting 2.0','betting 2','betting command center','co vsadit','co mám vsadit','co mam vsadit'],['betting',null]]
  ];
  for(const [terms,target] of map)if(terms.includes(q))return{target:target[0],focus:target[1]};return null
