@@ -91,3 +91,20 @@ test('OS737.0.38 confirmed upcoming insurance is BRZY, not OVĚŘIT',async({page
  await expect(row).toContainText('BRZY');
  await expect(row).not.toContainText('OVĚŘIT');
 });
+
+test('OS737.0.40 confirmed upcoming insurance is informational, not an action',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="more"]').click();
+ await page.locator('#insurance25Tile').click();
+ const diag=await page.evaluate(()=>window.__KAMIL_INSURANCE_CENTER1336__);
+ expect(diag.upcoming).toBeGreaterThan(0);
+ const center=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {insuranceCenter}=await import('./js/insurance25.js');
+  return insuranceCenter(store.get());
+ });
+ const tereza=center.policies.find(x=>x.id==='ins-master-tereza-nn-3350409671');
+ expect(tereza.status).toBe('SOON');
+ expect(tereza.needsAction).toBe(false);
+ expect(center.actions.some(x=>x.id===tereza.id)).toBe(false);
+});
