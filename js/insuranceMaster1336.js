@@ -1,10 +1,10 @@
-export const INSURANCE_MASTER_ID_1336='insurance-registry-2026-09-23';
+export const INSURANCE_MASTER_ID_1336='insurance-registry-2026-09-25-v2';
 
 const policy=(id,title,provider,amount,cadence,lifecycle,kind,insured,policyNumber,extra={})=>({
  id:'ins-master-'+id,title,category:'INSURANCE',provider,amount,currency:'CZK',cadence,
  nextDue:extra.nextDue||null,renewalDate:extra.renewalDate||null,noticeDate:extra.noticeDate||null,
  autoPay:extra.autoPay??false,notes:extra.notes||'',status:lifecycle==='HISTORY'?'ARCHIVED':'ACTIVE',
- createdAt:extra.createdAt||'2026-09-23T00:00:00.000Z',updatedAt:'2026-09-23T21:55:00.000Z',
+ createdAt:extra.createdAt||'2026-09-23T00:00:00.000Z',updatedAt:'2026-09-25T12:10:00.000Z',
  insurance:{kind,insured,policyNumber,contact:extra.contact||'',coverageAmount:extra.coverageAmount??null,deductible:extra.deductible??null,
  lifecycle,startDate:extra.startDate||null,source:extra.source||'',sourceStatus:extra.sourceStatus||'CONFIRMED'}
 });
@@ -28,6 +28,15 @@ export const INSURANCE_MASTER_ITEMS_1336=[
  policy('scala-798495213','Škoda Scala · MojeAuto','Allianz',null,'YEARLY','REVIEW','VEHICLE','Škoda Scala · 8C46678','798495213',{
   notes:'Poslední doložená zelená karta byla do 6. 3. 2026. V aktuálních podkladech nemám nové potvrzení období po tomto datu — ověřit aktuální smlouvu / cenu.',
   source:'Gmail · Allianz potvrzení a zelená karta',sourceStatus:'VERIFY'
+ }),
+ policy('kamil-allianz-life','Kamil · Allianz ŽIVOT','Allianz',915,'MONTHLY','ACTIVE','LIFE','Kamil','',{
+  notes:'Smluvní podklady a audit platby potvrzují známé pojistné 915 Kč měsíčně. Při dalším bankovním výpisu pouze potvrdit pravidelnou platbu.',
+  source:'Archiv Allianz ŽIVOT + audit platby 31. 7. 2026',sourceStatus:'CONFIRMED'
+ }),
+ policy('vlasatice-pvzp-home','Dům Vlasatice · pojištění nemovitosti','Pojišťovna VZP',2600,'YEARLY','REVIEW','PROPERTY','Dům Vlasatice','',{
+  startDate:'2026-03-25',renewalDate:'2027-03-25',
+  notes:'Archivní návrh uvádí budovu za 2 600 Kč/rok. Aktivitu smlouvy a rozsah krytí rekonstrukce je potřeba potvrdit aktuální platbou nebo potvrzením pojišťovny.',
+  source:'Archivní návrh pojistné smlouvy 2026',sourceStatus:'VERIFY'
  }),
  policy('roomster-allianz-799685843','Škoda Roomster · Allianz','Allianz',null,'YEARLY','HISTORY','VEHICLE','Škoda Roomster','799685843',{
   notes:'Starší autopojištění sjednané v březnu 2025; později je pro Roomster doložena nová Pillow smlouva 26160739.',
@@ -87,6 +96,6 @@ export function applyInsuranceMaster1336(state){
  const old=new Map((pa.items||[]).map(x=>[x.id,x]));
  pa.items=[...INSURANCE_MASTER_ITEMS_1336.map(x=>({...x,...(old.get(x.id)||{}),...x,insurance:{...(old.get(x.id)?.insurance||{}),...x.insurance}})),...others];
  pa.insuranceMasterId=INSURANCE_MASTER_ID_1336;
- pa.insuranceMasterAt='2026-09-23T21:55:00.000Z';
+ pa.insuranceMasterAt='2026-09-25T12:10:00.000Z';
  return true;
 }
