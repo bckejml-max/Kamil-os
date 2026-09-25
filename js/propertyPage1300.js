@@ -1,4 +1,4 @@
-import {buildPropertyHub620} from './propertyHub620.js';
+import {buildPropertyHub620,openPropertyDetail620} from './propertyHub620.js';
 import {ownEvent1100} from './runtimeOwnership1100.js';
 
 const OWNER='product.property1300';
@@ -9,7 +9,7 @@ const decisionTone=code=>code==='BUY'?'good':code==='NEGOTIATE'||code==='INCOMPL
 
 function candidateRows(rows){
  if(!rows.length)return '<div class="pr1300-empty">V Property Booku zatím není žádný kandidát.</div>';
- return rows.map((x,i)=>`<div class="pr1300-row" data-property-shortlist-row><div class="pr1300-row-main"><b>${i+1}. ${esc(x.name)}</b><small>${esc(x.location||'Lokalita neuvedena')} · ${money(x.purchasePrice)} · ${x.area?`${String(x.area).replace('.',',')} m² · `:''}net yield ${pct(x.netYield)}</small></div><div class="pr1300-row-side ${decisionTone(x.decision.code)}">${esc(x.decision.action)} · ${x.score}/100</div></div>`).join('');
+ return rows.map((x,i)=>`<button type="button" class="pr1300-row pr1300-clickrow" data-property-shortlist-row data-property-candidate="${x.index}"><div class="pr1300-row-main"><b>${i+1}. ${esc(x.name)}</b><small>${esc(x.location||'Lokalita neuvedena')} · ${money(x.purchasePrice)} · ${x.area?`${String(x.area).replace('.',',')} m² · `:''}net yield ${pct(x.netYield)}</small></div><div class="pr1300-row-side ${decisionTone(x.decision.code)}">${esc(x.decision.action)} · ${x.score}/100 <span class="os1500-row-arrow">→</span></div></button>`).join('');
 }
 function metric(label,value,tone=''){return '<span class="os1334-property-metric '+tone+'"><small>'+label+'</small><b>'+value+'</b></span>'}
 
@@ -21,8 +21,8 @@ function render(){
   '<div class="pr1300-head"><div><div class="pr1300-kicker">Reality</div><h1>Nejlepší kandidát a čísla pro rozhodnutí.</h1><p>Bez duplicitního detailu: nahoře kandidát #1, vedle něj klíčové metriky, pod tím celý shortlist.</p></div><span class="pr1300-status '+(best?decisionTone(best.decision.code):'')+'">'+m.rows.length+' kandidátů</span></div>' +
   populated +
  '</div>';
- if(!host.dataset.property1300Bound){host.dataset.property1300Bound='1';ownEvent1100(OWNER,host,'click',e=>{if(e.target.closest('[data-property1300-money]'))window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'money'}));else if(e.target.closest('[data-property1300-task]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'property-task'}))})}
- window.__KAMIL_PROPERTY_PAGE1300__={healthy:true,candidates:m.rows.length,renderedCandidates:m.rows.length,best:best?{name:best.name,score:best.score,decision:best.decision.code}:null,decisionSurface:1334,at:Date.now()};
+ if(!host.dataset.property1300Bound){host.dataset.property1300Bound='1';ownEvent1100(OWNER,host,'click',e=>{if(e.target.closest('[data-property1300-money]')){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'money'}));return}if(e.target.closest('[data-property1300-task]')){window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'property-task'}));return}const row=e.target.closest('[data-property-candidate]');if(row)openPropertyDetail620(Number(row.dataset.propertyCandidate))})}
+ window.__KAMIL_PROPERTY_PAGE1300__={healthy:true,candidates:m.rows.length,renderedCandidates:m.rows.length,best:best?{name:best.name,score:best.score,decision:best.decision.code}:null,decisionSurface:1334,directCandidates:true,at:Date.now()};
  return true;
 }
 export function renderPropertyPage1300(){return render()}
