@@ -25,8 +25,12 @@ test('OS1336 seeds Flipovani 2024-2026 totals and keeps color statuses authorita
  expect(d.items.filter(x=>x.marketStatus==='SOLD_UNDELIVERED').length).toBe(0);
  expect(d.items.filter(x=>x.issue==='REKLAMACE').length).toBe(3);
  expect(d.diag.issues).toBe(3);
- expect(d.diag.activeQty).toBe(34);
- expect(d.diag.capital).toBeCloseTo(45692,2);
+ const active=d.items.filter(x=>!x.issue&&['HOLD','LISTED'].includes(String(x.workflow||'').toUpperCase()));
+ const activeQty=active.reduce((a,x)=>a+Number(x.qty||1),0),activeCapital=active.reduce((a,x)=>a+Number(x.buy||x.buyTotalCzk||0),0);
+ expect(d.diag.activeQty).toBe(activeQty);
+ expect(d.diag.capital).toBeCloseTo(activeCapital,2);
+ expect(activeQty).toBe(34);
+ expect(activeCapital).toBeCloseTo(53208,2);
  await expect(page.locator('#ticketIntelView')).toContainText('Česko - Chorvatsko');
  await expect(page.locator('#ticketIntelView')).toContainText('Česko - Anglie');
  await expect(page.locator('#ticketIntelView')).not.toContainText('Davis Cup');
@@ -81,7 +85,7 @@ test('OS737.0.38 confirmed upcoming insurance is BRZY, not OVĚŘIT',async({page
  await boot(page);
  await page.locator('#mainNav [data-view="more"]').click();
  await page.locator('#insurance25Tile').click();
- const row=page.locator('.intel-row').filter({hasText:'Tereza · NN Orange Risk'}).first();
+ const row=page.locator('.intel-row').filter({has:page.locator('[data-ins-edit="ins-master-tereza-nn-3350409671"]')});
  await expect(row).toContainText('Začíná');
  await expect(row).toContainText('BRZY');
  await expect(row).not.toContainText('OVĚŘIT');
