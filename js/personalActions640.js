@@ -20,6 +20,7 @@ const minutesFor=v=>v.recordType==='bank-data'||v.recordType==='mortgage'?3:v.re
 const taskArea=x=>{const t=text(x);return FAMILY_RE.test(t)?'family':HOME_RE.test(t)?'home':MONEY_RE.test(t)?'money':'admin'};
 const bias=(s,area)=>String(s.personalSettings?.priorityArea||'none')===area?5:0;
 const belongsToday=d=>d===null||d<=0;
+const calendarScope640=e=>{const raw=text(e),area=taskArea(e);if(/dokument|doklad|smlouv/i.test(raw))return{route:'more',area:'admin'};if(area==='family')return{route:'family',area};if(area==='home')return{route:'home',area};if(area==='money')return{route:'money',area};return{route:'today',area:'admin'}};
 
 export function personalActions640(s=store.get()){
  const rows=[],vault=personalVault640(s);
@@ -39,8 +40,8 @@ export function personalActions640(s=store.get()){
   const d=daysTo(dueOf(a));if(!belongsToday(d))continue;push({id:`admin:${a.id}`,score:Math.max(55,dueScore(d)-4),title:a.title||a.name||'Osobní administrativa',why:`Administrativa · ${whenLabel(d)}`,next:'Vyřídit nebo doložit další krok.',minutes:5,kind:'admin',route:'today',area:taskArea(a)});
  }
  for(const e of (s.calendar?.events||[]).filter(personal)){
-  const d=daysTo(e.start||e.date||e.when);if(d!==0)continue;
-  push({id:`calendar:${e.id||e.title}`,score:112,title:e.title||e.summary||'Událost',why:'Kalendář · dnes',next:'Připravit se na událost.',minutes:5,kind:'calendar',route:'family',area:'family'});
+  const due=e.start||e.date||e.when,d=daysTo(due);if(d!==0)continue;const scope=calendarScope640(e);
+  push({id:`calendar:${e.id||e.title}`,score:112,title:e.title||e.summary||'Událost',why:'Kalendář · dnes',next:'Připravit se na událost.',minutes:5,kind:'calendar',route:scope.route,area:scope.area,due});
  }
  const seen=new Set(),ordered=rows.sort((a,b)=>b.score-a.score).filter(x=>{const k=x.title.toLocaleLowerCase('cs-CZ');if(seen.has(k))return false;seen.add(k);return true});
  return{top3:ordered.slice(0,3),all:ordered,urgent:ordered.filter(x=>x.score>=90),soon:ordered.filter(x=>x.score>=70&&x.score<90),waiting:ordered.filter(x=>x.kind==='waiting'),summary:ordered.length?`Dnes má smysl řešit ${Math.min(3,ordered.length)} věci.`:'Dnes nic osobního nehoří.'};

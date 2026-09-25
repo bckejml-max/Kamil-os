@@ -86,6 +86,7 @@ assert.match(insuranceMaster,/kamil-allianz-life/,'canonical insurance registry 
 assert.match(insuranceMaster,/vlasatice-pvzp-home/,'canonical insurance registry must include Vlasatice property insurance recovery');
 assert.match(personalAssistant,/insuranceCenter\(s\)/,'personal assistant must read insurance from canonical Insurance Center');
 assert.match(personalActions,/a\.category==='INSURANCE'/,'generic personal action engine must not duplicate canonical insurance actions');
+assert.match(personalActions,/calendarScope640/,'Today personal calendar priorities must route by actual area');
 
 assert.match(property,/data-property-candidate/,'Property shortlist must be clickable');
 assert.match(property,/openPropertyDetail620/);
