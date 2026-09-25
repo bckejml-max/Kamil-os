@@ -20,6 +20,7 @@ assert.match(index,/data-os1500="1"/,'OS1500 shell flag missing');
 assert.match(index,/os1400\.css[\s\S]*os1500\.css/,'OS1500 must load after OS1400');
 assert.match(runtime,/os1500\.css/,'runtime must know OS1500');
 assert.match(runtime,/appendChild\(os1500\)/,'OS1500 must remain the final canonical stylesheet');
+assert.doesNotMatch(runtime,/family:\['\.\/personal64\.css'|home:\['\.\/personal64\.css'|more:\['\.\/personal64\.css'/,'canonical personal views must not load legacy personal CSS');
 
 for(const route of ['inbox','work','tickets','money','property','betting','family','home','more']){
  assert.match(today,new RegExp("route:'"+route+"'"),'Today must expose '+route);
@@ -56,6 +57,7 @@ assert.match(app,/betting:'betting-task'/,'shell quick add must support betting'
 assert.match(runtime,/type==='betting-task'/,'runtime capture must preserve betting scope');
 assert.match(css,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important/,'mobile primary nav must expose all destinations without a hidden menu');
 assert.match(css,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/,'mobile primary nav must keep all ten destinations visible');
+assert.match(css,/font-size:8\.8px!important/,'mobile primary nav labels must remain readable');
 assert.match(sw,/os1500\.css/,'service worker must precache OS1500');
 
 console.log('OS1500 product usability guard PASS');
