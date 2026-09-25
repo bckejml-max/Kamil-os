@@ -82,6 +82,7 @@ test('OS737.0.26 clicking the active section exits advanced detail',async({page}
  await page.locator('#mainNav [data-view="money"]').click();
  await expect(page.locator('[data-money-overview]')).toBeVisible({timeout:10000});
  await expect(page.locator('#moneyView')).not.toHaveAttribute('data-product-advanced','1');
+ await expect.poll(()=>page.locator('link[data-upgrade610]').count(),{timeout:4000}).toBeGreaterThan(0);
  const order=await page.locator('link[rel="stylesheet"]').evaluateAll(links=>links.map(x=>x.getAttribute('href')));
  expect(order.at(-1)).toBe('./os1500.css');
 });
