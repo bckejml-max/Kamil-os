@@ -64,6 +64,7 @@ test('OS737.0.24 keeps superseded recovery insurance out of active attention',as
  await boot(page);
  await page.locator('#mainNav [data-view="more"]').click();
  await expect(page.locator('#view-more')).toHaveClass(/on/);
+ await expect(page.locator('[data-documents-page1500]')).toBeVisible({timeout:10000});
  const text=await page.locator('#moreView').innerText();
  expect(text).toContain('Nahrazeno registrem');
  expect(text).not.toContain('Najít novější platbu 574 Kč');
