@@ -51,7 +51,7 @@ for(const token of [
 if(!views.includes('ensureViewStyles'))fail('view-specific CSS must remain lazy');
 if(!views.includes("tickets:[]"))fail('Heavy Ticket styles must stay off the default simple view');
 
-for(const symbol of ['data-os2-today','data-product-home1300','data-os1400-home','os1400-focus','os1400-list','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today OS1400 missing ${symbol}`);
+for(const symbol of ['data-os2-today','data-product-home1300','data-os1400-home','os1600-attention','os1600-areas','os1400-list','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today product cockpit missing ${symbol}`);
 if(!app.includes("const input=qs('#commandInput')")||!app.includes('executeCommand41(v)'))fail('canonical command bar missing');
 if(!app.includes("import('./privateSnapshotImport1320.js')"))fail('private current-data importer wiring missing');
 if(!ticketOverview.includes("import('./ticketAdvanced100.js')"))fail('Advanced Ticket Desk must be explicit/on-demand from the simple overview');
