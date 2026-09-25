@@ -18,7 +18,7 @@ test('OS1400 presents one focused desktop cockpit',async({page})=>{
  await expect(page.locator('.os1400-grid')).toBeVisible();
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(diag.usabilityReset).toBe(1400);
- expect(diag.systemRows).toBe(5);
+ expect(diag.systemRows).toBe(9);
 });
 
 test('OS1400 keeps direct mobile destinations and stacks primary content',async({page})=>{
