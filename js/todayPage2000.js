@@ -51,12 +51,21 @@ function calendarRows(items){
 }
 function systemState(d){
  const workRisk=d.work.topRisks?.[0],best=d.property.best,ticketOpen=d.ticketTasks.length||d.activeTickets.length;
+ const area=x=>String(x?.area||x?.category||'').toLocaleLowerCase('cs-CZ');
+ const familyTasks=d.tasks.filter(x=>/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/.test(area(x)));
+ const homeTasks=d.tasks.filter(x=>/domov|d[uů]m|energie|servis|reviz|údržb|udrzb/.test(area(x)+' '+String(x?.title||'').toLocaleLowerCase('cs-CZ')));
+ const docIssues=(d.insurance?.policies||[]).filter(x=>x.status!=='OK').length;
+ const familySoon=(d.personal?.tomorrow||[]).length;
  return [
+  {route:'inbox',title:'Úkoly',detail:d.overdue.length?d.overdue.length+' po termínu':d.tasks.length?d.tasks.length+' otevřených položek':'Fronta je prázdná',side:d.overdue.length?d.overdue.length+' po term.':d.tasks.length?d.tasks.length+' otevř.':'čisto',tone:d.overdue.length?'bad':d.tasks.length?'warn':'good'},
   {route:'work',title:'Práce',detail:workRisk?workRisk.title:(d.work.status==='KLID'?'Bez akutního zásahu':'Otevřít pracovní přehled'),side:d.work.status,tone:d.work.status==='ZÁSAH'?'bad':d.work.status==='SLEDOVAT'?'warn':'good'},
   {route:'tickets',title:'Vstupenky',detail:d.transfer.length?d.transfer.length+' čeká na převod':d.ticketTasks[0]?.title||'Žádný urgentní transfer',side:ticketOpen?ticketOpen+' otevř.':'klid',tone:d.transfer.length?'bad':ticketOpen?'warn':'good'},
   {route:'money',title:'Peníze',detail:d.cash!==null?'Potvrzená volná hotovost':'Hotovost není potvrzená',side:d.cash!==null?money(d.cash):'doplnit',tone:d.cash!==null?'good':'warn'},
   {route:'property',title:'Reality',detail:best?best.name+' · '+best.decision.action:'Žádný kandidát v shortlistu',side:best?best.score+'/100':'—',tone:best?(best.decision.code==='PASS'?'bad':best.decision.code==='NEGOTIATE'?'warn':'good'):''},
-  {route:'betting',title:'Sázení',detail:d.bet.open?d.bet.open+' otevřených sázek':'Žádná otevřená sázka',side:d.bet.exposure?money(d.bet.exposure):'0 Kč',tone:d.bet.exposure?'warn':'good'}
+  {route:'betting',title:'Sázení',detail:d.bet.open?d.bet.open+' otevřených sázek':'Žádná otevřená sázka',side:d.bet.exposure?money(d.bet.exposure):'0 Kč',tone:d.bet.exposure?'warn':'good'},
+  {route:'family',title:'Rodina',detail:familySoon?'Nejbližší rodinná věc je zítra':familyTasks[0]?.title||'Žádný akutní rodinný úkol',side:familyTasks.length?familyTasks.length+' úkolů':'klid',tone:familySoon?'warn':familyTasks.length?'warn':'good'},
+  {route:'home',title:'Domov',detail:homeTasks[0]?.title||'Žádný akutní servis nebo úkol',side:homeTasks.length?homeTasks.length+' otevř.':'klid',tone:homeTasks.length?'warn':'good'},
+  {route:'more',title:'Dokumenty',detail:docIssues?docIssues+' pojistek / smluv k ověření':'Bez akutního problému',side:docIssues?docIssues+' řešit':'klid',tone:docIssues?'warn':'good'}
  ];
 }
 function systemRows(items){
@@ -90,7 +99,7 @@ function render(){
   '</div>'+
   '<div class="os1400-grid os1331-command-grid" data-os1331-command-grid>'+
    '<section class="os1400-card os1331-focus-stack"><div class="os1400-card-head"><h3>Další kroky</h3><span>podle naléhavosti</span></div>'+actionRows(rest)+'</section>'+
-   '<section class="os1400-card os1331-system-panel"><div class="os1400-card-head"><h3>Přehled OS</h3><span>5 oblastí</span></div>'+systemRows(system)+'</section>'+
+   '<section class="os1400-card os1331-system-panel"><div class="os1400-card-head"><h3>Přehled OS</h3><span>9 oblastí</span></div>'+systemRows(system)+'</section>'+
   '</div>'+
   (d.calendar.length?'<section class="os1400-card os1400-calendar"><div class="os1400-card-head"><h3>Nejbližší v kalendáři</h3><span>max. 3 události</span></div>'+calendarRows(d.calendar)+'</section>':'')+
   '<div style="display:flex;justify-content:flex-start"><button class="os1400-button" type="button" data-today1300-add>＋ Přidat úkol</button></div>'+
@@ -106,7 +115,7 @@ function render(){
    if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))
   })
  }
- window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1400,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
+ window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
  return true;
 }
 export function renderTodayPage2000(){return render()}
