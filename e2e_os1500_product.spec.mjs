@@ -363,3 +363,22 @@ test('OS737.0.53 Today shows sold-undelivered as transfer but not active invento
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(diag.ticketQty).toBe(2);
 });
+
+test('OS737.0.54 Today Inbox row excludes work tasks from personal task scope',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  store.mutate('test Today task scope',s=>{
+   s.tasks=[
+    {id:'personal-overdue',title:'Osobní po termínu',status:'OPEN',area:'Osobní',due:yesterday},
+    {id:'work-overdue',title:'Pracovní po termínu',status:'OPEN',area:'Práce',due:yesterday}
+   ];
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
+ const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
+ expect(diag.overdue).toBe(1);
+ await expect(page.locator('#todayView')).toContainText('Osobní po termínu');
+});
