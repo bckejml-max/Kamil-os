@@ -2,6 +2,8 @@ import {store} from './state.js';
 import {workCommandCenter440} from './workCommandCenter440.js';
 import {buildPropertyHub620} from './propertyHub620.js';
 import {personalDailyAssistant650} from './personalAssistant650.js';
+import {personalVault640} from './personalVault640.js';
+import {personalDaysTo650} from './personalDate650.js';
 import {insuranceCenter} from './insurance25.js';
 import {isPersonalScope527} from './personalScope527.js';
 import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
@@ -23,14 +25,16 @@ const tomorrowRoute=x=>{const raw=String(`${x?.area||''} ${x?.category||''} ${x?
 const actionAttr=x=>x?.insurance?`data-today1300-insurance="1"`:x?.personalId?`data-today1300-personal="${esc(x.personalId)}"`:x?.taskId?`data-today1300-task="${esc(x.taskId)}"`:`data-today1300-nav="${esc(x?.route||'today')}"`;
 const fmtDate=x=>{const t=ts(x);if(!t)return'bez termínu';return new Date(t).toLocaleDateString('cs-CZ',{day:'numeric',month:'short'})};
 const money=v=>Number.isFinite(Number(v))?`${Math.round(Number(v)).toLocaleString('cs-CZ')} Kč`:'—';
+const vaultArchived=x=>['ARCHIVED','CLOSED','DONE','RESOLVED'].includes(upper(x?.status?.code||x?.status?.label));
+const vaultEnding90=x=>{if(vaultArchived(x)||Number(x?.status?.severity||0)>0)return false;const d=personalDaysTo650(x?.noticeBy||x?.validUntil||x?.reviewAt||null);return d!==null&&d>=0&&d<=90};
 
 function betting(s=store.get()){let legacy={};try{legacy=JSON.parse(localStorage.getItem('kamil_betting_ledger_543')||'{}')}catch{}const canonical=s?.bettingLedger||{},useCanonical=canonical.updatedAt||Number(canonical.bankrollCzk||0)!==0||Number(canonical.unitCzk||0)!==0||(Array.isArray(canonical.bets)&&canonical.bets.length>0),bets=useCanonical?(Array.isArray(canonical.bets)?canonical.bets:[]):(Array.isArray(legacy?.bets)?legacy.bets:[]),active=bets.filter(x=>upper(x.status||'OPEN')==='OPEN'),tickets=active.reduce((a,x)=>a+Math.max(1,Number(x.ticketCount||1)),0);return{open:active.length,positions:active.length,tickets,exposure:active.reduce((a,x)=>a+Number(x.stakeCzk||0),0),bankroll:Number(useCanonical?canonical.bankrollCzk:legacy?.bankrollCzk||0)}}
 function baseData(){
  const s=store.get();
  const tasks=(s.tasks||[]).filter(open),personalTasks=tasks.filter(isPersonalScope527),ticketTasks=tasks.filter(x=>['TICKETS','VIAGOGO'].includes(upper(x?.area||x?.category))),waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[]),...(s.personalInbox?.items||[]).filter(x=>String(x?.bucket||'').toLowerCase()==='waiting')].filter(open),tickets=(s.ticketBook?.items||[]),calendar=(s.calendar?.events||[]).filter(open).filter(x=>{const t=ts(x);return t&&t>Date.now()-6*3600000}).sort((a,b)=>(ts(a)||Infinity)-(ts(b)||Infinity));
  const urgentTasks=[...tasks].sort((a,b)=>{const ao=isOverdue(a),bo=isOverdue(b);if(ao!==bo)return bo-ao;const pa=Number(a?.priority||a?.score||0),pb=Number(b?.priority||b?.score||0);if(pb!==pa)return pb-pa;return(ts(a)||Infinity)-(ts(b)||Infinity)});
- const overdue=personalTasks.filter(isOverdue),transfer=tickets.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(upper(x.market_status||x.workflow))),activeTickets=tickets.filter(x=>!x.issue&&!SOLD_TICKET_STATES.has(upper(x.market_status))&&!SOLD_TICKET_STATES.has(upper(x.workflow))),financePlan=s.financePlan||{},rawCash=financePlan.cashNow,cashPlanTouched=!!financePlan.updatedAt||[financePlan.cashNow,financePlan.expectedIncome,financePlan.reserveFloor,financePlan.plannedInvestment].some(v=>Number(v||0)!==0),cash=cashPlanTouched&&rawCash!==null&&rawCash!==undefined&&String(rawCash).trim()!==''&&Number.isFinite(Number(rawCash))?Number(rawCash):null,work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=betting(s),personal=personalDailyAssistant650(s),insurance=insuranceCenter(s);
- return{s,tasks,personalTasks,ticketTasks,waiting,tickets,activeTickets,transfer,calendar,urgentTasks,overdue,cash,work,property,bet,personal,insurance};
+ const overdue=personalTasks.filter(isOverdue),transfer=tickets.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(upper(x.market_status||x.workflow))),activeTickets=tickets.filter(x=>!x.issue&&!SOLD_TICKET_STATES.has(upper(x.market_status))&&!SOLD_TICKET_STATES.has(upper(x.workflow))),financePlan=s.financePlan||{},rawCash=financePlan.cashNow,cashPlanTouched=!!financePlan.updatedAt||[financePlan.cashNow,financePlan.expectedIncome,financePlan.reserveFloor,financePlan.plannedInvestment].some(v=>Number(v||0)!==0),cash=cashPlanTouched&&rawCash!==null&&rawCash!==undefined&&String(rawCash).trim()!==''&&Number.isFinite(Number(rawCash))?Number(rawCash):null,work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=betting(s),personal=personalDailyAssistant650(s),insurance=insuranceCenter(s),vault=personalVault640(s);
+ return{s,tasks,personalTasks,ticketTasks,waiting,tickets,activeTickets,transfer,calendar,urgentTasks,overdue,cash,work,property,bet,personal,insurance,vault};
 }
 function greeting(){const h=new Date().getHours();return h<11?'Dobré ráno':h<18?'Dobré odpoledne':'Dobrý večer'}
 function attention(d){
@@ -58,7 +62,7 @@ function systemState(d){
  const area=x=>String(x?.area||x?.category||'').toLocaleLowerCase('cs-CZ');
  const familyTasks=d.tasks.filter(x=>/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/.test(area(x)));
  const homeTasks=d.tasks.filter(x=>/domov|d[uů]m|energie|servis|reviz|údržb|udrzb/.test(area(x)+' '+String(x?.title||'').toLocaleLowerCase('cs-CZ')));
- const docIssues=d.insurance?.actionCount||0;
+ const docIssues=(d.vault?.action?.length||0)+(d.insurance?.actionCount||0),docEnding=(d.vault?.records||[]).filter(vaultEnding90).length;
  const familySoon=(d.personal?.tomorrow||[]).filter(x=>tomorrowRoute(x)==='family').length;
  return [
   {route:'inbox',title:'Úkoly',detail:d.overdue.length?d.overdue.length+' po termínu':d.personalTasks.length?d.personalTasks.length+' otevřených položek':'Fronta je prázdná',side:d.overdue.length?d.overdue.length+' po term.':d.personalTasks.length?d.personalTasks.length+' otevř.':'čisto',tone:d.overdue.length?'bad':d.personalTasks.length?'warn':'good'},
@@ -69,7 +73,7 @@ function systemState(d){
   {route:'betting',title:'Sázení',detail:d.bet.positions?d.bet.tickets+' tiketů v '+d.bet.positions+' pozicích':'Žádná otevřená pozice',side:d.bet.positions?d.bet.positions+' pozic':'klid',tone:d.bet.exposure?'warn':'good'},
   {route:'family',title:'Rodina',detail:familySoon?'Nejbližší rodinná věc je zítra':familyTasks[0]?.title||'Žádný akutní rodinný úkol',side:familySoon?familySoon+' zítra':familyTasks.length?familyTasks.length+' úkolů':'klid',tone:familySoon?'warn':familyTasks.length?'warn':'good'},
   {route:'home',title:'Domov',detail:homeTasks[0]?.title||'Žádný akutní servis nebo úkol',side:homeTasks.length?homeTasks.length+' otevř.':'klid',tone:homeTasks.length?'warn':'good'},
-  {route:'more',title:'Dokumenty',detail:docIssues?docIssues+' pojistek / smluv k ověření':'Bez akutního problému',side:docIssues?docIssues+' řešit':'klid',tone:docIssues?'warn':'good'}
+  {route:'more',title:'Dokumenty',detail:docIssues?docIssues+' dokumentů / pojistek k řešení':docEnding?docEnding+' dokumentů končí do 90 dní':'Bez akutního problému',side:docIssues?docIssues+' řešit':docEnding?docEnding+' končí':'klid',tone:docIssues?'bad':docEnding?'warn':'good'}
  ];
 }
 function systemRows(items){
