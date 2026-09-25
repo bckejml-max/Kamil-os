@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const read=p=>fs.readFileSync(p,'utf8');
+const mod=read('js/osAutomation2100.js'),docs=read('js/documentsPage141.js'),cmd=read('js/commandSearch610.js');
+assert.match(mod,/AUTOMATION_SUITE2100_VERSION='2100\.0\.0'/);
+assert.match(mod,/export const AUTOMATION_NAMES2100=\[/);
+assert.match(mod,/export const AUTOMATION_BUILDERS2100=\[/);
+assert.match(mod,/export function automationSuite2100/);
+assert.match(mod,/export function renderAutomationCenter2100/);
+for(let i=51;i<=100;i++)assert.match(mod,new RegExp('f\\('+i+','),'missing automation feature '+i);
+for(const token of ['Personal SLA Engine','Decision Journal','Data Provenance Graph','Scenario Lab','Realistic Day Planner','Morning Brief Generator','Autonomous Maintenance Mode'])assert.ok(mod.includes(token),'missing automation '+token);
+assert.match(docs,/data-doc1500-automation/,'Documents must expose Automation & Learning');
+assert.match(docs,/osAutomation2100\.js/,'Documents must lazy-load Automation & Learning');
+assert.match(cmd,/automation2100/,'Command search must deep-link to Automation & Learning');
+console.log('OS2100 second 50-upgrade automation guard PASS');
