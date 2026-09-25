@@ -1,3 +1,3 @@
-export const APP_VERSION='737.0.51';
-export const APP_RELEASE='737.0.51';
-// OS737.0.51: Money zero-value truth — confirmed 0 Kč remains a known value and no longer falls back to stale cash.
+export const APP_VERSION='737.0.52';
+export const APP_RELEASE='737.0.52';
+// OS737.0.52: Money detail zero-value truth — Wealth cockpit now distinguishes known 0 Kč from missing property/bank/investment data.
