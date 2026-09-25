@@ -25,8 +25,8 @@ test('OS1336 seeds Flipovani 2024-2026 totals and keeps color statuses authorita
  expect(d.items.filter(x=>x.marketStatus==='SOLD_UNDELIVERED').length).toBe(0);
  expect(d.items.filter(x=>x.issue==='REKLAMACE').length).toBe(3);
  expect(d.diag.issues).toBe(3);
- expect(d.diag.activeQty).toBe(26);
- expect(d.diag.capital).toBeCloseTo(41678,2);
+ expect(d.diag.activeQty).toBe(34);
+ expect(d.diag.capital).toBeCloseTo(45692,2);
  await expect(page.locator('#ticketIntelView')).toContainText('Česko - Chorvatsko');
  await expect(page.locator('#ticketIntelView')).toContainText('Česko - Anglie');
  await expect(page.locator('#ticketIntelView')).not.toContainText('Davis Cup');
