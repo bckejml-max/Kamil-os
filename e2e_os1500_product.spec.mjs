@@ -861,3 +861,23 @@ test('OS737.0.73 command search hides closed lifecycle rows and opens Insurance 
  });
  await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
 });
+
+test('OS737.0.74 Today priority queue deduplicates the same source',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const old=new Date(Date.now()-12*86400000).toISOString().slice(0,10);
+  store.mutate('test today source dedup',s=>{
+   s.tasks=[
+    {id:'dedup-task',title:'Duplicitní úkol test',status:'OPEN',area:'Osobní',due:old}
+   ];
+   s.delegations=[
+    {id:'dedup-wait',title:'Duplicitní čekání test',status:'OPEN',area:'Osobní',followUpAt:old}
+   ];
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
+ expect(await page.locator('#todayView .os1400-row').filter({hasText:'Duplicitní úkol test'}).count()).toBe(1);
+ expect(await page.locator('#todayView .os1400-row').filter({hasText:'Duplicitní čekání test'}).count()).toBe(1);
+});

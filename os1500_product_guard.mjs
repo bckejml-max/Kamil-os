@@ -59,6 +59,8 @@ assert.match(today,/usabilityReset:1500/);
 assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
 assert.match(today,/ticketState=ticketData1300\(s\)/,'Today Tickets must use canonical Ticket Overview state');
 assert.match(today,/inboxState=localInboxSummary660\(s\)/,'Today Tasks card must read canonical local Inbox state');
+assert.match(today,/sourceKey:/,'Today priority rows must carry source identity for deduplication');
+assert.match(today,/x\.sourceKey\|\|x\.personalId/,'Today queue must deduplicate by source identity before title/route');
 assert.match(today,/d\.inboxState\?\.counts\?\.total/,'Today Tasks status must mirror local Inbox counts');
 assert.match(today,/activeTicketQty=d\.ticketState\?\.p\?\.queue\?\.activeQty/,'Today ticket card must display canonical active quantity');
 assert.match(today,/ticketAlert=d\.ticketState\?\.attention\?\.\[0\]/,'Today ticket priority must use canonical Ticket attention');
