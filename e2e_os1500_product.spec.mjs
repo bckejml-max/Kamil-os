@@ -198,3 +198,28 @@ test('OS737.0.39 Documents top status includes Insurance Center actions',async({
  expect(diag.action).toBeGreaterThanOrEqual(diag.insuranceAction);
  await expect(page.locator('#moreView .pr1300-status')).not.toHaveText('klid');
 });
+
+test('OS737.0.42 Work excludes personal overdue tasks and personal waiting',async({page})=>{
+ await boot(page);
+ const model=await page.evaluate(async()=>{
+  const {workCommandCenter440}=await import('./js/workCommandCenter440.js');
+  const past=new Date(Date.now()-2*86400000).toISOString(),future=new Date(Date.now()+2*86400000).toISOString();
+  return workCommandCenter440({
+   projects:[{id:'p1',name:'Zakázka Test',status:'OPEN',owner:'Kamil',next:'Dokončit'}],
+   tasks:[
+    {id:'work-explicit',title:'Pracovní termín',status:'OPEN',area:'Práce',due:past},
+    {id:'work-project',title:'Projektový termín',status:'OPEN',projectId:'p1',due:past},
+    {id:'home-overdue',title:'Domácí termín',status:'OPEN',area:'Domov',due:past}
+   ],
+   delegations:[
+    {id:'work-wait',title:'Pracovní čekání',status:'OPEN',area:'Práce',followUpAt:future},
+    {id:'family-wait',title:'Rodinné čekání',status:'OPEN',area:'Rodina',followUpAt:future}
+   ],
+   directorBook:{waiting:[]},
+   recurringDuties:{}
+  });
+ });
+ expect(model.workTasks).toBe(2);
+ expect(model.overdue).toBe(2);
+ expect(model.waiting.map(x=>x.title)).toEqual(['Pracovní čekání']);
+});
