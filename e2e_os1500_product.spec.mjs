@@ -667,3 +667,27 @@ test('OS737.0.67 Today Home card matches canonical 30-day home timeline',async({
  await expect(card).toContainText(expected+' řešit');
  await expect(card).not.toContainText('klid');
 });
+
+test('OS737.0.68 Today Family card matches canonical 7-day Family state',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const in5=new Date(Date.now()+5*86400000).toISOString();
+  store.mutate('test Today Family parity',s=>{
+   s.tasks=[];
+   s.calendar={events:[{id:'family-five-68',title:'Rodinný termín za pět dní',area:'Rodina',status:'OPEN',start:in5}]};
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ const expected=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {familyData140}=await import('./js/familyPage140.js');
+  return familyData140(store.get()).due7;
+ });
+ expect(expected).toBe(1);
+ const card=page.locator('#todayView .os1600-area').filter({hasText:'Rodina'}).first();
+ await expect(card).toContainText('1 do 7 dní');
+ await expect(card).toContainText('Rodinný termín za pět dní');
+ await page.locator('#mainNav [data-view="family"]').click();
+ await expect(page.locator('[data-family-page1500] .pr1300-status')).toContainText('1 do 7 dní');
+});
