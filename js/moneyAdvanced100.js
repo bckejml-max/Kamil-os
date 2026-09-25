@@ -9,8 +9,9 @@ let backgroundScheduled=false,backgroundRunning=false,resumeBound=false;
 const OPTIONAL_STYLES=[['upgrade610','./upgrade610.css']];
 
 const moneyActive=()=>!!document.querySelector('#view-money.on');
+const moneyAdvancedActive=()=>moneyActive()&&document.querySelector('#moneyView')?.dataset.productAdvanced==='1';
 function ensureOptionalStyles(){
- if(!moneyActive())return;
+ if(!moneyAdvancedActive())return;
  for(const [key,href] of OPTIONAL_STYLES){
   if(document.querySelector(`link[data-${key}]`))continue;
   const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute(`data-${key}`,'1');document.head.appendChild(l)
@@ -18,8 +19,8 @@ function ensureOptionalStyles(){
 }
 
 async function safeImport(path,run){
- if(!moneyActive())return false;
- try{const mod=await import(path);if(!moneyActive())return false;await run(mod);return true}
+ if(!moneyAdvancedActive())return false;
+ try{const mod=await import(path);if(!moneyAdvancedActive())return false;await run(mod);return true}
  catch(error){console.warn(`[money100] optional ${path} failed`,error);return false}
 }
 
@@ -35,21 +36,21 @@ async function loadBackground(){
   ];
   let loaded=0;
   for(let i=0;i<jobs.length;i++){
-   if(!moneyActive())break;
+   if(!moneyAdvancedActive())break;
    const [path,run]=jobs[i];
    if(await safeImport(path,run))loaded++;
    if(i<jobs.length-1)await new Promise(resolve=>schedule1100(OWNER,`yield-${i}`,resolve,8,{pauseWhenHidden:true}));
   }
   const complete=loaded===jobs.length;
-  window.__KAMIL_MONEY100__={healthy:true,core:true,architecture:'stable-canonical',background:complete,backgroundLoaded:loaded,backgroundTotal:jobs.length,paused:!moneyActive(),deferred:['cashflow690','xtb383-394','recommendation162','os181'],runtimeOwner:OWNER,at:Date.now()};
+  window.__KAMIL_MONEY100__={healthy:true,core:true,architecture:'stable-canonical',background:complete,backgroundLoaded:loaded,backgroundTotal:jobs.length,paused:!moneyAdvancedActive(),deferred:['cashflow690','xtb383-394','recommendation162','os181'],runtimeOwner:OWNER,at:Date.now()};
   return complete;
  }finally{backgroundRunning=false}
 }
 
 function scheduleBackground(delay=250){
- if(backgroundScheduled||backgroundRunning||!moneyActive())return;
+ if(backgroundScheduled||backgroundRunning||!moneyAdvancedActive())return;
  backgroundScheduled=true;
- const queueOwned=()=>schedule1100(OWNER,'background',()=>{backgroundScheduled=false;if(moneyActive())void loadBackground()},0,{pauseWhenHidden:true});
+ const queueOwned=()=>schedule1100(OWNER,'background',()=>{backgroundScheduled=false;if(moneyAdvancedActive())void loadBackground()},0,{pauseWhenHidden:true});
  if('requestIdleCallback'in window)requestIdleCallback(queueOwned,{timeout:1800});else schedule1100(OWNER,'idle-fallback',queueOwned,delay,{pauseWhenHidden:true});
 }
 function bindResume(){

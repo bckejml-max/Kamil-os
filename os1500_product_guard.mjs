@@ -14,6 +14,7 @@ const tickets=read('js/ticketOverview.js');
 const ticketPortfolio=read('js/ticketPortfolio32.js');
 const money=read('js/moneyOverview.js');
 const moneyAdvanced=read('js/personalMoney640.js');
+const moneyAdvanced100=read('js/moneyAdvanced100.js');
 const insurance=read('js/insurance25.js');
 const insuranceUi=read('js/insuranceUi25.js');
 const vault=read('js/personalVault640.js');
@@ -96,6 +97,10 @@ assert.match(moneyAdvanced,/bankKnown=bankValues\.length>0/,'advanced Money must
 assert.match(moneyAdvanced,/x\.status\?\.code!=='ARCHIVED'&&x\.recordType!=='insurance'/,'advanced Money recurring list must hide archived recovery insurance');
 assert.match(moneyAdvanced,/insurance\.policies\.filter\(x=>x\.lifecycle==='ACTIVE'/,'advanced Money recurring list must source active insurance from Insurance Center');
 assert.match(moneyAdvanced,/openInsuranceCenter/,'Money insurance rows must open Insurance Center directly');
+assert.match(moneyAdvanced100,/moneyAdvancedActive=/,'advanced Money background work must be scoped to the advanced surface');
+assert.match(moneyAdvanced100,/dataset\.productAdvanced==='1'/,'advanced Money background work must stop after leaving advanced detail');
+assert.doesNotMatch(moneyAdvanced100,/function ensureOptionalStyles\(\)\{\s*if\(!moneyActive\(\)\)/,'advanced Money optional CSS must not load from the simple Money view');
+assert.match(commandSearch610,/insertBefore\(l,anchor\)/,'lazy command search CSS must stay below canonical product styles');
 assert.match(moneyAdvanced,/x\.cadence==='YEARLY'/,'Money recurring rows must preserve actual insurance payment cadence');
 assert.match(insurance,/activeCosts/,'Insurance Center must expose current insurance costs separately');
 assert.match(insurance,/upcomingCosts/,'Insurance Center must expose upcoming insurance costs separately');
