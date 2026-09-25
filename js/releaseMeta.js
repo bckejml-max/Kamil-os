@@ -1,3 +1,3 @@
-export const APP_VERSION='737.0.77';
-export const APP_RELEASE='737.0.77';
-// OS737.0.77: offline cold-start hardening — service worker recursively precaches static dependencies of critical JS modules.
+export const APP_VERSION='737.0.78';
+export const APP_RELEASE='737.0.78';
+// OS737.0.78: Property search deep-link — global search opens the exact active candidate detail instead of only the Reality section.
