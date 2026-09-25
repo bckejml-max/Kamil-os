@@ -11,7 +11,7 @@ import {insuranceCenter} from './insurance25.js';
 const OWNER='home.page1500';
 const openInsuranceCenter=()=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true})};
 const maintRe=/servis|reviz|filtr|čerpad|cerpad|rekuper|klima|kom[ií]n|zahrad|oprava|údržb|udrzb|stk/i;
-const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED']);
+const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','CANCELLED','CANCELED']);
 const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 function data(){
