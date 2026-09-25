@@ -58,6 +58,7 @@ assert.match(moneyAdvanced,/!x\.issue&&\['HOLD','LISTED'\]/,'advanced Money must
 assert.match(moneyAdvanced,/x\.status\?\.code!=='ARCHIVED'&&x\.recordType!=='insurance'/,'advanced Money recurring list must hide archived recovery insurance');
 assert.match(moneyAdvanced,/insurance\.policies\.filter\(x=>x\.lifecycle==='ACTIVE'/,'advanced Money recurring list must source active insurance from Insurance Center');
 assert.match(moneyAdvanced,/openInsuranceCenter/,'Money insurance rows must open Insurance Center directly');
+assert.match(moneyAdvanced,/x\.cadence==='YEARLY'/,'Money recurring rows must preserve actual insurance payment cadence');
 assert.match(insurance,/activeCosts/,'Insurance Center must expose current insurance costs separately');
 assert.match(insurance,/upcomingCosts/,'Insurance Center must expose upcoming insurance costs separately');
 assert.match(vault,/SUPERSEDED_INSURANCE_RECOVERY_640/,'superseded recovery insurance must be archived once canonical insurance registry exists');
