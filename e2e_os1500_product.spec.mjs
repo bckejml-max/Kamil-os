@@ -515,3 +515,31 @@ test('OS737.0.60 Today personal calendar priorities keep their area',async({page
  expect(out['calendar:today-money']).toMatchObject({route:'money',area:'money'});
  expect(out['calendar:today-personal']).toMatchObject({route:'today',area:'admin'});
 });
+
+test('OS737.0.61 cancelled calendar events disappear from active personal surfaces',async({page})=>{
+ await boot(page);
+ const out=await page.evaluate(async()=>{
+  const {localInboxSummary660}=await import('./js/inboxHub660.js');
+  const {personalActions640}=await import('./js/personalActions640.js');
+  const {personalDailyAssistant650}=await import('./js/personalAssistant650.js');
+  const today=new Date().toISOString();
+  const tomorrow=new Date(Date.now()+86400000).toISOString();
+  const s={
+   tasks:[],delegations:[],personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{},
+   calendar:{events:[
+    {id:'active-cal',title:'Aktivní osobní termín',area:'Osobní',status:'ACTIVE',start:tomorrow},
+    {id:'cancelled-cal',title:'Zrušený osobní termín',area:'Osobní',status:'CANCELLED',start:today}
+   ]}
+  };
+  return {
+   inbox:localInboxSummary660(s).rows.map(x=>x.sourceId),
+   actions:personalActions640(s).all.map(x=>x.id),
+   next7:personalDailyAssistant650(s).next7.map(x=>x.id)
+  };
+ });
+ expect(out.inbox).toContain('active-cal');
+ expect(out.inbox).not.toContain('cancelled-cal');
+ expect(out.actions).not.toContain('calendar:cancelled-cal');
+ expect(out.next7).toContain('active-cal');
+ expect(out.next7).not.toContain('cancelled-cal');
+});
