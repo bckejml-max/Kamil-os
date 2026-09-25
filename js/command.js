@@ -24,6 +24,20 @@ const personalTask=isPersonalScope527;
 const taskTarget=t=>{const area=norm(t?.area||t?.category||'');if(area.includes('prace')||area.includes('zakaz'))return'work';if(area.includes('realit')||area.includes('byt'))return'property';if(area.includes('vstup')||area.includes('ticket')||area.includes('viagogo'))return'tickets';if(area.includes('saz')||area.includes('betting'))return'betting';if(area.includes('rodin'))return'family';if(area.includes('domov')||area==='home')return'home';if(area.includes('peniz')||area.includes('finance')||area==='money')return'money';if(area.includes('dokument'))return'more';return'inbox'};
 const homeModeFor=x=>x.category==='INSURANCE'?'insurance':x.category==='DOCUMENT'?'documents':x.category==='VEHICLE'?'car':x.category==='FAMILY'?'family':['HOME','UTILITY'].includes(x.category)?'house':['SUBSCRIPTION','LOAN','FEE'].includes(x.category)?'contracts':x.category==='PAYMENT'?'payments':'contracts';
 const WRITE_TYPES=new Set(copilotWrite32Contract.knownWriteTypes);
+function inferredTaskArea(text){
+ const n=norm(text);
+ const rules=[
+  ['Práce',/(zakaz|prace|pracovni|faktur|stavb|projekt|predan|dsps|reviz|trafo)/],
+  ['Vstupenky',/(vstup|ticket|viagogo|listek|listk|transfer|payout)/],
+  ['Reality',/(realit|byt|najem|nemovit|hypotecni byt)/],
+  ['Sázení',/(saz|bet|kurz|tip)/],
+  ['Rodina',/(rodin|dcera|dite|manzel|maminka|tatinek)/],
+  ['Domov',/(domov|dum|servis|energie|plyn|elektr|udrzb)/],
+  ['Dokumenty',/(dokument|smlouv|pojist|doklad)/],
+  ['Peníze',/(peniz|finance|banka|spor|invest|hypot|cash)/]
+ ];
+ return rules.find(([,re])=>re.test(n))?.[0]||'Osobní';
+}
 
 export function search(q){
  q=norm(q);if(!q)return[];const out=[],add=(kind,title,detail,target,id,extra={})=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,...extra})};
@@ -73,6 +87,7 @@ export function execute(raw){
  if(WRITE_TYPES.has(c.type)){confirmKnownWrite(c);return}
  const answer=personalQuery(c.text,S(),store.meta(),new Date());if(answer){window.dispatchEvent(new CustomEvent('kamil:copilot-answer',{detail:answer}));return}
  const found=search(c.text);if(found.length===1){openResult(found[0]);return}if(found.length>1){renderResults(c.text);toast('Našel jsem více osobních výsledků – vyber správný.');return}
- modal('Náhled změny',`<p><b>Vytvořit osobní úkol:</b> ${h(c.text)}</p><p class="muted">Příkazu nerozumím jako známé akci. Nic jsem nezapsal. Pokud potvrzuješ, vytvořím pouze tento osobní úkol.</p>`,[{label:'Zrušit',value:false},{label:'Potvrdit vytvoření úkolu',value:true,primary:true}]).then(ok=>{if(!ok)return;once(`unknown-task|${norm(c.text)}`,()=>store.mutate('Přidán osobní úkol z Command Baru',s=>s.tasks.unshift({id:uid('task'),title:c.text,status:'OPEN',priority:'NORMAL',area:'Osobní',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})));toast('Osobní úkol přidán')});
+ const area=inferredTaskArea(c.text);
+ modal('Připravit úkol',`<p><b>${h(c.text)}</b></p><div class="row"><span>Zařadit do</span><b>${h(area)}</b></div><p class="muted">Text není známý příkaz ani jednoznačný existující záznam. Nic se nezapíše bez potvrzení.</p>`,[{label:'Zrušit',value:false},{label:'Vytvořit úkol',value:true,primary:true}]).then(ok=>{if(!ok)return;once(`unknown-task|${norm(c.text)}`,()=>store.mutate(`Přidán úkol z Command Baru · ${area}`,s=>{s.tasks=Array.isArray(s.tasks)?s.tasks:[];s.tasks.unshift({id:uid('task'),title:c.text,status:'OPEN',priority:'NORMAL',area,category:area,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})}));toast(`Úkol přidán · ${area}`) });
 }
-export function renderResults(q){const box=qs('#commandResults');if(!q.trim()){box.classList.add('hidden');box.innerHTML='';return}const answer=personalQuery(q,S(),store.meta(),new Date());if(answer){box.classList.remove('hidden');box.innerHTML=`<div class="search-row"><div><b>${h(answer.title)}</b><div class="muted">Osobní copilot · odpověď z uložených dat</div></div><button class="btn" id="commandCopilot29">Zobrazit</button></div>`;qs('#commandCopilot29',box)?.addEventListener('click',()=>{window.dispatchEvent(new CustomEvent('kamil:copilot-answer',{detail:answer}));box.classList.add('hidden')});return}const a=search(q);if(!a.length){box.classList.add('hidden');box.innerHTML='';return}box.classList.remove('hidden');box.innerHTML=a.map((x,i)=>`<div class="search-row"><div><b>${h(x.title)}</b><div class="muted">${h(x.kind)} · ${h(x.detail||'')}</div></div><button class="btn" data-search="${i}">Otevřít</button></div>`).join('');qsa('[data-search]',box).forEach(b=>b.onclick=()=>{openResult(a[Number(b.dataset.search)]);box.classList.add('hidden')})}
+export function renderResults(q){const box=qs('#commandResults');if(!q.trim()){box.classList.add('hidden');box.innerHTML='';return}const answer=personalQuery(q,S(),store.meta(),new Date());if(answer){box.classList.remove('hidden');box.innerHTML=`<div class="search-row"><div><b>${h(answer.title)}</b><div class="muted">Osobní copilot · odpověď z uložených dat</div></div><button class="btn" id="commandCopilot29">Zobrazit</button></div>`;qs('#commandCopilot29',box)?.addEventListener('click',()=>{window.dispatchEvent(new CustomEvent('kamil:copilot-answer',{detail:answer}));box.classList.add('hidden')});return}const a=search(q);if(!a.length){const area=inferredTaskArea(q);box.classList.remove('hidden');box.innerHTML=`<div class="search-row"><div><b>Vytvořit úkol</b><div class="muted">${h(area)} · ${h(q)}</div></div><button class="btn" data-command-create-task>Připravit</button></div>`;qs('[data-command-create-task]',box)?.addEventListener('click',()=>{box.classList.add('hidden');execute(q)});return}box.classList.remove('hidden');box.innerHTML=a.map((x,i)=>`<div class="search-row"><div><b>${h(x.title)}</b><div class="muted">${h(x.kind)} · ${h(x.detail||'')}</div></div><button class="btn" data-search="${i}">Otevřít</button></div>`).join('');qsa('[data-search]',box).forEach(b=>b.onclick=()=>{openResult(a[Number(b.dataset.search)]);box.classList.add('hidden')})}
