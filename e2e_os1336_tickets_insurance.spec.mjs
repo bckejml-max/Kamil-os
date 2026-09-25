@@ -25,6 +25,11 @@ test('OS1336 seeds Flipovani 2024-2026 totals and keeps color statuses authorita
  expect(d.items.filter(x=>x.marketStatus==='SOLD_UNDELIVERED').length).toBe(0);
  expect(d.items.filter(x=>x.issue==='REKLAMACE').length).toBe(3);
  expect(d.diag.issues).toBe(3);
+ expect(d.diag.activeQty).toBe(26);
+ expect(d.diag.capital).toBeCloseTo(41678,2);
+ await expect(page.locator('#ticketIntelView')).toContainText('Česko - Chorvatsko');
+ await expect(page.locator('#ticketIntelView')).toContainText('Česko - Anglie');
+ await expect(page.locator('#ticketIntelView')).not.toContainText('Davis Cup');
 });
 test('OS1336 Insurance Center separates active upcoming terminating offers and history',async({page})=>{
  await boot(page);
@@ -47,4 +52,14 @@ test('OS1336 Insurance Center separates active upcoming terminating offers and h
  await page.locator('#insuranceBack25').click();
  await expect(page.locator('#moreView [data-documents-page1500]')).toBeVisible();
  await expect(page.locator('#insurance25Tile')).toBeVisible();
+});
+
+test('OS737.0.24 keeps superseded recovery insurance out of active attention',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="more"]').click();
+ await expect(page.locator('#view-more')).toHaveClass(/on/);
+ const text=await page.locator('#moreView').innerText();
+ expect(text).toContain('Nahrazeno registrem');
+ expect(text).not.toContain('Najít novější platbu 574 Kč');
+ expect(text).not.toContain('Najít aktuální zelenou kartu nebo poslední zaplacené pojistné');
 });
