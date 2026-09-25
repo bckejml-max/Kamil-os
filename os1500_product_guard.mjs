@@ -74,6 +74,7 @@ assert.match(personalAssistant,/insuranceCenter\(s\)/,'personal assistant must r
 assert.match(property,/data-property-candidate/,'Property shortlist must be clickable');
 assert.match(property,/openPropertyDetail620/);
 assert.match(propertyHub,/export function openPropertyDetail620/);
+assert.match(propertyHub,/filter\(isActivePropertyCandidate472\)/,'Property Hub must exclude explicitly closed candidates from the active shortlist');
 
 assert.match(betting,/data-betting-open-index/,'Open bets must be directly inspectable');
 assert.match(betting,/openTickets=open\.reduce/,'Betting must distinguish ticket count from aggregated positions');
