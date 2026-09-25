@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const read=p=>fs.readFileSync(p,'utf8');
+const upgrades=read('js/osUpgrades2050.js'),docs=read('js/documentsPage141.js'),cmd=read('js/commandSearch610.js');
+assert.match(upgrades,/UPGRADE_SUITE2050_VERSION='2050\.0\.0'/);
+assert.match(upgrades,/export const UPGRADE_NAMES2050=\[/);
+assert.match(upgrades,/export const UPGRADE_BUILDERS2050=\[/);
+assert.match(upgrades,/export function upgradeSuite2050/);
+assert.match(upgrades,/export function renderUpgradeCenter2050/);
+for(let i=1;i<=50;i++)assert.match(upgrades,new RegExp('feature\\('+i+','),'missing upgrade feature '+i);
+for(const token of ['Global Action Queue 2.0','Cash Parking Optimizer','Property Deal Room','Ticket Mistake Guard','Work Project Command Center','Weekly CEO View','OS Self-Audit 2.0'])assert.ok(upgrades.includes(token),'missing upgrade '+token);
+assert.match(docs,/data-doc1500-upgrades/,'Documents must expose OS Intelligence');
+assert.match(docs,/osUpgrades2050\.js/,'Documents must lazy-load OS Intelligence');
+assert.match(cmd,/upgrades2050/,'Command search must deep-link to OS Intelligence');
+console.log('OS2050 50-upgrade intelligence guard PASS');
