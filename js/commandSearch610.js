@@ -59,8 +59,8 @@ export function executeExtendedCommand610(raw){
 }
 export function installCommandSearch610(){
  const anchor=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>{const h=x.getAttribute('href')||'';return h==='./productReset1300.css'||x.href.endsWith('/productReset1300.css')})||null;
- const existing=document.querySelector('link[data-upgrade610-css]');
- if(existing){if(anchor&&existing.nextSibling!==anchor)document.head.insertBefore(existing,anchor);return true}
+ const existing=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>{const h=x.getAttribute('href')||'';return h==='./upgrade610.css'||x.href.endsWith('/upgrade610.css')})||null;
+ if(existing){existing.dataset.upgrade610Css='1';if(anchor&&existing.nextSibling!==anchor)document.head.insertBefore(existing,anchor);return true}
  const l=document.createElement('link');l.rel='stylesheet';l.href='./upgrade610.css';l.dataset.upgrade610Css='1';
  if(anchor)document.head.insertBefore(l,anchor);else document.head.appendChild(l);
  return true

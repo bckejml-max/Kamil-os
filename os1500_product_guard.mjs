@@ -101,6 +101,8 @@ assert.match(moneyAdvanced100,/moneyAdvancedActive=/,'advanced Money background 
 assert.match(moneyAdvanced100,/dataset\.productAdvanced==='1'/,'advanced Money background work must stop after leaving advanced detail');
 assert.doesNotMatch(moneyAdvanced100,/function ensureOptionalStyles\(\)\{\s*if\(!moneyActive\(\)\)/,'advanced Money optional CSS must not load from the simple Money view');
 assert.match(commandSearch610,/insertBefore\(l,anchor\)/,'lazy command search CSS must stay below canonical product styles');
+assert.match(commandSearch610,/href\.endsWith\('\/upgrade610\.css'\)/,'command search must reuse an already-loaded upgrade610 stylesheet regardless of marker');
+assert.match(moneyAdvanced100,/if\(backgroundRunning\|\|!moneyAdvancedActive\(\)\)return false/,'advanced Money background loader must refuse to start after advanced exit');
 assert.match(moneyAdvanced,/x\.cadence==='YEARLY'/,'Money recurring rows must preserve actual insurance payment cadence');
 assert.match(insurance,/activeCosts/,'Insurance Center must expose current insurance costs separately');
 assert.match(insurance,/upcomingCosts/,'Insurance Center must expose upcoming insurance costs separately');

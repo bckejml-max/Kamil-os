@@ -25,7 +25,7 @@ async function safeImport(path,run){
 }
 
 async function loadBackground(){
- if(backgroundRunning||!moneyActive())return false;
+ if(backgroundRunning||!moneyAdvancedActive())return false;
  backgroundRunning=true;
  try{
   ensureOptionalStyles();
