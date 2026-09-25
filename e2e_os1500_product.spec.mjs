@@ -614,3 +614,31 @@ test('OS737.0.65 money event tomorrow does not become a Family priority',async({
  await expect(familyArea).not.toContainText('Nejbližší rodinná věc je zítra');
  await expect(familyArea).toContainText('klid');
 });
+
+test('OS737.0.66 Today Documents card matches canonical action total',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const now=new Date().toISOString();
+  store.mutate('test Documents action parity',s=>{
+   s.personalVault={version:1,evidence:[],items:[{
+    id:'doc-action-66',title:'Doklad k ověření 66',section:'documents',recordType:'document',
+    confidence:10,confidenceLabel:'OVĚŘIT',sourceLabel:'test',nextAction:'Ověřit doklad',createdAt:now,updatedAt:now
+   }]};
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ const expected=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {personalVault640}=await import('./js/personalVault640.js');
+  const {insuranceCenter}=await import('./js/insurance25.js');
+  const s=store.get();
+  return personalVault640(s).action.length+insuranceCenter(s).actionCount;
+ });
+ expect(expected).toBeGreaterThan(0);
+ const card=page.locator('#todayView .os1600-area').filter({hasText:'Dokumenty'}).first();
+ await expect(card).toContainText(expected+' řešit');
+ await page.locator('#mainNav [data-view="more"]').click();
+ const doc=await page.evaluate(()=>window.__KAMIL_DOCUMENTS141__);
+ expect(doc.action).toBe(expected);
+});
