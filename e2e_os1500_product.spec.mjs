@@ -156,3 +156,14 @@ test('OS737.0.33 insurance cards deep-link to Insurance Center',async({page})=>{
  await page.locator('[data-money-insurance]').first().click();
  await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
 });
+
+test('OS737.0.34 recurring insurance rows show actual payment cadence',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="money"]').click();
+ await page.locator('[data-money-advanced]').click();
+ const recurring=page.locator('[data-money-group="recurring"]');
+ await expect(recurring).toContainText('Fiat Croma · Auto & pohoda');
+ await expect(recurring).toContainText('3 868 Kč/rok');
+ await expect(recurring).toContainText('Kamil · Allianz ŽIVOT');
+ await expect(recurring).toContainText('915 Kč/měs.');
+});
