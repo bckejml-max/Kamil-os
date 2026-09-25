@@ -23,22 +23,25 @@ export function searchExtended610(raw){
  return out.slice(0,15)
 }
 function navIntent(raw){const q=norm(raw);const map=[
- [['dnes 2.0','dnes 2','today 2.0','today 2','co mám dnes udělat','co mam dnes udelat','co dnes udělat','co dnes udelat','hlavní priorita','hlavni priorita','co je dnes priorita'],['today',null]],
- [['inbox 2.0','inbox 2','central inbox','centrální inbox','centralni inbox','co je v inboxu','co mě čeká v inboxu','co me ceka v inboxu'],['inbox','inbox-hub']],
+ [['dnes','today','dnes 2.0','dnes 2','today 2.0','today 2','co mám dnes udělat','co mam dnes udelat','co dnes udělat','co dnes udelat','hlavní priorita','hlavni priorita','co je dnes priorita','co hoří','co hori','co teď hoří','co ted hori','co řešit','co resit'],['today',null]],
+ [['úkoly','ukoly','inbox','inbox 2.0','inbox 2','central inbox','centrální inbox','centralni inbox','co je v inboxu','co mě čeká v inboxu','co me ceka v inboxu'],['inbox','inbox-hub']],
  [['waiting center 2.0','waiting center 2','waiting center','čekání 2.0','cekani 2.0','čekání 2','cekani 2','na koho čekám','na koho cekam','co čekám','co cekam','follow-upy','follow upy','koho urgovat','co urgovat'],['inbox','waiting-center']],
  [['co musím odpovědět','co musim odpovedet','komu odpovědět','komu odpovedet','co odepsat','na co odpovědět','na co odpovedet'],['inbox','inbox-reply']],
  [['co musím zaplatit','co musim zaplatit','co zaplatit','jaké platby čekají','jake platby cekaji'],['inbox','inbox-pay']],
  [['jaké mám termíny','jake mam terminy','co má termín','co ma termin','blížící termíny','blizici terminy'],['inbox','inbox-deadline']],
  [['jaké dokumenty řešit','jake dokumenty resit','co doložit','co dolozit','co podepsat','dokumenty k vyřízení','dokumenty k vyrizeni'],['inbox','inbox-document']],
  [['cashflow 2.0','cashflow 2','cash flow 2.0','cash flow 2','cashflow forecast','výhled cashflow','vyhled cashflow','výhled peněz','vyhled penez','kolik budu mít za 7 dní','kolik budu mit za 7 dni','kolik budu mít za 30 dní','kolik budu mit za 30 dni','kolik budu mít za 90 dní','kolik budu mit za 90 dni','co mi přijde na účet','co mi prijde na ucet','co mi odejde z účtu','co mi odejde z uctu'],['money',null]],
- [['money 2.0','money 2','peníze 2.0','penize 2.0','peníze 2','penize 2','finance 2.0','finance 2','moje finance','kolik mám peněz','kolik mam penez','kolik mám volného cash','kolik mam volneho cash','co mám ve financích','co mam ve financich'],['money',null]],
- [['ukaž reality','ukaz reality','ukaž byty','ukaz byty','investiční byty','investicni byty','reality 2.0','reality 2','property hub','porovnej byty','srovnej byty'],['property',null]],
+ [['peníze','penize','finance','money','money 2.0','money 2','peníze 2.0','penize 2.0','peníze 2','penize 2','finance 2.0','finance 2','moje finance','kolik mám peněz','kolik mam penez','kolik mám volného cash','kolik mam volneho cash','co mám ve financích','co mam ve financich'],['money',null]],
+ [['reality','byty','ukaž reality','ukaz reality','ukaž byty','ukaz byty','investiční byty','investicni byty','reality 2.0','reality 2','property hub','porovnej byty','srovnej byty'],['property',null]],
  [['hypoteční scénáře','hypotecni scenare','financování bytu','financovani bytu'],['property',null]],
  [['historie majetku','net worth historie','vývoj majetku','vyvoj majetku'],['money','wealth-history']],
- [['vstupenky 2.0','vstupenky 2','tickets 2.0','tickets 2','ticket command center','co koupit vstupenky','co koupit dnes','co zlevnit vstupenky','co prodat vstupenky','volný kapitál vstupenky','volny kapital vstupenky'],['tickets',null]],
+ [['vstupenky','tickety','tickets','viagogo','vstupenky 2.0','vstupenky 2','tickets 2.0','tickets 2','ticket command center','co koupit vstupenky','co koupit dnes','co zlevnit vstupenky','co prodat vstupenky','volný kapitál vstupenky','volny kapital vstupenky'],['tickets',null]],
  [['ticket risk','riziko vstupenek','exposure vstupenek'],['tickets',null]],
- [['rodinný týden','rodinny tyden','family hub'],['family',null]],
- [['sázky 2.0','sazky 2.0','sázky 2','sazky 2','betting 2.0','betting 2','betting command center','co vsadit','co mám vsadit','co mam vsadit'],['betting',null]]
+ [['rodina','family','rodinný týden','rodinny tyden','family hub'],['family',null]],
+ [['práce','prace','zakázky','zakazky','work'],['work',null]],
+ [['domov','dům','dum','home'],['home',null]],
+ [['dokumenty','pojistky','pojištění','pojisteni','smlouvy'],['more',null]],
+ [['sázky','sazky','betting','sázky 2.0','sazky 2.0','sázky 2','sazky 2','betting 2.0','betting 2','betting command center','co vsadit','co mám vsadit','co mam vsadit'],['betting',null]]
  ];
  for(const [terms,target] of map)if(terms.includes(q))return{target:target[0],focus:target[1]};return null
 }
