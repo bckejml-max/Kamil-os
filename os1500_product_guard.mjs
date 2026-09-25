@@ -33,6 +33,8 @@ for(const route of ['inbox','work','tickets','money','property','betting','famil
 }
 assert.match(today,/9 oblastí/,'Today must show all nine product areas');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
 assert.match(today,/usabilityReset:1500/);
+assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
+assert.match(app,/x=>!x\.issue&&\['HOLD','LISTED'\]/,'quick shell must exclude disputed tickets from active count');
 
 assert.match(work,/data-work1300-risk/);
 assert.match(work,/data-work1300-project/);
