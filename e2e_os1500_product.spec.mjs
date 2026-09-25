@@ -54,3 +54,20 @@ test('OS1500 mobile keeps all ten destinations visible in two rows',async({page}
  await last.click();
  await expect(page.locator('[data-documents-page1500]')).toBeVisible();
 });
+
+test('OS737.0.25 restores canonical stylesheet order after advanced surfaces',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('[data-money-overview]')).toBeVisible({timeout:10000});
+ await page.locator('[data-money-advanced]').click();
+ await expect.poll(()=>page.locator('link[data-product-advanced]').count(),{timeout:10000}).toBeGreaterThan(0);
+ await page.locator('#mainNav [data-view="today"]').click();
+ await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
+ const order=await page.locator('link[rel="stylesheet"]').evaluateAll(links=>links.map(x=>x.getAttribute('href')));
+ const canonical=['./productReset1300.css','./os1400.css','./os1500.css'].map(x=>order.lastIndexOf(x));
+ expect(canonical[0]).toBeGreaterThan(-1);
+ expect(canonical[0]).toBeLessThan(canonical[1]);
+ expect(canonical[1]).toBeLessThan(canonical[2]);
+ expect(canonical[2]).toBe(order.length-1);
+});
