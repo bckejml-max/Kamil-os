@@ -8,6 +8,11 @@ const num=v=>Number.isFinite(Number(v))?Number(v):null;
 const asDate=v=>v instanceof Date?v:new Date(v);
 const daysUntil=(a,b=Date.now())=>personalDaysTo650(a,asDate(b));
 const daysBetween=(a,b=Date.now())=>{const d=personalDaysTo650(a,asDate(b));return d===null?null:-d};
+const SUPERSEDED_INSURANCE_RECOVERY_640=new Map([
+ ['recovered-life-tereza-nn','Aktuální stav Terezy je vedený v Insurance Center: nová NN smlouva a ukončované starší smlouvy.'],
+ ['recovered-auto-insurance','Aktuální autopojištění je vedené v Insurance Center samostatně pro jednotlivá vozidla.']
+]);
+const supersededInsurance640=(v,s)=>String(s?.personalAdmin?.insuranceMasterId||'').startsWith('insurance-registry-')?SUPERSEDED_INSURANCE_RECOVERY_640.get(v?.id)||null:null;
 
 const META={
  'recovered-home-insurance-2026':{section:'home',recordType:'insurance',title:'Pojištění domu Vlasatice',provider:'PVZP',annualAmount:2600,reviewAt:'2027-03-25',sourceLabel:'Archivní návrh pojistné smlouvy',nextAction:'Potvrdit, že smlouva je stále aktivní a kryje současný stav rekonstrukce.',freshnessDays:365},
@@ -73,12 +78,12 @@ export function vaultRecordStatus640(record,evidence=null,now=Date.now()){
 
 export function personalVault640(s=store.get()){
  const items=Array.isArray(s.personalVault?.items)&&s.personalVault.items.length?s.personalVault.items:buildRecoveryVaultSeed640(s),emap=evidenceMap(s);
- const records=items.map(v=>({...v,status:vaultRecordStatus640(v,emap.get(v.id))}));
- const action=records.filter(v=>v.status.severity>0).sort((a,b)=>b.status.severity-a.status.severity);
- const coverage=records.length?Math.round(records.reduce((a,v)=>a+v.status.effectiveConfidence,0)/records.length):0;
- const monthlyKnown=records.reduce((a,v)=>a+(num(v.monthlyAmount)||0)+(num(v.annualAmount)||0)/12,0);
- const annualKnown=records.reduce((a,v)=>a+(num(v.annualAmount)||0)+(num(v.monthlyAmount)||0)*12,0);
- const insurance=records.filter(v=>v.recordType==='insurance');
+ const records=items.map(v=>{const base=vaultRecordStatus640(v,emap.get(v.id)),superseded=supersededInsurance640(v,s);return superseded?{...v,nextAction:'Aktuální stav otevři v Pojištění.',supersededBy:'insurance-registry',status:{...base,code:'ARCHIVED',label:'Nahrazeno registrem',severity:0,detail:superseded}}:{...v,status:base}});
+ const action=records.filter(v=>v.status.severity>0).sort((a,b)=>b.status.severity-a.status.severity),live=records.filter(v=>v.status.code!=='ARCHIVED');
+ const coverage=live.length?Math.round(live.reduce((a,v)=>a+v.status.effectiveConfidence,0)/live.length):0;
+ const monthlyKnown=live.reduce((a,v)=>a+(num(v.monthlyAmount)||0)+(num(v.annualAmount)||0)/12,0);
+ const annualKnown=live.reduce((a,v)=>a+(num(v.annualAmount)||0)+(num(v.monthlyAmount)||0)*12,0);
+ const insurance=live.filter(v=>v.recordType==='insurance');
  const insuranceAnnual=insurance.reduce((a,v)=>a+(num(v.annualAmount)||0)+(num(v.monthlyAmount)||0)*12,0);
  return{records,action,coverage,monthlyKnown,annualKnown,insurance,insuranceAnnual,evidence:emap,cloudReady:s.meta?.cloudMode==='cloud',summary:`${records.length} osobních záznamů · pokrytí ${coverage}%`};
 }
