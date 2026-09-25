@@ -881,3 +881,31 @@ test('OS737.0.74 Today priority queue deduplicates the same source',async({page}
  expect(await page.locator('#todayView .os1400-row').filter({hasText:'Duplicitní úkol test'}).count()).toBe(1);
  expect(await page.locator('#todayView .os1400-row').filter({hasText:'Duplicitní čekání test'}).count()).toBe(1);
 });
+
+test('OS737.0.75 Betting header and diagnostics show current open state, not master total',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('test betting open truth',s=>{
+   s.bettingLedger={
+    masterId:'sazky_portfolio_FINAL_2026-09-23',
+    masterMeta:{ticketCount:140,positionCount:58,totalStakedCzk:1500,potentialPayoutCzk:4500,remainingToPlaceCzk:0},
+    bankrollCzk:10000,unitCzk:500,updatedAt:new Date().toISOString(),
+    bets:[
+     {id:'bet-open-test',label:'Open test',status:'OPEN',stakeCzk:1000,ticketCount:2,odds:2},
+     {id:'bet-win-test',label:'Settled test',status:'WIN',stakeCzk:500,ticketCount:1,pnlCzk:500,odds:2}
+    ]
+   };
+  });
+ });
+ await page.locator('#mainNav [data-view="betting"]').click();
+ await expect(page.locator('[data-betting-overview]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#bettingView .pr1300-status')).toHaveText('1 otevřených');
+ const d=await page.evaluate(()=>window.__KAMIL_BETTING_OVERVIEW__);
+ expect(d.openPositions).toBe(1);
+ expect(d.positionCount).toBe(1);
+ expect(d.openTickets).toBe(2);
+ expect(d.ticketCount).toBe(2);
+ expect(d.masterPositionCount).toBe(58);
+ expect(d.masterTicketCount).toBe(140);
+});
