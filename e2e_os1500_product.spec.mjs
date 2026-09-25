@@ -71,3 +71,17 @@ test('OS737.0.25 restores canonical stylesheet order after advanced surfaces',as
  expect(canonical[1]).toBeLessThan(canonical[2]);
  expect(canonical[2]).toBe(order.length-1);
 });
+
+test('OS737.0.26 clicking the active section exits advanced detail',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('[data-money-overview]')).toBeVisible({timeout:10000});
+ await page.locator('[data-money-advanced]').click();
+ await expect.poll(()=>page.locator('#moneyView').getAttribute('data-product-advanced'),{timeout:10000}).toBe('1');
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('[data-money-overview]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#moneyView')).not.toHaveAttribute('data-product-advanced','1');
+ const order=await page.locator('link[rel="stylesheet"]').evaluateAll(links=>links.map(x=>x.getAttribute('href')));
+ expect(order.at(-1)).toBe('./os1500.css');
+});
