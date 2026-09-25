@@ -18,9 +18,14 @@ for(const f of gatewayGuards){const x=read(f);need(x.includes('oneOS977.js'),`${
 const workflows=fs.readdirSync('.github/workflows').filter(f=>/\.ya?ml$/i.test(f)).sort();
 const canonical=['desktop.yml','os1047-control-operations.yml','os333-browser.yml','qa.yml','vercel-production-333.yml'].sort();
 need(JSON.stringify(workflows)===JSON.stringify(canonical),`OS987 workflow inventory must be canonical five: ${workflows.join(', ')}`);
-const os333=read('.github/workflows/os333-browser.yml');
-for(const token of ['npm run test:release','e2e_legacy_cleanup_987.spec.mjs','e2e_one_os_977.spec.mjs','e2e_one_os_967.spec.mjs','e2e_os947_visual.spec.mjs'])need(os333.includes(token),`OS333 missing migrated legacy coverage ${token}`);
+const os333=read('.github/workflows/os333-browser.yml'),pkg=JSON.parse(read('package.json')),canonicalE2e=String(pkg.scripts?.['test:e2e']||''),legacyE2e=String(pkg.scripts?.['test:legacy:e2e']||'');
+for(const token of ['npm run test:release','npm run test:e2e'])need(os333.includes(token),`OS333 missing canonical coverage ${token}`);
+for(const token of ['e2e_legacy_cleanup_987.spec.mjs','e2e_one_os_977.spec.mjs','e2e_one_os_967.spec.mjs','e2e_os947_visual.spec.mjs']){
+ need(!canonicalE2e.includes(token),`Retired One OS browser coverage leaked into canonical OS2 suite: ${token}`);
+ need(legacyE2e.includes(token),`Manual legacy browser suite missing ${token}`);
+}
 const control=read('.github/workflows/os1047-control-operations.yml');
-need(control.includes('scripts/control_plane_1037_guard.mjs'),'Unified control workflow must preserve OS1037 guard');
-need(control.includes('scripts/control_operations_1047_guard.mjs'),'Unified control workflow must preserve OS1047 guard');
+need(control.includes('node scripts/control_plane_1037_guard.mjs'),'Unified control workflow must execute OS1037 guard');
+need(control.includes('node scripts/control_operations_1047_guard.mjs'),'Unified control workflow must execute OS1047 guard');
+need(control.includes('node scripts/legacy_cleanup_987_guard.mjs'),'Unified control workflow must execute OS987 cleanup guard');
 console.log('OS987 Legacy Cleanup + canonical runtime/workflow guard OK');

@@ -27,6 +27,9 @@ on:
       - 'e2e_os2000_redesign.spec.mjs'
       - 'e2e_os2020_decision_focus.spec.mjs'
       - 'e2e_os347_critical_path.spec.mjs'
+      - 'scripts/control_plane_1037_guard.mjs'
+      - 'scripts/control_operations_1047_guard.mjs'
+      - 'scripts/legacy_cleanup_987_guard.mjs'
       - '.github/workflows/os1047-control-operations.yml'
   push:
     branches: [main]
@@ -69,6 +72,9 @@ jobs:
           node runtime_boot_guard.mjs
           node runtime_ownership_1100_guard.mjs
           node runtime_inventory_1100_guard.mjs
+          node scripts/control_plane_1037_guard.mjs
+          node scripts/control_operations_1047_guard.mjs
+          node scripts/legacy_cleanup_987_guard.mjs
       - name: Canonical compatibility
         run: npm run test:release
       - name: Install browser QA
