@@ -102,3 +102,12 @@ test('OS737.0.27 derived Today ticket counts exclude disputes',async({page})=>{
  await expect(ticketArea).toContainText('4');
  await expect(ticketArea).not.toContainText('7 otevř.');
 });
+
+test('OS737.0.29 Home hides archived recovery insurance and shows canonical property insurance',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="home"]').click();
+ await expect(page.locator('[data-home-page1500]')).toBeVisible({timeout:10000});
+ const records=page.locator('#homeView .os1500-record');
+ await expect(records).toContainText('Dům Vlasatice · pojištění nemovitosti');
+ await expect(records).not.toContainText('Pojištění domu Vlasatice');
+});
