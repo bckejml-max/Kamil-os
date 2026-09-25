@@ -73,10 +73,10 @@ export function personalHomeTimeline650(s=store.get()){
 }
 
 export function personalMoneyPlan650(s=store.get()){
- const v=personalVault640(s),insurance=insuranceCenter(s),insuranceCzk=insurance.costs?.CZK||{annual:0,monthly:0},recent=(s.personalSpending?.transactions||[]).filter(x=>{const t=Date.parse(x.date||x.at||'');return Number.isFinite(t)&&t>=Date.now()-31*DAY});
+ const v=personalVault640(s),insurance=insuranceCenter(s),activeInsuranceCzk=insurance.activeCosts?.CZK||{annual:0,monthly:0},upcomingInsuranceCzk=insurance.upcomingCosts?.CZK||{annual:0,monthly:0},recent=(s.personalSpending?.transactions||[]).filter(x=>{const t=Date.parse(x.date||x.at||'');return Number.isFinite(t)&&t>=Date.now()-31*DAY});
  const spend=recent.reduce((a,x)=>{const n=Number(x.amount||0),k=norm(x.type||x.kind);return a+(k.includes('expense')||k.includes('out')||n<0?Math.abs(n):0)},0);
  const oneOff=(s.tasks||[]).filter(open).filter(personal).filter(x=>/zaplat|koup|objed|faktur|poplatek|oprava/i.test(`${x.title||''} ${x.category||''}`)).slice(0,5);
- const fixedMonthly=v.monthlyKnown+Number(insuranceCzk.monthly||0);return{fixedMonthly,insuranceAnnual:Number(insuranceCzk.annual||0),recentSpend:spend,oneOff,knownMonthlyLabel:money(fixedMonthly),spendLabel:spend?money(spend):null};
+ const fixedMonthly=v.monthlyKnown+Number(activeInsuranceCzk.monthly||0),upcomingMonthly=Number(upcomingInsuranceCzk.monthly||0);return{fixedMonthly,insuranceAnnual:Number(activeInsuranceCzk.annual||0),upcomingInsuranceMonthly:upcomingMonthly,upcomingInsuranceAnnual:Number(upcomingInsuranceCzk.annual||0),recentSpend:spend,oneOff,knownMonthlyLabel:money(fixedMonthly),spendLabel:spend?money(spend):null};
 }
 
 export function personalSearch650(query,s=store.get()){
