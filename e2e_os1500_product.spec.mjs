@@ -721,3 +721,29 @@ test('OS737.0.69 Today Money card matches canonical Money bank truth',async({pag
  await page.locator('#mainNav [data-view="money"]').click();
  await expect(page.locator('[data-money-overview]')).toContainText('123');
 });
+
+test('OS737.0.70 Today Betting tone matches canonical risk model',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('test Today Betting parity',s=>{
+   s.bettingLedger={
+    updatedAt:new Date().toISOString(),bankrollCzk:100000,unitCzk:1000,
+    bets:[{id:'bet-70',label:'Test bet 70',status:'OPEN',stakeCzk:10000,ticketCount:2,odds:2}]
+   };
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ const model=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {bettingData1334}=await import('./js/bettingOverview.js');
+  const d=bettingData1334(store.get());
+  return {risk:d.risk,unknown:d.unknownRisk,positions:d.open.length,tickets:d.openTickets};
+ });
+ expect(model).toEqual({risk:false,unknown:false,positions:1,tickets:2});
+ const card=page.locator('#todayView .os1600-area').filter({hasText:'Sázení'}).first();
+ await expect(card).toHaveClass(/good/);
+ await expect(card).toContainText('2 tiketů v 1 pozicích');
+ await page.locator('#mainNav [data-view="betting"]').click();
+ await expect(page.locator('[data-betting-overview] .pr1300-status')).toHaveClass(/good/);
+});
