@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const read=p=>fs.readFileSync(p,'utf8');
+const mod=read('js/osPortfolio2300.js'),docs=read('js/documentsPage141.js'),cmd=read('js/commandSearch610.js');
+assert.match(mod,/PORTFOLIO_SUITE2300_VERSION='2300\.0\.0'/);
+assert.match(mod,/export const PORTFOLIO_NAMES2300=\[/);
+assert.match(mod,/export const PORTFOLIO_BUILDERS2300=\[/);
+assert.match(mod,/export function portfolioSuite2300/);
+assert.match(mod,/export function renderPortfolioCenter2300/);
+for(let i=151;i<=200;i++)assert.match(mod,new RegExp('f\\('+i+','),'missing portfolio feature '+i);
+for(const token of ['Capital Allocation Board','Operational Resilience Score','Counterparty Exposure Map','Document Expiry Matrix','Continuous Improvement Board'])assert.ok(mod.includes(token),'missing portfolio '+token);
+assert.match(docs,/data-doc1500-portfolio/,'Documents must expose Portfolio & Resilience');
+assert.match(docs,/osPortfolio2300\.js/,'Documents must lazy-load Portfolio & Resilience');
+assert.match(cmd,/portfolio2300/,'Command search must deep-link to Portfolio & Resilience');
+console.log('OS2300 fourth 50 portfolio/resilience guard PASS');
