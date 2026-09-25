@@ -382,3 +382,24 @@ test('OS737.0.54 Today Inbox row excludes work tasks from personal task scope',a
  expect(diag.overdue).toBe(1);
  await expect(page.locator('#todayView')).toContainText('Osobní po termínu');
 });
+
+test('OS737.0.50 Inbox calendar rows route by personal area',async({page})=>{
+ await boot(page);
+ const routes=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {localInboxSummary660}=await import('./js/inboxHub660.js');
+  const tomorrow=new Date(Date.now()+86400000).toISOString();
+  const s=structuredClone(store.get());
+  s.calendar={events:[
+   {id:'cal-family',title:'Rodinný termín',area:'Rodina',start:tomorrow},
+   {id:'cal-home',title:'Revize domu',area:'Domov',start:tomorrow},
+   {id:'cal-money',title:'Banka schůzka',area:'Peníze',start:tomorrow},
+   {id:'cal-personal',title:'Osobní schůzka',area:'Osobní',start:tomorrow}
+  ]};
+  return Object.fromEntries(localInboxSummary660(s).rows.filter(x=>x.sourceKind==='calendar').map(x=>[x.sourceId,x.route]));
+ });
+ expect(routes['cal-family']).toBe('family');
+ expect(routes['cal-home']).toBe('home');
+ expect(routes['cal-money']).toBe('money');
+ expect(routes['cal-personal']).toBe('today');
+});
