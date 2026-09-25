@@ -28,7 +28,6 @@ const sw=read('sw.js');
 
 assert.match(index,/data-os1500="1"/,'OS1500 shell flag missing');
 assert.match(index,/os1400\.css[\s\S]*os1500\.css/,'OS1500 must load after OS1400');
-assert.match(runtime,/os1500\.css/,'runtime must know OS1500');
 assert.match(runtime,/restoreCanonicalProductStyles/,'runtime must restore the canonical stylesheet stack');
 assert.match(advancedStyles,/canonicalOrder=\['\.\/productReset1300\.css','\.\/os1400\.css','\.\/os1500\.css'\]/,'canonical stylesheet order must be explicit');
 assert.match(advancedStyles,/export function restoreCanonicalProductStyles/,'advanced style loader must expose canonical restore');
@@ -40,6 +39,7 @@ for(const route of ['inbox','work','tickets','money','property','betting','famil
 assert.match(today,/9 oblastí/,'Today must show all nine product areas');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
 assert.match(today,/usabilityReset:1500/);
 assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
+assert.match(today,/activeTicketQty=d\.activeTickets\.reduce/,'Today ticket card must display active quantity, not ticket-task or row count');
 assert.match(today,/data-today1300-insurance/,'Today insurance priorities must deep-link to Insurance Center');
 assert.match(app,/x=>!x\.issue&&\['HOLD','LISTED'\]/,'quick shell must exclude disputed tickets from active count');
 assert.match(personalQuery,/!x\.issue&&\['HOLD','LISTED'\]/,'command bar ticket capital must exclude disputed tickets');

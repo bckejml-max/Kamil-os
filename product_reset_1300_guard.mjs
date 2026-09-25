@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const read=p=>fs.readFileSync(p,'utf8');
-const index=read('index.html'),runtime=read('js/viewRuntime41.js'),app=read('js/app.js'),today=read('js/todayPage2000.js'),work=read('js/workPage1300.js'),property=read('js/propertyPage1300.js'),ticket=read('js/ticketPage100.js'),money=read('js/moneyPage100.js'),betting=read('js/bettingPage527.js'),ticketOverview=read('js/ticketOverview.js'),moneyOverview=read('js/moneyOverview.js'),bettingOverview=read('js/bettingOverview.js'),tasksOverview=read('js/tasksOverview.js'),inboxPage=read('js/inboxPage141.js'),inboxHub=read('js/inboxHub660.js'),familyPage=read('js/familyPage140.js'),commands=read('js/commandSearch610.js'),css=read('productReset1300.css'),sw=read('sw.js');
+const index=read('index.html'),runtime=read('js/viewRuntime41.js'),advancedStyles=read('js/productAdvancedStyles.js'),app=read('js/app.js'),today=read('js/todayPage2000.js'),work=read('js/workPage1300.js'),property=read('js/propertyPage1300.js'),ticket=read('js/ticketPage100.js'),money=read('js/moneyPage100.js'),betting=read('js/bettingPage527.js'),ticketOverview=read('js/ticketOverview.js'),moneyOverview=read('js/moneyOverview.js'),bettingOverview=read('js/bettingOverview.js'),tasksOverview=read('js/tasksOverview.js'),inboxPage=read('js/inboxPage141.js'),inboxHub=read('js/inboxHub660.js'),familyPage=read('js/familyPage140.js'),commands=read('js/commandSearch610.js'),css=read('productReset1300.css'),sw=read('sw.js');
 assert.match(index,/data-product-reset1300="1"/);
 for(const view of ["today","inbox","work","tickets","money","property","betting","family","home","more"])assert.match(index,new RegExp(`data-view="${view}"`));assert.doesNotMatch(index,/allSectionsBtn|mobileMenuBtn/);
 assert.match(index,/id="workView"/);assert.match(index,/id="propertyView"/);
@@ -22,8 +22,8 @@ assert.match(ticketOverview,/data-ticket-overview/);assert.match(ticketOverview,
 assert.match(bettingOverview,/data-betting-overview/);assert.match(bettingOverview,/productAdvanced='1'/);assert.match(bettingOverview,/scanner je v detailu/);assert.match(bettingOverview,/Otevřít detail sázek/);assert.equal((bettingOverview.match(/data-betting-advanced/g)||[]).length,2,'Betting overview must expose one advanced action plus one delegated click handler');assert.match(bettingOverview,/bettingAdvanced527\.js/);
 assert.match(tasksOverview,/data-tasks-overview/);assert.match(tasksOverview,/productAdvanced='1'/);assert.match(tasksOverview,/Co je potřeba vyřídit/);assert.match(tasksOverview,/inboxAdvanced141\.js/);
 assert.match(css,/Historical experimental decorators/);assert.match(css,/\[data-today-hub650\]/);assert.match(css,/repeat\(5,minmax\(0,1fr\)\)/);
-assert.match(runtime,/productReset1300\.css/,'product reset CSS must be restored after lazy view CSS');
-assert.match(runtime,/appendChild\(product\)/,'product reset CSS must be the final canonical layer');
+assert.match(runtime,/restoreCanonicalProductStyles/,'runtime must delegate canonical stylesheet restoration');
+assert.match(advancedStyles,/canonicalOrder=\['\.\/productReset1300\.css','\.\/os1400\.css','\.\/os1500\.css'\]/,'product reset must remain first in the explicit canonical stylesheet stack');
 assert.doesNotMatch(ticket,/ticketHub640\.js/,'Ticket Hub640 must not auto-mount over the canonical ticket desk');
 for(const legacy of ['moneyHub680.js','propertyFinance610.js','propertyHub620.js','marketIntelligence100.js','marketDetails100.js','moneyVisual138.js','unifiedCapital160.js'])assert.doesNotMatch(money,new RegExp(legacy.replace('.','\\.')),'Money must not auto-mount legacy panel '+legacy);
 for(const kept of ['personalDebtSummary737.js','wealthHistory610.js','dataQa144.js'])assert.match(money,new RegExp(kept.replace('.','\\.')),'Money must retain focused support module '+kept);

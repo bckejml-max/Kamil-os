@@ -51,7 +51,7 @@ function calendarRows(items){
  return '<div class="os1400-list">'+items.slice(0,3).map(x=>'<div class="os1400-row" style="cursor:default"><div><b>'+esc(titleOf(x))+'</b><small>'+esc(x?.location||x?.calendar||'')+'</small></div><div class="os1400-side">'+new Date(ts(x)).toLocaleString('cs-CZ',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</div></div>').join('')+'</div>'
 }
 function systemState(d){
- const workRisk=d.work.topRisks?.[0],best=d.property.best,ticketOpen=d.ticketTasks.length||d.activeTickets.length;
+ const workRisk=d.work.topRisks?.[0],best=d.property.best,activeTicketQty=d.activeTickets.reduce((a,x)=>a+Math.max(1,Number(x.qty||1)),0);
  const area=x=>String(x?.area||x?.category||'').toLocaleLowerCase('cs-CZ');
  const familyTasks=d.tasks.filter(x=>/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/.test(area(x)));
  const homeTasks=d.tasks.filter(x=>/domov|d[uů]m|energie|servis|reviz|údržb|udrzb/.test(area(x)+' '+String(x?.title||'').toLocaleLowerCase('cs-CZ')));
@@ -60,7 +60,7 @@ function systemState(d){
  return [
   {route:'inbox',title:'Úkoly',detail:d.overdue.length?d.overdue.length+' po termínu':d.tasks.length?d.tasks.length+' otevřených položek':'Fronta je prázdná',side:d.overdue.length?d.overdue.length+' po term.':d.tasks.length?d.tasks.length+' otevř.':'čisto',tone:d.overdue.length?'bad':d.tasks.length?'warn':'good'},
   {route:'work',title:'Práce',detail:workRisk?workRisk.title:(d.work.status==='KLID'?'Bez akutního zásahu':'Otevřít pracovní přehled'),side:d.work.status,tone:d.work.status==='ZÁSAH'?'bad':d.work.status==='SLEDOVAT'?'warn':'good'},
-  {route:'tickets',title:'Vstupenky',detail:d.transfer.length?d.transfer.length+' čeká na převod':d.ticketTasks[0]?.title||'Žádný urgentní transfer',side:ticketOpen?ticketOpen+' otevř.':'klid',tone:d.transfer.length?'bad':ticketOpen?'warn':'good'},
+  {route:'tickets',title:'Vstupenky',detail:d.transfer.length?d.transfer.length+' čeká na převod':activeTicketQty?activeTicketQty+' aktivních kusů':'Žádný aktivní kus',side:activeTicketQty?activeTicketQty+' ks':'klid',tone:d.transfer.length?'bad':activeTicketQty?'warn':'good'},
   {route:'money',title:'Peníze',detail:d.cash!==null?'Potvrzená volná hotovost':'Hotovost není potvrzená',side:d.cash!==null?money(d.cash):'doplnit',tone:d.cash!==null?'good':'warn'},
   {route:'property',title:'Reality',detail:best?best.name+' · '+best.decision.action:'Žádný kandidát v shortlistu',side:best?best.score+'/100':'—',tone:best?(best.decision.code==='PASS'?'bad':best.decision.code==='NEGOTIATE'?'warn':'good'):''},
   {route:'betting',title:'Sázení',detail:d.bet.positions?d.bet.tickets+' tiketů v '+d.bet.positions+' pozicích':'Žádná otevřená pozice',side:d.bet.positions?d.bet.positions+' pozic':'klid',tone:d.bet.exposure?'warn':'good'},
@@ -116,7 +116,7 @@ function render(){
    if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))
   })
  }
- window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingPositions:d.bet.positions,bettingTickets:d.bet.tickets,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
+ window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketQty:d.activeTickets.reduce((a,x)=>a+Math.max(1,Number(x.qty||1)),0),ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingPositions:d.bet.positions,bettingTickets:d.bet.tickets,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
  return true;
 }
 export function renderTodayPage2000(){return render()}
