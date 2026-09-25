@@ -55,6 +55,8 @@ assert.match(ticketPortfolio,/!x\?\.issue/,'disputed ticket rows must not inflat
 assert.match(ticketPortfolio,/sectionLike32/,'ticket event naming must preserve matchup identity while stripping seat/section suffixes');
 assert.match(money,/!x\.issue&&\['HOLD','LISTED','OPEN'\]/,'Money must exclude disputed tickets from active asset value');
 assert.match(moneyAdvanced,/!x\.issue&&\['HOLD','LISTED'\]/,'advanced Money must exclude disputed tickets from ticket capital');
+assert.match(moneyAdvanced,/x\.status\?\.code!=='ARCHIVED'&&x\.recordType!=='insurance'/,'advanced Money recurring list must hide archived recovery insurance');
+assert.match(moneyAdvanced,/insurance\.policies\.filter\(x=>x\.lifecycle==='ACTIVE'/,'advanced Money recurring list must source active insurance from Insurance Center');
 assert.match(insurance,/activeCosts/,'Insurance Center must expose current insurance costs separately');
 assert.match(insurance,/upcomingCosts/,'Insurance Center must expose upcoming insurance costs separately');
 assert.match(vault,/SUPERSEDED_INSURANCE_RECOVERY_640/,'superseded recovery insurance must be archived once canonical insurance registry exists');

@@ -133,3 +133,13 @@ test('OS737.0.31 command bar ticket capital excludes disputes',async({page})=>{
  expect(String(result?.title||'').replace(/\D/g,'')).toContain('45692');
  expect(result?.lines?.join(' ')).toContain('bez reklamací');
 });
+
+test('OS737.0.32 recurring Money list uses canonical insurance and separates upcoming policy',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="money"]').click();
+ await page.locator('[data-money-advanced]').click();
+ await expect(page.locator('[data-money-group="recurring"]')).toContainText('Kamil · Allianz ŽIVOT');
+ await expect(page.locator('[data-money-group="recurring"]')).toContainText('Začne později');
+ await expect(page.locator('[data-money-group="recurring"]')).toContainText('Tereza · NN Orange Risk');
+ await expect(page.locator('[data-money-group="recurring"]')).not.toContainText('Životní pojištění Kamil');
+});
