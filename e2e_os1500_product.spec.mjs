@@ -233,3 +233,16 @@ test('OS737.0.45 Inbox excludes informational upcoming insurance',async({page})=
  expect(out.upcoming.needsAction).toBe(false);
  expect(out.inboxHasUpcoming).toBe(false);
 });
+
+test('OS737.0.46 actionable Inbox insurance row opens Insurance Center',async({page})=>{
+ await boot(page);
+ const row=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {localInboxSummary660}=await import('./js/inboxHub660.js');
+  return localInboxSummary660(store.get()).rows.find(x=>x.insurance)||null;
+ });
+ expect(row).toBeTruthy();
+ await page.locator('#mainNav [data-view="inbox"]').click();
+ await page.locator('[data-inbox660-row="'+row.id+'"] [data-inbox660-open]').click();
+ await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
+});
