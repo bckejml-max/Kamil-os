@@ -1,3 +1,3 @@
-export const APP_VERSION='737.0.46';
-export const APP_RELEASE='737.0.46';
-// OS737.0.46: Inbox insurance navigation — actionable policy rows now open Insurance Center directly.
+export const APP_VERSION='737.0.47';
+export const APP_RELEASE='737.0.47';
+// OS737.0.47: insurance action ownership — generic personal priorities no longer duplicate canonical Insurance Center actions.
