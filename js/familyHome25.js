@@ -1,7 +1,8 @@
 const DAY=86400000;
 const dayStart=v=>{const d=new Date(v);d.setHours(0,0,0,0);return d.getTime()};
 const daysTo=(v,now=new Date())=>{if(!v)return null;const t=new Date(v).getTime();if(!Number.isFinite(t))return null;return Math.round((dayStart(t)-dayStart(now))/DAY)};
-const active=x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED';
+const CLOSED_25=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED']);
+const active=x=>!CLOSED_25.has(String(x?.status||'ACTIVE').toUpperCase());
 const norm=v=>String(v||'').trim().toLocaleLowerCase('cs-CZ');
 
 export const FAMILY_RELATIONS={PARTNER:'Partner/ka',CHILD:'Dítě',PARENT:'Rodič',GRANDPARENT:'Prarodič',SIBLING:'Sourozenec',OTHER:'Rodina / blízký'};

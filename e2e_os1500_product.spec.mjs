@@ -560,3 +560,20 @@ test('OS737.0.62 closed calendar prep does not block a new preparation task',asy
  expect(out.some(x=>x.status==='OPEN')).toBe(true);
  expect(out.some(x=>x.status==='CANCELLED')).toBe(true);
 });
+
+test('OS737.0.63 Family Home center ignores closed obligations',async({page})=>{
+ await boot(page);
+ const out=await page.evaluate(async()=>{
+  const {familyHome}=await import('./js/familyHome25.js');
+  const s={
+   familyHome:{members:[{id:'m1',name:'Aktivní člen',status:'ACTIVE'}]},
+   personalAdmin:{items:[
+    {id:'home-open',title:'Revize domu',category:'HOME',status:'ACTIVE',nextDue:new Date(Date.now()+5*86400000).toISOString()},
+    {id:'home-done',title:'Hotová revize',category:'HOME',status:'DONE',nextDue:new Date(Date.now()+5*86400000).toISOString()},
+    {id:'home-cancelled',title:'Zrušený servis',category:'HOME',status:'CANCELLED',nextDue:new Date(Date.now()+5*86400000).toISOString()}
+   ]}
+  };
+  return familyHome(s);
+ });
+ expect(out.obligations.map(x=>x.id)).toEqual(['home-open']);
+});
