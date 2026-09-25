@@ -382,3 +382,21 @@ test('OS737.0.54 Today Inbox row excludes work tasks from personal task scope',a
  expect(diag.overdue).toBe(1);
  await expect(page.locator('#todayView')).toContainText('Osobní po termínu');
 });
+
+test('OS737.0.55 Today generic queue does not route work tasks into Inbox',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const tomorrow=new Date(Date.now()+86400000).toISOString().slice(0,10);
+  store.mutate('test Today queue scope',s=>{
+   s.tasks=[
+    {id:'personal-soon-55',title:'Osobní termín 55',status:'OPEN',area:'Osobní',due:tomorrow},
+    {id:'work-soon-55',title:'Pracovní termín 55',status:'OPEN',area:'Práce',due:tomorrow}
+   ];
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
+ await expect(page.locator('[data-today1300-task="personal-soon-55"]')).toBeVisible();
+ await expect(page.locator('[data-today1300-task="work-soon-55"]')).toHaveCount(0);
+});
