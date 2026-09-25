@@ -9,7 +9,7 @@ assert(index.includes('<title>Kamil OS</title>')&&index.includes('./js/instantSh
 assert(lazy.includes('./systemHealthUi31.js')||runtime.includes('./systemHealthUi31.js')||fs.existsSync('js/systemHealthUi31.js'),'System Health compatibility module must remain available');
 assert(!index.includes('@supabase/supabase-js@2'),'Supabase must not be eagerly loaded by index');
 assert(cloud.includes('async function loadSdk()')&&cloud.includes('hasStoredCloudSession')&&!cloud.includes('export const sb='),'cloud must lazy-load SDK');
-assert(command.includes("modal('Náhled změny'")&&command.includes('Vytvořit osobní úkol')&&command.includes('Potvrdit vytvoření úkolu'),'unknown command mutation must still require explicit preview confirmation');
+assert(command.includes("modal('Náhled změny'")&&command.includes('Vytvořit úkol')&&command.includes('Potvrdit vytvoření úkolu'),'unknown domain-aware command mutation must still require explicit preview confirmation');
 assert(query.includes('decisionDelta30')&&query.includes('Co se změnilo od minule'),'Decision Delta compatibility missing');
 assert(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('networkFirst'),'current service-worker runtime shell missing');
 assert(!sw.includes('staleWhileRevalidate'),'runtime code must never serve stale-first');
