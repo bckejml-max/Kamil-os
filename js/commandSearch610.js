@@ -44,6 +44,7 @@ function navIntent(raw){const q=norm(raw);const map=[
  [['práce','prace','zakázky','zakazky','work'],['work',null]],
  [['domov','dům','dum','home'],['home',null]],
  [['pojistky','pojištění','pojisteni'],['more','insurance']],
+ [['os execution','execution','governance','autopilot','kill switch','treti 50','třetích 50','tretich 50','execution governance'],['more','execution2200']],
  [['os automation','automation','automatizace','dalsich 50','dalších 50','learning mode','autonomous maintenance'],['more','automation2100']],
  [['os intelligence','intelligence','upgrady','upgrade','50 upgradu','50 upgradeů','os upgrady','os upgrades'],['more','upgrades2050']],
  [['dokumenty','smlouvy'],['more',null]],

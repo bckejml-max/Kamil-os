@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const read=p=>fs.readFileSync(p,'utf8');
+const mod=read('js/osExecution2200.js'),docs=read('js/documentsPage141.js'),cmd=read('js/commandSearch610.js');
+assert.match(mod,/EXECUTION_SUITE2200_VERSION='2200\.0\.0'/);
+assert.match(mod,/export const EXECUTION_NAMES2200=\[/);
+assert.match(mod,/export const EXECUTION_BUILDERS2200=\[/);
+assert.match(mod,/export function executionSuite2200/);
+assert.match(mod,/export function renderExecutionCenter2200/);
+for(let i=101;i<=150;i++)assert.match(mod,new RegExp('f\\('+i+','),'missing execution feature '+i);
+for(const token of ['Action Executor','Critical Path Engine','Predictive Deadline Risk','Personal Knowledge Graph','Email Action Extractor','Permissioned Autopilot','Automation Kill Switch','OS Governor'])assert.ok(mod.includes(token),'missing execution '+token);
+assert.match(mod,/killSwitch:true/,'Execution autonomy must default to kill switch ON');
+assert.match(mod,/dryRun:true/,'Execution autonomy must default to dry-run ON');
+assert.match(mod,/HIGH:'BLOCKED'/,'High-risk autonomy must default to BLOCKED');
+assert.match(docs,/data-doc1500-execution/,'Documents must expose Execution & Governance');
+assert.match(docs,/osExecution2200\.js/,'Documents must lazy-load Execution & Governance');
+assert.match(cmd,/execution2200/,'Command search must deep-link to Execution & Governance');
+console.log('OS2200 third 50 execution/governance guard PASS');
