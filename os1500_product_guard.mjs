@@ -14,6 +14,7 @@ const ticketPortfolio=read('js/ticketPortfolio32.js');
 const money=read('js/moneyOverview.js');
 const moneyAdvanced=read('js/personalMoney640.js');
 const insurance=read('js/insurance25.js');
+const insuranceUi=read('js/insuranceUi25.js');
 const vault=read('js/personalVault640.js');
 const insuranceMaster=read('js/insuranceMaster1336.js');
 const personalAssistant=read('js/personalAssistant650.js');
@@ -61,6 +62,7 @@ assert.match(moneyAdvanced,/openInsuranceCenter/,'Money insurance rows must open
 assert.match(moneyAdvanced,/x\.cadence==='YEARLY'/,'Money recurring rows must preserve actual insurance payment cadence');
 assert.match(insurance,/activeCosts/,'Insurance Center must expose current insurance costs separately');
 assert.match(insurance,/upcomingCosts/,'Insurance Center must expose upcoming insurance costs separately');
+assert.match(insuranceUi,/AKTUÁLNÍ STAV SMLUV/,'Insurance Center lifecycle heading must not overstate review/terminating policies as active');
 assert.match(vault,/SUPERSEDED_INSURANCE_RECOVERY_640/,'superseded recovery insurance must be archived once canonical insurance registry exists');
 assert.match(insuranceMaster,/kamil-allianz-life/,'canonical insurance registry must include Kamil Allianz life policy');
 assert.match(insuranceMaster,/vlasatice-pvzp-home/,'canonical insurance registry must include Vlasatice property insurance recovery');
