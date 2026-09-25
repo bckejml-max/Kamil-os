@@ -143,3 +143,16 @@ test('OS737.0.32 recurring Money list uses canonical insurance and separates upc
  await expect(page.locator('[data-money-group="recurring"]')).toContainText('Tereza · NN Orange Risk');
  await expect(page.locator('[data-money-group="recurring"]')).not.toContainText('Životní pojištění Kamil');
 });
+
+test('OS737.0.33 insurance cards deep-link to Insurance Center',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="home"]').click();
+ await expect(page.locator('[data-home-page1500]')).toBeVisible({timeout:10000});
+ const homeInsurance=page.locator('#homeView .os1500-record').filter({hasText:'Dům Vlasatice · pojištění nemovitosti'});
+ await homeInsurance.click();
+ await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
+ await page.locator('#mainNav [data-view="money"]').click();
+ await page.locator('[data-money-advanced]').click();
+ await page.locator('[data-money-insurance]').first().click();
+ await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
+});
