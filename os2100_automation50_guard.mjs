@@ -12,4 +12,5 @@ for(const token of ['Personal SLA Engine','Decision Journal','Data Provenance Gr
 assert.match(docs,/data-doc1500-automation/,'Documents must expose Automation & Learning');
 assert.match(docs,/osAutomation2100\.js/,'Documents must lazy-load Automation & Learning');
 assert.match(cmd,/automation2100/,'Command search must deep-link to Automation & Learning');
+assert.match(mod,/outcomeTracker2100\(c\)\{const due=c\.decisions\.filter\(x=>\{const d=days\(x\.outcomeAt\|\|x\.reviewAt\);return x\.expectedOutcome&&!x\.actualOutcome&&d!==null&&d<=0\}\)/,'Outcome tracker must ignore decisions without an outcome/review date');
 console.log('OS2100 second 50-upgrade automation guard PASS');
