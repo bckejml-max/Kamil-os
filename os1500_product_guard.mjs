@@ -8,6 +8,9 @@ const runtime=read('js/viewRuntime41.js');
 const today=read('js/todayPage2000.js');
 const work=read('js/workPage1300.js');
 const tickets=read('js/ticketOverview.js');
+const ticketPortfolio=read('js/ticketPortfolio32.js');
+const money=read('js/moneyOverview.js');
+const vault=read('js/personalVault640.js');
 const property=read('js/propertyPage1300.js');
 const propertyHub=read('js/propertyHub620.js');
 const betting=read('js/bettingOverview.js');
@@ -37,6 +40,10 @@ assert.doesNotMatch(work,/data-work1300-today/,'Work risks must not bounce back 
 assert.match(tickets,/function primaryAction/,'Ticket primary CTA must be contextual');
 assert.match(tickets,/data-ticket-event/,'Ticket events must be directly actionable');
 assert.match(tickets,/dynamicPrimary:true/);
+assert.match(ticketPortfolio,/!x\?\.issue/,'disputed ticket rows must not inflate active inventory');
+assert.match(ticketPortfolio,/sectionLike32/,'ticket event naming must preserve matchup identity while stripping seat/section suffixes');
+assert.match(money,/!x\.issue&&\['HOLD','LISTED','OPEN'\]/,'Money must exclude disputed tickets from active asset value');
+assert.match(vault,/SUPERSEDED_INSURANCE_RECOVERY_640/,'superseded recovery insurance must be archived once canonical insurance registry exists');
 
 assert.match(property,/data-property-candidate/,'Property shortlist must be clickable');
 assert.match(property,/openPropertyDetail620/);
