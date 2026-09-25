@@ -87,6 +87,8 @@ assert.match(home,/homeAmount=x=>x\.source==='insurance'/,'Home insurance cards 
 assert.match(home,/x\.status\?\.code!=='ARCHIVED'/,'Home must hide archived recovery records from current cards');
 assert.doesNotMatch(home,/data-home-filter/,'Home canonical page must not hide content behind filters');
 assert.match(documents,/data-documents-page1500/);
+assert.match(documents,/insuranceAction=insurance\.policies\.filter\(x=>x\.status!=='OK'\)/,'Documents top status must include canonical Insurance Center actions');
+assert.match(documents,/actionTotal=counts\.action\+insuranceAction\.length/,'Documents action count must combine vault and insurance actions');
 assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must not hide content behind filters');
 
 assert.match(app,/betting:'betting-task'/,'shell quick add must support betting');
