@@ -44,6 +44,7 @@ assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exc
 assert.match(today,/activeTicketQty=d\.activeTickets\.reduce/,'Today ticket card must display active quantity, not ticket-task or row count');
 assert.match(today,/data-today1300-insurance/,'Today insurance priorities must deep-link to Insurance Center');
 assert.match(app,/x=>!x\.issue&&\['HOLD','LISTED'\]/,'quick shell must exclude disputed tickets from active count');
+assert.match(app,/tasks\.filter\(isPersonalScope527\)\.filter/,'Inbox navigation badge must count the same personal task scope as Inbox');
 assert.match(personalQuery,/!x\.issue&&\['HOLD','LISTED'\]/,'command bar ticket capital must exclude disputed tickets');
 
 assert.match(work,/data-work1300-risk/);

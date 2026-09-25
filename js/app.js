@@ -9,6 +9,7 @@ import {startColdPartition42} from './coldPartition42.js';
 import {installRuntimeOwnership1100,ownEvent1100,ownCleanup1100,schedule1100,cancelScheduled1100} from './runtimeOwnership1100.js';
 import {scheduleFrame1110,scheduleIdle1110} from './osHardening1110.js';
 import {restoreCanonicalProductStyles} from './productAdvancedStyles.js';
+import {isPersonalScope527} from './personalScope527.js';
 
 const OWNER='core.app41';
 installRuntimeOwnership1100();
@@ -39,7 +40,7 @@ const navDue1333=x=>x?.due||x?.followUpAt||x?.dueAt||x?.due_at||x?.dueDate||x?.d
 const navDueTime1333=x=>{const raw=String(navDue1333(x)||'');if(!raw)return null;const d=Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(raw)?raw+'T23:59:59.999':raw);return Number.isFinite(d)?d:null};
 function navSignals1333(s){
  const now=Date.now(),soon=now+2*86400000,tasks=(s.tasks||[]).filter(navOpen1333);
- const overdue=tasks.filter(x=>{const t=navDueTime1333(x);return t!==null&&t<now}).length;
+ const overdue=tasks.filter(isPersonalScope527).filter(x=>{const t=navDueTime1333(x);return t!==null&&t<now}).length;
  const workDue=tasks.filter(x=>{const a=navArea1333(x),t=navDueTime1333(x);return (a.includes('prac')||a.includes('zakaz'))&&t!==null&&t<=soon}).length;
  const transfers=(s.ticketBook?.items||[]).filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(String(x?.market_status||x?.workflow||'').toUpperCase())).length;
  return {
