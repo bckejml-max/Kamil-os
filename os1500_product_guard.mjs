@@ -168,6 +168,8 @@ assert.match(css,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/,'mob
 assert.match(css,/font-size:8\.8px!important/,'mobile primary nav labels must remain readable');
 assert.match(sw,/os1500\.css/,'service worker must precache OS1500');
 assert.match(sw,/RUNTIME_STATIC_PATH/,'service worker must runtime-cache lazy same-origin static assets');
+assert.match(sw,/cacheStaticModuleGraph/,'service worker must precache the static dependency graph of critical JS modules');
+assert.match(sw,/source\.matchAll\(importRe\)/,'service worker module graph precache must follow static relative imports');
 assert.match(sw,/url\.pathname\.startsWith\('\/api\/'\)/,'service worker must keep API requests out of static cache');
 assert.match(sw,/sensitiveAuthUrl\(url\)/,'service worker must bypass cache for sensitive auth URLs');
 
