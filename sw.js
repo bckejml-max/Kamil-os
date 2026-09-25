@@ -1,4 +1,4 @@
-const CACHE='kamil-os-737.0.76-core-r84';
+const CACHE='kamil-os-737.0.77-core-r85';
 const CRITICAL=[
  './','./index.html','./manifest.webmanifest','./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css','./os1400.css','./os1500.css',
  './js/osHardening1110.js','./js/dataIntegrity1130.js','./js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js',
@@ -9,11 +9,29 @@ const CACHEABLE_PATHS=new Set(CRITICAL.map(path=>new URL(path,self.location.href
 const RUNTIME_STATIC_PATH=/\.(?:js|css|webmanifest|png|svg|ico|webp)$/i;
 const sensitiveAuthUrl=url=>url.searchParams.has('code')||url.searchParams.has('token_hash')||url.searchParams.has('access_token')||url.searchParams.has('refresh_token')||url.searchParams.get('type')==='recovery';
 
+async function cacheStaticModuleGraph(cache,path,seen=new Set()){
+ const url=new URL(path,self.location.href);
+ if(url.origin!==self.location.origin||seen.has(url.href)||!url.pathname.endsWith('.js'))return;
+ seen.add(url.href);
+ const request=new Request(url.href,{cache:'reload'});
+ const response=await fetch(request);
+ if(!response?.ok)throw new Error('Module precache failed: '+url.pathname);
+ await cache.put(request,response.clone());
+ const source=await response.text();
+ const importRe=/\b(?:import|export)\s+(?:[^'"\n]*?\s+from\s*)?['"](\.\/[^'"]+\.js)['"]/g;
+ for(const match of source.matchAll(importRe)){
+  const dep=new URL(match[1],url);
+  if(dep.origin===self.location.origin)await cacheStaticModuleGraph(cache,dep.href,seen);
+ }
+}
 async function precache(){
  const cache=await caches.open(CACHE);
  const results=await Promise.allSettled(CRITICAL.map(path=>cache.add(new Request(path,{cache:'reload'}))));
  const failed=results.filter(x=>x.status==='rejected').length;
- if(failed)console.warn(`[sw-os2] shell precache failures: ${failed}`);
+ const graphSeen=new Set();
+ const graphResults=await Promise.allSettled(CRITICAL.filter(path=>path.endsWith('.js')).map(path=>cacheStaticModuleGraph(cache,path,graphSeen)));
+ const graphFailed=graphResults.filter(x=>x.status==='rejected').length;
+ if(failed||graphFailed)console.warn(`[sw-os2] precache failures: shell=${failed}, modules=${graphFailed}`);
 }
 self.addEventListener('install',event=>{event.waitUntil(precache().then(()=>self.skipWaiting()))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('kamil-os-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
