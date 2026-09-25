@@ -78,7 +78,7 @@ test('OS1300 keeps the heavy Ticket Desk behind an explicit detail action',async
  await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible({timeout:10000});
  let resources=await page.evaluate(()=>performance.getEntriesByType('resource').map(x=>x.name));
  expect(resources.some(x=>x.includes('ticketDesk331.js'))).toBe(false);
- await page.locator('#ticketIntelView [data-ticket-advanced]').click();
+ await page.getByRole('button',{name:'Ticket desk'}).last().click();
  await expect.poll(()=>page.evaluate(()=>performance.getEntriesByType('resource').some(x=>x.name.includes('ticketDesk331.js'))),{timeout:15000}).toBe(true);
  await expect(page.locator('#ticketIntelView .td331')).toBeVisible({timeout:15000});
  await page.locator('#mainNav [data-view="money"]').click();
