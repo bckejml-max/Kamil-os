@@ -7,6 +7,7 @@ const app=read('js/app.js');
 const runtime=read('js/viewRuntime41.js');
 const advancedStyles=read('js/productAdvancedStyles.js');
 const today=read('js/todayPage2000.js');
+const personalQuery=read('js/personalQuery29.js');
 const work=read('js/workPage1300.js');
 const tickets=read('js/ticketOverview.js');
 const ticketPortfolio=read('js/ticketPortfolio32.js');
@@ -39,6 +40,7 @@ assert.match(today,/9 oblastí/,'Today must show all nine product areas');assert
 assert.match(today,/usabilityReset:1500/);
 assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
 assert.match(app,/x=>!x\.issue&&\['HOLD','LISTED'\]/,'quick shell must exclude disputed tickets from active count');
+assert.match(personalQuery,/!x\.issue&&\['HOLD','LISTED'\]/,'command bar ticket capital must exclude disputed tickets');
 
 assert.match(work,/data-work1300-risk/);
 assert.match(work,/data-work1300-project/);
