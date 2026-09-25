@@ -198,3 +198,19 @@ test('OS737.0.39 Documents top status includes Insurance Center actions',async({
  expect(diag.action).toBeGreaterThanOrEqual(diag.insuranceAction);
  await expect(page.locator('#moreView .pr1300-status')).not.toHaveText('klid');
 });
+
+test('OS737.0.44 handed-over projects do not remain active in Work',async({page})=>{
+ await page.goto(BASE,{waitUntil:'domcontentloaded'});
+ const out=await page.evaluate(async()=>{
+  const {workCommandCenter440}=await import('./js/workCommandCenter440.js');
+  return workCommandCenter440({
+   projects:[
+    {id:'active',name:'Aktivní',status:'OPEN',next:'Další krok',owner:'Kamil'},
+    {id:'handover',name:'Předaná',status:'PŘEDÁNO'},
+    {id:'done-en',name:'Finished',status:'FINISHED'}
+   ],
+   tasks:[]
+  });
+ });
+ expect(out.projects.map(x=>x.name)).toEqual(['Aktivní']);
+});

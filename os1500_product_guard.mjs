@@ -48,6 +48,8 @@ assert.match(work,/data-work1300-risk/);
 assert.match(work,/data-work1300-project/);
 assert.match(work,/Pracovní riziko/);
 assert.match(work,/Zakázka/);
+const workCenter=read('js/workCommandCenter440.js');
+assert.match(workCenter,/CLOSED_EXACT/,'Work must treat explicit handed-over Czech project statuses as closed');
 assert.doesNotMatch(work,/data-work1300-today/,'Work risks must not bounce back to Today');
 
 assert.match(tickets,/function primaryAction/,'Ticket primary CTA must be contextual');
