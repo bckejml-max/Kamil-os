@@ -12,6 +12,8 @@ const tickets=read('js/ticketOverview.js');
 const ticketPortfolio=read('js/ticketPortfolio32.js');
 const money=read('js/moneyOverview.js');
 const vault=read('js/personalVault640.js');
+const insuranceMaster=read('js/insuranceMaster1336.js');
+const personalAssistant=read('js/personalAssistant650.js');
 const property=read('js/propertyPage1300.js');
 const propertyHub=read('js/propertyHub620.js');
 const betting=read('js/bettingOverview.js');
@@ -49,6 +51,9 @@ assert.match(ticketPortfolio,/!x\?\.issue/,'disputed ticket rows must not inflat
 assert.match(ticketPortfolio,/sectionLike32/,'ticket event naming must preserve matchup identity while stripping seat/section suffixes');
 assert.match(money,/!x\.issue&&\['HOLD','LISTED','OPEN'\]/,'Money must exclude disputed tickets from active asset value');
 assert.match(vault,/SUPERSEDED_INSURANCE_RECOVERY_640/,'superseded recovery insurance must be archived once canonical insurance registry exists');
+assert.match(insuranceMaster,/kamil-allianz-life/,'canonical insurance registry must include Kamil Allianz life policy');
+assert.match(insuranceMaster,/vlasatice-pvzp-home/,'canonical insurance registry must include Vlasatice property insurance recovery');
+assert.match(personalAssistant,/insuranceCenter\(s\)/,'personal assistant must read insurance from canonical Insurance Center');
 
 assert.match(property,/data-property-candidate/,'Property shortlist must be clickable');
 assert.match(property,/openPropertyDetail620/);
