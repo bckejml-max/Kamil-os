@@ -1,6 +1,6 @@
 import {store} from './state.js';
 import {h} from './utils.js';
-import {evaluateProperty472} from './propertyDecision472.js';
+import {evaluateProperty472,isActivePropertyCandidate472} from './propertyDecision472.js';
 
 const VERSION=620;
 const A=v=>Array.isArray(v)?v:[];
@@ -11,7 +11,7 @@ let currentFilter='ALL';
 let bound=false;
 
 function ensureCss(){if(document.querySelector('link[data-property-hub620-css]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='./propertyHub620.css';l.dataset.propertyHub620Css='1';document.head.appendChild(l)}
-function rawCandidates(s=store.get()){return A(s.propertyBook?.candidates)}
+function rawCandidates(s=store.get()){return A(s.propertyBook?.candidates).filter(isActivePropertyCandidate472)}
 function mortgageCfg(s=store.get()){const x=s.propertyBook?.mortgageScenario||{};return{ratePct:N(x.ratePct),equityPct:Number.isFinite(Number(x.equityPct))?Math.max(0,Math.min(100,Number(x.equityPct))):20,years:Number.isFinite(Number(x.years))?Math.max(1,Number(x.years)):30}}
 function payment(principal,ratePct,years){principal=Math.max(0,N(principal));const months=Math.max(1,Math.round(N(years)*12)),r=Math.max(0,N(ratePct))/100/12;if(!principal)return 0;if(!r)return principal/months;return principal*(r*Math.pow(1+r,months))/(Math.pow(1+r,months)-1)}
 function firstNum(x,...keys){for(const k of keys){const v=Number(x?.[k]);if(Number.isFinite(v)&&v>0)return v}return 0}
