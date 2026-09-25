@@ -167,5 +167,8 @@ assert.match(css,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important/,'
 assert.match(css,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/,'mobile primary nav must keep all ten destinations visible');
 assert.match(css,/font-size:8\.8px!important/,'mobile primary nav labels must remain readable');
 assert.match(sw,/os1500\.css/,'service worker must precache OS1500');
+assert.match(sw,/RUNTIME_STATIC_PATH/,'service worker must runtime-cache lazy same-origin static assets');
+assert.match(sw,/url\.pathname\.startsWith\('\/api\/'\)/,'service worker must keep API requests out of static cache');
+assert.match(sw,/sensitiveAuthUrl\(url\)/,'service worker must bypass cache for sensitive auth URLs');
 
 console.log('OS1500 product usability guard PASS');

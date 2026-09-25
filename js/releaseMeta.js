@@ -1,3 +1,3 @@
-export const APP_VERSION='737.0.75';
-export const APP_RELEASE='737.0.75';
-// OS737.0.75: Betting current-state truth — header and diagnostics show open positions/tickets separately from historical master totals.
+export const APP_VERSION='737.0.76';
+export const APP_RELEASE='737.0.76';
+// OS737.0.76: offline runtime resilience — lazy same-origin static assets are cached after use while API and sensitive auth requests remain uncached.
