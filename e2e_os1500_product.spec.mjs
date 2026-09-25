@@ -642,3 +642,28 @@ test('OS737.0.66 Today Documents card matches canonical action total',async({pag
  const doc=await page.evaluate(()=>window.__KAMIL_DOCUMENTS141__);
  expect(doc.action).toBe(expected);
 });
+
+test('OS737.0.67 Today Home card matches canonical 30-day home timeline',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const now=new Date().toISOString(),in10=new Date(Date.now()+10*86400000).toISOString();
+  store.mutate('test Today Home parity',s=>{
+   s.personalVault={version:1,evidence:[],items:[{
+    id:'home-term-67',title:'Domácí smlouva 67',section:'home',recordType:'utility',
+    confidence:95,confidenceLabel:'OK',reviewAt:in10,sourceLabel:'test',
+    nextAction:'Zkontrolovat smlouvu',createdAt:now,updatedAt:now
+   }]};
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ const expected=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {personalHomeTimeline650}=await import('./js/personalAssistant650.js');
+  return personalHomeTimeline650(store.get()).filter(x=>x.days!==null&&x.days!==undefined&&x.days<=30).length;
+ });
+ expect(expected).toBeGreaterThan(0);
+ const card=page.locator('#todayView .os1600-area').filter({hasText:'Domov'}).first();
+ await expect(card).toContainText(expected+' řešit');
+ await expect(card).not.toContainText('klid');
+});
