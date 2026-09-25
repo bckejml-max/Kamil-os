@@ -459,3 +459,34 @@ test('OS737.0.58 Home hides cancelled maintenance',async({page})=>{
  await expect(page.locator('#homeView')).toContainText('Revize komínu');
  await expect(page.locator('#homeView')).not.toContainText('Servis rekuperace');
 });
+
+test('OS737.0.59 calendar preparation is due before the future event',async({page})=>{
+ await boot(page);
+ const eventAt=new Date(Date.now()+5*86400000).toISOString();
+ await page.evaluate(async(eventAt)=>{
+  const {openPersonalAction641}=await import('./js/personalActionExecution641.js');
+  window.__calendarDueTestPromise=openPersonalAction641({
+   id:'calendar:due-scope-test',
+   kind:'calendar',
+   title:'Budoucí schůzka',
+   why:'Kalendář · blízký termín',
+   next:'Připravit se na událost.',
+   route:'home',
+   due:eventAt
+  });
+ },eventAt);
+ await expect(page.locator('#modalHost')).toContainText('Budoucí schůzka');
+ await page.locator('#modalHost button').filter({hasText:'Připravit'}).click();
+ const task=await expect.poll(()=>page.evaluate(()=>{
+  const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');
+  const x=(s.tasks||[]).find(t=>t.sourceEventId==='due-scope-test');
+  return x?{due:x.due,area:x.area}:null;
+ }),{timeout:10000}).not.toBeNull();
+ const created=await page.evaluate(()=>{
+  const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');
+  const x=(s.tasks||[]).find(t=>t.sourceEventId==='due-scope-test');
+  return x?{due:x.due,area:x.area}:null;
+ });
+ expect(created.area).toBe('Domov');
+ expect(Math.abs(Date.parse(created.due)-(Date.parse(eventAt)-86400000))).toBeLessThan(2000);
+});
