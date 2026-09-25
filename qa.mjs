@@ -38,13 +38,13 @@ assert.equal(release,version,'APP_RELEASE must equal APP_VERSION');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 
-const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage2000.js','js/workPage1300.js','js/propertyPage1300.js','js/ticketPage100.js','js/bettingPage527.js','js/moneyOverview.js','js/ticketOverview.js','js/bettingOverview.js','js/tasksOverview.js','js/bettingBootstrap543.js','js/state.js','js/privateSnapshot1320.js','js/privateSnapshotImport1320.js','js/cloudPayload32.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','os2000_guard.mjs','runtime_boot_guard.mjs','runtime_ownership_1100_guard.mjs','release_guard_333.mjs'];
+const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage2000.js','js/workPage1300.js','js/propertyPage1300.js','js/ticketPage100.js','js/bettingPage527.js','js/moneyOverview.js','js/ticketOverview.js','js/bettingOverview.js','js/tasksOverview.js','js/familyPage140.js','js/homePage140.js','js/documentsPage141.js','js/bettingBootstrap543.js','js/state.js','js/privateSnapshot1320.js','js/privateSnapshotImport1320.js','js/cloudPayload32.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','os2000_guard.mjs','runtime_boot_guard.mjs','runtime_ownership_1100_guard.mjs','release_guard_333.mjs','os1500_product_guard.mjs'];
 for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 
 // Canonical product shell eagerly loads only the approved shared visual layers.
 assert.ok(index.includes('data-os2="1"'),'OS2 shell marker missing');
 const eagerStyles=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(x=>x[1]);
-assert.deepEqual(eagerStyles,['./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css','./os1400.css'],'canonical shell eager styles changed unexpectedly');
+assert.deepEqual(eagerStyles,['./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css','./os1400.css','./os1500.css'],'canonical shell eager styles changed unexpectedly');
 assert.ok(index.includes('./os2.css'),'OS2 stylesheet missing');
 assert.ok(index.includes('./productReset1300.css')&&index.includes('data-product-reset1300="1"'),'OS1300 product reset shell missing');
 for(const label of ['Dnes','Úkoly','Práce','Vstupenky','Peníze','Reality','Sázení','Rodina','Domov','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
