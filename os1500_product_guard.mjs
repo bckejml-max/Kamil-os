@@ -5,6 +5,7 @@ const index=read('index.html');
 const css=read('os1500.css');
 const app=read('js/app.js');
 const runtime=read('js/viewRuntime41.js');
+const advancedStyles=read('js/productAdvancedStyles.js');
 const today=read('js/todayPage2000.js');
 const work=read('js/workPage1300.js');
 const tickets=read('js/ticketOverview.js');
@@ -22,7 +23,9 @@ const sw=read('sw.js');
 assert.match(index,/data-os1500="1"/,'OS1500 shell flag missing');
 assert.match(index,/os1400\.css[\s\S]*os1500\.css/,'OS1500 must load after OS1400');
 assert.match(runtime,/os1500\.css/,'runtime must know OS1500');
-assert.match(runtime,/appendChild\(os1500\)/,'OS1500 must remain the final canonical stylesheet');
+assert.match(runtime,/restoreCanonicalProductStyles/,'runtime must restore the canonical stylesheet stack');
+assert.match(advancedStyles,/canonicalOrder=\['\.\/productReset1300\.css','\.\/os1400\.css','\.\/os1500\.css'\]/,'canonical stylesheet order must be explicit');
+assert.match(advancedStyles,/export function restoreCanonicalProductStyles/,'advanced style loader must expose canonical restore');
 assert.doesNotMatch(runtime,/family:\['\.\/personal64\.css'|home:\['\.\/personal64\.css'|more:\['\.\/personal64\.css'/,'canonical personal views must not load legacy personal CSS');
 
 for(const route of ['inbox','work','tickets','money','property','betting','family','home','more']){
