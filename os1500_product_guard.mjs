@@ -41,6 +41,8 @@ for(const route of ['inbox','work','tickets','money','property','betting','famil
 assert.match(today,/9 oblastí/,'Today must show all nine product areas');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
 assert.match(today,/usabilityReset:1500/);
 assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
+assert.match(today,/SOLD_TICKET_STATES/,'Today must explicitly exclude sold/settlement ticket states from active inventory');
+assert.match(today,/tickets=\(s\.ticketBook\?\.items\|\|\[\]\)/,'Today transfer detection must inspect all ticket rows, not generic open rows');
 assert.match(today,/activeTicketQty=d\.activeTickets\.reduce/,'Today ticket card must display active quantity, not ticket-task or row count');
 assert.match(today,/data-today1300-insurance/,'Today insurance priorities must deep-link to Insurance Center');
 assert.match(app,/x=>!x\.issue&&\['HOLD','LISTED'\]/,'quick shell must exclude disputed tickets from active count');
