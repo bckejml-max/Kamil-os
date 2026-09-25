@@ -31,7 +31,7 @@ test('OS1333 navigation shows only actionable overdue, work deadline and ticket 
     {id:'work-soon',title:'Pracovní termín',status:'OPEN',area:'Práce',due:tomorrow},
     {id:'later-money',title:'Pozdější finance',status:'OPEN',area:'Peníze',due:new Date(Date.now()+8*86400000).toISOString().slice(0,10)}
    ],
-   ticketBook:{version:1,updatedAt:new Date().toISOString(),items:[{id:'transfer',name:'Transfer',status:'OPEN',workflow:'TRANSFER_REQUIRED',market_status:'TRANSFER_REQUIRED'}],watchlist:[],history:[],review:[]}
+   ticketBook:{version:1,masterId:'flipovani-2024-2026-2026-09-23',updatedAt:new Date().toISOString(),items:[{id:'transfer',name:'Transfer',status:'OPEN',workflow:'TRANSFER_REQUIRED',market_status:'TRANSFER_REQUIRED'}],watchlist:[],history:[],review:[]}
   }));
  });
  await boot(page);
