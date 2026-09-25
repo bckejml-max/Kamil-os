@@ -1,3 +1,3 @@
-export const APP_VERSION='737.0.27';
-export const APP_RELEASE='737.0.27';
-// OS737.0.27: derived-state consistency — Today and the quick-start shell now use the same dispute-free active ticket definition as Tickets and Money.
+export const APP_VERSION='737.0.28';
+export const APP_RELEASE='737.0.28';
+// OS737.0.28: insurance single-source cleanup — canonical Insurance Center now includes known Kamil Allianz life and Vlasatice property policies; recovery copies are archived.

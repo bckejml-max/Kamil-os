@@ -9,6 +9,8 @@ const asDate=v=>v instanceof Date?v:new Date(v);
 const daysUntil=(a,b=Date.now())=>personalDaysTo650(a,asDate(b));
 const daysBetween=(a,b=Date.now())=>{const d=personalDaysTo650(a,asDate(b));return d===null?null:-d};
 const SUPERSEDED_INSURANCE_RECOVERY_640=new Map([
+ ['recovered-home-insurance-2026','Aktuální stav pojištění domu Vlasatice je vedený v Insurance Center.'],
+ ['recovered-life-kamil-allianz','Aktuální stav životního pojištění Allianz je vedený v Insurance Center.'],
  ['recovered-life-tereza-nn','Aktuální stav Terezy je vedený v Insurance Center: nová NN smlouva a ukončované starší smlouvy.'],
  ['recovered-auto-insurance','Aktuální autopojištění je vedené v Insurance Center samostatně pro jednotlivá vozidla.']
 ]);
