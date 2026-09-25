@@ -33,7 +33,7 @@ const warnAction=(scope,error)=>{console.warn(`[app41:${scope}]`,error);toast('A
 
 const NAV_CLOSED1333=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED','PAYOUT_RECEIVED','CANCELLED','CANCELED']);
 const navOpen1333=x=>!NAV_CLOSED1333.has(String(x?.status||x?.workflow||x?.market_status||'OPEN').toUpperCase());
-const navArea1333=x=>norm(x?.area||x?.category||'');
+const navArea1333=x=>norm(x?.area||x?.category||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const navDue1333=x=>x?.due||x?.followUpAt||x?.dueAt||x?.due_at||x?.dueDate||x?.due_date||x?.deadline||null;
 const navDueTime1333=x=>{const raw=String(navDue1333(x)||'');if(!raw)return null;const d=Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(raw)?raw+'T23:59:59.999':raw);return Number.isFinite(d)?d:null};
 function navSignals1333(s){
