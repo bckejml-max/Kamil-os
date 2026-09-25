@@ -64,6 +64,7 @@ assert.match(moneyAdvanced,/x\.cadence==='YEARLY'/,'Money recurring rows must pr
 assert.match(insurance,/activeCosts/,'Insurance Center must expose current insurance costs separately');
 assert.match(insurance,/upcomingCosts/,'Insurance Center must expose upcoming insurance costs separately');
 assert.match(insurance,/startDays<0\?60:startDays<=45\?76:20/,'confirmed upcoming insurance must classify as SOON before start, REVIEW only after a missed start');
+assert.match(insurance,/needsAction=lc==='UPCOMING'/,'Insurance Center must distinguish informational upcoming state from actionable issues');
 assert.match(insuranceUi,/AKTUÁLNÍ STAV SMLUV/,'Insurance Center lifecycle heading must not overstate review/terminating policies as active');
 assert.match(vault,/SUPERSEDED_INSURANCE_RECOVERY_640/,'superseded recovery insurance must be archived once canonical insurance registry exists');
 assert.match(insuranceMaster,/kamil-allianz-life/,'canonical insurance registry must include Kamil Allianz life policy');
@@ -89,7 +90,7 @@ assert.match(home,/homeAmount=x=>x\.source==='insurance'/,'Home insurance cards 
 assert.match(home,/x\.status\?\.code!=='ARCHIVED'/,'Home must hide archived recovery records from current cards');
 assert.doesNotMatch(home,/data-home-filter/,'Home canonical page must not hide content behind filters');
 assert.match(documents,/data-documents-page1500/);
-assert.match(documents,/insuranceAction=insurance\.policies\.filter\(x=>x\.status!=='OK'\)/,'Documents top status must include canonical Insurance Center actions');
+assert.match(documents,/insuranceAction=\[\.\.\.\(insurance\.actions\|\|\[\]\)\]/,'Documents top status must use canonical actionable Insurance Center rows');
 assert.match(documents,/actionTotal=counts\.action\+insuranceAction\.length/,'Documents action count must combine vault and insurance actions');
 assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must not hide content behind filters');
 

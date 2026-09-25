@@ -40,7 +40,8 @@ export function insurancePolicy(x={},now=new Date()){
  else if(expiryDays!==null&&expiryDays<=30&&expiryDays>=0&&lc==='ACTIVE')priority=Math.max(priority,76);
  if(issues.some(i=>i.startsWith('Chybí')))priority=Math.max(priority,55);
  const status=priority>=90?'URGENT':priority>=75?'SOON':priority>=50?'REVIEW':'OK';
- return {...x,insurance:info,lifecycle:lc,lifecycleLabel:INSURANCE_LIFECYCLES[lc]||lc,kind:info.kind||'OTHER',kindLabel:INSURANCE_KINDS[info.kind]||INSURANCE_KINDS.OTHER,insured:info.insured||'',policyNumber:info.policyNumber||'',contact:info.contact||'',coverage,deductible,premium,annualPremium,monthlyPremium,renewal,expiry,notice,startDate:info.startDate||null,startDays,renewalDays,expiryDays,noticeDays,issues,priority,status};
+ const needsAction=lc==='UPCOMING'?(startDays!==null&&startDays<0)||issues.some(i=>i.startsWith('Chybí')):lc==='REVIEW'||lc==='TERMINATING'||(lc==='ACTIVE'&&status!=='OK');
+ return {...x,insurance:info,lifecycle:lc,lifecycleLabel:INSURANCE_LIFECYCLES[lc]||lc,kind:info.kind||'OTHER',kindLabel:INSURANCE_KINDS[info.kind]||INSURANCE_KINDS.OTHER,insured:info.insured||'',policyNumber:info.policyNumber||'',contact:info.contact||'',coverage,deductible,premium,annualPremium,monthlyPremium,renewal,expiry,notice,startDate:info.startDate||null,startDays,renewalDays,expiryDays,noticeDays,issues,priority,status,needsAction};
 }
 
 export function insuranceCenter(s={},now=new Date()){
@@ -51,9 +52,10 @@ export function insuranceCenter(s={},now=new Date()){
  const costs={},activeCosts={},upcomingCosts={};
  const addCost=(bucket,p)=>{if(p.annualPremium===null||p.annualPremium<=0)return;const c=p.currency||'CZK';bucket[c]=bucket[c]||{annual:0,monthly:0,count:0};bucket[c].annual+=p.annualPremium;bucket[c].monthly+=p.monthlyPremium||0;bucket[c].count++};
  for(const p of policies.filter(x=>['ACTIVE','UPCOMING'].includes(x.lifecycle))){addCost(costs,p);if(p.lifecycle==='ACTIVE')addCost(activeCosts,p);else if(p.lifecycle==='UPCOMING')addCost(upcomingCosts,p)}
- const urgent=policies.filter(x=>x.status==='URGENT').length;
+ const actions=policies.filter(x=>x.needsAction);
+ const urgent=actions.filter(x=>x.status==='URGENT').length;
  const due30=policies.filter(x=>(x.expiryDays!==null&&x.expiryDays>=0&&x.expiryDays<=30)||(x.noticeDays!==null&&x.noticeDays>=0&&x.noticeDays<=30)).length;
  const incomplete=policies.filter(x=>x.issues.some(i=>i.startsWith('Chybí'))).length;
  const insuredSubjects=new Set(policies.map(x=>String(x.insured||'').trim()).filter(Boolean));
- return {all,policies,offers,history,total:policies.length,active:policies.filter(x=>x.lifecycle==='ACTIVE').length,upcoming:policies.filter(x=>x.lifecycle==='UPCOMING').length,terminating:policies.filter(x=>x.lifecycle==='TERMINATING').length,review:policies.filter(x=>x.lifecycle==='REVIEW').length,urgent,due30,incomplete,insuredSubjects:insuredSubjects.size,costs,activeCosts,upcomingCosts,note:insuranceNote};
+ return {all,policies,offers,history,actions,actionCount:actions.length,total:policies.length,active:policies.filter(x=>x.lifecycle==='ACTIVE').length,upcoming:policies.filter(x=>x.lifecycle==='UPCOMING').length,terminating:policies.filter(x=>x.lifecycle==='TERMINATING').length,review:policies.filter(x=>x.lifecycle==='REVIEW').length,urgent,due30,incomplete,insuredSubjects:insuredSubjects.size,costs,activeCosts,upcomingCosts,note:insuranceNote};
 }
