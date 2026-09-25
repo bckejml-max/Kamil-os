@@ -66,6 +66,8 @@ assert.match(money,/!x\.issue&&\['HOLD','LISTED','OPEN'\]/,'Money must exclude d
 assert.match(money,/knownNumber=v=>/,'Money must distinguish explicit zero from unknown numeric values');
 assert.match(money,/bankKnown=vaultBankKnown\|\|planCashKnown/,'Money bank fallback must depend on knownness, not positive balance');
 assert.match(moneyAdvanced,/!x\.issue&&\['HOLD','LISTED'\]/,'advanced Money must exclude disputed tickets from ticket capital');
+assert.match(moneyAdvanced,/knownNumber=v=>/,'advanced Money must distinguish explicit zero from unknown values');
+assert.match(moneyAdvanced,/bankKnown=bankValues\.length>0/,'advanced Money must keep confirmed zero bank balances as known');
 assert.match(moneyAdvanced,/x\.status\?\.code!=='ARCHIVED'&&x\.recordType!=='insurance'/,'advanced Money recurring list must hide archived recovery insurance');
 assert.match(moneyAdvanced,/insurance\.policies\.filter\(x=>x\.lifecycle==='ACTIVE'/,'advanced Money recurring list must source active insurance from Insurance Center');
 assert.match(moneyAdvanced,/openInsuranceCenter/,'Money insurance rows must open Insurance Center directly');

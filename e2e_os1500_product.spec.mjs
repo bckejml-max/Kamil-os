@@ -319,3 +319,27 @@ test('OS737.0.51 Money keeps a confirmed zero bank balance instead of falling ba
  await expect(page.locator('#moneyView .os1334-mini-grid')).toContainText('0 Kč');
  await expect(page.locator('#moneyView .os1334-mini-grid')).not.toContainText('999 999');
 });
+
+test('OS737.0.52 Money detail shows confirmed zero bank balance as known',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('test detail zero bank balance',s=>{
+   s.personalVault={version:1,items:[{
+    id:'bank-zero-detail',title:'Bankovní test',section:'money',recordType:'bank-data',
+    balance:0,confidence:100,asOf:new Date().toISOString().slice(0,10),freshnessDays:365
+   },{
+    id:'property-known-detail',title:'Nemovitost',section:'home',recordType:'property',
+    marketValue:1000000,confidence:100,asOf:new Date().toISOString().slice(0,10),freshnessDays:365
+   }],evidence:[]};
+   s.xtbHub={accounts:{test:{currency:'CZK',totalValueCzk:0,positions:[]}}};
+  });
+ });
+ await page.locator('#mainNav [data-view="money"]').click();
+ await page.locator('[data-money-advanced]').click();
+ await expect(page.locator('#moneyView')).toContainText('PENÍZE + WEALTH',{timeout:10000});
+ const wealth=page.locator('#moneyView [data-money-group="wealth"]');
+ await expect(wealth).toContainText('Hotovost / účty – známá hodnota');
+ await expect(wealth).toContainText('0 Kč');
+ await expect(wealth).not.toContainText('Hotovost / účty – známá hodnotachybí');
+});
