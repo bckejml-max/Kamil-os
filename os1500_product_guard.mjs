@@ -120,6 +120,8 @@ assert.match(propertyHub,/filter\(isActivePropertyCandidate472\)/,'Property Hub 
 assert.match(betting,/data-betting-open-index/,'Open bets must be directly inspectable');
 assert.match(betting,/export function bettingData1334/,'Betting canonical state must be reusable by Today');
 assert.match(betting,/openTickets=open\.reduce/,'Betting must distinguish ticket count from aggregated positions');
+assert.match(betting,/masterPositionCount:master\?\.positionCount/,'Betting diagnostics must separate historical master size from current open positions');
+assert.match(betting,/positionCount:d\.open\.length/,'Betting current positionCount must track open positions');
 assert.match(today,/bettingTickets:d\.bet\.openTickets/,'Today must expose canonical betting ticket count separately from positions');
 assert.match(today,/bet=bettingData1334\(s\)/,'Today Betting card must read canonical Betting state');
 assert.match(today,/d\.bet\.risk\|\|d\.bet\.unknownRisk/,'Today Betting tone must use canonical risk semantics');
