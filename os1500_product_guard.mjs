@@ -43,7 +43,9 @@ for(const route of ['inbox','work','tickets','money','property','betting','famil
 }
 assert.match(today,/9 oblastí/,'Today must show all nine product areas');
 assert.match(today,/personalTasks=tasks\.filter\(isPersonalScope527\)/,'Today Inbox task scope must match personal Inbox scope');
-assert.match(today,/calendar=\(s\.calendar\?\.events\|\|\[\]\)\.filter\(open\)\.filter/,'Today calendar section must hide closed events');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
+assert.match(today,/calendar=\(s\.calendar\?\.events\|\|\[\]\)\.filter\(open\)\.filter/,'Today calendar section must hide closed events');
+assert.match(today,/const tomorrowRoute=x=>/,'Today tomorrow priorities must route by actual personal area');
+assert.match(today,/filter\(x=>tomorrowRoute\(x\)==='family'\)/,'Today Family summary must count only truly family-scoped tomorrow items');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
 assert.match(today,/usabilityReset:1500/);
 assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
 assert.match(today,/SOLD_TICKET_STATES/,'Today must explicitly exclude sold/settlement ticket states from active inventory');
