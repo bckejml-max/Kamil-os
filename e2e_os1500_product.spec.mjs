@@ -691,3 +691,33 @@ test('OS737.0.68 Today Family card matches canonical 7-day Family state',async({
  await page.locator('#mainNav [data-view="family"]').click();
  await expect(page.locator('[data-family-page1500] .pr1300-status')).toContainText('1 do 7 dní');
 });
+
+test('OS737.0.69 Today Money card matches canonical Money bank truth',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const now=new Date().toISOString();
+  store.mutate('test Today Money parity',s=>{
+   s.financePlan={};
+   s.personalVault={version:1,evidence:[],items:[{
+    id:'bank-69',title:'Bankovní stav 69',section:'money',recordType:'bank-data',
+    balance:123456,confidence:95,confidenceLabel:'OK',sourceLabel:'test',
+    asOf:now,freshnessDays:365,nextAction:'Aktualizovat později',createdAt:now,updatedAt:now
+   }]};
+   s.tasks=[];
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ const state=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {moneyData1300}=await import('./js/moneyOverview.js');
+  const d=moneyData1300(store.get());
+  return {bank:d.bank,known:d.bankKnown,attention:d.attention.length};
+ });
+ expect(state.known).toBe(true);
+ expect(state.bank).toBe(123456);
+ const card=page.locator('#todayView .os1600-area').filter({hasText:'Peníze'}).first();
+ await expect(card).toContainText('123');
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('[data-money-overview]')).toContainText('123');
+});

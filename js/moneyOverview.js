@@ -14,9 +14,9 @@ const knownVal=(x,...keys)=>{for(const k of keys){const n=knownNumber(x?.[k]);if
 const val=(x,...keys)=>knownVal(x,...keys)??0;
 const isOpen=x=>!['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED'].includes(String(x?.status||'').toUpperCase());
 
-function data(){
- ensurePersonalVault640();
- const s=store.get(),v=personalVault640(s),plan=personalMoneyPlan650(s);
+export function moneyData1300(input=null){
+ if(!input)ensurePersonalVault640();
+ const s=input||store.get(),v=personalVault640(s),plan=personalMoneyPlan650(s);
  const debt=v.records.filter(x=>['mortgage','loan','debt'].includes(x.recordType)).reduce((a,x)=>a+Math.abs(val(x,'balance','debtBalance')),0);
  const property=v.records.filter(x=>x.recordType==='property').reduce((a,x)=>a+val(x,'marketValue','estimatedValue','value'),0);
  const bankValues=v.records.filter(x=>x.recordType==='bank-data'&&x.status?.code!=='ARCHIVED').map(x=>knownVal(x,'balance','cashBalance','currentBalance')).filter(x=>x!==null),vaultBank=bankValues.reduce((a,x)=>a+x,0),vaultBankKnown=bankValues.length>0,planCash=knownNumber(s.financePlan?.cashNow),planCashKnown=!!s.financePlan?.updatedAt&&planCash!==null,bank=vaultBankKnown?Math.max(0,vaultBank):(planCashKnown?Math.max(0,planCash):0),bankKnown=vaultBankKnown||planCashKnown;
@@ -27,6 +27,7 @@ function data(){
  const attention=[...v.action.slice(0,3).map(x=>({kind:'record',id:x.id,title:x.title,detail:x.status?.detail||x.nextAction||'Zkontrolovat údaj',severity:x.status?.severity||60})),...tasks.slice(0,3).map(x=>({kind:'task',id:x.id,title:x.title||'Finanční úkol',detail:x.due?'Termín '+new Date(x.due).toLocaleDateString('cs-CZ'):'Bez termínu',severity:55}))].sort((a,b)=>b.severity-a.severity).slice(0,4);
  return {s,v,plan,debt,property,bank,bankKnown,invest:xtb+generic,tickets,assets:property+bank+xtb+generic+tickets,net:property+bank+xtb+generic+tickets-debt,mortgage:v.records.find(x=>x.recordType==='mortgage'),bankRecord:v.records.find(x=>x.recordType==='bank-data'),tasks,attention};
 }
+const data=()=>moneyData1300();
 const tone=n=>n>=90?'bad':n>=65?'warn':'good';
 const attrs=x=>'data-money-record="'+esc(x.kind==='record'?x.id:'')+'" data-money-task="'+esc(x.kind==='task'?x.id:'')+'"';
 function attentionHtml(rows){if(!rows.length)return '';return '<div class="pr1300-attention">'+rows.map(x=>'<button type="button" '+attrs(x)+'><i class="pr1300-dot '+tone(x.severity)+'"></i><span><b>'+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></span><em>'+(x.kind==='record'?'otevřít':'úkol')+' →</em></button>').join('')+'</div>'}
