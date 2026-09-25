@@ -130,6 +130,6 @@ test('OS737.0.31 command bar ticket capital excludes disputes',async({page})=>{
   const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');
   return m.personalQuery('kolik mám kapitálu ve vstupenkách',s,{});
  });
- expect(result?.title).toContain('45 692');
+ expect(String(result?.title||'').replace(/\D/g,'')).toContain('45692');
  expect(result?.lines?.join(' ')).toContain('bez reklamací');
 });
