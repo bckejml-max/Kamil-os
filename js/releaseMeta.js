@@ -1,3 +1,3 @@
-export const APP_VERSION='737.0.44';
-export const APP_RELEASE='737.0.44';
-// OS737.0.44: Work lifecycle cleanup — explicitly handed-over/completed projects no longer remain active or generate false risks.
+export const APP_VERSION='737.0.45';
+export const APP_RELEASE='737.0.45';
+// OS737.0.45: Inbox insurance truth — informational BRZY upcoming policies stay visible in Insurance Center but no longer enter the action queue.

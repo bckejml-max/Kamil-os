@@ -214,3 +214,22 @@ test('OS737.0.44 handed-over projects do not remain active in Work',async({page}
  });
  expect(out.projects.map(x=>x.name)).toEqual(['Aktivní']);
 });
+
+test('OS737.0.45 Inbox excludes informational upcoming insurance',async({page})=>{
+ await boot(page);
+ const out=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {insuranceCenter}=await import('./js/insurance25.js');
+  const {localInboxSummary660}=await import('./js/inboxHub660.js');
+  const state=store.get(),center=insuranceCenter(state),inbox=localInboxSummary660(state);
+  const upcoming=center.policies.find(x=>x.lifecycle==='UPCOMING'&&!x.needsAction)||null;
+  return {
+   upcoming:upcoming?{id:upcoming.id,status:upcoming.status,needsAction:upcoming.needsAction}:null,
+   inboxHasUpcoming:upcoming?inbox.rows.some(x=>String(x.sourceId)===String(upcoming.id)):false
+  };
+ });
+ expect(out.upcoming).toBeTruthy();
+ expect(out.upcoming.status).toBe('SOON');
+ expect(out.upcoming.needsAction).toBe(false);
+ expect(out.inboxHasUpcoming).toBe(false);
+});

@@ -45,8 +45,7 @@ function actionFor(kind,x){const title=clean(x.title||x.name||'Osobní věc'),du
 function insuranceInboxRow(x){
  const p=insurancePolicy(x),lc=p.lifecycle;
  if(['HISTORY','OFFER'].includes(lc))return null;
- if(lc==='ACTIVE'&&p.status==='OK')return null;
- if(lc==='UPCOMING'&&p.startDays!==null&&p.startDays>60)return null;
+ if(!p.needsAction)return null;
  const due=p.notice||p.expiry||p.startDate||null,detail=clean(p.issues[0]||x.notes||'Pojistku je potřeba zkontrolovat.');
  const row=makeRow('admin',x.id,{...x,due,notes:detail},lc==='UPCOMING'?'deadline':'document',{sourceLabel:'Pojištění',route:'more'});
  row.detail=detail;row.score=Math.max(40,Number(p.priority||0));row.insuranceLifecycle=lc;return row;

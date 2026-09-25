@@ -24,6 +24,7 @@ const betting=read('js/bettingOverview.js');
 const family=read('js/familyPage140.js');
 const home=read('js/homePage140.js');
 const documents=read('js/documentsPage141.js');
+const inboxHub=read('js/inboxHub660.js');
 const sw=read('sw.js');
 
 assert.match(index,/data-os1500="1"/,'OS1500 shell flag missing');
@@ -95,6 +96,7 @@ assert.doesNotMatch(home,/data-home-filter/,'Home canonical page must not hide c
 assert.match(documents,/data-documents-page1500/);
 assert.match(documents,/insuranceAction=\[\.\.\.\(insurance\.actions\|\|\[\]\)\]/,'Documents top status must use canonical actionable Insurance Center rows');
 assert.match(documents,/actionTotal=counts\.action\+insuranceAction\.length/,'Documents action count must combine vault and insurance actions');
+assert.match(inboxHub,/if\(!p\.needsAction\)return null/,'Inbox must include only actionable Insurance Center rows');
 assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must not hide content behind filters');
 
 assert.match(app,/betting:'betting-task'/,'shell quick add must support betting');
