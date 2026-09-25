@@ -18,14 +18,15 @@ const openResult=x=>navigateFromTarget(x?.target,x?.homeMode);
 const cmdFingerprints=new Map();
 function once(key,fn){const now=Date.now(),last=cmdFingerprints.get(key)||0;if(now-last<800)return false;cmdFingerprints.set(key,now);fn();return true}
 const S=()=>store.get();
+const fold=v=>norm(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const CLOSED=new Set(['HOTOVO','DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED']);
 const active=x=>!CLOSED.has(String(x?.status||x?.workflow||'ACTIVE').toUpperCase());
 const personalTask=isPersonalScope527;
-const taskTarget=t=>{const area=norm(t?.area||t?.category||'');if(area.includes('prace')||area.includes('zakaz'))return'work';if(area.includes('realit')||area.includes('byt'))return'property';if(area.includes('vstup')||area.includes('ticket')||area.includes('viagogo'))return'tickets';if(area.includes('saz')||area.includes('betting'))return'betting';if(area.includes('rodin'))return'family';if(area.includes('domov')||area==='home')return'home';if(area.includes('peniz')||area.includes('finance')||area==='money')return'money';if(area.includes('dokument'))return'more';return'inbox'};
+const taskTarget=t=>{const area=fold(t?.area||t?.category||'');if(area.includes('prace')||area.includes('zakaz'))return'work';if(area.includes('realit')||area.includes('byt'))return'property';if(area.includes('vstup')||area.includes('ticket')||area.includes('viagogo'))return'tickets';if(area.includes('saz')||area.includes('betting'))return'betting';if(area.includes('rodin'))return'family';if(area.includes('domov')||area==='home')return'home';if(area.includes('peniz')||area.includes('finance')||area==='money')return'money';if(area.includes('dokument'))return'more';return'inbox'};
 const homeModeFor=x=>x.category==='INSURANCE'?'insurance':x.category==='DOCUMENT'?'documents':x.category==='VEHICLE'?'car':x.category==='FAMILY'?'family':['HOME','UTILITY'].includes(x.category)?'house':['SUBSCRIPTION','LOAN','FEE'].includes(x.category)?'contracts':x.category==='PAYMENT'?'payments':'contracts';
 const WRITE_TYPES=new Set(copilotWrite32Contract.knownWriteTypes);
 function inferredTaskArea(text){
- const n=norm(text);
+ const n=fold(text);
  const rules=[
   ['Práce',/(zakaz|prace|pracovni|faktur|stavb|projekt|predan|dsps|reviz|trafo)/],
   ['Vstupenky',/(vstup|ticket|viagogo|listek|listk|transfer|payout)/],
@@ -40,7 +41,7 @@ function inferredTaskArea(text){
 }
 
 export function search(q){
- q=norm(q);if(!q)return[];const out=[],add=(kind,title,detail,target,id,extra={})=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,...extra})};
+ q=fold(q);if(!q)return[];const out=[],add=(kind,title,detail,target,id,extra={})=>{if(fold(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,...extra})};
  for(const t of S().tasks||[])if(active(t))add(personalTask(t)?'Osobní úkol':'Úkol',t.title||t.name||'Úkol',t.area||t.category||'Úkol',taskTarget(t),t.id);
  for(const x of S().personalAdmin?.items||[]){if(!active(x))continue;const cat=PERSONAL_CATEGORIES[x.category]||PERSONAL_CATEGORIES.OTHER,ins=x.insurance||{},doc=x.document||{},target=['INSURANCE','DOCUMENT'].includes(x.category)?'more':'home',mode=x.category==='INSURANCE'?'insurance':target==='home'?homeModeFor(x):null;const detail=[cat,x.provider,x.notes,ins.insured,INSURANCE_KINDS[ins.kind],doc.holder,DOCUMENT_KINDS[doc.kind],doc.issuer].filter(Boolean).join(' · ');add(cat,x.title||cat,detail,target,x.id,{homeMode:mode})}
  for(const m of S().familyHome?.members||[])if(active(m))add('Rodina',m.name,[FAMILY_RELATIONS[m.relation]||'',m.notes||''].filter(Boolean).join(' · '),'family',m.id);
