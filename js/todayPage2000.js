@@ -69,7 +69,7 @@ function systemState(d){
  ];
 }
 function systemRows(items){
- return '<div class="os1400-domains">'+items.map(x=>'<button type="button" class="os1400-domain" data-today1300-nav="'+esc(x.route)+'"><div><b>'+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></div><div class="os1400-side '+esc(x.tone||'')+'">'+esc(x.side)+' →</div></button>').join('')+'</div>'
+ return '<div class="os1600-areas">'+items.map(x=>'<button type="button" class="os1600-area '+esc(x.tone||'')+'" data-today1300-nav="'+esc(x.route)+'"><span>'+esc(x.title)+'</span><b>'+esc(x.side)+'</b><small>'+esc(x.detail)+'</small></button>').join('')+'</div>'
 }
 function queue(d){
  const seen=new Set(),out=[];
@@ -86,23 +86,22 @@ function metric(label,value){return '<div class="os1400-metric"><span>'+esc(labe
 
 function render(){
  const host=document.querySelector('#todayView');if(!host)return false;
- const d=baseData(),items=queue(d),primary=items[0]||null,rest=items.slice(1),system=systemState(d),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
+ const d=baseData(),items=queue(d),system=systemState(d),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
  const severity=items.some(x=>x.tone==='bad')?'bad':items.length?'warn':'good';
- host.innerHTML='<div class="os1400-home" data-os2-today data-product-home1300 data-os1400-home>'+
-  '<header class="os1400-hero"><div><div class="os1400-kicker">'+esc(today)+'</div><h1>'+greeting()+', Kamile.</h1><p>Jedno místo pro to, co dnes opravdu potřebuje tvoji pozornost.</p></div><span class="os1400-count '+severity+'">'+(items.length?items.length+' k řešení':'bez urgentních věcí')+'</span></header>'+
-  '<section class="os1400-focus"><div><div class="os1400-kicker">Teď</div><h2>'+esc(primary?.title||'Nic akutního. Můžeš jet podle plánu.')+'</h2><p>'+esc(primary?.detail||'OS nevidí žádný prošlý termín, urgentní transfer ani follow-up, který by potřeboval okamžitý zásah.')+'</p></div><div class="os1400-focus-actions">'+(primary?'<button class="os1400-button primary" type="button" '+actionAttr(primary)+'>'+esc(primary.cta||'Otevřít')+' →</button>':'<button class="os1400-button primary" type="button" data-today1300-add>＋ Přidat úkol</button>')+'</div></section>'+
-  '<div class="os1400-metrics">'+
-    metric('Po termínu',String(d.overdue.length))+
-    metric('Waiting for',String(d.waiting.length))+
-    metric('Transfery',String(d.transfer.length))+
-    metric('Práce',String(d.work.status||'—'))+
-  '</div>'+
-  '<div class="os1400-grid os1331-command-grid" data-os1331-command-grid>'+
-   '<section class="os1400-card os1331-focus-stack"><div class="os1400-card-head"><h3>Další kroky</h3><span>podle naléhavosti</span></div>'+actionRows(rest)+'</section>'+
-   '<section class="os1400-card os1331-system-panel"><div class="os1400-card-head"><h3>Přehled OS</h3><span>9 oblastí</span></div>'+systemRows(system)+'</section>'+
-  '</div>'+
-  (d.calendar.length?'<section class="os1400-card os1400-calendar"><div class="os1400-card-head"><h3>Nejbližší v kalendáři</h3><span>max. 3 události</span></div>'+calendarRows(d.calendar)+'</section>':'')+
-  '<div style="display:flex;justify-content:flex-start"><button class="os1400-button" type="button" data-today1300-add>＋ Přidat úkol</button></div>'+
+ const summary=[
+  {label:'Po termínu',value:String(d.overdue.length),tone:d.overdue.length?'bad':'good'},
+  {label:'Waiting for',value:String(d.waiting.length),tone:d.waiting.length?'warn':'good'},
+  {label:'Transfery',value:String(d.transfer.length),tone:d.transfer.length?'bad':'good'},
+  {label:'Práce',value:String(d.work.status||'—'),tone:d.work.status==='ZÁSAH'?'bad':d.work.status==='SLEDOVAT'?'warn':'good'}
+ ];
+ host.innerHTML='<div class="os1600-home" data-os2-today data-product-home1300 data-os1400-home data-os1600-home>'+
+  '<header class="os1600-head"><div><div class="os1400-kicker">'+esc(today)+'</div><h1>'+greeting()+', Kamile.</h1><p>Co dnes vyžaduje tvoji pozornost. Bez diagnostiky a bez zbytečných mezikroků.</p></div><button class="os1400-button primary" type="button" data-today1300-add>＋ Přidat</button></header>'+
+  '<div class="os1600-summary">'+summary.map(x=>'<div class="os1600-summary-item '+x.tone+'"><span>'+esc(x.label)+'</span><b>'+esc(x.value)+'</b></div>').join('')+'</div>'+
+  '<section class="os1600-attention '+severity+'"><div class="os1600-section-head"><div><span class="os1400-kicker">Teď</span><h2>Co potřebuje vyřešit</h2></div><span>'+(items.length?items.length+' položek':'všechno v klidu')+'</span></div>'+
+   (items.length?actionRows(items):'<div class="os1600-clear"><b>Nic akutního.</b><span>Můžeš jet podle plánu nebo přidat další úkol.</span></div>')+
+  '</section>'+
+  '<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Přehled OS</span><h2>Všechny oblasti</h2></div><span>9 oblastí · vše na jeden klik</span></div>'+systemRows(system)+'</section>'+
+  (d.calendar.length?'<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Kalendář</span><h2>Nejbližší</h2></div><span>max. 3 události</span></div>'+calendarRows(d.calendar)+'</section>':'')+
  '</div>';
  if(!host.dataset.today1300Bound){
   host.dataset.today1300Bound='1';
@@ -115,7 +114,7 @@ function render(){
    if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))
   })
  }
- window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
+ window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1600,usabilityReset:1600,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
  return true;
 }
 export function renderTodayPage2000(){return render()}
