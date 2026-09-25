@@ -281,3 +281,23 @@ test('OS737.0.48 Family calendar excludes unrelated personal events',async({page
  await expect(page.locator('#ticketsView')).toContainText('Rodinný termín');
  await expect(page.locator('#ticketsView')).not.toContainText('Osobní administrativa');
 });
+
+test('OS737.0.50 ticket transfer/payout attention opens Ticket desk instead of sync',async({page})=>{
+ await boot(page);
+ const out=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('test ticket transfer CTA',s=>{
+   s.ticketBook=s.ticketBook||{items:[]};
+   s.ticketBook.items=[...(s.ticketBook.items||[]),{
+    id:'cta-transfer-test',name:'CTA transfer test',qty:1,buy:1000,buyTotalCzk:1000,
+    workflow:'SOLD',market_status:'SOLD_UNDELIVERED',transferStatus:'PENDING'
+   }];
+  });
+  return true;
+ });
+ await page.locator('#mainNav [data-view="tickets"]').click();
+ const row=page.locator('[data-ticket-action="advanced"]').filter({hasText:'čeká na převod'}).first();
+ await expect(row).toBeVisible({timeout:10000});
+ await row.click();
+ await expect(page.locator('#ticketIntelView')).toHaveAttribute('data-product-advanced','1');
+});
