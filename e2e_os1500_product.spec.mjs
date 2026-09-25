@@ -909,3 +909,23 @@ test('OS737.0.75 Betting header and diagnostics show current open state, not mas
  expect(d.masterPositionCount).toBe(58);
  expect(d.masterTicketCount).toBe(140);
 });
+
+test('OS737.0.78 Property search result opens the exact candidate detail',async({page})=>{
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {searchExtended610}=await import('./js/commandSearch610.js');
+  store.mutate('test property search deep link',s=>{
+   s.propertyBook={candidates:[
+    {id:'search-prop-a',name:'První byt search',status:'ACTIVE',purchasePrice:3000000,monthlyRent:15000},
+    {id:'search-prop-b',name:'Druhý byt search',status:'ACTIVE',purchasePrice:3500000,monthlyRent:17000}
+   ]};
+  });
+  return searchExtended610('druhý byt search')[0]||null;
+ });
+ expect(result?.focus).toBe('property:1');
+ await page.locator('#mainNav [data-view="property"]').click();
+ await page.evaluate(focus=>window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{target:'property',focus}})),result.focus);
+ await expect(page.locator('#propertyHub620Drawer')).toHaveClass(/open/,{timeout:10000});
+ await expect(page.locator('#propertyHub620Drawer')).toContainText('Druhý byt search');
+});
