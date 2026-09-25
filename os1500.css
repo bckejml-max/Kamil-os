@@ -171,9 +171,11 @@ html[data-os1500="1"] .os1500-primary-label.good:before{background:var(--os1500-
     width:auto!important;
     height:auto!important;
     padding:3px 1px!important;
-    font-size:8px!important;
+    font-size:8.8px!important;
+    line-height:1.05!important;
+    white-space:nowrap!important;
   }
-  html[data-os1500="1"] .os2-bottom button span{font-size:13px!important}
+  html[data-os1500="1"] .os2-bottom button span{font-size:14px!important}
 }
 @media(max-width:420px){
   .os1600-areas{grid-template-columns:1fr 1fr}
