@@ -76,3 +76,13 @@ test('OS737.0.35 Insurance Center wording does not overstate REVIEW/TERMINATING 
  await expect(page.locator('#moreView')).toContainText('Smlouvy „Ověřit“ a „Ukončované“');
  await expect(page.locator('#moreView')).not.toContainText('Co teď skutečně platí nebo začne platit');
 });
+
+test('OS737.0.38 confirmed upcoming insurance is BRZY, not OVĚŘIT',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="more"]').click();
+ await page.locator('#insurance25Tile').click();
+ const row=page.locator('.intel-row').filter({hasText:'Tereza · NN Orange Risk'}).first();
+ await expect(row).toContainText('Začíná');
+ await expect(row).toContainText('BRZY');
+ await expect(row).not.toContainText('OVĚŘIT');
+});
