@@ -3,9 +3,10 @@ import {workCommandCenter440} from './workCommandCenter440.js';
 import {buildPropertyHub620} from './propertyHub620.js';
 import {personalDailyAssistant650} from './personalAssistant650.js';
 import {insuranceCenter} from './insurance25.js';
-import {ownEvent1100} from './runtimeOwnership1100.js';
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 
 const OWNER='today.os2000';
+const openInsuranceCenter=()=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true})};
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT_RECEIVED','PAYOUT RECEIVED','CANCELLED','CANCELED']);
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const upper=v=>String(v||'').toUpperCase();
@@ -16,7 +17,7 @@ const ts=x=>{const d=Date.parse(dateOf(x)||'');return Number.isFinite(d)?d:null}
 const overdueAt=x=>{const raw=String(dateOf(x)||'');if(!raw)return null;if(/^\d{4}-\d{2}-\d{2}$/.test(raw)){const d=new Date(raw+'T23:59:59.999');return Number.isFinite(d.getTime())?d.getTime():null}return ts(x)};
 const isOverdue=x=>{const t=overdueAt(x);return t!==null&&t<Date.now()};
 const personalRoute=x=>x?.route==='documents'?'more':['waiting','today'].includes(x?.route)?'inbox':x?.route||'today';
-const actionAttr=x=>x?.personalId?`data-today1300-personal="${esc(x.personalId)}"`:x?.taskId?`data-today1300-task="${esc(x.taskId)}"`:`data-today1300-nav="${esc(x?.route||'today')}"`;
+const actionAttr=x=>x?.insurance?`data-today1300-insurance="1"`:x?.personalId?`data-today1300-personal="${esc(x.personalId)}"`:x?.taskId?`data-today1300-task="${esc(x.taskId)}"`:`data-today1300-nav="${esc(x?.route||'today')}"`;
 const fmtDate=x=>{const t=ts(x);if(!t)return'bez termínu';return new Date(t).toLocaleDateString('cs-CZ',{day:'numeric',month:'short'})};
 const money=v=>Number.isFinite(Number(v))?`${Math.round(Number(v)).toLocaleString('cs-CZ')} Kč`:'—';
 
@@ -35,7 +36,7 @@ function attention(d){
  const wr=d.work.topRisks[0];if(wr)add({title:wr.title,detail:`${wr.kind} · ${wr.detail}`,route:'work',tone:wr.score>=95?'bad':'warn',cta:'otevřít'},Math.max(90,Number(wr.score||0)+12));
  if(d.transfer.length)add({title:`${d.transfer.length} prodejů čeká na převod`,detail:'Vstupenky jsou prodané, ale předání kupujícímu ještě není dokončené.',route:'tickets',tone:'bad',cta:'převést'},126);
  for(const x of d.personal?.top||[])add({title:x.title,detail:x.why||x.next||'Osobní věc vyžaduje kontrolu.',route:personalRoute(x),personalId:x.id,tone:x.score>=110?'bad':x.score>=90?'warn':'',cta:String(x.cta||'vyřešit').toLowerCase()},x.score);
- for(const x of (d.insurance?.policies||[]).filter(x=>x.status!=='OK').slice(0,2))add({title:x.title,detail:x.issues?.[0]||'Pojistku je potřeba zkontrolovat.',route:'more',tone:x.status==='URGENT'?'bad':'warn',cta:'pojištění'},Number(x.priority||0)+8);
+ for(const x of (d.insurance?.policies||[]).filter(x=>x.status!=='OK').slice(0,2))add({title:x.title,detail:x.issues?.[0]||'Pojistku je potřeba zkontrolovat.',route:'more',insurance:true,tone:x.status==='URGENT'?'bad':'warn',cta:'pojištění'},Number(x.priority||0)+8);
  const dueWait=d.waiting.find(x=>{const t=ts(x);return t&&t<=Date.now()+86400000});if(dueWait)add({title:`Follow-up: ${titleOf(dueWait)}`,detail:isOverdue(dueWait)?'Čekání je po termínu.':'Follow-up je dnes nebo zítra.',route:'inbox',tone:isOverdue(dueWait)?'bad':'warn',cta:'zkontrolovat'},isOverdue(dueWait)?116:84);
  const tomorrow=d.personal?.tomorrow?.[0];if(tomorrow)add({title:tomorrow.title||tomorrow.summary||'Rodinný termín zítra',detail:'Osobní termín je zítra.',route:'family',tone:'',cta:'připravit'},76);
  const seen=new Set();
@@ -106,6 +107,7 @@ function render(){
  if(!host.dataset.today1300Bound){
   host.dataset.today1300Bound='1';
   ownEvent1100(OWNER,host,'click',async e=>{
+   if(e.target.closest('[data-today1300-insurance]')){openInsuranceCenter();return}
    const personalButton=e.target.closest('[data-today1300-personal]');
    if(personalButton){const action=personalDailyAssistant650(store.get()).top.find(x=>String(x.id)===personalButton.dataset.today1300Personal);if(action){const {openPersonalAction641}=await import('./personalActionExecution641.js');await openPersonalAction641(action);render()}return}
    const taskButton=e.target.closest('[data-today1300-task]');

@@ -176,3 +176,12 @@ test('OS737.0.36 Home insurance card shows actual yearly cadence',async({page})=
  await expect(card).toContainText('2 600 Kč/rok');
  await expect(card).toContainText('Ověřit');
 });
+
+test('OS737.0.37 Today insurance priority deep-links to Insurance Center',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="today"]').click();
+ const insurancePriority=page.locator('[data-today1300-insurance]').first();
+ await expect(insurancePriority).toBeVisible({timeout:10000});
+ await insurancePriority.click();
+ await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
+});
