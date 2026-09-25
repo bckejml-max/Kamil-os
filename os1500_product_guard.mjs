@@ -26,6 +26,7 @@ const family=read('js/familyPage140.js');
 const home=read('js/homePage140.js');
 const documents=read('js/documentsPage141.js');
 const inboxHub=read('js/inboxHub660.js');
+const personalActionExecution=read('js/personalActionExecution641.js');
 const sw=read('sw.js');
 
 assert.match(index,/data-os1500="1"/,'OS1500 shell flag missing');
@@ -113,6 +114,8 @@ assert.match(documents,/actionTotal=counts\.action\+insuranceAction\.length/,'Do
 assert.match(inboxHub,/if\(!p\.needsAction\)return null/,'Inbox must include only actionable Insurance Center rows');
 assert.match(inboxHub,/openInsuranceCenter660/,'Inbox insurance rows must open Insurance Center directly');
 assert.match(inboxHub,/function calendarRoute660/,'Inbox calendar rows must route by actual personal area');
+assert.match(personalActionExecution,/calendarScope641/,'calendar preparation tasks must preserve the source personal area');
+assert.doesNotMatch(personalActionExecution,/category:'Rodina',area:'Rodina'/,'generic calendar preparation must not force every event into Family');
 assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must not hide content behind filters');
 
 assert.match(app,/betting:'betting-task'/,'shell quick add must support betting');
