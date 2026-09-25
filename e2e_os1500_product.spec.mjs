@@ -301,3 +301,21 @@ test('OS737.0.50 ticket transfer/payout attention opens Ticket desk instead of s
  await row.click();
  await expect(page.locator('#ticketIntelView')).toHaveAttribute('data-product-advanced','1');
 });
+
+test('OS737.0.51 Money keeps a confirmed zero bank balance instead of falling back to stale cash',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('test confirmed zero bank balance',s=>{
+   s.personalVault={version:1,items:[{
+    id:'bank-zero-test',title:'Bankovní test',section:'money',recordType:'bank-data',
+    balance:0,confidence:100,asOf:new Date().toISOString().slice(0,10),freshnessDays:365
+   }],evidence:[]};
+   s.financePlan={...(s.financePlan||{}),cashNow:999999,updatedAt:new Date().toISOString()};
+  });
+ });
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('[data-money-overview]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#moneyView .os1334-mini-grid')).toContainText('0 Kč');
+ await expect(page.locator('#moneyView .os1334-mini-grid')).not.toContainText('999 999');
+});

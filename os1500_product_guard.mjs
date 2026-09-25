@@ -63,6 +63,8 @@ assert.match(tickets,/dynamicPrimary:true/);
 assert.match(ticketPortfolio,/!x\?\.issue/,'disputed ticket rows must not inflate active inventory');
 assert.match(ticketPortfolio,/sectionLike32/,'ticket event naming must preserve matchup identity while stripping seat/section suffixes');
 assert.match(money,/!x\.issue&&\['HOLD','LISTED','OPEN'\]/,'Money must exclude disputed tickets from active asset value');
+assert.match(money,/knownNumber=v=>/,'Money must distinguish explicit zero from unknown numeric values');
+assert.match(money,/bankKnown=vaultBankKnown\|\|planCashKnown/,'Money bank fallback must depend on knownness, not positive balance');
 assert.match(moneyAdvanced,/!x\.issue&&\['HOLD','LISTED'\]/,'advanced Money must exclude disputed tickets from ticket capital');
 assert.match(moneyAdvanced,/x\.status\?\.code!=='ARCHIVED'&&x\.recordType!=='insurance'/,'advanced Money recurring list must hide archived recovery insurance');
 assert.match(moneyAdvanced,/insurance\.policies\.filter\(x=>x\.lifecycle==='ACTIVE'/,'advanced Money recurring list must source active insurance from Insurance Center');
