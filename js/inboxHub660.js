@@ -13,6 +13,7 @@ import {insurancePolicy} from './insurance25.js';
 
 const VERSION='660.0.0';
 const OWNER='core.inbox660';
+const openInsuranceCenter660=()=>{navigate('more');schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true})};
 const DAY=86400000;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED','SOLD','PAYOUT_RECEIVED']);
 const BUCKETS={reply:{label:'ODPOVĚDĚT',short:'Odpovědět'},pay:{label:'ZAPLATIT',short:'Zaplatit'},do:{label:'VYŘEŠIT',short:'Vyřešit'},waiting:{label:'ČEKÁM',short:'Čekám'},deadline:{label:'TERMÍN',short:'Termín'},document:{label:'DOKUMENT',short:'Dokument'}};
@@ -47,7 +48,7 @@ function insuranceInboxRow(x){
  if(['HISTORY','OFFER'].includes(lc))return null;
  if(!p.needsAction)return null;
  const due=p.notice||p.expiry||p.startDate||null,detail=clean(p.issues[0]||x.notes||'Pojistku je potřeba zkontrolovat.');
- const row=makeRow('admin',x.id,{...x,due,notes:detail},lc==='UPCOMING'?'deadline':'document',{sourceLabel:'Pojištění',route:'more'});
+ const row=makeRow('admin',x.id,{...x,due,notes:detail},lc==='UPCOMING'?'deadline':'document',{sourceLabel:'Pojištění',route:'more',insurance:true});
  row.detail=detail;row.score=Math.max(40,Number(p.priority||0));row.insuranceLifecycle=lc;return row;
 }
 function buildLocalRows(s=store.get()){
@@ -87,7 +88,7 @@ function triageDirect(row,target){let created=null;const at=new Date().toISOStri
 async function openDirect(row){const choice=await modal(row.title,`<div class="card"><div class="eyebrow">${h(bucketLabel(row.bucket))} · ${h(sourceLabel(row))}</div><p>${h(row.detail||'Bez dalšího popisu.')}</p><div class="decision-note"><b>Termín:</b> ${h(timing(row.days,row.due))}</div></div>`,[{label:'Hotovo',value:'done',primary:true},{label:'Převést na úkol',value:'task'},{label:'Čekám na odpověď',value:'waiting'},{label:'Otevřít sekci',value:'route'},{label:'Zavřít',value:null}]);if(choice==='done'){if(closeDirect(row))toast('Inbox položka je hotová.')}else if(choice==='task'){triageDirect(row,'task');toast('Převedeno do osobních úkolů.')}else if(choice==='waiting'){triageDirect(row,'waiting');toast('Převedeno do čekání.')}else if(choice==='route')navigate(row.route);return choice}
 function gmailUrl(row){const q=row.messageId?`rfc822msgid:${row.messageId}`:row.title;return`https://mail.google.com/mail/#search/${encodeURIComponent(q)}`}
 function navigate(view){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:view||'today'}))}
-async function openRow(id){const row=lastModel?.rows?.find(x=>x.id===id);if(!row)return;if(row.sourceKind==='mail'){window.open(gmailUrl(row),'_blank','noopener,noreferrer');return}if(row.sourceKind==='ticket'){navigate('tickets');return}if(row.action){await openPersonalAction641(row.action);schedule(30);return}if(['personalInbox','inbox'].includes(row.sourceKind)){await openDirect(row);schedule(30);return}navigate(row.route)}
+async function openRow(id){const row=lastModel?.rows?.find(x=>x.id===id);if(!row)return;if(row.insurance){openInsuranceCenter660();return}if(row.sourceKind==='mail'){window.open(gmailUrl(row),'_blank','noopener,noreferrer');return}if(row.sourceKind==='ticket'){navigate('tickets');return}if(row.action){await openPersonalAction641(row.action);schedule(30);return}if(['personalInbox','inbox'].includes(row.sourceKind)){await openDirect(row);schedule(30);return}navigate(row.route)}
 function dismissMail(id){const row=lastModel?.rows?.find(x=>x.id===id&&x.sourceKind==='mail');if(!row)return;store.mutate(`Inbox mail hotovo: ${row.title}`,s=>{s.personalInbox=s.personalInbox||{items:[]};s.personalInbox.mailDone=s.personalInbox.mailDone&&typeof s.personalInbox.mailDone==='object'?s.personalInbox.mailDone:{};s.personalInbox.mailDone[row.sourceId]=new Date().toISOString();const cutoff=Date.now()-120*DAY;for(const [k,v] of Object.entries(s.personalInbox.mailDone))if((Date.parse(v)||0)<cutoff)delete s.personalInbox.mailDone[k]},{undo:true,cloud:true,audit:true});toast('Mail je v OS označený jako hotový.');remoteCache.at=0;schedule(30)}
 function applyFilters(host){let visible=0;const q=norm(query);host.querySelectorAll('[data-inbox660-filter]').forEach(b=>b.classList.toggle('active',b.dataset.inbox660Filter===activeFilter));host.querySelectorAll('[data-inbox660-row]').forEach(row=>{const matchBucket=activeFilter==='all'||row.dataset.bucket===activeFilter,matchQuery=!q||String(row.dataset.search||'').includes(q),show=matchBucket&&matchQuery;row.classList.toggle('inbox660-hidden',!show);if(show)visible++});host.querySelector('[data-inbox660-no-match]')?.classList.toggle('inbox660-hidden',visible!==0||!lastModel?.rows?.length)}
 function ensureHostDelegation660(host){
