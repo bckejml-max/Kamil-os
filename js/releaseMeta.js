@@ -1,3 +1,3 @@
-export const APP_VERSION='737.0.58';
-export const APP_RELEASE='737.0.58';
-// OS737.0.58: Home lifecycle parity — cancelled maintenance no longer remains in the open maintenance list.
+export const APP_VERSION='737.0.59';
+export const APP_RELEASE='737.0.59';
+// OS737.0.59: calendar preparation timing — future event preparation is due one day before the event instead of immediately.
