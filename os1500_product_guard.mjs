@@ -88,6 +88,7 @@ assert.match(betting,/detail:'betting-task'/,'Betting task must retain betting s
 assert.match(betting,/directRows:true/);
 
 assert.match(family,/data-family-page1500/);
+assert.match(family,/const isFamilyEvent=x=>/,'Family calendar must filter broader personal scope down to family events');
 assert.doesNotMatch(family,/data-family-filter/,'Family canonical page must not hide content behind filters');
 assert.match(home,/data-home-page1500/);
 assert.match(home,/insuranceCenter\(s\)/,'Home must read current property insurance from Insurance Center');
