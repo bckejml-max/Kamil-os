@@ -110,3 +110,72 @@ html[data-os1500="1"] .os1500-primary-label.good:before{background:var(--os1500-
   html[data-os1500="1"] .os1500-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   html[data-os1500="1"] .os1500-record-grid{padding:9px}
 }
+
+
+/* Product focus — simplify the everyday surface instead of stacking another dashboard. */
+.os1600-home{display:grid;gap:14px}
+.os1600-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:2px 0 3px}
+.os1600-head h1{margin:4px 0 5px;font-size:30px;line-height:1.05;letter-spacing:-.045em}
+.os1600-head p{margin:0;color:var(--os1500-muted);font-size:12px;line-height:1.5}
+.os1600-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.os1600-summary-item{min-height:58px;padding:10px 12px;border:1px solid var(--os1500-line);border-radius:12px;background:var(--os1500-panel-2)}
+.os1600-summary-item span{display:block;font-size:8.5px;letter-spacing:.07em;text-transform:uppercase;color:#748194}
+.os1600-summary-item b{display:block;margin-top:5px;font-size:16px}
+.os1600-summary-item.good b{color:var(--os1500-good)}
+.os1600-summary-item.warn b{color:var(--os1500-warn)}
+.os1600-summary-item.bad b{color:var(--os1500-bad)}
+.os1600-attention,.os1600-section{overflow:hidden;border:1px solid var(--os1500-line);border-radius:15px;background:var(--os1500-panel)}
+.os1600-attention.bad{border-color:rgba(239,141,149,.28)}
+.os1600-attention.warn{border-color:rgba(231,192,110,.23)}
+.os1600-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid rgba(148,163,184,.10)}
+.os1600-section-head h2{margin:3px 0 0;font-size:14px;letter-spacing:-.01em}
+.os1600-section-head>span{font-size:9.5px;color:#758294}
+.os1600-attention .os1400-list .os1400-row{min-height:58px}
+.os1600-attention .os1400-row b{font-size:12.5px}
+.os1600-attention .os1400-row small{font-size:10px}
+.os1600-clear{display:flex;gap:7px;align-items:baseline;padding:18px 15px;color:#8794a4;font-size:11px}
+.os1600-clear b{color:var(--os1500-good);font-size:12px}
+.os1600-areas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:rgba(148,163,184,.08)}
+.os1600-area{appearance:none;min-height:96px;padding:13px 14px;border:0;background:#10161d;color:inherit;text-align:left;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start}
+.os1600-area:hover{background:#151d27}
+.os1600-area span{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:#7d8999}
+.os1600-area b{margin-top:7px;font-size:16px;line-height:1.1}
+.os1600-area small{margin-top:6px;color:#8190a0;font-size:9.5px;line-height:1.4}
+.os1600-area.good b{color:var(--os1500-good)}
+.os1600-area.warn b{color:var(--os1500-warn)}
+.os1600-area.bad b{color:var(--os1500-bad)}
+
+@media(max-width:900px){
+  .os1600-areas{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .os1600-head{align-items:flex-start}
+  .os1600-head h1{font-size:25px}
+  .os1600-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .os1600-areas{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .os1600-area{min-height:88px;padding:11px 12px}
+  .os1600-section-head{align-items:flex-start}
+  html[data-os1500="1"] .os2-app{padding-bottom:104px!important}
+  html[data-os1500="1"] .os2-main{padding-bottom:112px!important}
+  html[data-os1500="1"] .os2-bottom{
+    height:96px!important;
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    grid-template-rows:repeat(2,minmax(0,1fr))!important;
+    gap:3px!important;
+    overflow:visible!important;
+    padding:5px 6px max(5px,env(safe-area-inset-bottom))!important;
+  }
+  html[data-os1500="1"] .os2-bottom button{
+    min-width:0!important;
+    width:auto!important;
+    height:auto!important;
+    padding:3px 1px!important;
+    font-size:8px!important;
+  }
+  html[data-os1500="1"] .os2-bottom button span{font-size:13px!important}
+}
+@media(max-width:420px){
+  .os1600-areas{grid-template-columns:1fr 1fr}
+  .os1600-head .os1400-button{min-width:36px;padding-inline:9px}
+}
