@@ -56,6 +56,8 @@ assert.match(workCenter,/CLOSED_EXACT/,'Work must treat explicit handed-over Cze
 assert.doesNotMatch(work,/data-work1300-today/,'Work risks must not bounce back to Today');
 
 assert.match(tickets,/function primaryAction/,'Ticket primary CTA must be contextual');
+assert.match(tickets,/transfer\.length\)attention\.push\(\{tone:'bad'[\s\S]*action:'advanced'/,'ticket transfer action must open Ticket desk, not trigger sync');
+assert.match(tickets,/payout\.length\)attention\.push\(\{tone:'warn'[\s\S]*action:'advanced'/,'ticket payout action must open Ticket desk, not trigger sync');
 assert.match(tickets,/data-ticket-event/,'Ticket events must be directly actionable');
 assert.match(tickets,/dynamicPrimary:true/);
 assert.match(ticketPortfolio,/!x\?\.issue/,'disputed ticket rows must not inflate active inventory');
