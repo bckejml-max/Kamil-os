@@ -1,6 +1,6 @@
 import {store} from './state.js';
 import {h} from './utils.js';
-import {ownEvent1100} from './runtimeOwnership1100.js';
+import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
 import {ensurePersonalVault640,personalVault640} from './personalVault640.js';
 import {editHomeRecord644,openMaintenance644} from './personalFamilyHomeActions644.js';
 import {personalHomeTimeline650} from './personalAssistant650.js';
@@ -9,6 +9,7 @@ import {openPersonalCapture643} from './personalCapture643.js';
 import {insuranceCenter} from './insurance25.js';
 
 const OWNER='home.page1500';
+const openInsuranceCenter=()=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true})};
 const maintRe=/servis|reviz|filtr|čerpad|cerpad|rekuper|klima|kom[ií]n|zahrad|oprava|údržb|udrzb|stk/i;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED']);
 const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
@@ -37,7 +38,7 @@ export function renderHomePage140(){
  if(!host.dataset.home1500Bound){host.dataset.home1500Bound='1';ownEvent1100(OWNER,host,'click',async e=>{
   const cur=host.__home1500||data();
   if(e.target.closest('[data-home1500-add]')){await openPersonalCapture643('task',{area:'Domov',category:'Domov'});return renderHomePage140()}
-  const rb=e.target.closest('[data-home1500-record]');if(rb){const x=cur.records[Number(rb.dataset.home1500Record)];if(x?.source==='insurance'){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));return}if(x)await editHomeRecord644(x.id);return renderHomePage140()}
+  const rb=e.target.closest('[data-home1500-record]');if(rb){const x=cur.records[Number(rb.dataset.home1500Record)];if(x?.source==='insurance'){openInsuranceCenter();return}if(x)await editHomeRecord644(x.id);return renderHomePage140()}
   const mb=e.target.closest('[data-home1500-maintenance]');if(mb){const x=cur.maintenance[Number(mb.dataset.home1500Maintenance)];if(x)await openMaintenance644(x.item,x.source);return renderHomePage140()}
  })}
  window.__KAMIL_HOME140__={healthy:true,core:'os1500',records:d.records.length,maintenance:d.maintenance.length,overdue:d.overdue,at:Date.now()};return true;
