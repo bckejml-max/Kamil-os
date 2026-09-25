@@ -167,3 +167,12 @@ test('OS737.0.34 recurring insurance rows show actual payment cadence',async({pa
  await expect(recurring).toContainText('Kamil · Allianz ŽIVOT');
  await expect(recurring).toContainText('915 Kč/měs.');
 });
+
+test('OS737.0.36 Home insurance card shows actual yearly cadence',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="home"]').click();
+ await expect(page.locator('[data-home-page1500]')).toBeVisible({timeout:10000});
+ const card=page.locator('#homeView .os1500-record').filter({hasText:'Dům Vlasatice · pojištění nemovitosti'});
+ await expect(card).toContainText('2 600 Kč/rok');
+ await expect(card).toContainText('Ověřit');
+});
