@@ -25,9 +25,15 @@ for(const token of [
   'runtime_ownership_1100_guard.mjs','runtime_inventory_1100_guard.mjs','runtime_hotspot_1101_guard.mjs',
   'runtime_hotspot_1103_guard.mjs','runtime_hotspot_1104_guard.mjs','provider_health_contract_guard.mjs',
   'assistant_53_static_test.mjs','command_50_static_test.mjs','release_guard_333.mjs','ticket_release_guard_466.mjs',
-  'ci_current_350_test.mjs','betting_reliability_691_guard.mjs','ticket_gmail_sync_health_guard.mjs'
+  'ci_current_350_test.mjs','betting_reliability_691_guard.mjs','ticket_gmail_sync_health_guard.mjs',
+  'scripts/legacy_cleanup_987_guard.mjs','scripts/control_plane_1037_guard.mjs','scripts/control_operations_1047_guard.mjs'
 ])assert.ok(release.includes(token),`Canonical OS2 release chain missing ${token}`);
 for(const legacy of ['command_center_467_guard.mjs','today_priority_696_guard.mjs','operator_717_guard.mjs','strategy_788_guard.mjs','copilot_840_guard.mjs','scripts/one_os_967_guard.mjs'])assert.equal(release.includes(legacy),false,`Legacy boot/UI guard must stay out of canonical OS2 release: ${legacy}`);
+const canonicalE2e=String(pkg.scripts?.['test:e2e']||''),legacyE2e=String(pkg.scripts?.['test:legacy:e2e']||'');
+for(const spec of ['e2e_os947_visual.spec.mjs','e2e_one_os_967.spec.mjs','e2e_one_os_977.spec.mjs','e2e_legacy_cleanup_987.spec.mjs']){
+ assert.equal(canonicalE2e.includes(spec),false,`Detached legacy browser spec must stay out of canonical OS2 E2E: ${spec}`);
+ assert.ok(legacyE2e.includes(spec),`Manual legacy browser suite missing ${spec}`);
+}
 
 const jsDir=new URL('./js/',root);
 const jsFiles=(await readdir(jsDir)).filter(f=>f.endsWith('.js'));
