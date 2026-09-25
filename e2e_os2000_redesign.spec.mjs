@@ -36,12 +36,12 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
  expect(state.resources.some(x=>x.includes('ticketDesk331.js'))).toBe(false);
 });
 
-test('OS1400 Today is the canonical action-first screen',async({page})=>{
+test('OS1500 Today is the canonical action-first screen',async({page})=>{
  await boot(page);
  await expect(page.locator('.os1400-hero h1')).toContainText(/Kamile/i);
  await expect(page.locator('[data-product-home1300]')).toBeVisible();
  await expect(page.locator('.os1400-focus')).toBeVisible();
- await expect(page.locator('.os1400-domains .os1400-domain')).toHaveCount(5);
+ await expect(page.locator('.os1400-domains .os1400-domain')).toHaveCount(9);
  const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(today?.healthy).toBe(true);
  expect(today?.version).toBe(2000);
@@ -146,14 +146,14 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
 
  await openView(page,'family');
  await expect(page.locator('#view-family')).toHaveClass(/on/);
- await expect(page.locator('#ticketsView .hf140-hero')).toBeVisible({timeout:10000});
- await expect(page.locator('#ticketsView .hf140-hero h1')).toContainText(/Rodina/i);
+ await expect(page.locator('#ticketsView [data-family-page1500]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#ticketsView [data-family-page1500] .pr1300-kicker').first()).toContainText(/Rodina/i);
  await page.waitForTimeout(500);
  await expect(page.locator('#ticketsView [data-family-hub610]')).toHaveCount(0);
 
  const cases=[
-  ['home','#homeView','.hf140-hero','Domov'],
-  ['more','#moreView','.id141-hero','Dokumenty pod kontrolou']
+  ['home','#homeView','[data-home-page1500]','Dům, energie, smlouvy a údržba'],
+  ['more','#moreView','[data-documents-page1500]','Smlouvy, pojistky a důležité údaje']
  ];
  for(const [view,host,hero,title] of cases){
   await openView(page,view);
@@ -244,15 +244,15 @@ test('OS1327 Money prioritizes actions and Tickets collapse empty states',async(
   await expect(page.locator('#ticketIntelView .pr1300-panel')).toHaveCount(1);
  }
 });
-test('OS1400 Today shows five compact system rows with live cross-section data',async({page})=>{
+test('OS1500 Today shows all nine primary areas with live cross-section data',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
  await expect(page.locator('#todayView .os1331-system-panel')).toBeVisible();
- await expect(page.locator('#todayView .os1400-domains .os1400-domain')).toHaveCount(5);
+ await expect(page.locator('#todayView .os1400-domains .os1400-domain')).toHaveCount(9);
  const labels=await page.locator('#todayView .os1400-domains .os1400-domain b').allTextContents();
- expect(labels).toEqual(['Práce','Vstupenky','Peníze','Reality','Sázení']);
+ expect(labels).toEqual(['Úkoly','Práce','Vstupenky','Peníze','Reality','Sázení','Rodina','Domov','Dokumenty']);
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
- expect(diag.systemRows).toBe(5);
+ expect(diag.systemRows).toBe(9);
 });
 test('OS1324 visual polish keeps the shell compact and consistent',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
@@ -277,9 +277,9 @@ test('OS1324 visual polish keeps the shell compact and consistent',async({page})
  expect(desktop.bodyOverflow).toBeLessThanOrEqual(2);
 
  await openView(page,'family');
- const familySurface=await page.locator('#ticketsView .hf140-main').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
+ const familySurface=await page.locator('#ticketsView .os1500-summary').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
  await openView(page,'home');
- const homeSurface=await page.locator('#homeView .ux64-contract').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
+ const homeSurface=await page.locator('#homeView .os1500-summary').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
  expect(familySurface.bg).not.toBe('rgba(0, 0, 0, 0)');
  expect(homeSurface.bg).not.toBe('rgba(0, 0, 0, 0)');
  expect(familySurface.border).not.toBe('rgba(0, 0, 0, 0)');
@@ -307,9 +307,9 @@ test('OS1323 canonical shell has one visual owner per section',async({page})=>{
   ['money','#moneyView','[data-money-overview]'],
   ['property','#propertyView','[data-property-page1300]'],
   ['betting','#bettingView','[data-betting-overview]'],
-  ['family','#ticketsView','.hf140-hero'],
-  ['home','#homeView','.hf140-hero'],
-  ['more','#moreView','.id141-hero']
+  ['family','#ticketsView','[data-family-page1500]'],
+  ['home','#homeView','[data-home-page1500]'],
+  ['more','#moreView','[data-documents-page1500]']
  ];
  for(const [view,host,root] of cases){
   if(view!=='today')await openView(page,view);
@@ -383,9 +383,9 @@ test('OS1307 full desktop audit renders every product surface without crash or o
   ['money','#moneyView','[data-money-overview]'],
   ['property','#propertyView','[data-property-page1300]'],
   ['betting','#bettingView','[data-betting-overview]'],
-  ['family','#ticketsView','.hf140-hero'],
-  ['home','#homeView','.hf140-hero'],
-  ['more','#moreView','.id141-hero']
+  ['family','#ticketsView','[data-family-page1500]'],
+  ['home','#homeView','[data-home-page1500]'],
+  ['more','#moreView','[data-documents-page1500]']
  ];
  for(const [view,host,ready] of cases){
   if(view!=='today')await openView(page,view);
