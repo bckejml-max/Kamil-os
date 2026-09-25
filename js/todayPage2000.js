@@ -114,7 +114,7 @@ function render(){
    if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))
   })
  }
- window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1600,usabilityReset:1500,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
+ window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.activeTickets.length,ticketTasks:d.ticketTasks.length,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
  return true;
 }
 export function renderTodayPage2000(){return render()}
