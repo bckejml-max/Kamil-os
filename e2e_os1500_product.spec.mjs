@@ -929,3 +929,23 @@ test('OS737.0.78 Property search result opens the exact candidate detail',async(
  await expect(page.locator('#propertyHub620Drawer')).toHaveClass(/open/,{timeout:10000});
  await expect(page.locator('#propertyHub620Drawer')).toContainText('Druhý byt search');
 });
+
+test('OS737.0.79 transaction search opens exact Money detail',async({page})=>{
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {searchExtended610}=await import('./js/commandSearch610.js');
+  store.mutate('test transaction search detail',s=>{
+   s.personalSpending={transactions:[
+    {id:'tx-search-test',merchant:'Test obchod',category:'JÍDLO',amount:-1234.5,currency:'CZK',date:'2026-09-24'}
+   ]};
+  });
+  return searchExtended610('test obchod')[0]||null;
+ });
+ expect(result?.focus).toBe('transaction:0');
+ await page.locator('#mainNav [data-view="money"]').click();
+ await page.evaluate(focus=>window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{target:'money',focus}})),result.focus);
+ await expect(page.locator('#modalHost')).toContainText('Test obchod',{timeout:10000});
+ await expect(page.locator('#modalHost')).toContainText('JÍDLO');
+ await expect(page.locator('#modalHost')).toContainText('1');
+});

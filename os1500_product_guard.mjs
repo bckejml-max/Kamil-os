@@ -161,6 +161,8 @@ assert.match(app,/betting:'betting-task'/,'shell quick add must support betting'
 assert.match(app,/sameHost\?\.dataset\.productAdvanced==='1'/,'clicking the active nav item must exit advanced detail');
 assert.match(commandSearch610,/filter\(isActivePropertyCandidate472\)/,'command search must hide closed Property candidates');
 assert.match(commandSearch610,/property:\$\{i\}/,'Property search results must carry an exact candidate focus');
+assert.match(commandSearch610,/transaction:\$\{i\}/,'transaction search results must carry an exact Money focus');
+assert.match(money,/openTransactionFocus1300/,'Money must open exact searched transaction detail');
 assert.match(property,/startsWith\('property:'\)/,'Property page must open exact command-search candidate focus');
 assert.match(commandSearch610,/filter\(active610\)/,'command search must hide closed Inbox and Waiting rows');
 assert.match(commandSearch610,/focus==='insurance'/,'bare insurance command must open Insurance Center directly');
