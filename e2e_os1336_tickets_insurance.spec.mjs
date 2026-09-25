@@ -67,3 +67,12 @@ test('OS737.0.24 keeps superseded recovery insurance out of active attention',as
  expect(text).not.toContain('Při dalším bankovním výpisu potvrdit pravidelnou platbu 915 Kč');
  expect(text).not.toContain('Potvrdit, že smlouva je stále aktivní a kryje současný stav rekonstrukce');
 });
+
+test('OS737.0.35 Insurance Center wording does not overstate REVIEW/TERMINATING as active',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="more"]').click();
+ await page.locator('#insurance25Tile').click();
+ await expect(page.locator('#moreView')).toContainText('AKTUÁLNÍ STAV SMLUV');
+ await expect(page.locator('#moreView')).toContainText('Smlouvy „Ověřit“ a „Ukončované“');
+ await expect(page.locator('#moreView')).not.toContainText('Co teď skutečně platí nebo začne platit');
+});
