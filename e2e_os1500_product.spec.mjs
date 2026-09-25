@@ -26,6 +26,9 @@ test('OS1500 keeps every primary area direct and canonical',async({page})=>{
  await expect(page.locator('[data-doc-filter]')).toHaveCount(0);
  await expect(page.locator('#insurance25Tile')).toBeVisible();
 
+ const legacyPersonalStyles=await page.locator('link[data-os2-lazy]').evaluateAll(links=>links.map(x=>x.getAttribute('href')).filter(h=>/personal64|family70|home68/.test(h||'')));
+ expect(legacyPersonalStyles).toEqual([]);
+
  await page.locator('#mainNav [data-view="betting"]').click();
  await expect(page.locator('#quickAddBtn')).toBeVisible();
  await expect(page.locator('#quickAddBtn')).toHaveAttribute('title',/sázení/i);
@@ -38,12 +41,14 @@ test('OS1500 mobile keeps all ten destinations visible in two rows',async({page}
  await expect(nav.locator('[data-view]')).toHaveCount(10);
  const layout=await nav.evaluate(el=>{
   const s=getComputedStyle(el),r=el.getBoundingClientRect();
-  return {display:s.display,height:r.height,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,columns:s.gridTemplateColumns,rows:s.gridTemplateRows};
+  const first=el.querySelector('[data-view]'),buttonStyle=first?getComputedStyle(first):null;
+  return {display:s.display,height:r.height,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,columns:s.gridTemplateColumns,rows:s.gridTemplateRows,fontSize:buttonStyle?parseFloat(buttonStyle.fontSize):0};
  });
  expect(layout.display).toBe('grid');
  expect(layout.height).toBeLessThanOrEqual(100);
  expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth+2);
  expect(layout.rows.split(' ').length).toBe(2);
+ expect(layout.fontSize).toBeGreaterThanOrEqual(8.5);
  const last=nav.locator('[data-view="more"]');
  await expect(last).toBeVisible();
  await last.click();
