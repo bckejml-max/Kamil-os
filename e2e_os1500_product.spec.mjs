@@ -818,3 +818,46 @@ test('OS737.0.72 Today Tasks card matches local Inbox state',async({page})=>{
  expect(today.inboxLocal).toBe(expected.counts.total);
  expect(today.inboxUrgent).toBe(expected.counts.urgent);
 });
+
+test('OS737.0.73 command search hides closed lifecycle rows and opens Insurance Center',async({page})=>{
+ await boot(page);
+ const out=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {searchExtended610}=await import('./js/commandSearch610.js');
+  store.mutate('test command lifecycle',s=>{
+   s.propertyBook=s.propertyBook||{};
+   s.propertyBook.candidates=[
+    {id:'prop-active',name:'Aktivní byt test',status:'ACTIVE',purchasePrice:3000000},
+    {id:'prop-dropped',name:'Vyřazený byt test',status:'DROPPED',purchasePrice:2500000}
+   ];
+   s.personalInbox={items:[
+    {id:'inbox-open-test',title:'Aktivní inbox test',status:'OPEN'},
+    {id:'inbox-done-test',title:'Uzavřený inbox test',status:'DONE'}
+   ]};
+   s.delegations=[
+    {id:'wait-open-test',title:'Aktivní čekání test',status:'OPEN'},
+    {id:'wait-done-test',title:'Uzavřené čekání test',status:'RESOLVED'}
+   ];
+  });
+  return {
+   activeProperty:searchExtended610('aktivní byt test').map(x=>x.id),
+   droppedProperty:searchExtended610('vyřazený byt test').map(x=>x.id),
+   openInbox:searchExtended610('aktivní inbox test').map(x=>x.id),
+   closedInbox:searchExtended610('uzavřený inbox test').map(x=>x.id),
+   openWaiting:searchExtended610('aktivní čekání test').map(x=>x.id),
+   closedWaiting:searchExtended610('uzavřené čekání test').map(x=>x.id)
+  };
+ });
+ expect(out.activeProperty).toContain('prop-active');
+ expect(out.droppedProperty).not.toContain('prop-dropped');
+ expect(out.openInbox).toContain('inbox-open-test');
+ expect(out.closedInbox).not.toContain('inbox-done-test');
+ expect(out.openWaiting).toContain('wait-open-test');
+ expect(out.closedWaiting).not.toContain('wait-done-test');
+
+ await page.evaluate(async()=>{
+  const {executeExtendedCommand610}=await import('./js/commandSearch610.js');
+  executeExtendedCommand610('pojištění');
+ });
+ await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
+});
