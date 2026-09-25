@@ -1,3 +1,3 @@
-export const APP_VERSION='737.0.55';
-export const APP_RELEASE='737.0.55';
-// OS737.0.55: Inbox calendar routing — personal calendar rows now open the matching Family/Home/Money/Documents area instead of always Family.
+export const APP_VERSION='737.0.56';
+export const APP_RELEASE='737.0.56';
+// OS737.0.56: Family lifecycle parity — archived household members no longer appear in canonical Family or influence family-event matching.
