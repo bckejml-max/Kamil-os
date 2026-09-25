@@ -13,43 +13,35 @@ test('OS1331 keeps all sections direct and turns Today into a desktop command ce
  await expect(page.locator('link[href="./os1331.css"]')).toHaveCount(1);
  await expect(page.locator('#mainNav [data-view]')).toHaveCount(10);
  await expect(page.locator('#mainNav .os1331-nav-group')).toHaveText(['Řízení','Trh & peníze','Osobní']);
- await expect(page.locator('[data-os1331-command-grid]')).toBeVisible();
- const layout=await page.evaluate(()=>{
-  const grid=document.querySelector('[data-os1331-command-grid]');
-  const focus=grid?.querySelector('.os1331-focus-stack')?.getBoundingClientRect();
-  const system=grid?.querySelector('.os1331-system-panel')?.getBoundingClientRect();
-  return {
-   columns:grid?getComputedStyle(grid).gridTemplateColumns:'',
-   sideBySide:!!focus&&!!system&&system.left>focus.left+100,
+ await expect(page.locator('.os1600-attention')).toBeVisible();
+ await expect(page.locator('.os1600-areas .os1600-area')).toHaveCount(9);
+ const layout=await page.evaluate(()=>({
+   areaColumns:getComputedStyle(document.querySelector('.os1600-areas')).gridTemplateColumns.split(' ').filter(Boolean).length,
    nav:[...document.querySelectorAll('#mainNav [data-view]')].map(x=>x.dataset.view)
-  };
- });
- expect(layout.sideBySide).toBe(true);
+ }));
+ expect(layout.areaColumns).toBe(3);
  expect(layout.nav).toEqual(['today','inbox','work','tickets','money','property','betting','family','home','more']);
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(diag.productReset).toBe(1331);
  expect(diag.systemRows).toBe(9);
 });
 
-test('OS1500 mobile keeps ten direct destinations in one scrollable nav',async({page})=>{
+test('OS1500 mobile keeps ten direct destinations visible without scrolling',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  await expect(page.locator('#bottomNav [data-view]')).toHaveCount(10);
  const layout=await page.evaluate(()=>{
   const nav=document.querySelector('#bottomNav');
-  const grid=document.querySelector('[data-os1331-command-grid]');
-  const focus=grid?.querySelector('.os1331-focus-stack')?.getBoundingClientRect();
-  const system=grid?.querySelector('.os1331-system-panel')?.getBoundingClientRect();
   const style=getComputedStyle(nav);
   return {
    display:style.display,
    navHeight:nav.getBoundingClientRect().height,
    scrollable:nav.scrollWidth>nav.clientWidth,
-   stacked:!!focus&&!!system&&system.top>=focus.bottom-2
+   rows:style.gridTemplateRows.split(' ').filter(Boolean).length
   };
  });
- expect(layout.display).toBe('flex');
- expect(layout.navHeight).toBeLessThanOrEqual(72);
- expect(layout.scrollable).toBe(true);
- expect(layout.stacked).toBe(true);
+ expect(layout.display).toBe('grid');
+ expect(layout.navHeight).toBeLessThanOrEqual(100);
+ expect(layout.scrollable).toBe(false);
+ expect(layout.rows).toBe(2);
 });
