@@ -246,3 +246,19 @@ test('OS737.0.46 actionable Inbox insurance row opens Insurance Center',async({p
  await page.locator('[data-inbox660-row="'+row.id+'"] [data-inbox660-open]').click();
  await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
 });
+
+test('OS737.0.47 personal action engine does not duplicate Insurance Center actions',async({page})=>{
+ await boot(page);
+ const out=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {personalActions640}=await import('./js/personalActions640.js');
+  const {insuranceCenter}=await import('./js/insurance25.js');
+  const state=store.get(),personal=personalActions640(state),insurance=insuranceCenter(state);
+  return {
+   duplicated:personal.all.filter(x=>String(x.id||'').startsWith('admin:ins-master-')).map(x=>x.id),
+   insuranceActions:insurance.actions.map(x=>x.id)
+  };
+ });
+ expect(out.duplicated).toEqual([]);
+ expect(out.insuranceActions.length).toBeGreaterThan(0);
+});
