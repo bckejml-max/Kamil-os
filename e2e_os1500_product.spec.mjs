@@ -343,3 +343,23 @@ test('OS737.0.52 Money detail shows confirmed zero bank balance as known',async(
  await expect(wealth).toContainText('0 Kč');
  await expect(wealth).not.toContainText('Hotovost / účty – známá hodnotachybí');
 });
+
+test('OS737.0.53 Today shows sold-undelivered as transfer but not active inventory',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('test Today ticket lifecycle',s=>{
+   s.ticketBook=s.ticketBook||{items:[]};
+   s.ticketBook.items=[
+    {id:'active-listing',name:'Active listing',qty:2,workflow:'LISTED',market_status:'LISTED',buy:2000},
+    {id:'sold-transfer',name:'Sold transfer',qty:3,workflow:'SOLD',market_status:'SOLD_UNDELIVERED',buy:3000},
+    {id:'waiting-payout',name:'Waiting payout',qty:4,workflow:'PAYOUT WAIT',market_status:'SOLD_WAITING_PAYMENT',buy:4000}
+   ];
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#todayView')).toContainText('1 prodejů čeká na převod');
+ const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
+ expect(diag.ticketQty).toBe(2);
+});
