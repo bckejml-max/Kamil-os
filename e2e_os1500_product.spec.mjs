@@ -338,7 +338,7 @@ test('OS737.0.52 Money detail shows confirmed zero bank balance as known',async(
  await page.locator('#mainNav [data-view="money"]').click();
  await page.locator('[data-money-advanced]').click();
  await expect(page.locator('#moneyView')).toContainText('PENÍZE + WEALTH',{timeout:10000});
- const wealth=page.locator('#moneyView [data-money-group="wealth"]');
+ const wealth=page.locator('#moneyView [data-money-group="wealth"]').filter({hasText:'WEALTH COCKPIT'}).first();
  await expect(wealth).toContainText('Hotovost / účty – známá hodnota');
  await expect(wealth).toContainText('0 Kč');
  await expect(wealth).not.toContainText('Hotovost / účty – známá hodnotachybí');
