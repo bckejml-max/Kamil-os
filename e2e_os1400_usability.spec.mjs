@@ -7,7 +7,7 @@ async function boot(page){
  await expect(page.locator('[data-os1400-home]')).toBeVisible({timeout:10000});
 }
 
-test('OS1400 presents one focused desktop cockpit',async({page})=>{
+test('OS1500 preserves the focused desktop cockpit',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
  await expect(page.locator('html[data-os1400="1"]')).toHaveCount(1);
@@ -17,11 +17,11 @@ test('OS1400 presents one focused desktop cockpit',async({page})=>{
  await expect(page.locator('.os1400-metrics .os1400-metric')).toHaveCount(4);
  await expect(page.locator('.os1400-grid')).toBeVisible();
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
- expect(diag.usabilityReset).toBe(1400);
+ expect(diag.usabilityReset).toBe(1500);
  expect(diag.systemRows).toBe(9);
 });
 
-test('OS1400 keeps direct mobile destinations and stacks primary content',async({page})=>{
+test('OS1500 keeps direct mobile destinations and stacks primary content',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  await expect(page.locator('#bottomNav [data-view]')).toHaveCount(10);
