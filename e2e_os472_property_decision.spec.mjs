@@ -10,3 +10,17 @@ test('OS472 blocks incomplete data and provides negotiation target',async({page}
 test('OS472 ships with no hardcoded private candidates',async({page})=>{await boot(page);const m=await page.evaluate(()=>window.__KAMIL_PROPERTY_DECISION472__?.model);expect(m.guardrails.noHardcodedPrivateData).toBe(true);expect(m.guardrails.genericEngine).toBe(true);expect(Array.isArray(m.candidates)).toBe(true);expect(m.recommendation).toBeTruthy()});
 
 test('OS472 remains deferred and mobile safe',async({page})=>{await page.setViewportSize({width:390,height:844});await boot(page);const state=await page.evaluate(()=>({critical:(window.__KAMIL_BOOT_BUDGET343__?.modules||[]).map(x=>x.path),deferred:(window.__KAMIL_DEFERRED345__?.modules||[]).map(x=>x.path)}));expect(state.critical).not.toContain('./propertyDecision472.js');expect(state.deferred).toContain('./propertyDecision472.js');const d=await page.locator(ROOT).evaluate(el=>({left:el.getBoundingClientRect().left,right:el.getBoundingClientRect().right,width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));expect(d.left).toBeGreaterThanOrEqual(-1);expect(d.right).toBeLessThanOrEqual(d.width+1);expect(d.scroll).toBeLessThanOrEqual(d.width+1)});
+
+test('OS737.0.43 excludes explicitly closed property candidates from the active shortlist',async({page})=>{
+ await page.goto(BASE,{waitUntil:'domcontentloaded'});
+ const out=await page.evaluate(async()=>{
+  const {buildPropertyDecision472}=await import('./js/propertyDecision472.js');
+  const s={propertyBook:{candidates:[
+   {id:'active',name:'Active',purchasePrice:3000000,monthlyRent:15000,status:'ACTIVE'},
+   {id:'dropped',name:'Dropped',purchasePrice:1000000,monthlyRent:20000,status:'DROPPED'},
+   {id:'sold',name:'Sold',purchasePrice:1000000,monthlyRent:20000,status:'SOLD'}
+  ]}};
+  return buildPropertyDecision472(s);
+ });
+ expect(out.candidates.map(x=>x.name)).toEqual(['Active']);
+});
