@@ -486,7 +486,7 @@ test('OS1307 Work recognizes followUpAt as the waiting deadline',async({page})=>
   const now=new Date(),today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
   localStorage.setItem('kamil-os-state',JSON.stringify({
    meta:{schemaVersion:80,createdAt:new Date().toISOString()},
-   delegations:[{id:'wait-1',title:'Čekám na potvrzení',status:'OPEN',followUpAt:today,createdAt:new Date().toISOString()}]
+   delegations:[{id:'wait-1',title:'Čekám na potvrzení',status:'OPEN',area:'Práce',followUpAt:today,createdAt:new Date().toISOString()}]
   }));
  });
  await boot(page);
