@@ -1,3 +1,44 @@
-import {renderPersonalDocuments640} from './personalDocuments640.js';
-import {enhanceDocumentsVisual141} from './inboxDocumentsVisual141.js';
-export function renderDocumentsPage141(){renderPersonalDocuments640();try{enhanceDocumentsVisual141()}catch(e){console.warn('[documents141]',e)}}
+import {store} from './state.js';
+import {h} from './utils.js';
+import {ownEvent1100} from './runtimeOwnership1100.js';
+import {ensurePersonalVault640,personalVault640} from './personalVault640.js';
+import {personalDaysTo650} from './personalDate650.js';
+import {insuranceCenter} from './insurance25.js';
+import {openVaultRecord640,addSourceInbox650} from './personalDocuments640.js';
+
+const OWNER='documents.page1500';
+const typeLabel=v=>v.recordType==='insurance'?'Pojištění':v.recordType==='utility'?'Smlouva / energie':v.recordType==='mortgage'?'Hypotéka':v.recordType==='bank-data'?'Bankovní data':v.recordType==='property'?'Nemovitost':'Dokument';
+const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
+const validity=v=>v.validUntil?`do ${date(v.validUntil)}`:v.noticeBy?`rozhodnout do ${date(v.noticeBy)}`:v.reviewAt?`kontrola ${date(v.reviewAt)}`:v.asOf?`stav k ${date(v.asOf)}`:'bez známého termínu';
+const daysTo=v=>personalDaysTo650(v.noticeBy||v.validUntil||v.reviewAt||null);
+const archived=v=>['ARCHIVED','CLOSED','DONE','RESOLVED'].includes(String(v.status?.code||v.status?.label||'').toUpperCase());
+const bucket=v=>archived(v)?'archive':v.status?.severity>0?'action':daysTo(v)!==null&&daysTo(v)>=0&&daysTo(v)<=90?'ending':'valid';
+const urgency=(a,b)=>Number(b.status?.severity||0)-Number(a.status?.severity||0)||(daysTo(a)??99999)-(daysTo(b)??99999)||String(a.title||'').localeCompare(String(b.title||''),'cs');
+function data(){
+ ensurePersonalVault640();const s=store.get(),vault=personalVault640(s),records=[...vault.records].sort(urgency),insurance=insuranceCenter(s),counts={action:0,ending:0,valid:0,archive:0};records.forEach(x=>counts[bucket(x)]++);
+ const top=records.filter(x=>['action','ending'].includes(bucket(x))),refs=records.reduce((n,x)=>n+(Array.isArray(x.attachments)?x.attachments.length:0),0);
+ return {s,vault,records,insurance,counts,top,refs,primary:top[0]||null};
+}
+const tone=v=>Number(v.status?.severity||0)>0?'bad':bucket(v)==='ending'?'warn':'good';
+const rows=records=>records.length?records.map(v=>`<button type="button" class="pr1300-row pr1300-clickrow" data-doc1500-record="${h(v.id)}"><div class="pr1300-row-main"><b>${h(v.title)}</b><small>${h(typeLabel(v))} · ${h(validity(v))} · ${h(v.nextAction||'bez další akce')}</small></div><div class="pr1300-row-side ${tone(v)}">${h(v.status?.label||bucket(v))} <span class="os1500-row-arrow">→</span></div></button>`).join(''):'<div class="os1500-empty">Zatím tu nejsou uložené smlouvy ani dokumenty.</div>';
+
+export function renderDocumentsPage141(){
+ const host=document.querySelector('#moreView');if(!host)return false;const d=data(),p=d.primary;
+ host.innerHTML=`<div class="pr1300-shell" data-documents-page1500>
+  <div class="pr1300-head"><div><div class="pr1300-kicker">Dokumenty</div><h1>Smlouvy, pojistky a důležité údaje.</h1><p>Všechno je na jedné stránce. Co vyžaduje akci je nahoře, platné věci a archiv zůstávají pod tím.</p></div><span class="pr1300-status ${d.counts.action?'bad':d.counts.ending?'warn':'good'}">${d.counts.action?d.counts.action+' řešit':d.counts.ending?d.counts.ending+' končí':'klid'}</span></div>
+  <section class="pr1320-now"><div><div class="pr1300-kicker">Teď</div><h2>${h(p?.title||'Dokumenty jsou bez akutního problému.')}</h2><p>${h(p?validity(p)+' · '+(p.nextAction||'Zkontrolovat dokument.'):'Žádná smlouva nebo pojistka teď nevyžaduje okamžitý zásah.')}</p></div><div class="pr1320-now-actions"><button class="pr1300-btn primary" type="button" id="documentInbox650">＋ Přidat zdroj</button>${p?`<button class="pr1300-btn" type="button" data-doc1500-primary>Otevřít →</button>`:''}</div></section>
+  <section class="pr1300-panel"><div class="pr1300-panel-head"><div><h2>Pojištění</h2><span>${d.insurance.active} aktivní · ${d.insurance.review} ověřit · ${d.insurance.terminating} ukončované</span></div><button class="pr1300-btn primary" type="button" id="insurance25Tile">Otevřít pojištění →</button></div><div class="os1500-section-note">Aktivní smlouvy, nové smlouvy, ukončování, nabídky a historie jsou v jednom specializovaném přehledu.</div></section>
+  <div class="os1500-summary-grid"><div class="os1500-summary"><span>Řešit</span><b>${d.counts.action}</b></div><div class="os1500-summary"><span>Do 90 dní</span><b>${d.counts.ending}</b></div><div class="os1500-summary"><span>Platné</span><b>${d.counts.valid}</b></div><div class="os1500-summary"><span>Archiv</span><b>${d.counts.archive}</b></div></div>
+  <section class="pr1300-panel"><div class="pr1300-panel-head"><h2>Všechny dokumenty a údaje</h2><span>${d.records.length} záznamů · ${d.refs} zdrojů</span></div><div class="os1500-direct-list">${rows(d.records)}</div></section>
+  <div class="os1500-section-note">${d.s.meta?.cloudMode==='cloud'?'Osobní metadata jsou synchronizovaná s cloudem.':'Data jsou zatím jen na tomto zařízení.'}</div>
+ </div>`;
+ host.__documents1500=d;
+ if(!host.dataset.documents1500Bound){host.dataset.documents1500Bound='1';ownEvent1100(OWNER,host,'click',async e=>{
+  const cur=host.__documents1500||data();
+  if(e.target.closest('#insurance25Tile')){const m=await import('./insuranceUi25.js');m.renderInsurance25?.();return}
+  if(e.target.closest('#documentInbox650')){await addSourceInbox650(cur.records);return renderDocumentsPage141()}
+  if(e.target.closest('[data-doc1500-primary]')&&cur.primary){await openVaultRecord640(cur.primary.id);return renderDocumentsPage141()}
+  const rb=e.target.closest('[data-doc1500-record]');if(rb){await openVaultRecord640(rb.dataset.doc1500Record);return renderDocumentsPage141()}
+ })}
+ window.__KAMIL_DOCUMENTS141__={healthy:true,core:'os1500',records:d.records.length,action:d.counts.action,ending:d.counts.ending,refs:d.refs,at:Date.now()};return true;
+}
