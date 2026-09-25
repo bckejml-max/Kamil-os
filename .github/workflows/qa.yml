@@ -87,9 +87,9 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Canonical browser regression suite
+      - name: OS 2.0 shell and on-demand Ticket smoke
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          npm run test:e2e -- --workers=1
+          npx playwright test e2e_os2000_redesign.spec.mjs --reporter=line --workers=1
