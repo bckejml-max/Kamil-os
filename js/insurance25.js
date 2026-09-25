@@ -32,7 +32,7 @@ export function insurancePolicy(x={},now=new Date()){
  let priority=20;
  if(lc==='REVIEW')priority=90;
  else if(lc==='TERMINATING')priority=82;
- else if(lc==='UPCOMING'&&startDays!==null&&startDays<=45)priority=72;
+ else if(lc==='UPCOMING'&&startDays!==null)priority=startDays<0?60:startDays<=45?76:20;
  if(expiryDays!==null&&expiryDays<0&&lc==='ACTIVE')priority=100;
  else if(noticeDays!==null&&noticeDays>=0&&noticeDays<=14&&lc==='ACTIVE')priority=Math.max(priority,96);
  else if(expiryDays!==null&&expiryDays>=0&&expiryDays<=14&&lc==='ACTIVE')priority=Math.max(priority,90);

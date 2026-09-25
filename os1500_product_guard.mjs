@@ -63,6 +63,7 @@ assert.match(moneyAdvanced,/openInsuranceCenter/,'Money insurance rows must open
 assert.match(moneyAdvanced,/x\.cadence==='YEARLY'/,'Money recurring rows must preserve actual insurance payment cadence');
 assert.match(insurance,/activeCosts/,'Insurance Center must expose current insurance costs separately');
 assert.match(insurance,/upcomingCosts/,'Insurance Center must expose upcoming insurance costs separately');
+assert.match(insurance,/startDays<0\?60:startDays<=45\?76:20/,'confirmed upcoming insurance must classify as SOON before start, REVIEW only after a missed start');
 assert.match(insuranceUi,/AKTUÁLNÍ STAV SMLUV/,'Insurance Center lifecycle heading must not overstate review/terminating policies as active');
 assert.match(vault,/SUPERSEDED_INSURANCE_RECOVERY_640/,'superseded recovery insurance must be archived once canonical insurance registry exists');
 assert.match(insuranceMaster,/kamil-allianz-life/,'canonical insurance registry must include Kamil Allianz life policy');
