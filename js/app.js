@@ -8,6 +8,7 @@ import {markPerf41,markFirstView41} from './perf41.js';
 import {startColdPartition42} from './coldPartition42.js';
 import {installRuntimeOwnership1100,ownEvent1100,ownCleanup1100,schedule1100,cancelScheduled1100} from './runtimeOwnership1100.js';
 import {scheduleFrame1110,scheduleIdle1110} from './osHardening1110.js';
+import {restoreCanonicalProductStyles} from './productAdvancedStyles.js';
 
 const OWNER='core.app41';
 installRuntimeOwnership1100();
@@ -102,7 +103,7 @@ function navigate(v){
  const next=validViews41.has(v)?v:'today';
  if(next===current){updateChrome();if(viewRevision.get(current)!==stateRevision)scheduleRender();return}
  const leavingHost=hostForView(current);
- if(leavingHost?.dataset.productAdvanced==='1'){leavingHost.removeAttribute('data-product-advanced');leavingHost.removeAttribute('data-view-ready');viewRevision.delete(current)}
+ if(leavingHost?.dataset.productAdvanced==='1'){leavingHost.removeAttribute('data-product-advanced');leavingHost.removeAttribute('data-view-ready');viewRevision.delete(current);restoreCanonicalProductStyles()}
  current=next;qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');updateChrome();quickShell(current);
  if(viewRevision.get(current)!==stateRevision)scheduleRender();
  void prefetchView41(current);window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:current}));window.scrollTo({top:0,behavior:'auto'});
