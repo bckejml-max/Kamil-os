@@ -1,6 +1,7 @@
 import {renderPersonalMoney640} from './personalMoney640.js';
 import {ensurePersonalMoneyBridge737} from './personalMoneyBridge737.js';
 import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
+import {restoreCanonicalProductStyles} from './productAdvancedStyles.js';
 
 const OWNER='money.page100';
 let backgroundScheduled=false,backgroundRunning=false,resumeBound=false;
@@ -12,8 +13,12 @@ const moneyActive=()=>!!document.querySelector('#view-money.on');
 function ensureOptionalStyles(){
  if(!moneyActive())return;
  for(const [key,href] of OPTIONAL_STYLES){
-  if(document.querySelector(`link[data-${key}]`))continue;
-  const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute(`data-${key}`,'1');document.head.appendChild(l)
+  const existing=document.querySelector(`link[data-${key}]`);
+  if(existing){restoreCanonicalProductStyles();continue}
+  const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute(`data-${key}`,'1');
+  const restore=()=>restoreCanonicalProductStyles();
+  l.addEventListener('load',restore,{once:true});l.addEventListener('error',restore,{once:true});
+  document.head.appendChild(l);restore()
  }
 }
 
