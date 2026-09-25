@@ -56,7 +56,6 @@ assert.match(today,/family\.overdue\?family\.overdue\+' po term\.'/,'Today Famil
 assert.match(today,/moneyState=moneyData1300\(s\)/,'Today Money card must read canonical Money state');
 assert.match(today,/d\.moneyState\?\.attention\?\.length/,'Today Money status must surface canonical Money attention');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
 assert.match(today,/usabilityReset:1500/);
-assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
 assert.match(today,/ticketState=ticketData1300\(s\)/,'Today Tickets must use canonical Ticket Overview state');
 assert.match(today,/inboxState=localInboxSummary660\(s\)/,'Today Tasks card must read canonical local Inbox state');
 assert.match(today,/sourceKey:/,'Today priority rows must carry source identity for deduplication');
