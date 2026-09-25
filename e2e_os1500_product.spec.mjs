@@ -577,3 +577,20 @@ test('OS737.0.63 Family Home center ignores closed obligations',async({page})=>{
  });
  expect(out.obligations.map(x=>x.id)).toEqual(['home-open']);
 });
+
+test('OS737.0.64 Today calendar hides closed events',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const tomorrow=new Date(Date.now()+86400000).toISOString();
+  store.mutate('test Today closed calendar event',s=>{
+   s.calendar={events:[
+    {id:'cal-open-64',title:'Otevřený termín 64',status:'OPEN',start:tomorrow},
+    {id:'cal-closed-64',title:'Uzavřený termín 64',status:'CLOSED',start:tomorrow}
+   ]};
+  });
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ await expect(page.locator('#todayView')).toContainText('Otevřený termín 64');
+ await expect(page.locator('#todayView')).not.toContainText('Uzavřený termín 64');
+});
