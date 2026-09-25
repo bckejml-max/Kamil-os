@@ -58,5 +58,10 @@ export function executeExtendedCommand610(raw){
  if(baseSearch(raw).length)return false;const rows=searchExtended610(raw);if(rows.length===1){openTarget(rows[0].target,rows[0].focus);return true}if(rows.length>1){renderRows(rows);return true}return false
 }
 export function installCommandSearch610(){
- if(document.querySelector('link[data-upgrade610-css]'))return true;const l=document.createElement('link');l.rel='stylesheet';l.href='./upgrade610.css';l.dataset.upgrade610Css='1';document.head.appendChild(l);return true
+ const anchor=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>{const h=x.getAttribute('href')||'';return h==='./productReset1300.css'||x.href.endsWith('/productReset1300.css')})||null;
+ const existing=document.querySelector('link[data-upgrade610-css]');
+ if(existing){if(anchor&&existing.nextSibling!==anchor)document.head.insertBefore(existing,anchor);return true}
+ const l=document.createElement('link');l.rel='stylesheet';l.href='./upgrade610.css';l.dataset.upgrade610Css='1';
+ if(anchor)document.head.insertBefore(l,anchor);else document.head.appendChild(l);
+ return true
 }
