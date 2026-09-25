@@ -111,6 +111,7 @@ assert.match(documents,/insuranceAction=\[\.\.\.\(insurance\.actions\|\|\[\]\)\]
 assert.match(documents,/actionTotal=counts\.action\+insuranceAction\.length/,'Documents action count must combine vault and insurance actions');
 assert.match(inboxHub,/if\(!p\.needsAction\)return null/,'Inbox must include only actionable Insurance Center rows');
 assert.match(inboxHub,/openInsuranceCenter660/,'Inbox insurance rows must open Insurance Center directly');
+assert.match(inboxHub,/function calendarRoute660/,'Inbox calendar rows must route by actual personal area');
 assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must not hide content behind filters');
 
 assert.match(app,/betting:'betting-task'/,'shell quick add must support betting');
