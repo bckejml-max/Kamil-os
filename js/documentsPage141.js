@@ -16,7 +16,7 @@ const bucket=v=>archived(v)?'archive':v.status?.severity>0?'action':daysTo(v)!==
 const urgency=(a,b)=>Number(b.status?.severity||0)-Number(a.status?.severity||0)||(daysTo(a)??99999)-(daysTo(b)??99999)||String(a.title||'').localeCompare(String(b.title||''),'cs');
 function data(){
  ensurePersonalVault640();const s=store.get(),vault=personalVault640(s),records=[...vault.records].sort(urgency),insurance=insuranceCenter(s),counts={action:0,ending:0,valid:0,archive:0};records.forEach(x=>counts[bucket(x)]++);
- const top=records.filter(x=>['action','ending'].includes(bucket(x))),refs=records.reduce((n,x)=>n+(Array.isArray(x.attachments)?x.attachments.length:0),0),insuranceAction=insurance.policies.filter(x=>x.status!=='OK').sort((a,b)=>Number(b.priority||0)-Number(a.priority||0));
+ const top=records.filter(x=>['action','ending'].includes(bucket(x))),refs=records.reduce((n,x)=>n+(Array.isArray(x.attachments)?x.attachments.length:0),0),insuranceAction=[...(insurance.actions||[])].sort((a,b)=>Number(b.priority||0)-Number(a.priority||0));
  const vaultPrimary=top[0]||null,ins=insuranceAction[0]||null,insurancePrimary=ins?{source:'insurance',id:ins.id,title:ins.title,nextAction:ins.issues?.[0]||'Otevřít pojištění.',lifecycleLabel:ins.lifecycleLabel,severity:Number(ins.priority||0)}:null,primary=insurancePrimary&&insurancePrimary.severity>=Number(vaultPrimary?.status?.severity||0)?insurancePrimary:vaultPrimary;
  const actionTotal=counts.action+insuranceAction.length;
  return {s,vault,records,insurance,counts,top,refs,insuranceAction,actionTotal,primary};
