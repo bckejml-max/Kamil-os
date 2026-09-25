@@ -85,8 +85,10 @@ assert.match(vault,/SUPERSEDED_INSURANCE_RECOVERY_640/,'superseded recovery insu
 assert.match(insuranceMaster,/kamil-allianz-life/,'canonical insurance registry must include Kamil Allianz life policy');
 assert.match(insuranceMaster,/vlasatice-pvzp-home/,'canonical insurance registry must include Vlasatice property insurance recovery');
 assert.match(personalAssistant,/insuranceCenter\(s\)/,'personal assistant must read insurance from canonical Insurance Center');
+assert.match(personalAssistant,/calendar\?\.events\|\|\[\]\)\.filter\(open\)\.filter\(personal\)/,'personal assistant must hide closed calendar events');
 assert.match(personalActions,/a\.category==='INSURANCE'/,'generic personal action engine must not duplicate canonical insurance actions');
 assert.match(personalActions,/calendarScope640/,'Today personal calendar priorities must route by actual area');
+assert.match(personalActions,/calendar\?\.events\|\|\[\]\)\.filter\(open\)\.filter\(personal\)/,'Today must hide closed calendar events');
 
 assert.match(property,/data-property-candidate/,'Property shortlist must be clickable');
 assert.match(property,/openPropertyDetail620/);
@@ -101,6 +103,7 @@ assert.match(betting,/directRows:true/);
 
 assert.match(family,/data-family-page1500/);
 assert.match(family,/const isFamilyEvent=x=>/,'Family calendar must filter broader personal scope down to family events');
+assert.match(family,/calendar\?\.events\|\|\[\]\)\.filter\(x=>!CLOSED\.has/,'Family must hide closed calendar events');
 assert.match(family,/toUpperCase\(\)!=='ARCHIVED'/,'Family canonical page must hide archived household members');
 assert.doesNotMatch(family,/data-family-filter/,'Family canonical page must not hide content behind filters');
 assert.match(home,/data-home-page1500/);
@@ -116,6 +119,7 @@ assert.match(documents,/actionTotal=counts\.action\+insuranceAction\.length/,'Do
 assert.match(inboxHub,/if\(!p\.needsAction\)return null/,'Inbox must include only actionable Insurance Center rows');
 assert.match(inboxHub,/openInsuranceCenter660/,'Inbox insurance rows must open Insurance Center directly');
 assert.match(inboxHub,/function calendarRoute660/,'Inbox calendar rows must route by actual personal area');
+assert.match(inboxHub,/calendar\?\.events\)\.filter\(open\)\.filter\(isPersonalScope527\)/,'Inbox must hide closed calendar events');
 assert.match(personalActionExecution,/calendarScope641/,'calendar preparation tasks must preserve the source personal area');
 assert.match(personalActionExecution,/calendarPrepDue641/,'calendar preparation tasks must use the source event date');
 assert.match(inboxHub,/minutes:5,route,due/,'Inbox calendar actions must carry the source event due date');
