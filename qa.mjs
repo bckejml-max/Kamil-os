@@ -61,7 +61,7 @@ assert.ok(runtime.includes("money:['./moneyOverview.js','renderMoneyOverview']")
 for(const [name,file,marker] of [['Money',moneyOverview,'data-money-overview'],['Tickets',ticketOverview,'data-ticket-overview'],['Betting',bettingOverview,'data-betting-overview'],['Tasks',tasksOverview,'data-tasks-overview']])assert.ok(file.includes(marker),`${name} simple overview missing`);
 assert.ok(runtime.includes('ensureViewStyles')&&runtime.includes('dataset.os2Lazy'),'view-specific CSS lazy loading missing');
 assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateColdView42(key)'),'lazy view hydration/cache missing');
-for(const symbol of ['data-os2-today','data-product-home1300','data-os1400-home','os1400-focus','os1400-list','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today OS1400 missing ${symbol}`);
+for(const symbol of ['data-os2-today','data-product-home1300','data-os1400-home','os1600-attention','os1600-areas','os1400-list','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today product cockpit missing ${symbol}`);
 assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');
 assert.ok(app.includes("scheduleFrame1110('app-render'")&&app.includes('renderQueued=true')&&app.includes('renderQueued=false'),'UI renders must remain coalesced through runtime-owned frame scheduling');
 assert.ok(!app.includes('requestAnimationFrame('),'app render scheduling must not bypass runtime ownership');
