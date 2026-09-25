@@ -420,3 +420,25 @@ test('OS737.0.56 Family hides archived household members',async({page})=>{
  await expect(page.locator('#ticketsView')).toContainText('Aktivní člen');
  await expect(page.locator('#ticketsView')).not.toContainText('Archivovaný člen');
 });
+
+test('OS737.0.57 calendar preparation keeps the source area',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {openPersonalAction641}=await import('./js/personalActionExecution641.js');
+  window.__calendarScopeTestPromise=openPersonalAction641({
+   id:'calendar:money-scope-test',
+   kind:'calendar',
+   title:'Banka schůzka',
+   why:'Kalendář · blízký termín',
+   next:'Připravit se na událost.',
+   route:'money'
+  });
+ });
+ await expect(page.locator('#modalHost')).toContainText('Banka schůzka');
+ await page.locator('#modalHost button').filter({hasText:'Připravit'}).click();
+ await expect.poll(()=>page.evaluate(()=>{
+  const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');
+  const x=(s.tasks||[]).find(t=>t.sourceEventId==='money-scope-test');
+  return x?x.area:null;
+ }),{timeout:10000}).toBe('Peníze');
+});
