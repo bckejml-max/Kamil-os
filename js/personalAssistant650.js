@@ -3,6 +3,7 @@ import {personalVault640} from './personalVault640.js';
 import {personalActions640} from './personalActions640.js';
 import {personalDaysTo650} from './personalDate650.js';
 import {isPersonalScope527} from './personalScope527.js';
+import {insuranceCenter} from './insurance25.js';
 
 const DAY=86400000;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED']);
@@ -55,10 +56,14 @@ export function personalWaitingCenter650(s=store.get()){
 }
 
 export function personalHomeTimeline650(s=store.get()){
- const v=personalVault640(s),rows=[];
- for(const x of v.records.filter(x=>x.section==='home')){
+ const v=personalVault640(s),rows=[],insurance=insuranceCenter(s);
+ for(const x of v.records.filter(x=>x.section==='home'&&x.status?.code!=='ARCHIVED')){
   const at=x.noticeBy||x.validUntil||x.reviewAt||null;if(!at)continue;const d=daysTo(at);if(d===null||d>365)continue;
   rows.push({id:`vault:${x.id}`,title:x.title,date:at,days:d,kind:'contract',next:x.nextAction||'Zkontrolovat údaj.'});
+ }
+ for(const x of insurance.policies.filter(x=>x.kind==='PROPERTY')){
+  const at=x.notice||x.renewal||x.expiry||null;if(!at)continue;const d=daysTo(at);if(d===null||d>365)continue;
+  rows.push({id:`insurance:${x.id}`,title:x.title,date:at,days:d,kind:'contract',next:x.issues?.[0]||'Zkontrolovat pojištění.'});
  }
  const maintRe=/servis|reviz|filtr|čerpad|cerpad|rekuper|klima|kom[ií]n|zahrad|oprava|údržb|udrzb|stk/i;
  for(const x of [...(s.tasks||[]),...(s.personalAdmin?.items||[])].filter(open).filter(personal).filter(x=>maintRe.test(`${x.title||''} ${x.name||''} ${x.category||''}`))){
@@ -68,16 +73,17 @@ export function personalHomeTimeline650(s=store.get()){
 }
 
 export function personalMoneyPlan650(s=store.get()){
- const v=personalVault640(s),recent=(s.personalSpending?.transactions||[]).filter(x=>{const t=Date.parse(x.date||x.at||'');return Number.isFinite(t)&&t>=Date.now()-31*DAY});
+ const v=personalVault640(s),insurance=insuranceCenter(s),insuranceCzk=insurance.costs?.CZK||{annual:0,monthly:0},recent=(s.personalSpending?.transactions||[]).filter(x=>{const t=Date.parse(x.date||x.at||'');return Number.isFinite(t)&&t>=Date.now()-31*DAY});
  const spend=recent.reduce((a,x)=>{const n=Number(x.amount||0),k=norm(x.type||x.kind);return a+(k.includes('expense')||k.includes('out')||n<0?Math.abs(n):0)},0);
  const oneOff=(s.tasks||[]).filter(open).filter(personal).filter(x=>/zaplat|koup|objed|faktur|poplatek|oprava/i.test(`${x.title||''} ${x.category||''}`)).slice(0,5);
- return{fixedMonthly:v.monthlyKnown,insuranceAnnual:v.insuranceAnnual,recentSpend:spend,oneOff,knownMonthlyLabel:money(v.monthlyKnown),spendLabel:spend?money(spend):null};
+ const fixedMonthly=v.monthlyKnown+Number(insuranceCzk.monthly||0);return{fixedMonthly,insuranceAnnual:Number(insuranceCzk.annual||0),recentSpend:spend,oneOff,knownMonthlyLabel:money(fixedMonthly),spendLabel:spend?money(spend):null};
 }
 
 export function personalSearch650(query,s=store.get()){
  const q=norm(query).trim();if(q.length<2)return[];const v=personalVault640(s),rows=[];
  const add=(type,id,title,meta,route)=>{const hay=norm(`${title} ${meta}`);if(hay.includes(q))rows.push({type,id,title,meta,route,score:hay.startsWith(q)?100:70})};
- v.records.forEach(x=>add('data',x.id,x.title,`${x.provider||''} ${x.sourceLabel||''} ${x.status?.label||''}`,(x.section==='home'?'home':x.section==='money'?'money':'documents')));
+ v.records.filter(x=>x.status?.code!=='ARCHIVED').forEach(x=>add('data',x.id,x.title,`${x.provider||''} ${x.sourceLabel||''} ${x.status?.label||''}`,(x.section==='home'?'home':x.section==='money'?'money':'documents')));
+ insuranceCenter(s).all.forEach(x=>add('insurance',x.id,x.title,`${x.provider||''} ${x.insured||''} ${x.policyNumber||''} ${x.lifecycleLabel||''}`,'documents'));
  (s.tasks||[]).filter(open).filter(personal).forEach(x=>add('task',x.id,x.title||x.name||'Úkol',`${x.category||''} ${fmtDate(dateOf(x))}`,'today'));
  (s.delegations||[]).filter(open).filter(personal).forEach(x=>add('waiting',x.id||x.title,x.title||x.name||'Čekám',fmtDate(dateOf(x)),'waiting'));
  (s.calendar?.events||[]).filter(personal).forEach(x=>add('calendar',x.id||x.title,x.title||x.summary||'Událost',fmtDate(x.start||x.date||x.when),'family'));
