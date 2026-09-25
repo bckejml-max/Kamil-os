@@ -442,3 +442,20 @@ test('OS737.0.57 calendar preparation keeps the source area',async({page})=>{
   return x?x.area:null;
  }),{timeout:10000}).toBe('Peníze');
 });
+
+test('OS737.0.58 Home hides cancelled maintenance',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('test cancelled home maintenance',s=>{
+   s.tasks=[
+    {id:'home-open-maint',title:'Revize komínu',status:'OPEN',area:'Domov'},
+    {id:'home-cancelled-maint',title:'Servis rekuperace',status:'CANCELLED',area:'Domov'}
+   ];
+  });
+ });
+ await page.locator('#mainNav [data-view="home"]').click();
+ await expect(page.locator('[data-home-page1500]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#homeView')).toContainText('Revize komínu');
+ await expect(page.locator('#homeView')).not.toContainText('Servis rekuperace');
+});
