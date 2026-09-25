@@ -57,6 +57,7 @@ assert.match(money,/!x\.issue&&\['HOLD','LISTED','OPEN'\]/,'Money must exclude d
 assert.match(moneyAdvanced,/!x\.issue&&\['HOLD','LISTED'\]/,'advanced Money must exclude disputed tickets from ticket capital');
 assert.match(moneyAdvanced,/x\.status\?\.code!=='ARCHIVED'&&x\.recordType!=='insurance'/,'advanced Money recurring list must hide archived recovery insurance');
 assert.match(moneyAdvanced,/insurance\.policies\.filter\(x=>x\.lifecycle==='ACTIVE'/,'advanced Money recurring list must source active insurance from Insurance Center');
+assert.match(moneyAdvanced,/openInsuranceCenter/,'Money insurance rows must open Insurance Center directly');
 assert.match(insurance,/activeCosts/,'Insurance Center must expose current insurance costs separately');
 assert.match(insurance,/upcomingCosts/,'Insurance Center must expose upcoming insurance costs separately');
 assert.match(vault,/SUPERSEDED_INSURANCE_RECOVERY_640/,'superseded recovery insurance must be archived once canonical insurance registry exists');
@@ -76,6 +77,7 @@ assert.match(family,/data-family-page1500/);
 assert.doesNotMatch(family,/data-family-filter/,'Family canonical page must not hide content behind filters');
 assert.match(home,/data-home-page1500/);
 assert.match(home,/insuranceCenter\(s\)/,'Home must read current property insurance from Insurance Center');
+assert.match(home,/openInsuranceCenter/,'Home insurance cards must open Insurance Center directly');
 assert.match(home,/x\.status\?\.code!=='ARCHIVED'/,'Home must hide archived recovery records from current cards');
 assert.doesNotMatch(home,/data-home-filter/,'Home canonical page must not hide content behind filters');
 assert.match(documents,/data-documents-page1500/);
