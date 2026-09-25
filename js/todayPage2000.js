@@ -1,6 +1,7 @@
 import {store} from './state.js';
 import {workCommandCenter440} from './workCommandCenter440.js';
 import {buildPropertyHub620} from './propertyHub620.js';
+import {familyData140} from './familyPage140.js';
 import {personalDailyAssistant650,personalHomeTimeline650} from './personalAssistant650.js';
 import {personalVault640} from './personalVault640.js';
 import {personalDaysTo650} from './personalDate650.js';
@@ -33,8 +34,8 @@ function baseData(){
  const s=store.get();
  const tasks=(s.tasks||[]).filter(open),personalTasks=tasks.filter(isPersonalScope527),ticketTasks=tasks.filter(x=>['TICKETS','VIAGOGO'].includes(upper(x?.area||x?.category))),waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[]),...(s.personalInbox?.items||[]).filter(x=>String(x?.bucket||'').toLowerCase()==='waiting')].filter(open),tickets=(s.ticketBook?.items||[]),calendar=(s.calendar?.events||[]).filter(open).filter(x=>{const t=ts(x);return t&&t>Date.now()-6*3600000}).sort((a,b)=>(ts(a)||Infinity)-(ts(b)||Infinity));
  const urgentTasks=[...tasks].sort((a,b)=>{const ao=isOverdue(a),bo=isOverdue(b);if(ao!==bo)return bo-ao;const pa=Number(a?.priority||a?.score||0),pb=Number(b?.priority||b?.score||0);if(pb!==pa)return pb-pa;return(ts(a)||Infinity)-(ts(b)||Infinity)});
- const overdue=personalTasks.filter(isOverdue),transfer=tickets.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(upper(x.market_status||x.workflow))),activeTickets=tickets.filter(x=>!x.issue&&!SOLD_TICKET_STATES.has(upper(x.market_status))&&!SOLD_TICKET_STATES.has(upper(x.workflow))),financePlan=s.financePlan||{},rawCash=financePlan.cashNow,cashPlanTouched=!!financePlan.updatedAt||[financePlan.cashNow,financePlan.expectedIncome,financePlan.reserveFloor,financePlan.plannedInvestment].some(v=>Number(v||0)!==0),cash=cashPlanTouched&&rawCash!==null&&rawCash!==undefined&&String(rawCash).trim()!==''&&Number.isFinite(Number(rawCash))?Number(rawCash):null,work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=betting(s),personal=personalDailyAssistant650(s),homeTimeline=personalHomeTimeline650(s),insurance=insuranceCenter(s),vault=personalVault640(s);
- return{s,tasks,personalTasks,ticketTasks,waiting,tickets,activeTickets,transfer,calendar,urgentTasks,overdue,cash,work,property,bet,personal,homeTimeline,insurance,vault};
+ const overdue=personalTasks.filter(isOverdue),transfer=tickets.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(upper(x.market_status||x.workflow))),activeTickets=tickets.filter(x=>!x.issue&&!SOLD_TICKET_STATES.has(upper(x.market_status))&&!SOLD_TICKET_STATES.has(upper(x.workflow))),financePlan=s.financePlan||{},rawCash=financePlan.cashNow,cashPlanTouched=!!financePlan.updatedAt||[financePlan.cashNow,financePlan.expectedIncome,financePlan.reserveFloor,financePlan.plannedInvestment].some(v=>Number(v||0)!==0),cash=cashPlanTouched&&rawCash!==null&&rawCash!==undefined&&String(rawCash).trim()!==''&&Number.isFinite(Number(rawCash))?Number(rawCash):null,work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=betting(s),family=familyData140(s),personal=personalDailyAssistant650(s),homeTimeline=personalHomeTimeline650(s),insurance=insuranceCenter(s),vault=personalVault640(s);
+ return{s,tasks,personalTasks,ticketTasks,waiting,tickets,activeTickets,transfer,calendar,urgentTasks,overdue,cash,work,property,bet,family,personal,homeTimeline,insurance,vault};
 }
 function greeting(){const h=new Date().getHours();return h<11?'Dobré ráno':h<18?'Dobré odpoledne':'Dobrý večer'}
 function attention(d){
@@ -59,11 +60,9 @@ function calendarRows(items){
 }
 function systemState(d){
  const workRisk=d.work.topRisks?.[0],best=d.property.best,activeTicketQty=d.activeTickets.reduce((a,x)=>a+Math.max(1,Number(x.qty||1)),0);
- const area=x=>String(x?.area||x?.category||'').toLocaleLowerCase('cs-CZ');
- const familyTasks=d.tasks.filter(x=>/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/.test(area(x)));
+ const family=d.family||{overdue:0,due7:0,tasks:[],events:[]},familyOverdue=(family.tasks||[]).find(x=>x.d!==null&&x.d<0),familyNext=[...(family.events||[]).filter(x=>x.d<=7),...(family.tasks||[]).filter(x=>x.d!==null&&x.d>=0&&x.d<=7)].sort((a,b)=>(a.d??999)-(b.d??999))[0]||null;
  const homeUrgent=(d.homeTimeline||[]).filter(x=>x.days!==null&&x.days!==undefined&&x.days<=30).sort((a,b)=>a.days-b.days),homePrimary=homeUrgent[0]||null,homeOverdue=homeUrgent.filter(x=>x.days<0).length;
  const docIssues=(d.vault?.action?.length||0)+(d.insurance?.actionCount||0),docEnding=(d.vault?.records||[]).filter(vaultEnding90).length;
- const familySoon=(d.personal?.tomorrow||[]).filter(x=>tomorrowRoute(x)==='family').length;
  return [
   {route:'inbox',title:'Úkoly',detail:d.overdue.length?d.overdue.length+' po termínu':d.personalTasks.length?d.personalTasks.length+' otevřených položek':'Fronta je prázdná',side:d.overdue.length?d.overdue.length+' po term.':d.personalTasks.length?d.personalTasks.length+' otevř.':'čisto',tone:d.overdue.length?'bad':d.personalTasks.length?'warn':'good'},
   {route:'work',title:'Práce',detail:workRisk?workRisk.title:(d.work.status==='KLID'?'Bez akutního zásahu':'Otevřít pracovní přehled'),side:d.work.status,tone:d.work.status==='ZÁSAH'?'bad':d.work.status==='SLEDOVAT'?'warn':'good'},
@@ -71,7 +70,7 @@ function systemState(d){
   {route:'money',title:'Peníze',detail:d.cash!==null?'Potvrzená volná hotovost':'Hotovost není potvrzená',side:d.cash!==null?money(d.cash):'doplnit',tone:d.cash!==null?'good':'warn'},
   {route:'property',title:'Reality',detail:best?best.name+' · '+best.decision.action:'Žádný kandidát v shortlistu',side:best?best.score+'/100':'—',tone:best?(best.decision.code==='PASS'?'bad':best.decision.code==='NEGOTIATE'?'warn':'good'):''},
   {route:'betting',title:'Sázení',detail:d.bet.positions?d.bet.tickets+' tiketů v '+d.bet.positions+' pozicích':'Žádná otevřená pozice',side:d.bet.positions?d.bet.positions+' pozic':'klid',tone:d.bet.exposure?'warn':'good'},
-  {route:'family',title:'Rodina',detail:familySoon?'Nejbližší rodinná věc je zítra':familyTasks[0]?.title||'Žádný akutní rodinný úkol',side:familySoon?familySoon+' zítra':familyTasks.length?familyTasks.length+' úkolů':'klid',tone:familySoon?'warn':familyTasks.length?'warn':'good'},
+  {route:'family',title:'Rodina',detail:familyOverdue?.title||familyNext?.title||familyNext?.summary||'Bez rodinného termínu do 7 dní',side:family.overdue?family.overdue+' po term.':family.due7?family.due7+' do 7 dní':'klid',tone:family.overdue?'bad':family.due7?'warn':'good'},
   {route:'home',title:'Domov',detail:homePrimary?`${homePrimary.title} · ${homePrimary.days<0?Math.abs(homePrimary.days)+' d po termínu':homePrimary.days===0?'dnes':homePrimary.days===1?'zítra':'za '+homePrimary.days+' d'}`:'Žádný akutní servis nebo termín',side:homeUrgent.length?homeUrgent.length+' řešit':'klid',tone:homeOverdue?'bad':homeUrgent.length?'warn':'good'},
   {route:'more',title:'Dokumenty',detail:docIssues?docIssues+' dokumentů / pojistek k řešení':docEnding?docEnding+' dokumentů končí do 90 dní':'Bez akutního problému',side:docIssues?docIssues+' řešit':docEnding?docEnding+' končí':'klid',tone:docIssues?'bad':docEnding?'warn':'good'}
  ];
