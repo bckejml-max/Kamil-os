@@ -747,3 +747,52 @@ test('OS737.0.70 Today Betting tone matches canonical risk model',async({page})=
  await page.locator('#mainNav [data-view="betting"]').click();
  await expect(page.locator('[data-betting-overview] .pr1300-status')).toHaveClass(/good/);
 });
+
+test('OS737.0.71 Today Tickets matches canonical Ticket Overview state',async({page})=>{
+ await boot(page);
+ const expected=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {ticketData1300}=await import('./js/ticketOverview.js');
+  const d=ticketData1300(store.get());
+  return {
+   actions:d.attention.length,
+   qty:d.p.queue.activeQty,
+   positions:d.p.queue.activePositions,
+   bad:!!(d.issues.length||d.transfer.length),
+   top:d.attention[0]?.title||null
+  };
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ const card=page.locator('#todayView .os1600-area').filter({hasText:'Vstupenky'}).first();
+ if(expected.actions){
+  await expect(card).toContainText(expected.actions+' řešit');
+  if(expected.top)await expect(card).toContainText(expected.top);
+  await expect(card).toHaveClass(expected.bad?/bad/:/warn/);
+ }else{
+  await expect(card).toHaveClass(/good/);
+  await expect(card).toContainText(expected.qty?expected.qty+' ks':'klid');
+ }
+ const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
+ expect(today.tickets).toBe(expected.positions);
+ expect(today.ticketQty).toBe(expected.qty);
+ expect(today.ticketAttention).toBe(expected.actions);
+ await page.locator('#mainNav [data-view="tickets"]').click();
+ const overview=await page.evaluate(()=>window.__KAMIL_TICKET_OVERVIEW__);
+ expect(overview.activeQty).toBe(expected.qty);
+ expect(overview.attention).toBe(expected.actions);
+});
+
+test('OS737.0.71 sold lifecycle variants stay out of active Ticket portfolio',async({page})=>{
+ await page.goto(BASE,{waitUntil:'domcontentloaded'});
+ const out=await page.evaluate(async()=>{
+  const {ticketActionQueue32}=await import('./js/ticketPortfolio32.js');
+  return ticketActionQueue32({ticketBook:{items:[
+   {id:'active',name:'Active',qty:2,buy:1000,workflow:'LISTED',market_status:'LISTED'},
+   {id:'sold-transfer',name:'Sold transfer',qty:3,buy:2000,workflow:'HOLD',market_status:'SOLD_UNDELIVERED'},
+   {id:'payout',name:'Payout',qty:4,buy:3000,workflow:'HOLD',market_status:'SOLD_WAITING_PAYMENT'},
+   {id:'paid',name:'Paid',qty:5,buy:4000,workflow:'HOLD',market_status:'PAID'}
+  ]}});
+ });
+ expect(out.activePositions).toBe(1);
+ expect(out.activeQty).toBe(2);
+});
