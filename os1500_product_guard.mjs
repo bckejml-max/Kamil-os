@@ -24,7 +24,7 @@ assert.match(runtime,/appendChild\(os1500\)/,'OS1500 must remain the final canon
 for(const route of ['inbox','work','tickets','money','property','betting','family','home','more']){
  assert.match(today,new RegExp("route:'"+route+"'"),'Today must expose '+route);
 }
-assert.match(today,/9 oblastí/,'Today must show all nine product areas');
+assert.match(today,/9 oblastí/,'Today must show all nine product areas');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
 assert.match(today,/usabilityReset:1500/);
 
 assert.match(work,/data-work1300-risk/);
@@ -54,8 +54,8 @@ assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must n
 
 assert.match(app,/betting:'betting-task'/,'shell quick add must support betting');
 assert.match(runtime,/type==='betting-task'/,'runtime capture must preserve betting scope');
-assert.match(css,/overflow-x:auto!important/,'mobile primary nav must stay directly horizontally reachable');
-assert.match(css,/flex:0 0 66px!important/,'mobile destinations must stay tappable');
+assert.match(css,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important/,'mobile primary nav must expose all destinations without a hidden menu');
+assert.match(css,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/,'mobile primary nav must keep all ten destinations visible');
 assert.match(sw,/os1500\.css/,'service worker must precache OS1500');
 
 console.log('OS1500 product usability guard PASS');
