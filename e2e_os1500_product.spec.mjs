@@ -111,3 +111,14 @@ test('OS737.0.29 Home hides archived recovery insurance and shows canonical prop
  await expect(records).toContainText('Dům Vlasatice · pojištění nemovitosti');
  await expect(records).not.toContainText('Pojištění domu Vlasatice');
 });
+
+test('OS737.0.30 Money separates current and upcoming insurance and excludes disputed tickets',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('[data-money-overview]')).toBeVisible({timeout:10000});
+ await page.locator('[data-money-advanced]').click();
+ await expect(page.locator('#moneyView')).toContainText('Fixní platby teď');
+ const diag=await page.evaluate(()=>window.__KAMIL_WEALTH_700_LAST__);
+ expect(diag.upcomingInsuranceMonthly).toBeGreaterThanOrEqual(2000);
+ expect(diag.wealth.tickets).toBeCloseTo(45692,2);
+});

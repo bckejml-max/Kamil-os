@@ -48,11 +48,12 @@ export function insuranceCenter(s={},now=new Date()){
  const policies=all.filter(x=>['ACTIVE','UPCOMING','TERMINATING','REVIEW'].includes(x.lifecycle));
  const offers=all.filter(x=>x.lifecycle==='OFFER');
  const history=all.filter(x=>x.lifecycle==='HISTORY');
- const costs={};
- for(const p of policies.filter(x=>['ACTIVE','UPCOMING'].includes(x.lifecycle))){if(p.annualPremium===null||p.annualPremium<=0)continue;const c=p.currency||'CZK';costs[c]=costs[c]||{annual:0,monthly:0,count:0};costs[c].annual+=p.annualPremium;costs[c].monthly+=p.monthlyPremium||0;costs[c].count++}
+ const costs={},activeCosts={},upcomingCosts={};
+ const addCost=(bucket,p)=>{if(p.annualPremium===null||p.annualPremium<=0)return;const c=p.currency||'CZK';bucket[c]=bucket[c]||{annual:0,monthly:0,count:0};bucket[c].annual+=p.annualPremium;bucket[c].monthly+=p.monthlyPremium||0;bucket[c].count++};
+ for(const p of policies.filter(x=>['ACTIVE','UPCOMING'].includes(x.lifecycle))){addCost(costs,p);if(p.lifecycle==='ACTIVE')addCost(activeCosts,p);else if(p.lifecycle==='UPCOMING')addCost(upcomingCosts,p)}
  const urgent=policies.filter(x=>x.status==='URGENT').length;
  const due30=policies.filter(x=>(x.expiryDays!==null&&x.expiryDays>=0&&x.expiryDays<=30)||(x.noticeDays!==null&&x.noticeDays>=0&&x.noticeDays<=30)).length;
  const incomplete=policies.filter(x=>x.issues.some(i=>i.startsWith('Chybí'))).length;
  const insuredSubjects=new Set(policies.map(x=>String(x.insured||'').trim()).filter(Boolean));
- return {all,policies,offers,history,total:policies.length,active:policies.filter(x=>x.lifecycle==='ACTIVE').length,upcoming:policies.filter(x=>x.lifecycle==='UPCOMING').length,terminating:policies.filter(x=>x.lifecycle==='TERMINATING').length,review:policies.filter(x=>x.lifecycle==='REVIEW').length,urgent,due30,incomplete,insuredSubjects:insuredSubjects.size,costs,note:insuranceNote};
+ return {all,policies,offers,history,total:policies.length,active:policies.filter(x=>x.lifecycle==='ACTIVE').length,upcoming:policies.filter(x=>x.lifecycle==='UPCOMING').length,terminating:policies.filter(x=>x.lifecycle==='TERMINATING').length,review:policies.filter(x=>x.lifecycle==='REVIEW').length,urgent,due30,incomplete,insuredSubjects:insuredSubjects.size,costs,activeCosts,upcomingCosts,note:insuranceNote};
 }
