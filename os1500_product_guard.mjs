@@ -49,7 +49,9 @@ assert.match(today,/filter\(x=>tomorrowRoute\(x\)==='family'\)/,'Today Family su
 assert.match(today,/vault=personalVault640\(s\)/,'Today Documents card must read canonical Personal Vault state');
 assert.match(today,/docIssues=\(d\.vault\?\.action\?\.length\|\|0\)\+\(d\.insurance\?\.actionCount\|\|0\)/,'Today Documents action count must combine vault and insurance actions');
 assert.match(today,/homeTimeline=personalHomeTimeline650\(s\)/,'Today Home card must read the canonical home timeline');
-assert.match(today,/homeUrgent=\(d\.homeTimeline\|\|\[\]\)\.filter/,'Today Home status must derive from the canonical 30-day home timeline');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
+assert.match(today,/homeUrgent=\(d\.homeTimeline\|\|\[\]\)\.filter/,'Today Home status must derive from the canonical 30-day home timeline');
+assert.match(today,/family=familyData140\(s\)/,'Today Family card must read canonical Family state');
+assert.match(today,/family\.overdue\?family\.overdue\+' po term\.'/,'Today Family status must mirror canonical overdue and 7-day state');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
 assert.match(today,/usabilityReset:1500/);
 assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
 assert.match(today,/SOLD_TICKET_STATES/,'Today must explicitly exclude sold/settlement ticket states from active inventory');
@@ -111,6 +113,7 @@ assert.match(betting,/detail:'betting-task'/,'Betting task must retain betting s
 assert.match(betting,/directRows:true/);
 
 assert.match(family,/data-family-page1500/);
+assert.match(family,/export function familyData140/,'Family canonical state must be reusable by Today');
 assert.match(family,/const isFamilyEvent=x=>/,'Family calendar must filter broader personal scope down to family events');
 assert.match(family,/calendar\?\.events\|\|\[\]\)\.filter\(x=>!CLOSED\.has/,'Family must hide closed calendar events');
 assert.match(family,/toUpperCase\(\)!=='ARCHIVED'/,'Family canonical page must hide archived household members');

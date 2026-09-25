@@ -15,8 +15,8 @@ const daysTo=personalDaysTo650;
 const fold=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const when=d=>d===null?'bez termínu':d<0?`${Math.abs(d)} d po termínu`:d===0?'dnes':d===1?'zítra':`za ${d} d`;
 
-function data(){
- const s=store.get(),members=(Array.isArray(s.familyHome?.members)?s.familyHome.members:[]).filter(x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED'),memberNames=members.map(x=>fold(x.name)).filter(x=>x.length>=2);
+export function familyData140(s=store.get()){
+ const members=(Array.isArray(s.familyHome?.members)?s.familyHome.members:[]).filter(x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED'),memberNames=members.map(x=>fold(x.name)).filter(x=>x.length>=2);
  const isFamilyEvent=x=>{if(!isPersonalScope527(x))return false;const area=fold(x.area),category=fold(x.category),text=fold(`${x.title||''} ${x.summary||''} ${x.subject||''}`);return area==='rodina'||category==='rodina'||familyRe.test(text)||memberNames.some(name=>text.includes(name))};
  const events=(s.calendar?.events||[]).filter(x=>!CLOSED.has(String(x?.status||x?.workflow||x?.state||'').toUpperCase())).filter(isFamilyEvent).map(x=>({...x,d:daysTo(x.start||x.date||x.when)})).filter(x=>x.d!==null&&x.d>=0&&x.d<=30).sort((a,b)=>a.d-b.d);
  const tasks=(s.tasks||[]).filter(isPersonalScope527).filter(x=>familyRe.test(`${x.title||''} ${x.category||''} ${x.area||''}`)||String(x.area||'').toLowerCase()==='rodina').filter(x=>!CLOSED.has(String(x.status||'').toUpperCase())).map(x=>({...x,d:daysTo(x.due)})).sort((a,b)=>(a.d??9999)-(b.d??9999));
@@ -26,6 +26,7 @@ function data(){
  ].sort((a,b)=>(a.d??999)-(b.d??999)||String(a.title).localeCompare(String(b.title),'cs'));
  return {s,members,events,tasks,urgent,primary:urgent[0]||null,overdue:tasks.filter(x=>x.d!==null&&x.d<0).length,due7:events.filter(x=>x.d<=7).length+tasks.filter(x=>x.d!==null&&x.d>=0&&x.d<=7).length};
 }
+const data=()=>familyData140(store.get());
 const eventRows=rows=>rows.length?rows.slice(0,8).map((x,i)=>`<button type="button" class="pr1300-row pr1300-clickrow" data-family1500-event="${i}"><div class="pr1300-row-main"><b>${h(x.title||x.summary||'Událost')}</b><small>${h(x.location||'Rodinný termín')}</small></div><div class="pr1300-row-side ${x.d<=1?'warn':''}">${h(when(x.d))} <span class="os1500-row-arrow">→</span></div></button>`).join(''):'<div class="os1500-empty">V příštích 30 dnech není uložený rodinný termín.</div>';
 const taskRows=rows=>rows.length?rows.slice(0,10).map((x,i)=>`<button type="button" class="pr1300-row pr1300-clickrow" data-family1500-task="${i}"><div class="pr1300-row-main"><b>${h(x.title||'Úkol')}</b><small>${h(x.notes||x.category||'Rodina')}</small></div><div class="pr1300-row-side ${x.d!==null&&x.d<0?'bad':x.d===0?'warn':''}">${h(when(x.d))} <span class="os1500-row-arrow">→</span></div></button>`).join(''):'<div class="os1500-empty">Žádný otevřený rodinný úkol.</div>';
 const memberRows=rows=>rows.length?rows.map(x=>`<div class="pr1300-row"><div class="pr1300-row-main"><b>${h(x.name||x.title||'Člen domácnosti')}</b><small>${h(x.role||x.relation||'')}</small></div><div class="pr1300-row-side">domácnost</div></div>`).join(''):'<div class="os1500-empty">Členové domácnosti zatím nejsou ve strukturovaných datech.</div>';
