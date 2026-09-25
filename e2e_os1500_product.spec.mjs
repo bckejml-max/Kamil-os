@@ -92,15 +92,15 @@ test('OS737.0.27 derived Today ticket counts exclude disputes',async({page})=>{
   ticketBook:{items:[
    {id:'active',name:'Česko - Anglie - 115',qty:4,buy:7516,workflow:'LISTED'},
    {id:'issue',name:'Davis Cup - reklamace',qty:3,buy:7590,workflow:'HOLD',issue:'REKLAMACE'}
-  ],watchlist:[],history:[],review:[],masterId:'test-derived'},
+  ],watchlist:[],history:[],review:[],masterId:'flipovani-2024-2026-2026-09-23'},
   personalAdmin:{items:[]}
  })));
  await boot(page);
  const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(today?.healthy).toBe(true);
  const ticketArea=page.locator('.os1600-area').filter({hasText:'Vstupenky'});
- await expect(ticketArea).toContainText('4');
- await expect(ticketArea).not.toContainText('7 otevř.');
+ await expect(ticketArea).toContainText('4 ks');
+ await expect(ticketArea).not.toContainText('7 ks');
 });
 
 test('OS737.0.29 Home hides archived recovery insurance and shows canonical property insurance',async({page})=>{
@@ -108,8 +108,10 @@ test('OS737.0.29 Home hides archived recovery insurance and shows canonical prop
  await page.locator('#mainNav [data-view="home"]').click();
  await expect(page.locator('[data-home-page1500]')).toBeVisible({timeout:10000});
  const records=page.locator('#homeView .os1500-record');
- await expect(records).toContainText('Dům Vlasatice · pojištění nemovitosti');
- await expect(records).not.toContainText('Pojištění domu Vlasatice');
+ const canonical=records.filter({hasText:'Dům Vlasatice · pojištění nemovitosti'});
+ await expect(canonical).toHaveCount(1);
+ await expect(canonical).toContainText('Dům Vlasatice · pojištění nemovitosti');
+ await expect(page.locator('#homeView')).not.toContainText('Pojištění domu Vlasatice');
 });
 
 test('OS737.0.30 Money separates current and upcoming insurance and excludes disputed tickets',async({page})=>{
@@ -118,20 +120,21 @@ test('OS737.0.30 Money separates current and upcoming insurance and excludes dis
  await expect(page.locator('[data-money-overview]')).toBeVisible({timeout:10000});
  await page.locator('[data-money-advanced]').click();
  await expect(page.locator('#moneyView')).toContainText('Fixní platby teď');
- const diag=await page.evaluate(()=>window.__KAMIL_WEALTH_700_LAST__);
- expect(diag.upcomingInsuranceMonthly).toBeGreaterThanOrEqual(2000);
- expect(diag.wealth.tickets).toBeCloseTo(45692,2);
+ const checked=await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');const expected=(s.ticketBook?.items||[]).filter(x=>!x.issue&&['HOLD','LISTED'].includes(String(x.workflow||'').toUpperCase())).reduce((a,x)=>a+Number(x.buy||x.buyTotalCzk||0),0);return{diag:window.__KAMIL_WEALTH_700_LAST__,expected}});
+ expect(checked.diag.upcomingInsuranceMonthly).toBeGreaterThanOrEqual(2000);
+ expect(checked.diag.wealth.tickets).toBeCloseTo(checked.expected,2);
 });
 
 test('OS737.0.31 command bar ticket capital excludes disputes',async({page})=>{
  await boot(page);
- const result=await page.evaluate(async()=>{
+ const checked=await page.evaluate(async()=>{
   const m=await import('./js/personalQuery29.js');
   const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');
-  return m.personalQuery('kolik mám kapitálu ve vstupenkách',s,{});
+  const expected=(s.ticketBook?.items||[]).filter(x=>!x.issue&&['HOLD','LISTED'].includes(String(x.workflow||'').toUpperCase())).reduce((a,x)=>a+Number(x.buy||x.buyTotalCzk||0),0);
+  return {result:m.personalQuery('kolik mám kapitálu ve vstupenkách',s,{}),expected};
  });
- expect(String(result?.title||'').replace(/\D/g,'')).toContain('45692');
- expect(result?.lines?.join(' ')).toContain('bez reklamací');
+ expect(String(checked.result?.title||'').replace(/\D/g,'')).toContain(String(Math.round(checked.expected)));
+ expect(checked.result?.lines?.join(' ')).toContain('bez reklamací');
 });
 
 test('OS737.0.32 recurring Money list uses canonical insurance and separates upcoming policy',async({page})=>{
