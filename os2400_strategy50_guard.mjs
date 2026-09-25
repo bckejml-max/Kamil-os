@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const read=p=>fs.readFileSync(p,'utf8');
+const mod=read('js/osStrategy2400.js'),docs=read('js/documentsPage141.js'),cmd=read('js/commandSearch610.js');
+assert.match(mod,/STRATEGY_SUITE2400_VERSION='2400\.0\.0'/);
+assert.match(mod,/export const STRATEGY_NAMES2400=\[/);
+assert.match(mod,/export const STRATEGY_BUILDERS2400=\[/);
+assert.match(mod,/export function strategySuite2400/);
+assert.match(mod,/export function renderStrategyCenter2400/);
+for(let i=201;i<=250;i++)assert.match(mod,new RegExp('f\\('+i+','),'missing strategy feature '+i);
+for(const token of ['North Star Dashboard','Decision Portfolio','KPI Drift Monitor','Search Success Rate','90-Day Strategic Plan','Life / Business Balance'])assert.ok(mod.includes(token),'missing strategy '+token);
+assert.match(docs,/data-doc1500-strategy/,'Documents must expose Strategy & Horizon');
+assert.match(docs,/osStrategy2400\.js/,'Documents must lazy-load Strategy & Horizon');
+assert.match(cmd,/strategy2400/,'Command search must deep-link to Strategy & Horizon');
+console.log('OS2400 fifth 50 strategy/horizon guard PASS');
