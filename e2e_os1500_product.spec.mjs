@@ -262,3 +262,22 @@ test('OS737.0.47 personal action engine does not duplicate Insurance Center acti
  expect(out.duplicated).toEqual([]);
  expect(out.insuranceActions.length).toBeGreaterThan(0);
 });
+
+test('OS737.0.48 Family calendar excludes unrelated personal events',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const tomorrow=new Date(Date.now()+86400000).toISOString();
+  store.mutate('test family calendar scope',s=>{
+   s.calendar=s.calendar||{events:[]};
+   s.calendar.events=[
+    {id:'family-scope-test',title:'Rodinný termín',area:'Rodina',start:tomorrow},
+    {id:'personal-scope-test',title:'Osobní administrativa',area:'Osobní',start:tomorrow}
+   ];
+  });
+ });
+ await page.locator('#mainNav [data-view="family"]').click();
+ await expect(page.locator('[data-family-page1500]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#ticketsView')).toContainText('Rodinný termín');
+ await expect(page.locator('#ticketsView')).not.toContainText('Osobní administrativa');
+});

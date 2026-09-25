@@ -1,3 +1,3 @@
-export const APP_VERSION='737.0.47';
-export const APP_RELEASE='737.0.47';
-// OS737.0.47: insurance action ownership — generic personal priorities no longer duplicate canonical Insurance Center actions.
+export const APP_VERSION='737.0.48';
+export const APP_RELEASE='737.0.48';
+// OS737.0.48: Family calendar scope — unrelated personal/home/money events no longer appear as family events.

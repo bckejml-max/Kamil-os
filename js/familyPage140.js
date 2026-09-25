@@ -12,11 +12,13 @@ const ENABLE_FAMILY_HUB610=false;
 const familyRe=/rodin|d[ií]t|dcera|manžel|manzel|mam|tat|babi|děd|ded/i;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','CANCELLED','CANCELED']);
 const daysTo=personalDaysTo650;
+const fold=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const when=d=>d===null?'bez termínu':d<0?`${Math.abs(d)} d po termínu`:d===0?'dnes':d===1?'zítra':`za ${d} d`;
 
 function data(){
- const s=store.get(),members=Array.isArray(s.familyHome?.members)?s.familyHome.members:[];
- const events=(s.calendar?.events||[]).filter(isPersonalScope527).map(x=>({...x,d:daysTo(x.start||x.date||x.when)})).filter(x=>x.d!==null&&x.d>=0&&x.d<=30).sort((a,b)=>a.d-b.d);
+ const s=store.get(),members=Array.isArray(s.familyHome?.members)?s.familyHome.members:[],memberNames=members.map(x=>fold(x.name)).filter(x=>x.length>=2);
+ const isFamilyEvent=x=>{if(!isPersonalScope527(x))return false;const area=fold(x.area),category=fold(x.category),text=fold(`${x.title||''} ${x.summary||''} ${x.subject||''}`);return area==='rodina'||category==='rodina'||familyRe.test(text)||memberNames.some(name=>text.includes(name))};
+ const events=(s.calendar?.events||[]).filter(isFamilyEvent).map(x=>({...x,d:daysTo(x.start||x.date||x.when)})).filter(x=>x.d!==null&&x.d>=0&&x.d<=30).sort((a,b)=>a.d-b.d);
  const tasks=(s.tasks||[]).filter(isPersonalScope527).filter(x=>familyRe.test(`${x.title||''} ${x.category||''} ${x.area||''}`)||String(x.area||'').toLowerCase()==='rodina').filter(x=>!CLOSED.has(String(x.status||'').toUpperCase())).map(x=>({...x,d:daysTo(x.due)})).sort((a,b)=>(a.d??9999)-(b.d??9999));
  const urgent=[
   ...tasks.filter(x=>x.d!==null&&x.d<=3).map(x=>({kind:'task',title:x.title||'Rodinný úkol',detail:when(x.d),src:x,d:x.d})),
