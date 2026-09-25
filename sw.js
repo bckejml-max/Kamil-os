@@ -1,4 +1,4 @@
-const CACHE='kamil-os-737.0.75-core-r83';
+const CACHE='kamil-os-737.0.76-core-r84';
 const CRITICAL=[
  './','./index.html','./manifest.webmanifest','./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css','./os1400.css','./os1500.css',
  './js/osHardening1110.js','./js/dataIntegrity1130.js','./js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js',
@@ -6,6 +6,7 @@ const CRITICAL=[
  './js/cloud.js','./js/authUx32.js','./js/perf41.js','./js/coldPartition42.js'
 ];
 const CACHEABLE_PATHS=new Set(CRITICAL.map(path=>new URL(path,self.location.href).pathname));
+const RUNTIME_STATIC_PATH=/\.(?:js|css|webmanifest|png|svg|ico|webp)$/i;
 const sensitiveAuthUrl=url=>url.searchParams.has('code')||url.searchParams.has('token_hash')||url.searchParams.has('access_token')||url.searchParams.has('refresh_token')||url.searchParams.get('type')==='recovery';
 
 async function precache(){
@@ -32,6 +33,7 @@ self.addEventListener('fetch',event=>{
  const url=new URL(event.request.url);
  if(url.origin!==location.origin||url.pathname.startsWith('/api/'))return;
  if(sensitiveAuthUrl(url)){event.respondWith(fetch(event.request,{cache:'no-store'}));return}
- if(url.search||!CACHEABLE_PATHS.has(url.pathname))return;
+ if(url.search)return;
+ if(!CACHEABLE_PATHS.has(url.pathname)&&!RUNTIME_STATIC_PATH.test(url.pathname))return;
  event.respondWith(networkFirst(event.request));
 });
