@@ -949,3 +949,23 @@ test('OS737.0.79 transaction search opens exact Money detail',async({page})=>{
  await expect(page.locator('#modalHost')).toContainText('JÍDLO');
  await expect(page.locator('#modalHost')).toContainText('1');
 });
+
+test('OS737.0.80 wealth history search opens exact canonical Money snapshot detail',async({page})=>{
+ await boot(page);
+ const result=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {searchExtended610}=await import('./js/commandSearch610.js');
+  store.mutate('test wealth search detail',s=>{
+   s.netWorthBook={history:[
+    {id:'wealth-search-test',title:'Majetek srpen test',asOf:'2026-08-31',netKnown:5000000,knownAssets:8500000,debt:3500000}
+   ]};
+  });
+  return searchExtended610('majetek srpen test')[0]||null;
+ });
+ expect(result?.focus).toBe('wealth-snapshot:0');
+ await page.locator('#mainNav [data-view="money"]').click();
+ await page.evaluate(focus=>window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{target:'money',focus}})),result.focus);
+ await expect(page.locator('#modalHost')).toContainText('Majetek srpen test',{timeout:10000});
+ await expect(page.locator('#modalHost')).toContainText('5');
+ await expect(page.locator('#modalHost')).toContainText('3');
+});
