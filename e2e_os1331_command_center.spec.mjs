@@ -28,10 +28,10 @@ test('OS1331 keeps all sections direct and turns Today into a desktop command ce
  expect(layout.nav).toEqual(['today','inbox','work','tickets','money','property','betting','family','home','more']);
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(diag.productReset).toBe(1331);
- expect(diag.systemRows).toBe(5);
+ expect(diag.systemRows).toBe(9);
 });
 
-test('OS1331 mobile keeps ten direct destinations in a two-row nav',async({page})=>{
+test('OS1500 mobile keeps ten direct destinations in one scrollable nav',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  await expect(page.locator('#bottomNav [data-view]')).toHaveCount(10);
@@ -40,11 +40,16 @@ test('OS1331 mobile keeps ten direct destinations in a two-row nav',async({page}
   const grid=document.querySelector('[data-os1331-command-grid]');
   const focus=grid?.querySelector('.os1331-focus-stack')?.getBoundingClientRect();
   const system=grid?.querySelector('.os1331-system-panel')?.getBoundingClientRect();
+  const style=getComputedStyle(nav);
   return {
-   navRows:getComputedStyle(nav).gridTemplateRows.split(' ').filter(Boolean).length,
+   display:style.display,
+   navHeight:nav.getBoundingClientRect().height,
+   scrollable:nav.scrollWidth>nav.clientWidth,
    stacked:!!focus&&!!system&&system.top>=focus.bottom-2
   };
  });
- expect(layout.navRows).toBe(2);
+ expect(layout.display).toBe('flex');
+ expect(layout.navHeight).toBeLessThanOrEqual(72);
+ expect(layout.scrollable).toBe(true);
  expect(layout.stacked).toBe(true);
 });
