@@ -14,7 +14,7 @@ assert.match(runtime,/betting:\['\.\/bettingOverview\.js','renderBettingOverview
 assert.match(runtime,/inbox:\['\.\/tasksOverview\.js','renderTasksOverview'\]/);
 assert.match(index,/>Úkoly<\/span>/);
 assert.match(app,/work:'workView'/);assert.match(app,/property:'propertyView'/);assert.match(app,/productAdvanced==='1'/,'leaving an advanced surface must invalidate it so the simple overview returns');
-assert.match(today,/personalDailyAssistant650/);assert.match(today,/data-today1300-personal/);assert.match(today,/data-product-home1300/);assert.match(today,/Teď/);assert.match(today,/Další kroky/);assert.match(today,/Přehled OS/);assert.match(today,/workCommandCenter440/);assert.match(today,/buildPropertyHub620/);
+assert.match(today,/personalDailyAssistant650/);assert.match(today,/data-today1300-personal/);assert.match(today,/data-product-home1300/);assert.match(today,/Teď/);assert.match(today,/Co potřebuje vyřešit/);assert.match(today,/Přehled OS/);assert.match(today,/Všechny oblasti/);assert.match(today,/workCommandCenter440/);assert.match(today,/buildPropertyHub620/);
 assert.match(work,/data-work-page1300/);assert.match(work,/Finanční expozice/);
 assert.match(property,/data-property-page1300/);assert.match(property,/Nejlepší kandidát a čísla pro rozhodnutí/);assert.match(property,/Shortlist/);
 assert.match(moneyOverview,/data-money-overview/);assert.match(moneyOverview,/productAdvanced='1'/);assert.match(moneyOverview,/Detail financí/);assert.match(moneyOverview,/moneyAdvanced100\.js/);
