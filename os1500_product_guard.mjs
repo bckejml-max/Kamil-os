@@ -116,6 +116,8 @@ assert.match(inboxHub,/if\(!p\.needsAction\)return null/,'Inbox must include onl
 assert.match(inboxHub,/openInsuranceCenter660/,'Inbox insurance rows must open Insurance Center directly');
 assert.match(inboxHub,/function calendarRoute660/,'Inbox calendar rows must route by actual personal area');
 assert.match(personalActionExecution,/calendarScope641/,'calendar preparation tasks must preserve the source personal area');
+assert.match(personalActionExecution,/calendarPrepDue641/,'calendar preparation tasks must use the source event date');
+assert.match(inboxHub,/minutes:5,route,due/,'Inbox calendar actions must carry the source event due date');
 assert.doesNotMatch(personalActionExecution,/category:'Rodina',area:'Rodina'/,'generic calendar preparation must not force every event into Family');
 assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must not hide content behind filters');
 
