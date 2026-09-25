@@ -1,7 +1,7 @@
 {
   "name": "kamil-os",
   "private": true,
-  "version": "737.1.1",
+  "version": "737.1.2",
   "type": "module",
   "scripts": {
     "test:brain": "node kamil_brain_303_test.mjs",
