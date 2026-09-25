@@ -17,7 +17,7 @@ const fmtDate=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?new Date(t
 const currentHour=()=>new Date().getHours();
 const futurePersonal=s=>{
  const rows=[];
- for(const x of (s.calendar?.events||[]).filter(personal)){const d=daysTo(x.start||x.date||x.when);if(d!==null&&d>0&&d<=7)rows.push({...x,d,sourceKind:'calendar'});}
+ for(const x of (s.calendar?.events||[]).filter(open).filter(personal)){const d=daysTo(x.start||x.date||x.when);if(d!==null&&d>0&&d<=7)rows.push({...x,d,sourceKind:'calendar'});}
  for(const x of (s.tasks||[]).filter(open).filter(personal).filter(x=>!x.waitingFor)){const d=daysTo(dateOf(x));if(d!==null&&d>0&&d<=7)rows.push({...x,d,sourceKind:'task'});}
  for(const x of (s.personalAdmin?.items||[]).filter(open).filter(personal).filter(x=>!x.waitingFor)){if(String(x.id||'').startsWith('recovered-'))continue;const d=daysTo(dateOf(x));if(d!==null&&d>0&&d<=7)rows.push({...x,d,sourceKind:'admin'});}
  return rows.sort((a,b)=>a.d-b.d||String(a.title||a.name||a.summary||'').localeCompare(String(b.title||b.name||b.summary||''),'cs'));
@@ -86,7 +86,7 @@ export function personalSearch650(query,s=store.get()){
  insuranceCenter(s).all.forEach(x=>add('insurance',x.id,x.title,`${x.provider||''} ${x.insured||''} ${x.policyNumber||''} ${x.lifecycleLabel||''}`,'documents'));
  (s.tasks||[]).filter(open).filter(personal).forEach(x=>add('task',x.id,x.title||x.name||'Úkol',`${x.category||''} ${fmtDate(dateOf(x))}`,'today'));
  (s.delegations||[]).filter(open).filter(personal).forEach(x=>add('waiting',x.id||x.title,x.title||x.name||'Čekám',fmtDate(dateOf(x)),'waiting'));
- (s.calendar?.events||[]).filter(personal).forEach(x=>add('calendar',x.id||x.title,x.title||x.summary||'Událost',fmtDate(x.start||x.date||x.when),'family'));
+ (s.calendar?.events||[]).filter(open).filter(personal).forEach(x=>add('calendar',x.id||x.title,x.title||x.summary||'Událost',fmtDate(x.start||x.date||x.when),'family'));
  return rows.sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title,'cs')).slice(0,8);
 }
 
