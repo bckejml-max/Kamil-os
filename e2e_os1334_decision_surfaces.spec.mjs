@@ -33,7 +33,7 @@ test('OS1334 Betting renders every open bet on the primary screen',async({page})
  const d=await page.evaluate(()=>window.__KAMIL_BETTING_OVERVIEW__);
  expect(d.open).toBeGreaterThan(0);
  await expect(page.locator('#bettingView [data-betting-open-row]')).toHaveCount(d.open);
- expect(d.renderedOpen).toBe(d.open); expect(d.decisionSurface).toBe(1334);
+ expect(d.renderedOpen).toBe(d.open); expect(d.decisionSurface).toBe(1335);
 });
 test('OS1334 Reality keeps the whole shortlist and removes duplicate number-one detail',async({page})=>{
  await page.addInitScript(()=>{
