@@ -27,7 +27,7 @@ export async function openVaultRecord640(id){
  if(choice==='confirm'){confirmVaultRecord640(id);toast('Aktuálnost potvrzena.');return 'confirmed'}return choice;
 }
 
-async function addSourceInbox650(records){
+export async function addSourceInbox650(records){
  const candidates=[...records].sort((a,b)=>b.status.severity-a.status.severity||Number((a.attachments||[]).length)-Number((b.attachments||[]).length)).slice(0,8);if(!candidates.length)return null;
  const choice=await modal('Přidat dokument / zdroj','<p class="muted">Vyber, ke kterému osobnímu záznamu chceš připojit odkaz nebo referenci na dokument.</p>',[...candidates.map((x,i)=>({label:x.title,value:String(i),primary:i===0&&x.status.severity>0})),{label:'Zavřít',value:null}]);if(choice===null||choice===undefined)return null;const x=candidates[Number(choice)];if(!x)return null;return openDocumentReferences646(x.id);
 }
