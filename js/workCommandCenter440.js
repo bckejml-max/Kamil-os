@@ -11,6 +11,10 @@ const num=v=>has(v)?Math.max(0,Number(v)):null;
 const dateMs=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?t:null};
 const dayDiff=v=>{const t=dateMs(v);if(t===null)return null;const a=new Date();a.setHours(0,0,0,0);const b=new Date(t);b.setHours(0,0,0,0);return Math.round((b-a)/86400000)};
 const measure=fn=>{const t=performance.now(),value=fn(),elapsed=Math.round((performance.now()-t)*10)/10;window.__KAMIL_WORK_440_LAST__={ms:elapsed,at:Date.now()};return{value,ms:elapsed}};
+const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const explicitWork440=x=>{const values=[norm(x?.area),norm(x?.category)];return values.some(v=>v==='work'||v==='prace'||v.startsWith('prace ')||v.startsWith('zakazk')||v.startsWith('projekt'))};
+const workRefs440=s=>{const ids=new Set(),names=new Set();for(const p of A(s.projects)){if(p?.id!==null&&p?.id!==undefined)ids.add(String(p.id));for(const v of [p?.name,p?.title,p?.number,p?.code]){const n=norm(v);if(n)names.add(n)}}return{ids,names}};
+const workScope440=(x,refs)=>{if(!x)return false;const pid=String(x.projectId??'').trim();if(pid&&refs.ids.has(pid))return true;const project=norm(x.projectName||x.project||x.projectCode);if(project&&refs.names.has(project))return true;return explicitWork440(x)};
 
 function monthlyDuties(s={}){
  const cfg=s.recurringDuties||{},items=A(cfg.items),done=cfg.done||{},configured=cfg.enabled===true||items.length>0||Object.keys(done).length>0;
@@ -53,12 +57,13 @@ function changeRows(s={}){
  }).sort((a,b)=>b.exposure-a.exposure);
 }
 
-function waitingRows(s={}){
- return [...A(s.directorBook?.waiting),...A(s.delegations)].filter(open).map(x=>{const due=dayDiff(x.due||x.followUpAt||x.nextFollowUpAt);const at=dateMs(x.lastContactAt||x.updatedAt||x.createdAt),age=at===null?null:Math.max(0,Math.floor((Date.now()-at)/86400000));return{title:x.title||x.person||x.name||'Waiting For',person:x.person||x.owner||'',due,age,urgent:due!==null?due<=1:(age!==null&&age>=5)}}).sort((a,b)=>Number(b.urgent)-Number(a.urgent)||(a.due??999)-(b.due??999)||(b.age??0)-(a.age??0));
+function waitingRows(s={},refs=workRefs440(s)){
+ const rows=[...A(s.directorBook?.waiting),...A(s.delegations).filter(x=>workScope440(x,refs))];
+ return rows.filter(open).map(x=>{const due=dayDiff(x.due||x.followUpAt||x.nextFollowUpAt);const at=dateMs(x.lastContactAt||x.updatedAt||x.createdAt),age=at===null?null:Math.max(0,Math.floor((Date.now()-at)/86400000));return{title:x.title||x.person||x.name||'Waiting For',person:x.person||x.owner||'',due,age,urgent:due!==null?due<=1:(age!==null&&age>=5)}}).sort((a,b)=>Number(b.urgent)-Number(a.urgent)||(a.due??999)-(b.due??999)||(b.age??0)-(a.age??0));
 }
 
 export function workCommandCenter440(s=store.get()){
- const projects=projectRows(s),changes=changeRows(s),waiting=waitingRows(s),duties=monthlyDuties(s),tasks=A(s.tasks).filter(open),overdue=tasks.filter(x=>{const d=dayDiff(x.due||x.dueAt);return d!==null&&d<0}).length;
+ const refs=workRefs440(s),projects=projectRows(s),changes=changeRows(s),waiting=waitingRows(s,refs),duties=monthlyDuties(s),tasks=A(s.tasks).filter(open),workTasks=tasks.filter(x=>workScope440(x,refs)),overdue=workTasks.filter(x=>{const d=dayDiff(x.due||x.dueAt);return d!==null&&d<0}).length;
  const changeQuoted=changes.reduce((a,x)=>a+x.quoted,0),changeApproved=changes.reduce((a,x)=>a+x.approved,0),changeInvoiced=changes.reduce((a,x)=>a+x.invoiced,0),changeExposure=changes.reduce((a,x)=>a+x.exposure,0),projectPending=projects.reduce((a,x)=>a+x.pending,0),receivable=projects.reduce((a,x)=>a+x.receivable,0),unbilled=projects.reduce((a,x)=>a+x.unbilled,0);
  const risks=[];
  projects.filter(x=>x.score<85).slice(0,4).forEach(x=>risks.push({kind:'Zakázka',title:x.name,score:110-x.score,detail:x.reasons.slice(0,3).join(' · ')||x.status}));
@@ -68,7 +73,7 @@ export function workCommandCenter440(s=store.get()){
  if(receivable>0)risks.push({kind:'Fakturace',title:'Nevybraná fakturace',score:87,detail:`${money(receivable)} vyfakturováno, ale podle uložených dat nezaplaceno`});
  if(unbilled>0)risks.push({kind:'Fakturace',title:'Schválená hodnota bez fakturace',score:85,detail:`${money(unbilled)} podle uložených projektových dat`});
  const topRisks=risks.sort((a,b)=>b.score-a.score).slice(0,6),status=topRisks.some(x=>x.score>=95)||projects.some(x=>x.score<50)?'ZÁSAH':topRisks.length?'SLEDOVAT':'KLID';
- return{status,projects,changes,waiting,duties,overdue,topRisks,finance:{changeQuoted,changeApproved,changeInvoiced,changeExposure,projectPending,receivable,unbilled},coverage:{projects:projects.length,projectsWithMoney:projects.filter(x=>x.financialCoverage>0).length,changes:changes.length}};
+ return{status,projects,changes,waiting,duties,overdue,workTasks:workTasks.length,topRisks,finance:{changeQuoted,changeApproved,changeInvoiced,changeExposure,projectPending,receivable,unbilled},coverage:{projects:projects.length,projectsWithMoney:projects.filter(x=>x.financialCoverage>0).length,changes:changes.length}};
 }
 
 const riskRow=x=>`<div class="row"><div><b>${h(x.title)}</b><div class="muted">${h(x.kind)} · ${h(x.detail)}</div></div><span class="status ${x.score>=95?'bad':x.score>=85?'warn':'good'}">${x.score}</span></div>`;
