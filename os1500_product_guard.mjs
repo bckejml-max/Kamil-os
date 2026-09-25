@@ -47,7 +47,9 @@ assert.match(today,/calendar=\(s\.calendar\?\.events\|\|\[\]\)\.filter\(open\)\.
 assert.match(today,/const tomorrowRoute=x=>/,'Today tomorrow priorities must route by actual personal area');
 assert.match(today,/filter\(x=>tomorrowRoute\(x\)==='family'\)/,'Today Family summary must count only truly family-scoped tomorrow items');
 assert.match(today,/vault=personalVault640\(s\)/,'Today Documents card must read canonical Personal Vault state');
-assert.match(today,/docIssues=\(d\.vault\?\.action\?\.length\|\|0\)\+\(d\.insurance\?\.actionCount\|\|0\)/,'Today Documents action count must combine vault and insurance actions');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
+assert.match(today,/docIssues=\(d\.vault\?\.action\?\.length\|\|0\)\+\(d\.insurance\?\.actionCount\|\|0\)/,'Today Documents action count must combine vault and insurance actions');
+assert.match(today,/homeTimeline=personalHomeTimeline650\(s\)/,'Today Home card must read the canonical home timeline');
+assert.match(today,/homeUrgent=\(d\.homeTimeline\|\|\[\]\)\.filter/,'Today Home status must derive from the canonical 30-day home timeline');assert.match(today,/os1600-areas/,'Today must render all areas as a compact direct grid');
 assert.match(today,/usabilityReset:1500/);
 assert.match(today,/activeTickets=tickets\.filter\(x=>!x\.issue/,'Today must exclude disputed tickets from active counts');
 assert.match(today,/SOLD_TICKET_STATES/,'Today must explicitly exclude sold/settlement ticket states from active inventory');
