@@ -11,7 +11,7 @@ for(const token of ["CONTROL_PLANE1037_VERSION='1037.0.0'",'noInventedExternalDa
 for(const token of ['PAY','TRANSFER','BUY_TICKET','SELL_TICKET','PLACE_BET','CANCEL_BET'])assert.ok(c.includes(token),`OS1037 blocked action missing ${token}`);
 assert.ok(compat.includes('scheduleRuntime1050'),'OS1037 compatibility boot must delegate');
 assert.ok(runtime.includes("'./controlPlane1037.js','installControlPlane1037'"),'OS1037 installer missing from runtime coordinator');
-assert.ok(boot.includes("import('./runtimeCoordinator1050.js')"),'runtime coordinator bootstrap missing');
+assert.equal(boot.includes("runtimeCoordinator1050"),false,'OS2 Betting bootstrap must not revive the global legacy runtime coordinator');
 assert.ok(!boot.includes("import('./controlPlane1037Boot.js')"),'legacy OS1037 direct bootstrap returned');
 assert.ok(more.includes("import('./controlPlane1037.js')"),'Control Plane must lazy-load from More');
 assert.ok(more.includes('Kamil OS Control Plane'),'Control Plane primary More entry missing');

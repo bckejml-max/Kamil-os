@@ -16,6 +16,6 @@ need(js.includes('noExternalWrites:true')&&js.includes('noFinancialExecution:tru
 for(const token of ['fetch(','XMLHttpRequest','sendMoney(','placeBet(','buyTicket(','sellTicket(','autoMerge('])need(!js.includes(token),`forbidden execution/network pattern ${token}`);
 need(compat.includes('scheduleRuntime1050'),'OS1047 compatibility boot must delegate');
 need(runtime.includes("'./controlOperations1047.js','installControlOperations1047'"),'OS1047 installer missing from runtime coordinator');
-need(betting.includes("import('./runtimeCoordinator1050.js')"),'runtime coordinator bootstrap not wired');
+need(!betting.includes('runtimeCoordinator1050'),'OS2 Betting bootstrap must not revive the global legacy runtime coordinator');
 need(!betting.includes("import('./controlOperations1047Boot.js')"),'legacy OS1047 direct bootstrap returned');
 console.log('OS1047 control operations guard OK');

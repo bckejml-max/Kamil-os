@@ -10,7 +10,7 @@ const c=read('js/legacyCleanup987.js'),compat=read('js/legacyCleanup987Boot.js')
 for(const x of ["LEGACY_CLEANUP987_VERSION='987.0.0'",'legacyGatewayContract978','legacyWorkflowScope979','observationWindow980','legacyUsage981','replacementCoverage982','dependencyRisk983','retirementReadiness984','archivePlan985','ciNoiseReduction986','cleanupControl987','openLegacyCleanup987','installLegacyCleanup987','requires30DayObservation:true','requiresExplicitApproval:true','noAutomaticDeletion:true','noAutomaticCodeMutation:true'])need(c.includes(x),`OS987 missing ${x}`);
 need(compat.includes('scheduleRuntime1050'),'OS987 compatibility boot must delegate to runtime coordinator');
 need(runtime.includes("'./legacyCleanup987.js','installLegacyCleanup987'"),'OS987 installer missing from runtime coordinator');
-need(boot.includes("import('./runtimeCoordinator1050.js')"),'OS1050 bootstrap not wired');
+need(!boot.includes('runtimeCoordinator1050'),'OS2 Betting bootstrap must not revive the global legacy runtime coordinator');
 need(!boot.includes("import('./legacyCleanup987Boot.js')"),'legacy OS987 direct bootstrap returned');
 need(!/(deleteFile|delete_file|unlinkSync|rmSync|autoMerge:true|autoDeploy:true|placeBet|buyTicket|sellTicket|sendMoney)/.test(c),'OS987 destructive execution pattern detected');
 const gatewayGuards=['operator_717_guard.mjs','operator_truth_737_guard.mjs','data_truth_738_guard.mjs','strategy_788_guard.mjs','strategy_789_guard.mjs','copilot_840_guard.mjs','autonomous_943_guard.mjs','scripts/proposal_review_944_guard.mjs','scripts/safe_change_plan_945_guard.mjs'];
