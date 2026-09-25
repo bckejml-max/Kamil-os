@@ -1,6 +1,7 @@
 import {store} from './state.js';
 import {workCommandCenter440} from './workCommandCenter440.js';
 import {ownEvent1100} from './runtimeOwnership1100.js';
+import {modal} from './utils.js';
 
 const OWNER='product.work1300';
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -11,11 +12,11 @@ const follow=x=>x.due!==null?(x.due<0?`${Math.abs(x.due)} d po termínu`:x.due==
 
 function riskRows(items){
  if(!items.length)return '<div class="pr1300-empty">Podle uložených dat teď nic akutně nehoří.</div>';
- return `<div class="pr1300-attention">${items.slice(0,6).map(x=>`<button type="button" data-work1300-today><i class="pr1300-dot ${riskTone(x.score)}"></i><span><b>${esc(x.title)}</b><small>${esc(x.kind)} · ${esc(x.detail)}</small></span><em>${x.score>=95?'řešit teď':'zkontrolovat'}</em></button>`).join('')}</div>`;
+ return `<div class="pr1300-attention">${items.slice(0,6).map((x,i)=>`<button type="button" data-work1300-risk="${i}"><i class="pr1300-dot ${riskTone(x.score)}"></i><span><b>${esc(x.title)}</b><small>${esc(x.kind)} · ${esc(x.detail)}</small></span><em>${x.score>=95?'řešit teď':'zkontrolovat'} →</em></button>`).join('')}</div>`;
 }
 function projectRows(items){
  if(!items.length)return '<div class="pr1300-empty">Nejsou uložené aktivní zakázky.</div>';
- return items.slice(0,10).map(x=>`<div class="pr1300-row"><div class="pr1300-row-main"><b>${esc(x.name)}</b><small>${esc(x.reasons.slice(0,3).join(' · ')||'Bez zjevného rizika')}${x.pending?` · ZL ${money(x.pending)}`:''}${x.receivable?` · pohledávka ${money(x.receivable)}`:''}</small></div><div class="pr1300-row-side"><span class="pr1300-project-health ${tone(x.score)}">${esc(x.status)} · ${x.score}/100</span></div></div>`).join('');
+ return items.slice(0,10).map((x,i)=>`<button type="button" class="pr1300-row pr1300-clickrow" data-work1300-project="${i}"><div class="pr1300-row-main"><b>${esc(x.name)}</b><small>${esc(x.reasons.slice(0,3).join(' · ')||'Bez zjevného rizika')}${x.pending?` · ZL ${money(x.pending)}`:''}${x.receivable?` · pohledávka ${money(x.receivable)}`:''}</small></div><div class="pr1300-row-side"><span class="pr1300-project-health ${tone(x.score)}">${esc(x.status)} · ${x.score}/100</span><span class="os1500-row-arrow">→</span></div></button>`).join('');
 }
 function dutyRows(items){return items.map(x=>`<div class="pr1300-row"><div class="pr1300-row-main"><b>${esc(x.title)}</b><small>${x.dueDay}. den v měsíci</small></div><div class="pr1300-row-side ${x.status==='PO TERMÍNU'?'bad':x.status==='DNES'||x.status==='BRZY'?'warn':'good'}">${esc(x.status)}</div></div>`).join('')}
 function waitingRows(items){
@@ -33,13 +34,20 @@ function render(){
  const clearBlock=!m.topRisks.length&&!m.projects.length&&!hasDetails?'<section class="pr1300-panel pr1328-work-clear"><div class="pr1300-panel-head"><h2>Pracovní data jsou klidná</h2><button class="pr1300-btn" type="button" data-work1300-inbox>Úkoly</button></div><div class="pr1300-empty">Nejsou uložené aktivní zakázky, rizika ani zapnuté pravidelné termíny.</div></section>':'';
  host.innerHTML='<div class="pr1300-shell" data-work-page1300>' +
   '<div class="pr1300-head"><div><div class="pr1300-kicker">Práce</div><h1>Zakázky a další kroky.</h1><p>Nejdřív skutečný termín nebo riziko. Pravidelné povinnosti se hlídají jen pokud jsou zapnuté.</p></div><span class="pr1300-status '+(m.status==='ZÁSAH'?'bad':m.status==='SLEDOVAT'?'warn':'good')+'">'+esc(m.status)+'</span></div>' +
-  '<section class="pr1320-now"><div><div class="pr1300-kicker">Teď</div><h2>'+esc(top?.title||'Nic kritického')+'</h2><p>'+esc(top?.detail||'Podle uložených dat teď žádná zakázka, follow-up ani zapnutý pravidelný termín nevyžaduje okamžitý zásah.')+'</p></div><div class="pr1320-now-actions"><button class="pr1300-btn primary" type="button" data-work1300-add>＋ Pracovní úkol</button></div></section>' +
+  '<section class="pr1320-now"><div><div class="pr1300-kicker">Teď</div><h2>'+esc(top?.title||'Nic kritického')+'</h2><p>'+esc(top?.detail||'Podle uložených dat teď žádná zakázka, follow-up ani zapnutý pravidelný termín nevyžaduje okamžitý zásah.')+'</p></div><div class="pr1320-now-actions">'+(top?'<button class="pr1300-btn primary" type="button" data-work1300-risk="0">Otevřít riziko →</button>':'')+'<button class="pr1300-btn" type="button" data-work1300-add>＋ Pracovní úkol</button></div></section>' +
   '<div class="pr1320-meta"><span>Zakázky: '+m.projects.length+'</span><span>Po termínu: '+m.overdue+'</span><span>Waiting For: '+m.waiting.length+'</span><span>Finanční expozice: '+money(totalExposure)+'</span></div>' +
   riskBlock+projectBlock+detailsBlock+clearBlock+
  '</div>';
- if(!host.dataset.work1300Bound){host.dataset.work1300Bound='1';ownEvent1100(OWNER,host,'click',e=>{if(e.target.closest('[data-work1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'work-task'}));else if(e.target.closest('[data-work1300-inbox]'))window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'inbox'}));else if(e.target.closest('[data-work1300-today]'))window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'today'}))})}
+ host.__work1300=m;
+ if(!host.dataset.work1300Bound){host.dataset.work1300Bound='1';ownEvent1100(OWNER,host,'click',async e=>{
+  if(e.target.closest('[data-work1300-add]')){window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'work-task'}));return}
+  if(e.target.closest('[data-work1300-inbox]')){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'inbox'}));return}
+  const current=host.__work1300||workCommandCenter440(store.get());
+  const riskBtn=e.target.closest('[data-work1300-risk]');if(riskBtn){const x=current.topRisks[Number(riskBtn.dataset.work1300Risk)];if(!x)return;const choice=await modal('Pracovní riziko',`<div class="card"><div class="eyebrow">${esc(x.kind||'RIZIKO')}</div><h2>${esc(x.title)}</h2><p class="muted">${esc(x.detail||'')}</p><div class="row"><span>Priorita</span><b>${Number(x.score||0)}/100</b></div></div>`,[{label:'Otevřít úkoly',value:'inbox',primary:true},{label:'Zavřít',value:null}]);if(choice==='inbox')window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'inbox'}));return}
+  const projectBtn=e.target.closest('[data-work1300-project]');if(projectBtn){const x=current.projects[Number(projectBtn.dataset.work1300Project)];if(!x)return;const choice=await modal('Zakázka',`<div class="card"><div class="eyebrow">ZAKÁZKA</div><h2>${esc(x.name)}</h2><div class="row"><span>Stav</span><b>${esc(x.status)} · ${Number(x.score||0)}/100</b></div><div class="row"><span>Otevřené ZL</span><b>${money(x.pending)}</b></div><div class="row"><span>Pohledávka</span><b>${money(x.receivable)}</b></div><p class="muted">${esc(x.reasons?.join(' · ')||'Bez zjevného rizika')}</p></div>`,[{label:'Úkoly a follow-upy',value:'inbox',primary:true},{label:'Zavřít',value:null}]);if(choice==='inbox')window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'inbox'}));return}
+ })}
 
- window.__KAMIL_WORK_PAGE1300__={healthy:true,status:m.status,projects:m.projects.length,risks:m.topRisks.length,at:Date.now()};
+ window.__KAMIL_WORK_PAGE1300__={healthy:true,status:m.status,projects:m.projects.length,risks:m.topRisks.length,directRows:true,at:Date.now()};
  return true;
 }
 
