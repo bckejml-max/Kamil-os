@@ -490,3 +490,28 @@ test('OS737.0.59 calendar preparation is due before the future event',async({pag
  expect(created.area).toBe('Domov');
  expect(Math.abs(Date.parse(created.due)-(Date.parse(eventAt)-86400000))).toBeLessThan(2000);
 });
+
+test('OS737.0.60 Today personal calendar priorities keep their area',async({page})=>{
+ await boot(page);
+ const out=await page.evaluate(async()=>{
+  const {personalActions640}=await import('./js/personalActions640.js');
+  const today=new Date().toISOString();
+  const s={
+   personalSettings:{},
+   tasks:[],
+   delegations:[],
+   personalAdmin:{items:[]},
+   calendar:{events:[
+    {id:'today-family',title:'Rodinný termín',area:'Rodina',start:today},
+    {id:'today-home',title:'Revize domu',area:'Domov',start:today},
+    {id:'today-money',title:'Banka schůzka',area:'Peníze',start:today},
+    {id:'today-personal',title:'Osobní schůzka',area:'Osobní',start:today}
+   ]}
+  };
+  return Object.fromEntries(personalActions640(s).all.filter(x=>x.kind==='calendar').map(x=>[x.id,{route:x.route,area:x.area,due:x.due}]));
+ });
+ expect(out['calendar:today-family']).toMatchObject({route:'family',area:'family'});
+ expect(out['calendar:today-home']).toMatchObject({route:'home',area:'home'});
+ expect(out['calendar:today-money']).toMatchObject({route:'money',area:'money'});
+ expect(out['calendar:today-personal']).toMatchObject({route:'today',area:'admin'});
+});
