@@ -39,7 +39,7 @@ export function personalActions640(s=store.get()){
   if(a.category==='INSURANCE'||String(a.id||'').startsWith('recovered-'))continue;
   const d=daysTo(dueOf(a));if(!belongsToday(d))continue;push({id:`admin:${a.id}`,score:Math.max(55,dueScore(d)-4),title:a.title||a.name||'Osobní administrativa',why:`Administrativa · ${whenLabel(d)}`,next:'Vyřídit nebo doložit další krok.',minutes:5,kind:'admin',route:'today',area:taskArea(a)});
  }
- for(const e of (s.calendar?.events||[]).filter(personal)){
+ for(const e of (s.calendar?.events||[]).filter(open).filter(personal)){
   const due=e.start||e.date||e.when,d=daysTo(due);if(d!==0)continue;const scope=calendarScope640(e);
   push({id:`calendar:${e.id||e.title}`,score:112,title:e.title||e.summary||'Událost',why:'Kalendář · dnes',next:'Připravit se na událost.',minutes:5,kind:'calendar',route:scope.route,area:scope.area,due});
  }
