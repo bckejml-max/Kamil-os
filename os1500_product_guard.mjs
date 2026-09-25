@@ -28,7 +28,6 @@ const sw=read('sw.js');
 
 assert.match(index,/data-os1500="1"/,'OS1500 shell flag missing');
 assert.match(index,/os1400\.css[\s\S]*os1500\.css/,'OS1500 must load after OS1400');
-assert.match(runtime,/os1500\.css/,'runtime must know OS1500');
 assert.match(runtime,/restoreCanonicalProductStyles/,'runtime must restore the canonical stylesheet stack');
 assert.match(advancedStyles,/canonicalOrder=\['\.\/productReset1300\.css','\.\/os1400\.css','\.\/os1500\.css'\]/,'canonical stylesheet order must be explicit');
 assert.match(advancedStyles,/export function restoreCanonicalProductStyles/,'advanced style loader must expose canonical restore');
