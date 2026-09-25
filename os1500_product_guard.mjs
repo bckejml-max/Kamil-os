@@ -81,6 +81,7 @@ assert.doesNotMatch(family,/data-family-filter/,'Family canonical page must not 
 assert.match(home,/data-home-page1500/);
 assert.match(home,/insuranceCenter\(s\)/,'Home must read current property insurance from Insurance Center');
 assert.match(home,/openInsuranceCenter/,'Home insurance cards must open Insurance Center directly');
+assert.match(home,/homeAmount=x=>x\.source==='insurance'/,'Home insurance cards must preserve actual payment cadence');
 assert.match(home,/x\.status\?\.code!=='ARCHIVED'/,'Home must hide archived recovery records from current cards');
 assert.doesNotMatch(home,/data-home-filter/,'Home canonical page must not hide content behind filters');
 assert.match(documents,/data-documents-page1500/);
