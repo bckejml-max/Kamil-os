@@ -93,7 +93,7 @@ async function render(force=false){
   const result=renderer?.();if(result&&typeof result.then==='function')await result;
   if(seq!==renderSeq||view!==current)return;
   const currentHost=hostForView(view);if(currentHost){currentHost.dataset.viewReady='1';currentHost.removeAttribute('data-fast-shell')}
-  viewRevision.set(view,revision);markFirstView41(view);window.dispatchEvent(new CustomEvent('kamil:release-stamp'));await renderExtras41(view);
+  viewRevision.set(view,revision);markFirstView41(view);window.dispatchEvent(new CustomEvent('kamil:release-stamp'));await renderExtras41(view);if(!currentHost?.dataset.productAdvanced)restoreCanonicalProductStyles();
  }catch(error){console.error('[app41] render',view,error);const failed=hostForView(view);if(failed){failed.removeAttribute('data-fast-shell');failed.removeAttribute('data-view-ready');failed.innerHTML=`<div class="card"><h2>Modul se nepodařilo načíst</h2><p class="muted">Obnov stránku. Uložená data nebyla smazána.</p></div>`}}
 }
 function scheduleRender(force=false){

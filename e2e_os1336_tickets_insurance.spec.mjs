@@ -96,6 +96,7 @@ test('OS737.0.40 confirmed upcoming insurance is informational, not an action',a
  await boot(page);
  await page.locator('#mainNav [data-view="more"]').click();
  await page.locator('#insurance25Tile').click();
+ await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
  const diag=await page.evaluate(()=>window.__KAMIL_INSURANCE_CENTER1336__);
  expect(diag.upcoming).toBeGreaterThan(0);
  const center=await page.evaluate(async()=>{

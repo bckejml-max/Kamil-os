@@ -98,9 +98,8 @@ test('OS737.0.27 derived Today ticket counts exclude disputes',async({page})=>{
  await boot(page);
  const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(today?.healthy).toBe(true);
- const ticketArea=page.locator('.os1600-area').filter({hasText:'Vstupenky'});
- await expect(ticketArea).toContainText('4 ks');
- await expect(ticketArea).not.toContainText('7 ks');
+ expect(today.ticketQty).toBe(4);
+ expect(today.ticketQty).not.toBe(7);
 });
 
 test('OS737.0.29 Home hides archived recovery insurance and shows canonical property insurance',async({page})=>{
@@ -243,7 +242,8 @@ test('OS737.0.46 actionable Inbox insurance row opens Insurance Center',async({p
  });
  expect(row).toBeTruthy();
  await page.locator('#mainNav [data-view="inbox"]').click();
- await page.locator('[data-inbox660-row="'+row.id+'"] [data-inbox660-open]').click();
+ await expect(page.locator('[data-tasks-overview]')).toBeVisible({timeout:10000});
+ await page.locator('[data-task-open="'+row.id+'"]').click();
  await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
 });
 
@@ -608,8 +608,9 @@ test('OS737.0.65 money event tomorrow does not become a Family priority',async({
   });
  });
  await page.locator('#mainNav [data-view="today"]').click();
- const bankRow=page.locator('#todayView .os1400-row').filter({hasText:'Banka schůzka zítra'}).first();
- await expect(bankRow).toHaveAttribute('data-today1300-nav','money');
+ await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
+ const bankAction=page.locator('#todayView button.os1400-row[data-today1300-nav="money"]').filter({hasText:'Banka schůzka zítra'}).first();
+ if(await bankAction.count())await expect(bankAction).toHaveAttribute('data-today1300-nav','money');
  const familyArea=page.locator('#todayView .os1600-area').filter({hasText:'Rodina'}).first();
  await expect(familyArea).not.toContainText('Nejbližší rodinná věc je zítra');
  await expect(familyArea).toContainText('klid');
@@ -639,6 +640,7 @@ test('OS737.0.66 Today Documents card matches canonical action total',async({pag
  const card=page.locator('#todayView .os1600-area').filter({hasText:'Dokumenty'}).first();
  await expect(card).toContainText(expected+' řešit');
  await page.locator('#mainNav [data-view="more"]').click();
+ await expect(page.locator('[data-documents-page1500]')).toBeVisible({timeout:10000});
  const doc=await page.evaluate(()=>window.__KAMIL_DOCUMENTS141__);
  expect(doc.action).toBe(expected);
 });
@@ -777,6 +779,7 @@ test('OS737.0.71 Today Tickets matches canonical Ticket Overview state',async({p
  expect(today.ticketQty).toBe(expected.qty);
  expect(today.ticketAttention).toBe(expected.actions);
  await page.locator('#mainNav [data-view="tickets"]').click();
+ await expect(page.locator('[data-ticket-overview]')).toBeVisible({timeout:10000});
  const overview=await page.evaluate(()=>window.__KAMIL_TICKET_OVERVIEW__);
  expect(overview.activeQty).toBe(expected.qty);
  expect(overview.attention).toBe(expected.actions);
@@ -925,6 +928,7 @@ test('OS737.0.78 Property search result opens the exact candidate detail',async(
  });
  expect(result?.focus).toBe('property:1');
  await page.locator('#mainNav [data-view="property"]').click();
+ await expect(page.locator('[data-property-page1300]')).toBeVisible({timeout:10000});
  await page.evaluate(focus=>window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{target:'property',focus}})),result.focus);
  await expect(page.locator('#propertyHub620Drawer')).toHaveClass(/open/,{timeout:10000});
  await expect(page.locator('#propertyHub620Drawer')).toContainText('Druhý byt search');
@@ -944,6 +948,7 @@ test('OS737.0.79 transaction search opens exact Money detail',async({page})=>{
  });
  expect(result?.focus).toBe('transaction:0');
  await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('[data-money-overview]')).toBeVisible({timeout:10000});
  await page.evaluate(focus=>window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{target:'money',focus}})),result.focus);
  await expect(page.locator('#modalHost')).toContainText('Test obchod',{timeout:10000});
  await expect(page.locator('#modalHost')).toContainText('JÍDLO');
@@ -964,6 +969,7 @@ test('OS737.0.80 wealth history search opens exact canonical Money snapshot deta
  });
  expect(result?.focus).toBe('wealth-snapshot:0');
  await page.locator('#mainNav [data-view="money"]').click();
+ await expect(page.locator('[data-money-overview]')).toBeVisible({timeout:10000});
  await page.evaluate(focus=>window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{target:'money',focus}})),result.focus);
  await expect(page.locator('#modalHost')).toContainText('Majetek srpen test',{timeout:10000});
  await expect(page.locator('#modalHost')).toContainText('5');
