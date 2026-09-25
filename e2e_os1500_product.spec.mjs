@@ -796,3 +796,25 @@ test('OS737.0.71 sold lifecycle variants stay out of active Ticket portfolio',as
  expect(out.activePositions).toBe(1);
  expect(out.activeQty).toBe(2);
 });
+
+test('OS737.0.72 Today Tasks card matches local Inbox state',async({page})=>{
+ await boot(page);
+ const expected=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {localInboxSummary660}=await import('./js/inboxHub660.js');
+  return localInboxSummary660(store.get());
+ });
+ await page.locator('#mainNav [data-view="today"]').click();
+ const card=page.locator('#todayView .os1600-area').filter({hasText:'Úkoly'}).first();
+ if(expected.counts.total){
+  await expect(card).toContainText(expected.counts.urgent?expected.counts.urgent+' urgent.':expected.counts.total+' položek');
+  await expect(card).toContainText(expected.top.title);
+  await expect(card).toHaveClass(expected.counts.urgent?/bad/:/warn/);
+ }else{
+  await expect(card).toContainText('čisto');
+  await expect(card).toHaveClass(/good/);
+ }
+ const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
+ expect(today.inboxLocal).toBe(expected.counts.total);
+ expect(today.inboxUrgent).toBe(expected.counts.urgent);
+});

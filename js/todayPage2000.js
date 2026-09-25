@@ -5,6 +5,7 @@ import {familyData140} from './familyPage140.js';
 import {moneyData1300} from './moneyOverview.js';
 import {bettingData1334} from './bettingOverview.js';
 import {ticketData1300} from './ticketOverview.js';
+import {localInboxSummary660} from './inboxHub660.js';
 import {personalDailyAssistant650,personalHomeTimeline650} from './personalAssistant650.js';
 import {personalVault640} from './personalVault640.js';
 import {personalDaysTo650} from './personalDate650.js';
@@ -35,8 +36,8 @@ function baseData(){
  const s=store.get();
  const tasks=(s.tasks||[]).filter(open),personalTasks=tasks.filter(isPersonalScope527),waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[]),...(s.personalInbox?.items||[]).filter(x=>String(x?.bucket||'').toLowerCase()==='waiting')].filter(open),calendar=(s.calendar?.events||[]).filter(open).filter(x=>{const t=ts(x);return t&&t>Date.now()-6*3600000}).sort((a,b)=>(ts(a)||Infinity)-(ts(b)||Infinity));
  const urgentTasks=[...tasks].sort((a,b)=>{const ao=isOverdue(a),bo=isOverdue(b);if(ao!==bo)return bo-ao;const pa=Number(a?.priority||a?.score||0),pb=Number(b?.priority||b?.score||0);if(pb!==pa)return pb-pa;return(ts(a)||Infinity)-(ts(b)||Infinity)});
- const overdue=personalTasks.filter(isOverdue),ticketState=ticketData1300(s),tickets=ticketState.items,activeTickets=ticketState.p.queue.rows,transfer=ticketState.transfer,ticketTasks=ticketState.ticketTasks,moneyState=moneyData1300(s),cash=moneyState.bankKnown?moneyState.bank:null,work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=bettingData1334(s),family=familyData140(s),personal=personalDailyAssistant650(s),homeTimeline=personalHomeTimeline650(s),insurance=insuranceCenter(s),vault=personalVault640(s);
- return{s,tasks,personalTasks,ticketTasks,waiting,tickets,activeTickets,transfer,ticketState,calendar,urgentTasks,overdue,cash,moneyState,work,property,bet,family,personal,homeTimeline,insurance,vault};
+ const overdue=personalTasks.filter(isOverdue),inboxState=localInboxSummary660(s),ticketState=ticketData1300(s),tickets=ticketState.items,activeTickets=ticketState.p.queue.rows,transfer=ticketState.transfer,ticketTasks=ticketState.ticketTasks,moneyState=moneyData1300(s),cash=moneyState.bankKnown?moneyState.bank:null,work=workCommandCenter440(s),property=buildPropertyHub620(s),bet=bettingData1334(s),family=familyData140(s),personal=personalDailyAssistant650(s),homeTimeline=personalHomeTimeline650(s),insurance=insuranceCenter(s),vault=personalVault640(s);
+ return{s,tasks,personalTasks,ticketTasks,waiting,tickets,activeTickets,transfer,ticketState,inboxState,calendar,urgentTasks,overdue,cash,moneyState,work,property,bet,family,personal,homeTimeline,insurance,vault};
 }
 function greeting(){const h=new Date().getHours();return h<11?'Dobré ráno':h<18?'Dobré odpoledne':'Dobrý večer'}
 function attention(d){
@@ -65,7 +66,7 @@ function systemState(d){
  const homeUrgent=(d.homeTimeline||[]).filter(x=>x.days!==null&&x.days!==undefined&&x.days<=30).sort((a,b)=>a.days-b.days),homePrimary=homeUrgent[0]||null,homeOverdue=homeUrgent.filter(x=>x.days<0).length;
  const docIssues=(d.vault?.action?.length||0)+(d.insurance?.actionCount||0),docEnding=(d.vault?.records||[]).filter(vaultEnding90).length;
  return [
-  {route:'inbox',title:'Úkoly',detail:d.overdue.length?d.overdue.length+' po termínu':d.personalTasks.length?d.personalTasks.length+' otevřených položek':'Fronta je prázdná',side:d.overdue.length?d.overdue.length+' po term.':d.personalTasks.length?d.personalTasks.length+' otevř.':'čisto',tone:d.overdue.length?'bad':d.personalTasks.length?'warn':'good'},
+  {route:'inbox',title:'Úkoly',detail:d.inboxState?.top?.title||'Fronta je prázdná',side:d.inboxState?.counts?.urgent?d.inboxState.counts.urgent+' urgent.':d.inboxState?.counts?.total?d.inboxState.counts.total+' položek':'čisto',tone:d.inboxState?.counts?.urgent?'bad':d.inboxState?.counts?.total?'warn':'good'},
   {route:'work',title:'Práce',detail:workRisk?workRisk.title:(d.work.status==='KLID'?'Bez akutního zásahu':'Otevřít pracovní přehled'),side:d.work.status,tone:d.work.status==='ZÁSAH'?'bad':d.work.status==='SLEDOVAT'?'warn':'good'},
   {route:'tickets',title:'Vstupenky',detail:ticketTop?.title||(activeTicketQty?activeTicketQty+' aktivních kusů':'Žádný aktivní kus'),side:ticketAttention.length?ticketAttention.length+' řešit':activeTicketQty?activeTicketQty+' ks':'klid',tone:d.ticketState?.issues?.length||d.ticketState?.transfer?.length?'bad':ticketAttention.length?'warn':'good'},
   {route:'money',title:'Peníze',detail:d.moneyState?.bankKnown?'Známý bankovní stav · '+money(d.moneyState.bank):'Bankovní stav není potvrzený',side:d.moneyState?.attention?.length?d.moneyState.attention.length+' řešit':d.moneyState?.bankKnown?money(d.moneyState.bank):'doplnit',tone:d.moneyState?.attention?.length?'warn':d.moneyState?.bankKnown?'good':'warn'},
@@ -123,7 +124,7 @@ function render(){
    if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))
   })
  }
- window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.ticketState?.p?.queue?.activePositions||0,ticketQty:d.ticketState?.p?.queue?.activeQty||0,ticketTasks:d.ticketState?.ticketTasks?.length||0,ticketAttention:d.ticketState?.attention?.length||0,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open.length,bettingPositions:d.bet.open.length,bettingTickets:d.bet.openTickets,bettingExposure:d.bet.exposure,overdue:d.overdue.length,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
+ window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.ticketState?.p?.queue?.activePositions||0,ticketQty:d.ticketState?.p?.queue?.activeQty||0,ticketTasks:d.ticketState?.ticketTasks?.length||0,ticketAttention:d.ticketState?.attention?.length||0,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open.length,bettingPositions:d.bet.open.length,bettingTickets:d.bet.openTickets,bettingExposure:d.bet.exposure,overdue:d.overdue.length,inboxLocal:d.inboxState?.counts?.total||0,inboxUrgent:d.inboxState?.counts?.urgent||0,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
  return true;
 }
 export function renderTodayPage2000(){return render()}
