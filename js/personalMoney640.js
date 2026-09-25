@@ -5,7 +5,10 @@ import {openMoneyRecord645,updateMortgageSnapshot645,updateBankSnapshot645,creat
 import {personalMoneyPlan650} from './personalAssistant650.js';
 import {personalDaysTo650} from './personalDate650.js';
 import {insuranceCenter} from './insurance25.js';
+import {schedule1100} from './runtimeOwnership1100.js';
 
+const OWNER='personal.money640';
+const openInsuranceCenter=()=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true})};
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
 const daysOld=v=>{const d=personalDaysTo650(v);return d===null?null:-d};
@@ -52,6 +55,6 @@ export function renderPersonalMoney640(){
  ${bank?`<section class="card money-section" data-money-group="data"><div class="eyebrow">BANKOVNÍ DATA</div><div class="row"><span>Kompletní data k</span><b>${date(bank.asOf)}</b></div>${confidenceLine(bank)}<p class="muted">${h(bank.nextAction)}</p><button class="btn" id="bankUpdate645">Doplnit stav k datu</button></section>`:''}</div>`;
  const setFilter=filter=>{host.querySelectorAll('[data-money-filter]').forEach(b=>b.classList.toggle('primary',b.dataset.moneyFilter===filter));host.querySelectorAll('[data-money-group]').forEach(el=>{el.style.display=filter==='all'||el.dataset.moneyGroup===filter?'':'none'})};
  const updateBank=async()=>{if(bank)await updateBankSnapshot645(bank.id);renderPersonalMoney640()};
- host.onclick=async e=>{const filter=e.target.closest?.('[data-money-filter]');if(filter){setFilter(filter.dataset.moneyFilter);return}const insuranceBtn=e.target.closest?.('[data-money-insurance]');if(insuranceBtn){window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));return}const record=e.target.closest?.('[data-money-record]');if(record){await openMoneyRecord645(record.dataset.moneyRecord);renderPersonalMoney640();return}if(e.target.closest?.('#mortgageUpdate645')&&mortgage){await updateMortgageSnapshot645(mortgage.id);renderPersonalMoney640();return}if(e.target.closest?.('#bankUpdate645,#moneyDataFix650')){await updateBank();return}if(e.target.closest?.('#moneyTask645')){await createMoneyTask645();renderPersonalMoney640()}};
+ host.onclick=async e=>{const filter=e.target.closest?.('[data-money-filter]');if(filter){setFilter(filter.dataset.moneyFilter);return}const insuranceBtn=e.target.closest?.('[data-money-insurance]');if(insuranceBtn){openInsuranceCenter();return}const record=e.target.closest?.('[data-money-record]');if(record){await openMoneyRecord645(record.dataset.moneyRecord);renderPersonalMoney640();return}if(e.target.closest?.('#mortgageUpdate645')&&mortgage){await updateMortgageSnapshot645(mortgage.id);renderPersonalMoney640();return}if(e.target.closest?.('#bankUpdate645,#moneyDataFix650')){await updateBank();return}if(e.target.closest?.('#moneyTask645')){await createMoneyTask645();renderPersonalMoney640()}};
  if(typeof window!=='undefined')window.__KAMIL_WEALTH_700_LAST__={at:Date.now(),wealth,monthly:plan.fixedMonthly,insuranceAnnual:plan.insuranceAnnual,upcomingInsuranceMonthly:plan.upcomingInsuranceMonthly||0,spendComplete,bankAge,mortgageAge,issues:issues.length};
 }
