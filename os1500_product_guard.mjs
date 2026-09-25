@@ -4,6 +4,7 @@ const read=p=>fs.readFileSync(p,'utf8');
 const index=read('index.html');
 const css=read('os1500.css');
 const app=read('js/app.js');
+const commandSearch610=read('js/commandSearch610.js');
 const runtime=read('js/viewRuntime41.js');
 const advancedStyles=read('js/productAdvancedStyles.js');
 const today=read('js/todayPage2000.js');
@@ -154,6 +155,9 @@ assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must n
 
 assert.match(app,/betting:'betting-task'/,'shell quick add must support betting');
 assert.match(app,/sameHost\?\.dataset\.productAdvanced==='1'/,'clicking the active nav item must exit advanced detail');
+assert.match(commandSearch610,/filter\(isActivePropertyCandidate472\)/,'command search must hide closed Property candidates');
+assert.match(commandSearch610,/filter\(active610\)/,'command search must hide closed Inbox and Waiting rows');
+assert.match(commandSearch610,/focus==='insurance'/,'bare insurance command must open Insurance Center directly');
 assert.match(runtime,/type==='betting-task'/,'runtime capture must preserve betting scope');
 assert.match(css,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important/,'mobile primary nav must expose all destinations without a hidden menu');
 assert.match(css,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/,'mobile primary nav must keep all ten destinations visible');
