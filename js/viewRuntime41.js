@@ -24,9 +24,9 @@ const viewStyles={
  money:[],
  tickets:[],
  betting:[],
- family:['./personal64.css','./family70.css'],
- home:['./personal64.css','./home68.css'],
- more:['./personal64.css']
+ family:[],
+ home:[],
+ more:[]
 };
 
 export const validViews41=new Set(Object.keys(viewDefs));
