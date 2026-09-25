@@ -11,7 +11,7 @@ test('OS1500 keeps every primary area direct and canonical',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
  await expect(page.locator('html[data-os1500="1"]')).toHaveCount(1);
- await expect(page.locator('.os1400-domain')).toHaveCount(9);
+ await expect(page.locator('.os1600-area')).toHaveCount(9);
 
  await page.locator('#mainNav [data-view="family"]').click();
  await expect(page.locator('[data-family-page1500]')).toBeVisible();
@@ -31,20 +31,21 @@ test('OS1500 keeps every primary area direct and canonical',async({page})=>{
  await expect(page.locator('#quickAddBtn')).toHaveAttribute('title',/sázení/i);
 });
 
-test('OS1500 mobile keeps ten destinations in one scrollable strip',async({page})=>{
+test('OS1500 mobile keeps all ten destinations visible in two rows',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  const nav=page.locator('#bottomNav');
  await expect(nav.locator('[data-view]')).toHaveCount(10);
  const layout=await nav.evaluate(el=>{
   const s=getComputedStyle(el),r=el.getBoundingClientRect();
-  return {display:s.display,height:r.height,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,rows:s.gridTemplateRows};
+  return {display:s.display,height:r.height,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,columns:s.gridTemplateColumns,rows:s.gridTemplateRows};
  });
- expect(layout.display).toBe('flex');
- expect(layout.height).toBeLessThanOrEqual(72);
- expect(layout.scrollWidth).toBeGreaterThan(layout.clientWidth);
+ expect(layout.display).toBe('grid');
+ expect(layout.height).toBeLessThanOrEqual(100);
+ expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth+2);
+ expect(layout.rows.split(' ').length).toBe(2);
  const last=nav.locator('[data-view="more"]');
- await last.scrollIntoViewIfNeeded();
+ await expect(last).toBeVisible();
  await last.click();
  await expect(page.locator('[data-documents-page1500]')).toBeVisible();
 });
