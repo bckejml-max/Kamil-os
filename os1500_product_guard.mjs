@@ -64,6 +64,7 @@ assert.match(documents,/data-documents-page1500/);
 assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must not hide content behind filters');
 
 assert.match(app,/betting:'betting-task'/,'shell quick add must support betting');
+assert.match(app,/sameHost\?\.dataset\.productAdvanced==='1'/,'clicking the active nav item must exit advanced detail');
 assert.match(runtime,/type==='betting-task'/,'runtime capture must preserve betting scope');
 assert.match(css,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important/,'mobile primary nav must expose all destinations without a hidden menu');
 assert.match(css,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/,'mobile primary nav must keep all ten destinations visible');
