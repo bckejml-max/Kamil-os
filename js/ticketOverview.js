@@ -19,10 +19,10 @@ function data(){
  const ticketTasks=(s.tasks||[]).filter(x=>!['DONE','CLOSED','ARCHIVED','RESOLVED','CANCELLED','CANCELED'].includes(upper(x.status))).filter(x=>upper(x.area)==='TICKETS'||upper(x.category)==='VIAGOGO').sort((a,b)=>Number(b.priority||0)-Number(a.priority||0));
  const attention=[];
  if(issues.length)attention.push({tone:'bad',title:issues.length+' reklamace / sporné prodeje',detail:'V Excelu jsou vedené jako červené, ale mají příznak reklamace. Zkontroluj je před ostatními listingy.',action:'advanced'});
- if(transfer.length)attention.push({tone:'bad',title:transfer.length+' prodejů čeká na převod',detail:'Prodáno, ale předání kupujícímu ještě není dokončené.',action:'sync'});
+ if(transfer.length)attention.push({tone:'bad',title:transfer.length+' prodejů čeká na převod',detail:'Prodáno, ale předání kupujícímu ještě není dokončené.',action:'advanced'});
  if(p.missingListed)attention.push({tone:'warn',title:p.missingListed+' listingů nemá cenu',detail:'Bez skutečné list ceny OS neumí hlídat prodej správně.',action:'advanced'});
  if(p.staleMarket)attention.push({tone:'warn',title:p.staleMarket+' eventů má starý market',detail:'Aktualizuj tržní cenu před dalším rozhodnutím.',action:'advanced'});
- if(payout.length)attention.push({tone:'warn',title:payout.length+' prodejů čeká na payout',detail:'Zkontroluj stav platby z marketplace.',action:'sync'});
+ if(payout.length)attention.push({tone:'warn',title:payout.length+' prodejů čeká na payout',detail:'Zkontroluj stav platby z marketplace.',action:'advanced'});
  for(const t of ticketTasks.slice(0,4))attention.push({tone:Number(t.priority||0)>=90?'bad':'warn',title:t.title||'Ticket úkol',detail:t.notes||'Otevřený ticketový úkol.',action:'task',taskId:t.id});
  return {s,p,items,master,issues,transfer,payout,ticketTasks,attention:attention.slice(0,6)};
 }
