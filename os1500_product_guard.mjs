@@ -99,6 +99,7 @@ assert.match(betting,/directRows:true/);
 
 assert.match(family,/data-family-page1500/);
 assert.match(family,/const isFamilyEvent=x=>/,'Family calendar must filter broader personal scope down to family events');
+assert.match(family,/toUpperCase\(\)!=='ARCHIVED'/,'Family canonical page must hide archived household members');
 assert.doesNotMatch(family,/data-family-filter/,'Family canonical page must not hide content behind filters');
 assert.match(home,/data-home-page1500/);
 assert.match(home,/insuranceCenter\(s\)/,'Home must read current property insurance from Insurance Center');

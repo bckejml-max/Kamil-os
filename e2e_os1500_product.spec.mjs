@@ -403,3 +403,20 @@ test('OS737.0.50 Inbox calendar rows route by personal area',async({page})=>{
  expect(routes['cal-money']).toBe('money');
  expect(routes['cal-personal']).toBe('today');
 });
+
+test('OS737.0.56 Family hides archived household members',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('test archived family member',s=>{
+   s.familyHome={members:[
+    {id:'family-active-test',name:'Aktivní člen',status:'ACTIVE',relation:'OTHER'},
+    {id:'family-archived-test',name:'Archivovaný člen',status:'ARCHIVED',relation:'OTHER'}
+   ]};
+  });
+ });
+ await page.locator('#mainNav [data-view="family"]').click();
+ await expect(page.locator('[data-family-page1500]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#ticketsView')).toContainText('Aktivní člen');
+ await expect(page.locator('#ticketsView')).not.toContainText('Archivovaný člen');
+});
