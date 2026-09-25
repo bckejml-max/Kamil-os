@@ -38,10 +38,10 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
 
 test('OS1500 Today is the canonical action-first screen',async({page})=>{
  await boot(page);
- await expect(page.locator('.os1400-hero h1')).toContainText(/Kamile/i);
+ await expect(page.locator('.os1600-head h1')).toContainText(/Kamile/i);
  await expect(page.locator('[data-product-home1300]')).toBeVisible();
- await expect(page.locator('.os1400-focus')).toBeVisible();
- await expect(page.locator('.os1400-domains .os1400-domain')).toHaveCount(9);
+ await expect(page.locator('.os1600-attention')).toBeVisible();
+ await expect(page.locator('.os1600-areas .os1600-area')).toHaveCount(9);
  const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(today?.healthy).toBe(true);
  expect(today?.version).toBe(2000);
@@ -78,7 +78,7 @@ test('OS1300 keeps the heavy Ticket Desk behind an explicit detail action',async
  await expect(page.locator('#ticketIntelView [data-ticket-overview]')).toBeVisible({timeout:10000});
  let resources=await page.evaluate(()=>performance.getEntriesByType('resource').map(x=>x.name));
  expect(resources.some(x=>x.includes('ticketDesk331.js'))).toBe(false);
- await page.getByRole('button',{name:'Ticket desk'}).last().click();
+ await page.getByRole('button',{name:'Detail',exact:true}).last().click();
  await expect.poll(()=>page.evaluate(()=>performance.getEntriesByType('resource').some(x=>x.name.includes('ticketDesk331.js'))),{timeout:15000}).toBe(true);
  await expect(page.locator('#ticketIntelView .td331')).toBeVisible({timeout:15000});
  await page.locator('#mainNav [data-view="money"]').click();
@@ -247,9 +247,9 @@ test('OS1327 Money prioritizes actions and Tickets collapse empty states',async(
 test('OS1500 Today shows all nine primary areas with live cross-section data',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
- await expect(page.locator('#todayView .os1331-system-panel')).toBeVisible();
- await expect(page.locator('#todayView .os1400-domains .os1400-domain')).toHaveCount(9);
- const labels=await page.locator('#todayView .os1400-domains .os1400-domain b').allTextContents();
+ await expect(page.locator('#todayView .os1600-areas')).toBeVisible();
+ await expect(page.locator('#todayView .os1600-areas .os1600-area')).toHaveCount(9);
+ const labels=await page.locator('#todayView .os1600-areas .os1600-area span').allTextContents();
  expect(labels).toEqual(['Úkoly','Práce','Vstupenky','Peníze','Reality','Sázení','Rodina','Domov','Dokumenty']);
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(diag.systemRows).toBe(9);
