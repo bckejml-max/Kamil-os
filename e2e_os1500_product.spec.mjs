@@ -85,3 +85,20 @@ test('OS737.0.26 clicking the active section exits advanced detail',async({page}
  const order=await page.locator('link[rel="stylesheet"]').evaluateAll(links=>links.map(x=>x.getAttribute('href')));
  expect(order.at(-1)).toBe('./os1500.css');
 });
+
+test('OS737.0.27 derived Today ticket counts exclude disputes',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('kamil-os-state',JSON.stringify({
+  meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+  ticketBook:{items:[
+   {id:'active',name:'Česko - Anglie - 115',qty:4,buy:7516,workflow:'LISTED'},
+   {id:'issue',name:'Davis Cup - reklamace',qty:3,buy:7590,workflow:'HOLD',issue:'REKLAMACE'}
+  ],watchlist:[],history:[],review:[],masterId:'test-derived'},
+  personalAdmin:{items:[]}
+ })));
+ await boot(page);
+ const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
+ expect(today?.healthy).toBe(true);
+ const ticketArea=page.locator('.os1600-area').filter({hasText:'Vstupenky'});
+ await expect(ticketArea).toContainText('4');
+ await expect(ticketArea).not.toContainText('7 otevř.');
+});
