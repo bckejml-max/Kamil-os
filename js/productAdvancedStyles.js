@@ -1,4 +1,4 @@
-const canonicalOrder=['./productReset1300.css','./os1400.css','./os1500.css'];
+const canonicalOrder=['./os-canonical.css'];
 const styleByHref=href=>[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>{
  const raw=x.getAttribute('href')||'';
  return raw===href||x.href.endsWith(href.replace('./','/'));
@@ -27,7 +27,7 @@ export async function loadProductAdvancedStyles(hrefs=[]){
   link.addEventListener('error',()=>resolve(link),{once:true});
   document.head.appendChild(link);
  })));
- // Keep the product-level reset above legacy advanced styles while the advanced surface is open.
+ // Keep the single canonical runtime stylesheet above optional advanced styles while the advanced surface is open.
  promote('./productReset1300.css');
  return true;
 }
