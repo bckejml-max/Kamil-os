@@ -20,7 +20,7 @@ export async function withActionLock(fn){if(actionLock)return false;actionLock=t
 let current='today',stopAuthWatch=()=>{},renderSeq=0,renderQueued=false,renderForce=false,stateRevision=0,sessionSeq=0;
 const viewRevision=new Map();
 let recoveryMode=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
-const pageTitles={today:'DNES',work:'PRÁCE',tickets:'VSTUPENKY',property:'REALITY',money:'PENÍZE',betting:'SÁZENÍ',inbox:'ÚKOLY',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
+const pageTitles={today:'Dnes',work:'Práce',tickets:'Vstupenky',property:'Reality',money:'Peníze',betting:'Sázení',inbox:'Úkoly',family:'Rodina',home:'Domov',more:'Dokumenty'};
 const viewHosts={today:'todayView',work:'workView',tickets:'ticketIntelView',property:'propertyView',money:'moneyView',betting:'bettingView',inbox:'inboxView',family:'ticketsView',home:'homeView',more:'moreView'};
 const quickLabels={today:'Přidat',work:'Pracovní úkol',tickets:'Úkol k ticketům',property:'Úkol k realitě',money:'Finanční úkol',betting:'Úkol k sázení',inbox:'Úkol',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
 const captureTypeForView=()=>({today:'task',work:'work-task',tickets:'ticket-task',property:'property-task',money:'money-task',betting:'betting-task',inbox:'task',family:'family-task',home:'home-task',more:'document-source'})[current]||'task';
@@ -68,13 +68,13 @@ function applyNavSignals1333(s){
 
 function updateChrome(){
  const s=store.get();
- const label=qs('#todayLabel');if(label)label.textContent=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
+ const label=qs('#todayLabel');if(label)label.textContent=current==='today'?new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'}):'';
  const page=qs('#pageTitle');if(page)page.textContent=pageTitles[current]||'KAMIL OS';
  qsa('.version').forEach(x=>x.textContent=APP_VERSION);
  qsa('[data-view]').forEach(x=>{const on=x.dataset.view===current;x.classList.toggle('on',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
  applyNavSignals1333(s);
  const undo=qs('#undoBtn');if(undo)undo.disabled=store.undoCount()===0;
- const add=qs('#quickAddBtn');if(add){add.classList.remove('hidden');const text=qs('b',add),name=quickLabels[current]||'Přidat';if(text)text.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`}
+ const add=qs('#quickAddBtn');if(add){add.classList.remove('hidden');const text=qs('b',add),name=quickLabels[current]||'Přidat';if(text)text.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`;add.setAttribute('aria-label',`Rychle přidat ${name.toLowerCase()}`)}
  refreshRiskBadge41(s);
 }
 function revealMobileDestination(view){
