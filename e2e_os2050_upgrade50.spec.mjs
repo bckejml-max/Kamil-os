@@ -3,6 +3,7 @@ test('OS2050 exposes all 50 intelligence upgrades from Documents',async({page})=
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  await page.locator('#mainNav [data-view="more"]').click();
  await expect(page.locator('[data-documents-page1500]')).toBeVisible({timeout:10000});
+ await page.locator('[data-doc1500-advanced] > summary').click();
  await page.locator('[data-doc1500-upgrades]').click();
  await expect(page.locator('[data-upgrades2050]')).toBeVisible({timeout:10000});
  await expect(page.locator('[data-upgrade2050]')).toHaveCount(50);
