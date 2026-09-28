@@ -28,10 +28,11 @@ test('OS1500 keeps direct mobile destinations and stacks primary content',async(
  const layout=await page.evaluate(()=>{
   const summary=document.querySelector('.os1600-summary');
   const areas=document.querySelector('.os1600-areas');
-  const metrics=getComputedStyle(summary).gridTemplateColumns.split(' ').filter(Boolean).length;
+  const summaryStyle=getComputedStyle(summary);
   const areaColumns=getComputedStyle(areas).gridTemplateColumns.split(' ').filter(Boolean).length;
-  return {metrics,areaColumns};
+  return {summaryDisplay:summaryStyle.display,summaryItems:summary.children.length,areaColumns};
  });
- expect(layout.metrics).toBe(2);
+ expect(layout.summaryDisplay).toBe('flex');
+ expect(layout.summaryItems).toBe(4);
  expect(layout.areaColumns).toBe(2);
 });
