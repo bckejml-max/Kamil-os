@@ -26,7 +26,7 @@ test('OS1331 keeps all sections direct and turns Today into a desktop command ce
  expect(diag.systemRows).toBe(9);
 });
 
-test('OS738 mobile keeps ten direct destinations in one calm scrollable row',async({page})=>{
+test('OS738 mobile keeps ten direct destinations visible in one 5x2 grid',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  const nav=page.locator('#bottomNav');
@@ -36,14 +36,16 @@ test('OS738 mobile keeps ten direct destinations in one calm scrollable row',asy
   return {
    display:style.display,
    navHeight:el.getBoundingClientRect().height,
-   scrollable:el.scrollWidth>el.clientWidth,
-   overflowX:style.overflowX
+   columns:style.gridTemplateColumns,
+   rows:style.gridTemplateRows,
+   scrollable:el.scrollWidth>el.clientWidth
   };
  });
- expect(layout.display).toBe('flex');
- expect(layout.navHeight).toBeLessThan(80);
- expect(layout.scrollable).toBe(true);
- expect(['auto','scroll']).toContain(layout.overflowX);
+ expect(layout.display).toBe('grid');
+ expect(layout.navHeight).toBeLessThanOrEqual(96);
+ expect(layout.columns.split(' ').filter(Boolean)).toHaveLength(5);
+ expect(layout.rows.split(' ').filter(Boolean)).toHaveLength(2);
+ expect(layout.scrollable).toBe(false);
  const last=nav.locator('[data-view="more"]');
  await last.scrollIntoViewIfNeeded();
  await expect(last).toBeVisible();
