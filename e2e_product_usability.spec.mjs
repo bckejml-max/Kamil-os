@@ -7,11 +7,13 @@ test('daily OS stays calm on mobile and advanced tooling stays out of the way',a
  await expect(page.locator('[data-os1600-home]')).toBeVisible({timeout:10000});
  const nav=await page.locator('#bottomNav').evaluate(el=>{
   const s=getComputedStyle(el);
-  return{display:s.display,height:s.height,overflowX:s.overflowX,rows:s.gridTemplateRows};
+  return{display:s.display,height:s.height,columns:s.gridTemplateColumns,rows:s.gridTemplateRows,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth};
  });
- expect(nav.display).toBe('flex');
- expect(parseFloat(nav.height)).toBeLessThan(80);
- expect(['auto','scroll']).toContain(nav.overflowX);
+ expect(nav.display).toBe('grid');
+ expect(parseFloat(nav.height)).toBeLessThanOrEqual(96);
+ expect(nav.columns.split(' ').filter(Boolean)).toHaveLength(5);
+ expect(nav.rows.split(' ').filter(Boolean)).toHaveLength(2);
+ expect(nav.scrollWidth).toBeLessThanOrEqual(nav.clientWidth+1);
 
  await page.locator('#bottomNav [data-view="more"]').click();
  await expect(page.locator('[data-documents-page1500]')).toBeVisible({timeout:10000});
