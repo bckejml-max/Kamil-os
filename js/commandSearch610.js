@@ -10,7 +10,7 @@ const S=()=>store.get?.()||{};
 const CLOSED610=new Set(['DONE','HOTOVO','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','CANCELLED','CANCELED','COMPLETED','FINISHED']);
 const active610=x=>!CLOSED610.has(String(x?.status||x?.workflow||x?.state||'OPEN').trim().toUpperCase());
 const fireFocus=(target,focus)=>window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{focus,target}}));
-const openTarget=(target,focus=null)=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));if(target==='more'&&focus==='insurance')schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true});if(focus&&focus!=='insurance')for(const ms of [120,420,900])schedule1100(OWNER,`focus:${target}:${focus}:${ms}`,()=>fireFocus(target,focus),ms,{pauseWhenHidden:true})};
+const openTarget=(target,focus=null)=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));if(target==='more'&&focus==='insurance')schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true});if(focus&&focus!=='insurance')for(const ms of [120,420,900,1600,2800,4500])schedule1100(OWNER,`focus:${target}:${focus}:${ms}`,()=>fireFocus(target,focus),ms,{pauseWhenHidden:true})};
 const addMatch=(out,q,kind,title,detail,target,id,focus)=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,focus})};
 
 export function searchExtended610(raw){
