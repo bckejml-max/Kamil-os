@@ -40,7 +40,7 @@ test('OS1500 Today is the canonical action-first screen',async({page})=>{
  await boot(page);
  await expect(page.locator('.os1600-head h1')).toContainText(/Kamile/i);
  await expect(page.locator('[data-product-home1300]')).toBeVisible();
- await expect(page.locator('.os1600-attention')).toBeVisible();
+ await expect(page.locator('.os1600-next')).toBeVisible();
  await expect(page.locator('.os1600-areas .os1600-area')).toHaveCount(9);
  const today=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(today?.healthy).toBe(true);
