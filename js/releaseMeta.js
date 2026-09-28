@@ -1,3 +1,3 @@
-export const APP_VERSION='737.5.0';
-export const APP_RELEASE='737.5.0';
-// OS737.5.0: add the fifth 50-module strategy, decision-quality, UX and long-horizon suite.
+export const APP_VERSION='738.0.0';
+export const APP_RELEASE='738.0.0';
+// OS738.0.0: product reset focused on daily usability, calmer navigation and hidden advanced tooling.
