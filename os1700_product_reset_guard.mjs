@@ -13,7 +13,8 @@ const release=fs.readFileSync('js/releaseMeta.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 assert.match(index,/data-os1700="1"/);
 assert.doesNotMatch(app,/Waiting For/);
-assert.match(app,/Načítám aktuální priority/);
+assert.match(app,/data-os1900-loading/);
+assert.doesNotMatch(app,/Načítám aktuální priority/);
 assert.match(today,/Dnes ještě/);
 assert.match(css,/\.os1600-summary\{display:flex!important/);
 assert.match(css,/\.os1600-next\{min-height:102px!important/);
@@ -22,6 +23,6 @@ assert.ok(betting.indexOf('(d.open.length?') < betting.indexOf('os1500-summary-g
 assert.match(work,/Termíny, rizika a zakázky v pořadí/);
 assert.match(money,/Nejdřív akce, která něco mění/);
 assert.match(property,/Nejdřív nejlepší kandidát a důvod/);
-assert.match(release,/738\.2\.0/);
-assert.match(sw,/kamil-os-738\.2\.0-core-r143/);
+assert.match(release,/739\.0\.0/);
+assert.match(sw,/kamil-os-739\.0\.0-core-r144/);
 console.log('OS1700 canonical product reset: 13/13 PASS');

@@ -27,9 +27,9 @@ for(const p of [
 ])if(!exists(p))fail(`missing required OS2 file ${p}`);
 
 if(!index.includes('data-os2="1"'))fail('index missing OS2 shell marker');
-if(!index.includes('./os2.css'))fail('index missing OS2 stylesheet');
-if(!index.includes('./productReset1300.css')||!index.includes('data-product-reset1300="1"'))fail('index missing OS1300 product reset shell');
-if(!index.includes('./os1400.css')||!index.includes('data-os1400="1"'))fail('index missing OS1400 usability shell');
+if(!index.includes('./os-canonical.css'))fail('index missing canonical runtime stylesheet');
+if(!index.includes('data-product-reset1300="1"'))fail('index missing OS1300 product reset shell marker');
+if(!index.includes('data-os1400="1"'))fail('index missing OS1400 usability shell marker');
 if(index.includes('theme33.css')||index.includes('personal65.css')||index.includes('ticketDesk353.css'))fail('legacy view styles must not eager-load from index');
 if(index.includes('bettingBootstrap543.js'))fail('Betting bootstrap must not eager-load from index');
 for(const id of ['view-today','view-work','view-tickets','view-property','view-money','view-betting','view-inbox','view-family','view-home','view-more'])if(!index.includes(`id="${id}"`))fail(`static shell missing ${id}`);

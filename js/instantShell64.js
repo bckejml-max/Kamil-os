@@ -1,6 +1,5 @@
 import {APP_VERSION} from './releaseMeta.js';
 
-const SNAPSHOT_KEY='kamil-os-fast-snapshot-1300';
 const root=document.documentElement;
 const BOOT343={version:343,architecture:'os2-on-demand',startedAt:performance.now(),modules:[],failures:[],complete:false,totalMs:0,slowest:[],healthy:true,at:Date.now()};
 const DEFER345={version:345,architecture:'os2-on-demand',started:false,complete:false,modules:[],failures:[],healthy:true,at:Date.now()};
@@ -19,10 +18,10 @@ function fallbackHtml(){
 }
 function paintInstant(){
  const host=document.querySelector('#todayView');if(!host)return;
- let html='';try{const snap=parse(localStorage.getItem(SNAPSHOT_KEY)||'null');if(snap?.version===APP_VERSION&&snap?.os2===true&&snap?.html&&Date.now()-Number(snap.at||0)<2*86400000)html=snap.html}catch{}
- host.innerHTML=html||fallbackHtml();window.__KAMIL_SNAPSHOT_HIT__=!!html
+ host.innerHTML='<div class="view-head os1900-loading" data-os1900-loading><div><div class="eyebrow">KAMIL OS</div><h1>Načítám…</h1><p>Aktuální priority se vykreslí z kanonického rendereru.</p></div></div>';
+ window.__KAMIL_SNAPSHOT_HIT__=false;
 }
-function saveSnapshot(){const host=document.querySelector('#todayView');if(!host||!host.querySelector('[data-os2-today]'))return;const html=host.innerHTML;if(html.length>300&&html.length<120000)try{localStorage.setItem(SNAPSHOT_KEY,JSON.stringify({version:APP_VERSION,os2:true,html,at:Date.now()}))}catch{}}
+function saveSnapshot(){return false}
 function registerSw(){if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})}
 function publishBoot343(){BOOT343.totalMs=Math.max(0,Math.round((performance.now()-BOOT343.startedAt)*10)/10);BOOT343.slowest=[...BOOT343.modules].sort((a,b)=>b.ms-a.ms).slice(0,5);BOOT343.healthy=BOOT343.failures.length===0;BOOT343.at=Date.now();window.__KAMIL_BOOT_BUDGET343__=BOOT343}
 function publishDeferred345(){DEFER345.healthy=DEFER345.failures.length===0;DEFER345.at=Date.now();window.__KAMIL_DEFERRED345__=DEFER345}

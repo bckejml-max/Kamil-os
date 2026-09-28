@@ -10,7 +10,7 @@ async function boot(page){
 test('OS1331 keeps all sections direct and turns Today into a desktop command center',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
- await expect(page.locator('link[href="./os1331.css"]')).toHaveCount(1);
+ await expect(page.locator('link[href="./os-canonical.css"]')).toHaveCount(1);
  await expect(page.locator('#mainNav [data-view]')).toHaveCount(10);
  await expect(page.locator('#mainNav .os1331-nav-group')).toHaveText(['Řízení','Trh & peníze','Osobní']);
  await expect(page.locator('.os1600-next')).toBeVisible();

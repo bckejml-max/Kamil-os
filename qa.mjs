@@ -44,9 +44,9 @@ for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{st
 // Canonical product shell eagerly loads only the approved shared visual layers.
 assert.ok(index.includes('data-os2="1"'),'OS2 shell marker missing');
 const eagerStyles=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(x=>x[1]);
-assert.deepEqual(eagerStyles,['./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css','./os1400.css','./os1500.css'],'canonical shell eager styles changed unexpectedly');
-assert.ok(index.includes('./os2.css'),'OS2 stylesheet missing');
-assert.ok(index.includes('./productReset1300.css')&&index.includes('data-product-reset1300="1"'),'OS1300 product reset shell missing');
+assert.deepEqual(eagerStyles,['./os-canonical.css'],'canonical shell must eager-load only one runtime stylesheet');
+assert.ok(index.includes('./os-canonical.css'),'canonical stylesheet missing');
+assert.ok(index.includes('data-product-reset1300="1"'),'OS1300 product reset shell marker missing');
 for(const label of ['Dnes','Úkoly','Práce','Vstupenky','Peníze','Reality','Sázení','Rodina','Domov','Dokumenty'])assert.ok(index.includes(label),`navigation missing: ${label}`);
 for(const route of ['view-property','view-betting','view-family','view-home','view-more'])assert.ok(index.includes(`id="${route}"`),`secondary section shell missing: ${route}`);
 assert.ok(!index.includes('bettingBootstrap543.js'),'Betting bootstrap must not eager-load from index');
@@ -83,7 +83,7 @@ assert.ok(!bettingBootstrap.includes('runtimeCoordinator1050')&&!bettingBootstra
 
 // Existing data and safety invariants.
 assert.ok(sw.includes("self.addEventListener('fetch'")&&sw.includes('networkFirst'),'service worker fresh-code policy missing');
-assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('productReset1300.css')&&sw.includes('os1400.css')&&sw.includes('workPage1300.js')&&sw.includes('propertyPage1300.js')&&!sw.includes('os2010.css')&&!sw.includes('os737.css'),'service-worker shell/cache missing');
+assert.ok(/const CACHE='kamil-os-[0-9.]+-core-r\d+'/.test(sw)&&sw.includes('instantShell64.js')&&sw.includes('os-canonical.css')&&sw.includes('workPage1300.js')&&sw.includes('propertyPage1300.js')&&!sw.includes('os2010.css')&&!sw.includes('os737.css'),'service-worker shell/cache missing');
 assert.ok(!sw.includes('staleWhileRevalidate'),'runtime code must never prefer stale cache');
 assert.ok(state.includes('export const store=new Store()'),'state store export missing');
 assert.ok(cloud.includes('mergeColdState42'),'cloud payload must restore cold history before upload');

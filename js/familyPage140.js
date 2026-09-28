@@ -32,7 +32,7 @@ const taskRows=rows=>rows.length?rows.slice(0,10).map((x,i)=>`<button type="butt
 const memberRows=rows=>rows.length?rows.map(x=>`<div class="pr1300-row"><div class="pr1300-row-main"><b>${h(x.name||x.title||'Člen domácnosti')}</b><small>${h(x.role||x.relation||'')}</small></div><div class="pr1300-row-side">domácnost</div></div>`).join(''):'<div class="os1500-empty">Členové domácnosti zatím nejsou ve strukturovaných datech.</div>';
 
 export function renderFamilyPage140(){
- const host=document.querySelector('#ticketsView');if(!host)return false;const d=data(),p=d.primary;
+ const host=document.querySelector('#familyView');if(!host)return false;const d=data(),p=d.primary;
  host.innerHTML=`<div class="pr1300-shell" data-family-page1500>
   <div class="pr1300-head"><div><div class="pr1300-kicker">Rodina</div><h1>Co nás čeká a co je potřeba zařídit.</h1><p>Bez filtrů a bez dalšího dashboardu. Termíny, úkoly a domácnost jsou rovnou na jedné stránce.</p></div><span class="pr1300-status ${d.overdue?'bad':d.due7?'warn':'good'}">${d.overdue?d.overdue+' po termínu':d.due7?d.due7+' do 7 dní':'klid'}</span></div>
   <section class="pr1320-now"><div><div class="pr1300-kicker">Teď</div><h2>${h(p?.title||'Nic rodinného teď nehoří.')}</h2><p>${h(p?.detail||'Nejbližší známé rodinné termíny a úkoly jsou pod tímto přehledem.')}</p></div><div class="pr1320-now-actions">${p?'<button class="pr1300-btn primary" type="button" data-family1500-primary>Vyřešit teď →</button><button class="pr1300-btn" type="button" data-family1500-add>＋ Rodinný úkol</button>':'<button class="pr1300-btn primary" type="button" data-family1500-add>＋ Rodinný úkol</button>'}</div></section>

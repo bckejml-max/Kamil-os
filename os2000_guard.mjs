@@ -5,11 +5,9 @@ const [index,boot,views,today,betting,css,product,sw]=await Promise.all([read('.
 
 assert.match(index,/data-os2="1"/,'OS2 index marker missing');
 const eagerStyles=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(x=>x[1]);
-assert.deepEqual(eagerStyles,['./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css','./os1400.css','./os1500.css'],'OS1400 shell eager styles must be the approved canonical layers only');
-assert.match(index,/\.\/styles\.css/,'base stylesheet missing');
-assert.match(index,/\.\/os2\.css/,'OS2 stylesheet missing');
-assert.match(index,/\.\/productReset1300\.css/,'OS1300 product reset stylesheet missing');
-for(const cssName of ['os1331.css','os1332.css','os1333.css','os1334.css','os1400.css'])assert.match(index,new RegExp(`\\.\\/${cssName.replace('.', '\\.')}`),`${cssName} canonical layer missing`);
+assert.deepEqual(eagerStyles,['./os-canonical.css'],'runtime must load exactly one canonical stylesheet');
+assert.match(index,/\.\/os-canonical\.css/,'canonical stylesheet missing');
+for(const legacyCss of ['styles.css','os2.css','productReset1300.css','os1331.css','os1332.css','os1333.css','os1334.css','os1400.css','os1500.css'])assert.equal(eagerStyles.includes('./'+legacyCss),false,`${legacyCss} must not be eager-loaded directly`);
 assert.equal(index.includes('bettingBootstrap543.js'),false,'Betting bootstrap must not be a global script');
 for(const id of ['view-today','view-work','view-tickets','view-property','view-money','view-betting','view-inbox','view-family','view-home','view-more'])assert.match(index,new RegExp(`id="${id}"`),`static OS2 shell missing ${id}`);
 
@@ -32,9 +30,7 @@ assert.equal(betting.includes('runtimeCoordinator1050'),false,'Betting must not 
 
 for(const token of ['--os-bg','#0b0f14','.os2-app','.os2-sidebar','.os2-today','.os2-bottom'])assert.match(css,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')),`OS2 CSS missing ${token}`);
 assert.match(product,/data-product-reset1300|product-reset1300/,'OS1300 product reset selectors missing');
-assert.match(sw,/\.\/productReset1300\.css/,'service worker must precache OS1300 product layer');
-assert.match(sw,/\.\/os1400\.css/,'service worker must precache OS1400 usability layer');
-assert.match(sw,/\.\/os1500\.css/,'service worker must precache OS1500 product layer');
+assert.match(sw,/\.\/os-canonical\.css/,'service worker must precache canonical stylesheet');
 assert.match(sw,/workPage1300\.js/,'service worker must precache Work product page');
 assert.match(sw,/propertyPage1300\.js/,'service worker must precache Reality product page');
 console.log('OS2000/2010/737/1300/1400 architecture guard PASS');

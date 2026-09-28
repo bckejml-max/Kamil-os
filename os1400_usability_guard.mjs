@@ -14,7 +14,7 @@ const family=read('js/personalFamily640.js');
 const home=read('js/personalHome640.js');
 
 assert.match(index,/data-os1400="1"/,'OS1400 shell flag missing');
-assert.match(index,/os1400\.css/,'OS1400 stylesheet must be loaded');
+assert.match(index,/os-canonical\.css/,'canonical stylesheet must carry OS1400 runtime styles');
 assert.match(index,/Co chceš udělat\?/,'command input must lead with user intent');
 assert.match(today,/data-os1400-home/,'Today must render the OS1400 cockpit');
 assert.match(today,/Nejdřív další krok\. Pak dnešní fronta a přehled oblastí\./,'Today must explain its solve-first purpose');
@@ -30,6 +30,6 @@ assert.match(css,/\.os1400-grid/);
 assert.match(css,/\.os1400-domain/);
 assert.match(css,/@media\(max-width:760px\)/,'mobile canonical layer missing');
 assert.match(runtime,/restoreCanonicalProductStyles/,'runtime must delegate canonical stylesheet restoration');
-assert.match(advancedStyles,/canonicalOrder=\['\.\/productReset1300\.css','\.\/os1400\.css','\.\/os1500\.css'\]/,'OS1400 must remain in the explicit canonical stylesheet stack');
-assert.match(sw,/os1400\.css/,'service worker must precache OS1400');
+assert.match(advancedStyles,/canonicalOrder=\['\.\/os-canonical\.css'\]/,'OS1400 must remain inside the single canonical runtime stylesheet');
+assert.match(sw,/os-canonical\.css/,'service worker must precache canonical styles');
 console.log('OS1400 usability guard PASS');

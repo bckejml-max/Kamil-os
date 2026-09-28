@@ -21,7 +21,7 @@ let current='today',stopAuthWatch=()=>{},renderSeq=0,renderQueued=false,renderFo
 const viewRevision=new Map();
 let recoveryMode=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
 const pageTitles={today:'Dnes',work:'Práce',tickets:'Vstupenky',property:'Reality',money:'Peníze',betting:'Sázení',inbox:'Úkoly',family:'Rodina',home:'Domov',more:'Dokumenty'};
-const viewHosts={today:'todayView',work:'workView',tickets:'ticketIntelView',property:'propertyView',money:'moneyView',betting:'bettingView',inbox:'inboxView',family:'ticketsView',home:'homeView',more:'moreView'};
+const viewHosts={today:'todayView',work:'workView',tickets:'ticketIntelView',property:'propertyView',money:'moneyView',betting:'bettingView',inbox:'inboxView',family:'familyView',home:'homeView',more:'moreView'};
 const quickLabels={today:'Přidat',work:'Pracovní úkol',tickets:'Úkol k ticketům',property:'Úkol k realitě',money:'Finanční úkol',betting:'Úkol k sázení',inbox:'Úkol',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
 const captureTypeForView=()=>({today:'task',work:'work-task',tickets:'ticket-task',property:'property-task',money:'money-task',betting:'betting-task',inbox:'task',family:'family-task',home:'home-task',more:'document-source'})[current]||'task';
 const hasPrivateSnapshotKey=()=>{try{return new URLSearchParams(location.hash.replace(/^#/,'')).has('privateSnapshotKey')}catch{return false}};
@@ -84,10 +84,8 @@ function revealMobileDestination(view){
 }
 function quickShell(view){
  const host=hostForView(view);if(!host||host.dataset.fastShell==='1'||host.dataset.viewReady==='1')return;host.dataset.fastShell='1';
- if(view==='today'){
-  const s=store.get(),closed=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED','PAYOUT_RECEIVED','CANCELLED','CANCELED']),open=(s.tasks||[]).filter(x=>!closed.has(String(x.status||'').toUpperCase())).length,waiting=[...(s.directorBook?.waiting||[]),...(s.delegations||[])].filter(x=>!closed.has(String(x.status||'OPEN').toUpperCase())).length,tickets=(s.ticketBook?.items||[]).filter(x=>!x.issue&&['HOLD','LISTED'].includes(String(x.workflow||'HOLD').toUpperCase())).length;
-  host.innerHTML=`<div class="view-head"><div><div class="eyebrow">KAMIL OS ${APP_VERSION}</div><h1>Dnes</h1><p>Načítám aktuální priority z uložených dat.</p></div></div><div class="metric-strip"><div class="metric"><span>Otevřené úkoly</span><b>${open}</b></div><div class="metric"><span>Čekám</span><b>${waiting}</b></div><div class="metric"><span>Aktivní vstupenky</span><b>${tickets}</b></div><div class="metric"><span>Stav</span><b>načítám</b></div></div>`;
- }else host.innerHTML=`<div class="view-head"><div><div class="eyebrow">${pageTitles[view]||'KAMIL OS'}</div><h1>Načítám modul…</h1><p>Obsah se dotahuje až při otevření této sekce, aby nezpomaloval start celé aplikace.</p></div></div>`;
+ const title=pageTitles[view]||'Kamil OS';
+ host.innerHTML=`<div class="view-head os1900-loading" data-os1900-loading><div><div class="eyebrow">${title}</div><h1>Načítám…</h1><p>Aktuální obsah se vykreslí z jednoho kanonického rendereru.</p></div></div>`;
 }
 async function render(force=false){
  updateChrome();const view=current,host=hostForView(view);
