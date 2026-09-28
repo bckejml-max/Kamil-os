@@ -26,22 +26,25 @@ test('OS1331 keeps all sections direct and turns Today into a desktop command ce
  expect(diag.systemRows).toBe(9);
 });
 
-test('OS1500 mobile keeps ten direct destinations visible without scrolling',async({page})=>{
+test('OS738 mobile keeps ten direct destinations in one calm scrollable row',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
- await expect(page.locator('#bottomNav [data-view]')).toHaveCount(10);
- const layout=await page.evaluate(()=>{
-  const nav=document.querySelector('#bottomNav');
-  const style=getComputedStyle(nav);
+ const nav=page.locator('#bottomNav');
+ await expect(nav.locator('[data-view]')).toHaveCount(10);
+ const layout=await nav.evaluate(el=>{
+  const style=getComputedStyle(el);
   return {
    display:style.display,
-   navHeight:nav.getBoundingClientRect().height,
-   scrollable:nav.scrollWidth>nav.clientWidth,
-   rows:style.gridTemplateRows.split(' ').filter(Boolean).length
+   navHeight:el.getBoundingClientRect().height,
+   scrollable:el.scrollWidth>el.clientWidth,
+   overflowX:style.overflowX
   };
  });
- expect(layout.display).toBe('grid');
- expect(layout.navHeight).toBeLessThanOrEqual(100);
- expect(layout.scrollable).toBe(false);
- expect(layout.rows).toBe(2);
+ expect(layout.display).toBe('flex');
+ expect(layout.navHeight).toBeLessThan(80);
+ expect(layout.scrollable).toBe(true);
+ expect(['auto','scroll']).toContain(layout.overflowX);
+ const last=nav.locator('[data-view="more"]');
+ await last.scrollIntoViewIfNeeded();
+ await expect(last).toBeVisible();
 });
