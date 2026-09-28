@@ -3,6 +3,7 @@ test('OS2400 exposes the fifth 50 strategy/horizon modules',async({page})=>{
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
  await page.locator('#mainNav [data-view="more"]').click();
  await expect(page.locator('[data-documents-page1500]')).toBeVisible({timeout:10000});
+ await page.locator('[data-doc1500-advanced] > summary').click();
  await page.locator('[data-doc1500-strategy]').click();
  await expect(page.locator('[data-strategy2400-center]')).toBeVisible({timeout:10000});
  await expect(page.locator('[data-strategy2400]')).toHaveCount(50);
