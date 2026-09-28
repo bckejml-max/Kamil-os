@@ -26,11 +26,11 @@ test('OS2000 starts as a small on-demand shell',async({page})=>{
  expect(state.boot.modules.length).toBeLessThanOrEqual(2);
  expect(state.boot.modules.some(x=>x.path==='./app.js'&&x.ok)).toBe(true);
  expect(state.boot.failures).toHaveLength(0);
- expect(state.styles).toContain('./os2.css');
+ expect(state.styles).toContain('./os-canonical.css');
  expect(state.styles).not.toContain('./os2010.css');
  expect(state.styles).not.toContain('./os737.css');
- expect(state.styles).toContain('./productReset1300.css');
- expect(state.styles).toContain('./styles.css');
+ expect(state.styles).not.toContain('./productReset1300.css');
+ expect(state.styles).not.toContain('./styles.css');
  expect(state.styles).not.toContain('./ticketDesk353.css');
  expect(state.resources.some(x=>x.includes('bettingBootstrap543.js'))).toBe(false);
  expect(state.resources.some(x=>x.includes('ticketDesk331.js'))).toBe(false);
@@ -146,10 +146,10 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
 
  await openView(page,'family');
  await expect(page.locator('#view-family')).toHaveClass(/on/);
- await expect(page.locator('#ticketsView [data-family-page1500]')).toBeVisible({timeout:10000});
- await expect(page.locator('#ticketsView [data-family-page1500] .pr1300-kicker').first()).toContainText(/Rodina/i);
+ await expect(page.locator('#familyView [data-family-page1500]')).toBeVisible({timeout:10000});
+ await expect(page.locator('#familyView [data-family-page1500] .pr1300-kicker').first()).toContainText(/Rodina/i);
  await page.waitForTimeout(500);
- await expect(page.locator('#ticketsView [data-family-hub610]')).toHaveCount(0);
+ await expect(page.locator('#familyView [data-family-hub610]')).toHaveCount(0);
 
  const cases=[
   ['home','#homeView','[data-home-page1500]','Dům, energie, smlouvy a údržba'],
@@ -277,7 +277,7 @@ test('OS1324 visual polish keeps the shell compact and consistent',async({page})
  expect(desktop.bodyOverflow).toBeLessThanOrEqual(2);
 
  await openView(page,'family');
- const familySurface=await page.locator('#ticketsView .os1500-summary').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
+ const familySurface=await page.locator('#familyView .os1500-summary').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
  await openView(page,'home');
  const homeSurface=await page.locator('#homeView .os1500-summary').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
  expect(familySurface.bg).not.toBe('rgba(0, 0, 0, 0)');
@@ -307,7 +307,7 @@ test('OS1323 canonical shell has one visual owner per section',async({page})=>{
   ['money','#moneyView','[data-money-overview]'],
   ['property','#propertyView','[data-property-page1300]'],
   ['betting','#bettingView','[data-betting-overview]'],
-  ['family','#ticketsView','[data-family-page1500]'],
+  ['family','#familyView','[data-family-page1500]'],
   ['home','#homeView','[data-home-page1500]'],
   ['more','#moreView','[data-documents-page1500]']
  ];
@@ -383,7 +383,7 @@ test('OS1307 full desktop audit renders every product surface without crash or o
   ['money','#moneyView','[data-money-overview]'],
   ['property','#propertyView','[data-property-page1300]'],
   ['betting','#bettingView','[data-betting-overview]'],
-  ['family','#ticketsView','[data-family-page1500]'],
+  ['family','#familyView','[data-family-page1500]'],
   ['home','#homeView','[data-home-page1500]'],
   ['more','#moreView','[data-documents-page1500]']
  ];
