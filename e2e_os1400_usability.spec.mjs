@@ -11,7 +11,7 @@ test('OS1500 preserves the focused desktop cockpit',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await boot(page);
  await expect(page.locator('html[data-os1400="1"]')).toHaveCount(1);
- await expect(page.locator('link[href="./os1400.css"]')).toHaveCount(1);
+ await expect(page.locator('link[href="./os-canonical.css"]')).toHaveCount(1);
  await expect(page.locator('#commandInput')).toHaveAttribute('placeholder',/Co chceš udělat/);
  await expect(page.locator('.os1600-next')).toBeVisible();
  await expect(page.locator('.os1600-summary .os1600-summary-item')).toHaveCount(4);
