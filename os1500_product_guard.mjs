@@ -43,7 +43,7 @@ assert.doesNotMatch(runtime,/family:\['\.\/personal64\.css'|home:\['\.\/personal
 for(const route of ['inbox','work','tickets','money','property','betting','family','home','more']){
  assert.match(today,new RegExp("route:'"+route+"'"),'Today must expose '+route);
 }
-assert.match(today,/9 oblastí/,'Today must show all nine product areas');
+assert.match(today,/problémy první · vše na jeden klik/,'Today must keep every product area direct while prioritizing problems');
 assert.match(today,/personalTasks=tasks\.filter\(isPersonalScope527\)/,'Today Inbox task scope must match personal Inbox scope');
 assert.match(today,/calendar=\(s\.calendar\?\.events\|\|\[\]\)\.filter\(open\)\.filter/,'Today calendar section must hide closed events');
 assert.match(today,/const tomorrowRoute=x=>/,'Today tomorrow priorities must route by actual personal area');
@@ -175,9 +175,10 @@ assert.match(property,/startsWith\('property:'\)/,'Property page must open exact
 assert.match(commandSearch610,/filter\(active610\)/,'command search must hide closed Inbox and Waiting rows');
 assert.match(commandSearch610,/focus==='insurance'/,'bare insurance command must open Insurance Center directly');
 assert.match(runtime,/type==='betting-task'/,'runtime capture must preserve betting scope');
-assert.match(css,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important/,'mobile primary nav must expose all destinations without a hidden menu');
-assert.match(css,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/,'mobile primary nav must keep all ten destinations visible');
-assert.match(css,/font-size:8\.8px!important/,'mobile primary nav labels must remain readable');
+const mobileCalm=css.slice(css.lastIndexOf('@media(max-width:760px)'));
+assert.match(mobileCalm,/\.os2-bottom\{[\s\S]*display:flex!important;[\s\S]*overflow-x:auto!important/,'mobile primary nav must stay one calm scrollable row');
+assert.doesNotMatch(mobileCalm,/grid-template-rows:repeat\(2/,'final mobile product layer must not restore the two-row navigation wall');
+assert.match(mobileCalm,/font-size:8\.5px!important/,'mobile primary nav labels must remain readable');
 assert.match(sw,/os1500\.css/,'service worker must precache OS1500');
 assert.match(sw,/RUNTIME_STATIC_PATH/,'service worker must runtime-cache lazy same-origin static assets');
 assert.match(sw,/cacheStaticModuleGraph/,'service worker must precache the static dependency graph of critical JS modules');
