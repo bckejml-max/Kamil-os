@@ -95,7 +95,7 @@ function metric(label,value){return '<div class="os1400-metric"><span>'+esc(labe
 
 function render(){
  const host=document.querySelector('#todayView');if(!host)return false;
- const d=baseData(),items=queue(d),system=systemState(d),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
+ const d=baseData(),items=queue(d),toneRank={bad:3,warn:2,good:1,'':0},system=systemState(d).map((x,i)=>({...x,_order:i})).sort((a,b)=>(toneRank[b.tone]||0)-(toneRank[a.tone]||0)||a._order-b._order),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
  const severity=items.some(x=>x.tone==='bad')?'bad':items.length?'warn':'good';
  const summary=[
   {label:'Po termínu',value:String(d.overdue.length),tone:d.overdue.length?'bad':'good'},
@@ -109,7 +109,7 @@ function render(){
   '<section class="os1600-attention '+severity+'"><div class="os1600-section-head"><div><span class="os1400-kicker">Teď</span><h2>Co potřebuje vyřešit</h2></div><span>'+(items.length?items.length+' položek':'všechno v klidu')+'</span></div>'+
    (items.length?actionRows(items):'<div class="os1600-clear"><b>Nic akutního.</b><span>Můžeš jet podle plánu nebo přidat další úkol.</span></div>')+
   '</section>'+
-  '<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Přehled OS</span><h2>Všechny oblasti</h2></div><span>9 oblastí · vše na jeden klik</span></div>'+systemRows(system)+'</section>'+
+  '<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Kam dál</span><h2>Oblasti podle priority</h2></div><span>problémy první · vše na jeden klik</span></div>'+systemRows(system)+'</section>'+
   (d.calendar.length?'<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Kalendář</span><h2>Nejbližší</h2></div><span>max. 3 události</span></div>'+calendarRows(d.calendar)+'</section>':'')+
  '</div>';
  if(!host.dataset.today1300Bound){
