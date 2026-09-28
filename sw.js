@@ -1,4 +1,4 @@
-const CACHE='kamil-os-737.5.0-core-r140';
+const CACHE='kamil-os-738.0.0-core-r141';
 const CRITICAL=[
  './','./index.html','./manifest.webmanifest','./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css','./os1400.css','./os1500.css',
  './js/osHardening1110.js','./js/dataIntegrity1130.js','./js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js',
@@ -18,40 +18,3 @@ async function cacheStaticModuleGraph(cache,path,seen=new Set()){
  if(!response?.ok)throw new Error('Module precache failed: '+url.pathname);
  await cache.put(request,response.clone());
  const source=await response.text();
- const importRe=/\b(?:import|export)\s+(?:[^'"\n]*?\s+from\s*)?['"](\.\/[^'"]+\.js)['"]/g;
- for(const match of source.matchAll(importRe)){
-  const dep=new URL(match[1],url);
-  if(dep.origin===self.location.origin)await cacheStaticModuleGraph(cache,dep.href,seen);
- }
-}
-async function precache(){
- const cache=await caches.open(CACHE);
- const results=await Promise.allSettled(CRITICAL.map(path=>cache.add(new Request(path,{cache:'reload'}))));
- const failed=results.filter(x=>x.status==='rejected').length;
- const graphSeen=new Set();
- const graphResults=await Promise.allSettled(CRITICAL.filter(path=>path.endsWith('.js')).map(path=>cacheStaticModuleGraph(cache,path,graphSeen)));
- const graphFailed=graphResults.filter(x=>x.status==='rejected').length;
- if(failed||graphFailed)console.warn(`[sw-os2] precache failures: shell=${failed}, modules=${graphFailed}`);
-}
-self.addEventListener('install',event=>{event.waitUntil(precache().then(()=>self.skipWaiting()))});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('kamil-os-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-async function networkFirst(request){
- const cache=await caches.open(CACHE);
- try{
-  const response=await fetch(request,{cache:'no-store'});
-  if(response?.ok)await cache.put(request,response.clone());
-  return response;
- }catch{
-  const cached=await cache.match(request,{ignoreSearch:false});
-  return cached||Response.error();
- }
-}
-self.addEventListener('fetch',event=>{
- if(event.request.method!=='GET')return;
- const url=new URL(event.request.url);
- if(url.origin!==location.origin||url.pathname.startsWith('/api/'))return;
- if(sensitiveAuthUrl(url)){event.respondWith(fetch(event.request,{cache:'no-store'}));return}
- if(url.search)return;
- if(!CACHEABLE_PATHS.has(url.pathname)&&!RUNTIME_STATIC_PATH.test(url.pathname))return;
- event.respondWith(networkFirst(event.request));
-});
