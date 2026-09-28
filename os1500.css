@@ -213,7 +213,7 @@ html[data-os1500="1"] .os1500-primary-label.good:before{background:var(--os1500-
   color:#738297;
 }
 .os1500-advanced-tools[open]>summary{border-bottom:1px solid rgba(148,163,184,.10)}
-.os1500-advanced-tools[open]>summary em:before{content:"Skrýt";font-size:0}
+.os1500-advanced-tools[open]>summary em{font-size:0}\n.os1500-advanced-tools[open]>summary em:after{content:"Skrýt";font-size:9px}
 .os1500-advanced-body{display:grid;gap:8px;padding:9px}
 .os1500-advanced-body>.pr1300-panel{border-radius:11px!important;background:#101720!important}
 .os1500-advanced-body>.pr1300-panel .pr1300-panel-head{padding:11px 12px!important}
