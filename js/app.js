@@ -77,6 +77,11 @@ function updateChrome(){
  const add=qs('#quickAddBtn');if(add){add.classList.remove('hidden');const text=qs('b',add),name=quickLabels[current]||'Přidat';if(text)text.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`}
  refreshRiskBadge41(s);
 }
+function revealMobileDestination(view){
+ const nav=qs('#bottomNav'),btn=nav?.querySelector(`[data-view="${view}"]`);if(!nav||!btn)return false;
+ const nr=nav.getBoundingClientRect(),br=btn.getBoundingClientRect();if(br.left>=nr.left&&br.right<=nr.right)return false;
+ btn.scrollIntoView({block:'nearest',inline:'center',behavior:'auto'});return true;
+}
 function quickShell(view){
  const host=hostForView(view);if(!host||host.dataset.fastShell==='1'||host.dataset.viewReady==='1')return;host.dataset.fastShell='1';
  if(view==='today'){
@@ -117,7 +122,7 @@ function navigate(v){
  }
  const leavingHost=hostForView(current);
  if(leavingHost?.dataset.productAdvanced==='1'){leavingHost.removeAttribute('data-product-advanced');leavingHost.removeAttribute('data-view-ready');viewRevision.delete(current);restoreCanonicalProductStyles()}
- current=next;qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');updateChrome();quickShell(current);
+ current=next;qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');updateChrome();revealMobileDestination(current);quickShell(current);
  if(viewRevision.get(current)!==stateRevision)scheduleRender();
  void prefetchView41(current);window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:current}));window.scrollTo({top:0,behavior:'auto'});
 }
