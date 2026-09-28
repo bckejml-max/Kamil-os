@@ -306,3 +306,43 @@ html[data-os1500="1"] .os1500-primary-label.good:before{background:var(--os1500-
   html[data-os1500="1"] .os2-bottom button{font-size:8.5px!important;line-height:1.05!important}
   html[data-os1500="1"] #commandGo{width:38px!important;min-width:38px!important;padding:0!important}
 }
+
+
+/* OS738.2 — canonical daily product reset. Keep the final layer calm, dense and action-first. */
+html[data-os1700="1"] .pr1300-shell{gap:12px!important}
+html[data-os1700="1"] .pr1300-head{gap:14px!important}
+html[data-os1700="1"] .pr1300-head h1{font-size:26px!important;line-height:1.08!important;letter-spacing:-.035em!important}
+html[data-os1700="1"] .pr1300-head p{max-width:760px!important;margin-top:5px!important;font-size:10.5px!important;line-height:1.45!important;color:#8190a0!important}
+html[data-os1700="1"] .pr1320-now{min-height:94px!important}
+html[data-os1700="1"] .pr1300-panel-head{padding-top:11px!important;padding-bottom:10px!important}
+html[data-os1700="1"] .pr1300-row{min-height:50px!important}
+html[data-os1700="1"] .pr1300-actions{margin-top:0!important}
+html[data-os1700="1"] .os1600-home{gap:11px!important}
+html[data-os1700="1"] .os1600-head{align-items:center!important;padding-bottom:0!important}
+html[data-os1700="1"] .os1600-head h1{font-size:27px!important;margin-bottom:3px!important}
+html[data-os1700="1"] .os1600-head p{font-size:10.5px!important}
+html[data-os1700="1"] .os1600-summary{display:flex!important;grid-template-columns:none!important;gap:6px!important;flex-wrap:wrap!important}
+html[data-os1700="1"] .os1600-summary-item{min-height:0!important;padding:6px 9px!important;border-radius:999px!important;background:#0d131a!important;display:inline-flex!important;align-items:center!important;gap:6px!important;width:auto!important}
+html[data-os1700="1"] .os1600-summary-item span{font-size:7.8px!important}
+html[data-os1700="1"] .os1600-summary-item b{margin:0!important;font-size:10.5px!important}
+html[data-os1700="1"] .os1600-next{min-height:102px!important;padding:15px 16px!important}
+html[data-os1700="1"] .os1600-next-copy h2{font-size:19px!important}
+html[data-os1700="1"] .os1600-section-head{padding:10px 13px!important;align-items:center!important}
+html[data-os1700="1"] .os1600-section-head h2{font-size:13px!important}
+html[data-os1700="1"] .os1600-later .os1400-row,
+html[data-os1700="1"] .os1600-calendar .os1400-row{min-height:48px!important}
+html[data-os1700="1"] .os1600-area{min-height:70px!important;height:72px!important;padding-top:9px!important;padding-bottom:8px!important}
+html[data-os1700="1"] .os1600-area b{font-size:14px!important;margin-top:5px!important}
+html[data-os1700="1"] .os1600-area small{margin-top:4px!important;font-size:8.8px!important}
+html[data-os1700="1"] .os2-command-box input{font-size:12px!important}
+@media(max-width:760px){
+ html[data-os1700="1"] .pr1300-head p,
+ html[data-os1700="1"] .os1600-head p{display:none!important}
+ html[data-os1700="1"] .pr1300-head h1{font-size:22px!important}
+ html[data-os1700="1"] .os1600-head h1{font-size:23px!important}
+ html[data-os1700="1"] .os1600-summary{gap:5px!important}
+ html[data-os1700="1"] .os1600-summary-item{padding:5px 8px!important}
+ html[data-os1700="1"] .os1600-next{padding:13px!important;gap:10px!important}
+ html[data-os1700="1"] .os1600-area{height:70px!important;min-height:70px!important}
+ html[data-os1700="1"] .os2-bottom{height:90px!important}
+}

@@ -106,13 +106,13 @@ function render(){
   {label:'Do 48 h',value:String(due48),tone:due48?'warn':'good'}
  ];
  host.innerHTML='<div class="os1600-home" data-os2-today data-product-home1300 data-os1400-home data-os1600-home>'+
-  '<header class="os1600-head"><div><div class="os1400-kicker">'+esc(today)+'</div><h1>'+greeting()+', Kamile.</h1><p>Jedna věc teď. Zbytek až potom.</p></div><button class="os1400-button primary" type="button" data-today1300-add aria-label="Přidat nový úkol">＋ Přidat</button></header>'+
+  '<header class="os1600-head"><div><div class="os1400-kicker">'+esc(today)+'</div><h1>'+greeting()+', Kamile.</h1><p>Nejdřív další krok. Pak dnešní fronta a přehled oblastí.</p></div><button class="os1400-button primary" type="button" data-today1300-add aria-label="Přidat nový úkol">＋ Přidat</button></header>'+
   '<div class="os1600-summary">'+summary.map(x=>'<div class="os1600-summary-item '+x.tone+'"><span>'+esc(x.label)+'</span><b>'+esc(x.value)+'</b></div>').join('')+'</div>'+
   '<section class="os1600-next '+severity+'" aria-live="polite"><div class="os1600-next-copy"><span class="os1400-kicker">Další krok</span><h2>'+esc(primary?.title||'Nic akutního.')+'</h2><p>'+esc(primary?.detail||'Můžeš pokračovat podle plánu nebo si přidat nový úkol.')+'</p></div>'+
    (primary?'<button type="button" class="os1600-next-action" '+actionAttr(primary)+'><span>'+esc(primary.cta||'vyřešit')+'</span><b>Otevřít →</b></button>':'<button type="button" class="os1600-next-action quiet" data-today1300-add><span>máš prostor</span><b>＋ Přidat úkol</b></button>')+
   '</section>'+
-  (later.length?'<section class="os1600-section os1600-later"><div class="os1600-section-head"><div><span class="os1400-kicker">Potom</span><h2>Další věci k řešení</h2></div><span>'+later.length+' další</span></div>'+actionRows(later)+'</section>':'')+
-  '<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Kam dál</span><h2>Oblasti podle priority</h2></div><span>problémy první · vše na jeden klik</span></div>'+systemRows(system)+'</section>'+
+  (later.length?'<section class="os1600-section os1600-later"><div class="os1600-section-head"><div><span class="os1400-kicker">Dnes ještě</span><h2>Další kroky</h2></div><span>'+later.length+' další</span></div>'+actionRows(later)+'</section>':'')+
+  '<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Přehled</span><h2>Oblasti podle priority</h2></div><span>problémy první · vše na jeden klik</span></div>'+systemRows(system)+'</section>'+
   (d.calendar.length?'<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Kalendář</span><h2>Nejbližší</h2></div><span>max. 3 události</span></div>'+calendarRows(d.calendar)+'</section>':'')+
  '</div>';
  if(!host.dataset.today1300Bound){
