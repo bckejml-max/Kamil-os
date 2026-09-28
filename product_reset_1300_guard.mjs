@@ -5,7 +5,7 @@ const index=read('index.html'),runtime=read('js/viewRuntime41.js'),advancedStyle
 assert.match(index,/data-product-reset1300="1"/);
 for(const view of ["today","inbox","work","tickets","money","property","betting","family","home","more"])assert.match(index,new RegExp(`data-view="${view}"`));assert.doesNotMatch(index,/allSectionsBtn|mobileMenuBtn/);
 assert.match(index,/id="workView"/);assert.match(index,/id="propertyView"/);
-assert.match(index,/productReset1300\.css/);
+assert.match(index,/os-canonical\.css/);
 assert.match(runtime,/work:\['\.\/workPage1300\.js','renderWorkPage1300'\]/);
 assert.match(runtime,/property:\['\.\/propertyPage1300\.js','renderPropertyPage1300'\]/);
 assert.match(runtime,/money:\['\.\/moneyOverview\.js','renderMoneyOverview'\]/);
@@ -23,7 +23,7 @@ assert.match(bettingOverview,/data-betting-overview/);assert.match(bettingOvervi
 assert.match(tasksOverview,/data-tasks-overview/);assert.match(tasksOverview,/productAdvanced='1'/);assert.match(tasksOverview,/Co je potřeba vyřídit/);assert.match(tasksOverview,/inboxAdvanced141\.js/);
 assert.match(css,/Historical experimental decorators/);assert.match(css,/\[data-today-hub650\]/);assert.match(css,/repeat\(5,minmax\(0,1fr\)\)/);
 assert.match(runtime,/restoreCanonicalProductStyles/,'runtime must delegate canonical stylesheet restoration');
-assert.match(advancedStyles,/canonicalOrder=\['\.\/productReset1300\.css','\.\/os1400\.css','\.\/os1500\.css'\]/,'product reset must remain first in the explicit canonical stylesheet stack');
+assert.match(advancedStyles,/canonicalOrder=\['\.\/os-canonical\.css'\]/,'single canonical stylesheet must own the runtime cascade');
 assert.doesNotMatch(ticket,/ticketHub640\.js/,'Ticket Hub640 must not auto-mount over the canonical ticket desk');
 for(const legacy of ['moneyHub680.js','propertyFinance610.js','propertyHub620.js','marketIntelligence100.js','marketDetails100.js','moneyVisual138.js','unifiedCapital160.js'])assert.doesNotMatch(money,new RegExp(legacy.replace('.','\\.')),'Money must not auto-mount legacy panel '+legacy);
 for(const kept of ['personalDebtSummary737.js','wealthHistory610.js','dataQa144.js'])assert.match(money,new RegExp(kept.replace('.','\\.')),'Money must retain focused support module '+kept);
@@ -40,5 +40,5 @@ assert.match(inboxHub,/function localModel660/,'Inbox local-first model missing'
 assert.match(inboxHub,/if\(!host\.querySelector\('\[data-inbox-hub660\]'\)\)/,'remote Inbox refresh must not flash a second loading layout over the canonical page');
 assert.match(familyPage,/const ENABLE_FAMILY_HUB610=false/,'Family Hub610 must not stack a second Family dashboard');
 assert.match(commands,/\['family',null\]/,'Family command must open the canonical Family page');
-assert.match(sw,/productReset1300\.css/);assert.match(sw,/workPage1300\.js/);assert.match(sw,/propertyPage1300\.js/);
+assert.match(sw,/os-canonical\.css/);assert.match(sw,/workPage1300\.js/);assert.match(sw,/propertyPage1300\.js/);
 console.log('OS1300 product reset guard PASS');
