@@ -13,7 +13,7 @@ test('OS1331 keeps all sections direct and turns Today into a desktop command ce
  await expect(page.locator('link[href="./os1331.css"]')).toHaveCount(1);
  await expect(page.locator('#mainNav [data-view]')).toHaveCount(10);
  await expect(page.locator('#mainNav .os1331-nav-group')).toHaveText(['Řízení','Trh & peníze','Osobní']);
- await expect(page.locator('.os1600-attention')).toBeVisible();
+ await expect(page.locator('.os1600-next')).toBeVisible();
  await expect(page.locator('.os1600-areas .os1600-area')).toHaveCount(9);
  const layout=await page.evaluate(()=>({
    areaColumns:getComputedStyle(document.querySelector('.os1600-areas')).gridTemplateColumns.split(' ').filter(Boolean).length,
