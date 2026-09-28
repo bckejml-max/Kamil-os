@@ -10,7 +10,10 @@ test('OS1336 seeds Flipovani 2024-2026 totals and keeps color statuses authorita
  await boot(page);
  await page.locator('#mainNav [data-view="tickets"]').click();
  await expect(page.locator('#view-tickets')).toHaveClass(/on/);
- await expect(page.locator('#ticketIntelView')).toContainText('Flipování 2024–2026');
+ await expect(page.locator('#ticketIntelView')).toContainText('Vstupenky.');
+ await expect(page.locator('#ticketIntelView')).toContainText('Flipování 2024');
+ await expect(page.locator('#ticketIntelView')).toContainText('Flipování 2025');
+ await expect(page.locator('#ticketIntelView')).toContainText('Flipování 2026');
  const d=await page.evaluate(()=>{
   const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');
   return {master:s.ticketBook?.masterMeta,items:s.ticketBook?.items,diag:window.__KAMIL_TICKET_OVERVIEW__};
