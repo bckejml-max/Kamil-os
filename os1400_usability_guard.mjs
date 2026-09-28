@@ -22,7 +22,7 @@ assert.match(today,/Po termínu/);
 assert.match(today,/Waiting for/);
 assert.match(today,/Transfery/);
 assert.match(today,/Co potřebuje vyřešit/);
-assert.match(today,/Přehled OS/);
+assert.match(today,/Oblasti podle priority/,'Today must frame domain navigation by priority');
 assert.match(today,/data-today1300-nav/,'domain navigation must stay one click');
 assert.match(css,/\.os1400-focus/);
 assert.match(css,/\.os1400-metrics/);
