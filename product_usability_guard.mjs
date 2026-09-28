@@ -30,8 +30,8 @@ assert.match(docs,/data-doc1500-primary>Vyřešit teď/,'current document issue 
 assert.match(property,/data-property-candidate="'\+best\.index\+'">Otevřít kandidáta/,'best Property candidate must be the primary action');
 assert.match(app,/function revealMobileDestination\(view\)/,'mobile navigation must reveal the active destination');
 assert.match(app,/updateChrome\(\);revealMobileDestination\(current\);quickShell/,'navigation must reveal the selected mobile destination');
-const mobile=css.slice(css.lastIndexOf('@media(max-width:760px)'));
-assert.match(mobile,/\.os2-bottom\{[\s\S]*height:68px!important;[\s\S]*display:flex!important;[\s\S]*overflow-x:auto!important;/,'mobile navigation must be one horizontally scrollable row');
-assert.doesNotMatch(mobile,/grid-template-rows:repeat\(2/,'final mobile override must not restore a two-row nav');
+const mobile=css.slice(css.indexOf('/* Product focus'));
+assert.match(mobile,/\.os2-bottom\{[\s\S]*grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important;[\s\S]*grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/,'mobile navigation must keep all ten primary areas visible without an Ostatní menu');
+assert.match(mobile,/\.os2-bottom button\{[\s\S]*min-width:0!important/,'mobile navigation must fit the viewport without requiring horizontal discovery');
 
 console.log('Product usability guard PASS');
