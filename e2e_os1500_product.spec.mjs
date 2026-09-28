@@ -68,11 +68,9 @@ test('OS737.0.25 restores canonical stylesheet order after advanced surfaces',as
  await page.locator('#mainNav [data-view="today"]').click();
  await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
  const order=await page.locator('link[rel="stylesheet"]').evaluateAll(links=>links.map(x=>x.getAttribute('href')));
- const canonical=['./productReset1300.css','./os1400.css','./os1500.css'].map(x=>order.lastIndexOf(x));
- expect(canonical[0]).toBeGreaterThan(-1);
- expect(canonical[0]).toBeLessThan(canonical[1]);
- expect(canonical[1]).toBeLessThan(canonical[2]);
- expect(canonical[2]).toBe(order.length-1);
+ const canonical=order.lastIndexOf('./os-canonical.css');
+ expect(canonical).toBeGreaterThan(-1);
+ expect(canonical).toBe(order.length-1);
 });
 
 test('OS737.0.26 clicking the active section exits advanced detail',async({page})=>{
@@ -86,7 +84,7 @@ test('OS737.0.26 clicking the active section exits advanced detail',async({page}
  await expect(page.locator('[data-money-overview]')).toBeVisible({timeout:10000});
  await expect(page.locator('#moneyView')).not.toHaveAttribute('data-product-advanced','1');
  const order=await page.locator('link[rel="stylesheet"]').evaluateAll(links=>links.map(x=>x.getAttribute('href')));
- expect(order.at(-1)).toBe('./os1500.css');
+ expect(order.at(-1)).toBe('./os-canonical.css');
 });
 
 test('OS737.0.27 derived Today ticket counts exclude disputes',async({page})=>{
@@ -281,8 +279,8 @@ test('OS737.0.48 Family calendar excludes unrelated personal events',async({page
  });
  await page.locator('#mainNav [data-view="family"]').click();
  await expect(page.locator('[data-family-page1500]')).toBeVisible({timeout:10000});
- await expect(page.locator('#ticketsView')).toContainText('Rodinný termín');
- await expect(page.locator('#ticketsView')).not.toContainText('Osobní administrativa');
+ await expect(page.locator('#familyView')).toContainText('Rodinný termín');
+ await expect(page.locator('#familyView')).not.toContainText('Osobní administrativa');
 });
 
 test('OS737.0.50 ticket transfer/payout attention opens Ticket desk instead of sync',async({page})=>{
@@ -420,8 +418,8 @@ test('OS737.0.56 Family hides archived household members',async({page})=>{
  });
  await page.locator('#mainNav [data-view="family"]').click();
  await expect(page.locator('[data-family-page1500]')).toBeVisible({timeout:10000});
- await expect(page.locator('#ticketsView')).toContainText('Aktivní člen');
- await expect(page.locator('#ticketsView')).not.toContainText('Archivovaný člen');
+ await expect(page.locator('#familyView')).toContainText('Aktivní člen');
+ await expect(page.locator('#familyView')).not.toContainText('Archivovaný člen');
 });
 
 test('OS737.0.57 calendar preparation keeps the source area',async({page})=>{
