@@ -65,7 +65,8 @@ assert.match(today,/d\.inboxState\?\.counts\?\.total/,'Today Tasks status must m
 assert.match(today,/activeTicketQty=d\.ticketState\?\.p\?\.queue\?\.activeQty/,'Today ticket card must display canonical active quantity');
 assert.match(today,/ticketAlert=d\.ticketState\?\.attention\?\.\[0\]/,'Today ticket priority must use canonical Ticket attention');
 assert.match(today,/data-today1300-insurance/,'Today insurance priorities must deep-link to Insurance Center');
-assert.match(app,/x=>!x\.issue&&\['HOLD','LISTED'\]/,'quick shell must exclude disputed tickets from active count');
+assert.doesNotMatch(app,/const s=store\.get\(\),closed=/,'quick shell must not compute or display stale domain counts');
+assert.match(app,/data-os1900-loading/,'quick shell must remain a neutral loading surface');
 assert.match(app,/tasks\.filter\(isPersonalScope527\)\.filter/,'Inbox navigation badge must count the same personal task scope as Inbox');
 assert.match(personalQuery,/!x\.issue&&\['HOLD','LISTED'\]/,'command bar ticket capital must exclude disputed tickets');
 
