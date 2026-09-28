@@ -58,7 +58,7 @@ function actionRows(items){
 }
 function calendarRows(items){
  if(!items.length)return '';
- return '<div class="os1400-list">'+items.slice(0,3).map(x=>'<div class="os1400-row" style="cursor:default"><div><b>'+esc(titleOf(x))+'</b><small>'+esc(x?.location||x?.calendar||'')+'</small></div><div class="os1400-side">'+new Date(ts(x)).toLocaleString('cs-CZ',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</div></div>').join('')+'</div>'
+ return '<div class="os1400-list os1600-calendar">'+items.slice(0,3).map(x=>{const route=tomorrowRoute(x);return '<button type="button" class="os1400-row os1600-calendar-row" data-today1300-nav="'+esc(route)+'"><div><b>'+esc(titleOf(x))+'</b><small>'+esc(x?.location||x?.calendar||'Kalendář')+'</small></div><div class="os1400-side">'+new Date(ts(x)).toLocaleString('cs-CZ',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+' <span class="os1500-row-arrow">→</span></div></button>'}).join('')+'</div>'
 }
 function systemState(d){
  const workRisk=d.work.topRisks?.[0],best=d.property.best,activeTicketQty=d.ticketState?.p?.queue?.activeQty||0,ticketAttention=d.ticketState?.attention||[],ticketTop=ticketAttention[0]||null;
@@ -77,8 +77,9 @@ function systemState(d){
   {route:'more',title:'Dokumenty',detail:docIssues?docIssues+' dokumentů / pojistek k řešení':docEnding?docEnding+' dokumentů končí do 90 dní':'Bez akutního problému',side:docIssues?docIssues+' řešit':docEnding?docEnding+' končí':'klid',tone:docIssues?'bad':docEnding?'warn':'good'}
  ];
 }
+const areaIcon1600={inbox:'✓',work:'W',tickets:'T',money:'Kč',property:'R',betting:'S',family:'F',home:'D',more:'▤'};
 function systemRows(items){
- return '<div class="os1600-areas">'+items.map(x=>'<button type="button" class="os1600-area '+esc(x.tone||'')+'" data-today1300-nav="'+esc(x.route)+'"><span>'+esc(x.title)+'</span><b>'+esc(x.side)+'</b><small>'+esc(x.detail)+'</small></button>').join('')+'</div>'
+ return '<div class="os1600-areas">'+items.map(x=>'<button type="button" class="os1600-area '+esc(x.tone||'')+'" data-today1300-nav="'+esc(x.route)+'"><i class="os1600-area-icon" aria-hidden="true">'+esc(areaIcon1600[x.route]||'•')+'</i><span>'+esc(x.title)+'</span><b>'+esc(x.side)+'</b><small>'+esc(x.detail)+'</small></button>').join('')+'</div>'
 }
 function queue(d){
  const seen=new Set(),out=[];
@@ -96,19 +97,21 @@ function metric(label,value){return '<div class="os1400-metric"><span>'+esc(labe
 function render(){
  const host=document.querySelector('#todayView');if(!host)return false;
  const d=baseData(),items=queue(d),toneRank={bad:3,warn:2,good:1,'':0},system=systemState(d).map((x,i)=>({...x,_order:i})).sort((a,b)=>(toneRank[b.tone]||0)-(toneRank[a.tone]||0)||a._order-b._order),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
- const severity=items.some(x=>x.tone==='bad')?'bad':items.length?'warn':'good';
+ const primary=items[0]||null,later=items.slice(1,5),now=Date.now(),due48=[...d.urgentTasks,...d.calendar].filter(x=>{const t=ts(x);return t!==null&&t>=now&&t<=now+2*86400000}).length;
+ const severity=primary?.tone==='bad'?'bad':primary?'warn':'good';
  const summary=[
   {label:'Po termínu',value:String(d.overdue.length),tone:d.overdue.length?'bad':'good'},
-  {label:'Waiting for',value:String(d.waiting.length),tone:d.waiting.length?'warn':'good'},
+  {label:'Čekám',value:String(d.waiting.length),tone:d.waiting.length?'warn':'good'},
   {label:'Transfery',value:String(d.transfer.length),tone:d.transfer.length?'bad':'good'},
-  {label:'Práce',value:String(d.work.status||'—'),tone:d.work.status==='ZÁSAH'?'bad':d.work.status==='SLEDOVAT'?'warn':'good'}
+  {label:'Do 48 h',value:String(due48),tone:due48?'warn':'good'}
  ];
  host.innerHTML='<div class="os1600-home" data-os2-today data-product-home1300 data-os1400-home data-os1600-home>'+
-  '<header class="os1600-head"><div><div class="os1400-kicker">'+esc(today)+'</div><h1>'+greeting()+', Kamile.</h1><p>Co dnes vyžaduje tvoji pozornost. Bez diagnostiky a bez zbytečných mezikroků.</p></div><button class="os1400-button primary" type="button" data-today1300-add>＋ Přidat</button></header>'+
+  '<header class="os1600-head"><div><div class="os1400-kicker">'+esc(today)+'</div><h1>'+greeting()+', Kamile.</h1><p>Jedna věc teď. Zbytek až potom.</p></div><button class="os1400-button primary" type="button" data-today1300-add aria-label="Přidat nový úkol">＋ Přidat</button></header>'+
   '<div class="os1600-summary">'+summary.map(x=>'<div class="os1600-summary-item '+x.tone+'"><span>'+esc(x.label)+'</span><b>'+esc(x.value)+'</b></div>').join('')+'</div>'+
-  '<section class="os1600-attention '+severity+'"><div class="os1600-section-head"><div><span class="os1400-kicker">Teď</span><h2>Co potřebuje vyřešit</h2></div><span>'+(items.length?items.length+' položek':'všechno v klidu')+'</span></div>'+
-   (items.length?actionRows(items):'<div class="os1600-clear"><b>Nic akutního.</b><span>Můžeš jet podle plánu nebo přidat další úkol.</span></div>')+
+  '<section class="os1600-next '+severity+'" aria-live="polite"><div class="os1600-next-copy"><span class="os1400-kicker">Další krok</span><h2>'+esc(primary?.title||'Nic akutního.')+'</h2><p>'+esc(primary?.detail||'Můžeš pokračovat podle plánu nebo si přidat nový úkol.')+'</p></div>'+
+   (primary?'<button type="button" class="os1600-next-action" '+actionAttr(primary)+'><span>'+esc(primary.cta||'vyřešit')+'</span><b>Otevřít →</b></button>':'<button type="button" class="os1600-next-action quiet" data-today1300-add><span>máš prostor</span><b>＋ Přidat úkol</b></button>')+
   '</section>'+
+  (later.length?'<section class="os1600-section os1600-later"><div class="os1600-section-head"><div><span class="os1400-kicker">Potom</span><h2>Další věci k řešení</h2></div><span>'+later.length+' další</span></div>'+actionRows(later)+'</section>':'')+
   '<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Kam dál</span><h2>Oblasti podle priority</h2></div><span>problémy první · vše na jeden klik</span></div>'+systemRows(system)+'</section>'+
   (d.calendar.length?'<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Kalendář</span><h2>Nejbližší</h2></div><span>max. 3 události</span></div>'+calendarRows(d.calendar)+'</section>':'')+
  '</div>';
@@ -124,7 +127,7 @@ function render(){
    if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))
   })
  }
- window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.ticketState?.p?.queue?.activePositions||0,ticketQty:d.ticketState?.p?.queue?.activeQty||0,ticketTasks:d.ticketState?.ticketTasks?.length||0,ticketAttention:d.ticketState?.attention?.length||0,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open.length,bettingPositions:d.bet.open.length,bettingTickets:d.bet.openTickets,bettingExposure:d.bet.exposure,overdue:d.overdue.length,inboxLocal:d.inboxState?.counts?.total||0,inboxUrgent:d.inboxState?.counts?.urgent||0,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
+ window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,primary:primary?.title||null,due48,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.ticketState?.p?.queue?.activePositions||0,ticketQty:d.ticketState?.p?.queue?.activeQty||0,ticketTasks:d.ticketState?.ticketTasks?.length||0,ticketAttention:d.ticketState?.attention?.length||0,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open.length,bettingPositions:d.bet.open.length,bettingTickets:d.bet.openTickets,bettingExposure:d.bet.exposure,overdue:d.overdue.length,inboxLocal:d.inboxState?.counts?.total||0,inboxUrgent:d.inboxState?.counts?.urgent||0,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
  return true;
 }
 export function renderTodayPage2000(){return render()}
