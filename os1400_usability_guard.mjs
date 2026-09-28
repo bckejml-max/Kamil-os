@@ -21,7 +21,7 @@ assert.match(today,/Jedna věc teď\. Zbytek až potom\./,'Today must explain it
 assert.match(today,/Po termínu/);
 assert.match(today,/Čekám/);
 assert.match(today,/Transfery/);
-assert.match(today,/Další krok/);assert.match(today,/Další věci k řešení/);
+assert.match(today,/Další krok/);assert.match(today,/Dnes ještě/);assert.match(today,/Další kroky/);
 assert.match(today,/Oblasti podle priority/,'Today must frame domain navigation by priority');
 assert.match(today,/data-today1300-nav/,'domain navigation must stay one click');
 assert.match(css,/\.os1400-focus/);
