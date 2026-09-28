@@ -292,8 +292,9 @@ html[data-os1500="1"] .os1500-primary-label.good:before{background:var(--os1500-
   .os1600-next{grid-template-columns:1fr;min-height:0;padding:15px;gap:12px}
   .os1600-next-copy h2{font-size:18px}
   .os1600-next-action{width:100%;min-height:54px}
-  .os1600-area{min-height:74px!important;padding-left:43px!important}
+  .os1600-area{min-height:72px!important;height:76px!important;padding:10px 10px 9px 43px!important;overflow:hidden}
   .os1600-area-icon{left:11px;top:11px}
+  .os1600-area small{display:none!important}
   html[data-os1500="1"] .os2-chip.sync{width:30px!important;min-width:30px!important;height:30px!important;padding:0!important;justify-content:center!important;font-size:0!important;border-radius:10px!important}
   html[data-os1500="1"] .os2-chip.sync i{margin:0!important}
   html[data-os1500="1"] .os2-command-shortcut{display:none!important}
