@@ -34,9 +34,9 @@ const familyHomeActions=read('js/personalFamilyHomeActions644.js');
 const sw=read('sw.js');
 
 assert.match(index,/data-os1500="1"/,'OS1500 shell flag missing');
-assert.match(index,/os1400\.css[\s\S]*os1500\.css/,'OS1500 must load after OS1400');
+assert.match(index,/os-canonical\.css/,'canonical stylesheet must carry OS1500 after OS1400 source rules');
 assert.match(runtime,/restoreCanonicalProductStyles/,'runtime must restore the canonical stylesheet stack');
-assert.match(advancedStyles,/canonicalOrder=\['\.\/productReset1300\.css','\.\/os1400\.css','\.\/os1500\.css'\]/,'canonical stylesheet order must be explicit');
+assert.match(advancedStyles,/canonicalOrder=\['\.\/os-canonical\.css'\]/,'canonical stylesheet authority must be explicit');
 assert.match(advancedStyles,/export function restoreCanonicalProductStyles/,'advanced style loader must expose canonical restore');
 assert.doesNotMatch(runtime,/family:\['\.\/personal64\.css'|home:\['\.\/personal64\.css'|more:\['\.\/personal64\.css'/,'canonical personal views must not load legacy personal CSS');
 
@@ -179,7 +179,7 @@ const mobileProduct=css.slice(css.indexOf('/* Product focus'));
 assert.match(mobileProduct,/\.os2-bottom\{[\s\S]*grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important;[\s\S]*grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/,'mobile primary nav must keep all ten main areas visible in a stable 5x2 grid');
 assert.match(mobileProduct,/\.os2-bottom button\{[\s\S]*min-width:0!important/,'mobile navigation cells must fit without horizontal scrolling');
 assert.match(mobileProduct,/font-size:8\.5px!important/,'mobile primary nav labels must remain readable');
-assert.match(sw,/os1500\.css/,'service worker must precache OS1500');
+assert.match(sw,/os-canonical\.css/,'service worker must precache canonical styles');
 assert.match(sw,/RUNTIME_STATIC_PATH/,'service worker must runtime-cache lazy same-origin static assets');
 assert.match(sw,/cacheStaticModuleGraph/,'service worker must precache the static dependency graph of critical JS modules');
 assert.match(sw,/source\.matchAll\(importRe\)/,'service worker module graph precache must follow static relative imports');
