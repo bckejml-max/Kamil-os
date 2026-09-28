@@ -1,12 +1,12 @@
-# Kamil OS 66.0
+# Kamil OS 739.0.0
 
-Kamil OS je osobní **Daily Personal Assistant + Ticket Intelligence**. Hlavní uživatelské rozhraní je soustředěné do šesti oblastí: **Dnes / Rodina / Domov / Peníze / Dokumenty / Více**.
+Kamil OS je osobní **Daily Personal Assistant + Ticket Intelligence**. Hlavní uživatelské rozhraní má deset přímo dostupných oblastí: **Dnes / Úkoly / Práce / Vstupenky / Peníze / Reality / Sázení / Rodina / Domov / Dokumenty**.
 
 ## Co je hlavní princip
 
 Kamil OS není primárně dashboard. Má říct, **co má smysl udělat teď**, co může počkat a na co se čeká. Dnes proto zůstává decision-first: jedna hlavní akce, maximálně dvě vedlejší a stručný kontext pro zítřek, čekání a dokončené věci.
 
-## Personal Intelligence 65.x–66.0
+## Personal Intelligence
 
 - Morning Launch: ranní přehled dne a splatných follow-upů.
 - Tomorrow Radar: společný přehled úkolů, administrativy a kalendáře na zítra / 7 dní.
@@ -14,7 +14,7 @@ Kamil OS není primárně dashboard. Má říct, **co má smysl udělat teď**, 
 - Personal Data Vault: smlouvy, pojistky a další osobní evidence s auditovatelnými změnami.
 - Globální hledání / otázky nad osobními daty.
 
-## Ticket Intelligence 66.0
+## Ticket Intelligence
 
 Ticket Intelligence je oddělená privátní vrstva nad ticket inventory a Viagogo market snapshoty. Serverový monitoring běží nezávisle na otevřené aplikaci a ukládá tržní snapshoty pro aktivní pozice.
 
@@ -37,3 +37,11 @@ Privátní ticket inventory a snapshoty nejsou publikované do veřejného repoz
 ## QA
 
 Aktuální release má statické guardy, core/cloud safety testy a Playwright E2E pro osobní flow i Ticket Intelligence. Legacy market enginy zůstávají kompatibilní a nesmí převzít hlavní osobní Home.
+
+
+## Runtime 739.0
+
+- Jeden kanonický runtime stylesheet: `os-canonical.css`; historické CSS vrstvy zůstávají jen jako zdrojová historie a nejsou načítané přímo v produkci.
+- Dnes se při startu nerehydratuje z dvoudenního HTML snapshotu. Startovní shell je neutrální a skutečný obsah kreslí jediný kanonický renderer.
+- Rodina má vlastní DOM host `familyView`; už nesdílí historický identifikátor `ticketsView`.
+- Mobilní navigace drží všech deset oblastí přímo viditelných v rozložení 5×2.
