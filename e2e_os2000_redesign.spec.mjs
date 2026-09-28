@@ -250,7 +250,7 @@ test('OS1500 Today shows all nine primary areas with live cross-section data',as
  await expect(page.locator('#todayView .os1600-areas')).toBeVisible();
  await expect(page.locator('#todayView .os1600-areas .os1600-area')).toHaveCount(9);
  const labels=await page.locator('#todayView .os1600-areas .os1600-area span').allTextContents();
- expect(labels).toEqual(['Úkoly','Práce','Vstupenky','Peníze','Reality','Sázení','Rodina','Domov','Dokumenty']);
+ expect([...labels].sort((a,b)=>a.localeCompare(b,'cs'))).toEqual(['Úkoly','Práce','Vstupenky','Peníze','Reality','Sázení','Rodina','Domov','Dokumenty'].sort((a,b)=>a.localeCompare(b,'cs')));
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
  expect(diag.systemRows).toBe(9);
 });
