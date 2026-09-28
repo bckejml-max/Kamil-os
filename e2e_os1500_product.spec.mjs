@@ -883,8 +883,9 @@ test('OS737.0.74 Today priority queue deduplicates the same source',async({page}
  });
  await page.locator('#mainNav [data-view="today"]').click();
  await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
- expect(await page.locator('#todayView .os1400-row').filter({hasText:'Duplicitní úkol test'}).count()).toBe(1);
- expect(await page.locator('#todayView .os1400-row').filter({hasText:'Duplicitní čekání test'}).count()).toBe(1);
+ const queue=page.locator('#todayView .os1600-next, #todayView .os1600-later .os1400-row');
+ expect(await queue.filter({hasText:'Duplicitní úkol test'}).count()).toBe(1);
+ expect(await queue.filter({hasText:'Duplicitní čekání test'}).count()).toBe(1);
 });
 
 test('OS737.0.75 Betting header and diagnostics show current open state, not master total',async({page})=>{
