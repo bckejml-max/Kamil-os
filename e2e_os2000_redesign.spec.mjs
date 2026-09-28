@@ -52,11 +52,11 @@ test('OS1300 makes Work and Reality first-class product views',async({page})=>{
  await page.locator('#mainNav [data-view="work"]').click();
  await expect(page.locator('#view-work')).toHaveClass(/on/);
  await expect(page.locator('[data-work-page1300]')).toBeVisible({timeout:10000});
- await expect(page.locator('[data-work-page1300] h1')).toContainText(/Zakázky/);
+ await expect(page.locator('[data-work-page1300] h1')).toContainText(/^Práce\.$/);
  await openView(page,'property');
  await expect(page.locator('#view-property')).toHaveClass(/on/);
  await expect(page.locator('[data-property-page1300]')).toBeVisible({timeout:10000});
- await expect(page.locator('[data-property-page1300] h1')).toContainText(/Nejlepší kandidát/);
+ await expect(page.locator('[data-property-page1300] h1')).toContainText(/^Reality\.$/);
 });
 
 test('OS2000 navigation keeps heavy views lazy',async({page})=>{
