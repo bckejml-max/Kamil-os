@@ -175,10 +175,10 @@ assert.match(property,/startsWith\('property:'\)/,'Property page must open exact
 assert.match(commandSearch610,/filter\(active610\)/,'command search must hide closed Inbox and Waiting rows');
 assert.match(commandSearch610,/focus==='insurance'/,'bare insurance command must open Insurance Center directly');
 assert.match(runtime,/type==='betting-task'/,'runtime capture must preserve betting scope');
-const mobileCalm=css.slice(css.lastIndexOf('@media(max-width:760px)'));
-assert.match(mobileCalm,/\.os2-bottom\{[\s\S]*display:flex!important;[\s\S]*overflow-x:auto!important/,'mobile primary nav must stay one calm scrollable row');
-assert.doesNotMatch(mobileCalm,/grid-template-rows:repeat\(2/,'final mobile product layer must not restore the two-row navigation wall');
-assert.match(mobileCalm,/font-size:8\.5px!important/,'mobile primary nav labels must remain readable');
+const mobileProduct=css.slice(css.indexOf('/* Product focus'));
+assert.match(mobileProduct,/\.os2-bottom\{[\s\S]*grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important;[\s\S]*grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/,'mobile primary nav must keep all ten main areas visible in a stable 5x2 grid');
+assert.match(mobileProduct,/\.os2-bottom button\{[\s\S]*min-width:0!important/,'mobile navigation cells must fit without horizontal scrolling');
+assert.match(mobileProduct,/font-size:8\.5px!important/,'mobile primary nav labels must remain readable');
 assert.match(sw,/os1500\.css/,'service worker must precache OS1500');
 assert.match(sw,/RUNTIME_STATIC_PATH/,'service worker must runtime-cache lazy same-origin static assets');
 assert.match(sw,/cacheStaticModuleGraph/,'service worker must precache the static dependency graph of critical JS modules');
