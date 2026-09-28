@@ -13,7 +13,7 @@ test('OS1500 preserves the focused desktop cockpit',async({page})=>{
  await expect(page.locator('html[data-os1400="1"]')).toHaveCount(1);
  await expect(page.locator('link[href="./os1400.css"]')).toHaveCount(1);
  await expect(page.locator('#commandInput')).toHaveAttribute('placeholder',/Co chceš udělat/);
- await expect(page.locator('.os1600-attention')).toBeVisible();
+ await expect(page.locator('.os1600-next')).toBeVisible();
  await expect(page.locator('.os1600-summary .os1600-summary-item')).toHaveCount(4);
  await expect(page.locator('.os1600-areas')).toBeVisible();
  const diag=await page.evaluate(()=>window.__KAMIL_TODAY_OS2000__);
