@@ -34,7 +34,7 @@ test('OS1500 keeps every primary area direct and canonical',async({page})=>{
  await expect(page.locator('#quickAddBtn')).toHaveAttribute('title',/sázení/i);
 });
 
-test('OS738 mobile keeps all destinations direct in one calm scrollable row',async({page})=>{
+test('OS738 mobile keeps all destinations direct in one visible 5x2 grid',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page);
  const nav=page.locator('#bottomNav');
@@ -42,12 +42,13 @@ test('OS738 mobile keeps all destinations direct in one calm scrollable row',asy
  const layout=await nav.evaluate(el=>{
   const s=getComputedStyle(el),r=el.getBoundingClientRect();
   const first=el.querySelector('[data-view]'),buttonStyle=first?getComputedStyle(first):null;
-  return {display:s.display,height:r.height,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,overflowX:s.overflowX,fontSize:buttonStyle?parseFloat(buttonStyle.fontSize):0};
+  return {display:s.display,height:r.height,columns:s.gridTemplateColumns,rows:s.gridTemplateRows,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,fontSize:buttonStyle?parseFloat(buttonStyle.fontSize):0};
  });
- expect(layout.display).toBe('flex');
- expect(layout.height).toBeLessThan(80);
- expect(layout.scrollWidth).toBeGreaterThan(layout.clientWidth);
- expect(['auto','scroll']).toContain(layout.overflowX);
+ expect(layout.display).toBe('grid');
+ expect(layout.height).toBeLessThanOrEqual(96);
+ expect(layout.columns.split(' ').filter(Boolean)).toHaveLength(5);
+ expect(layout.rows.split(' ').filter(Boolean)).toHaveLength(2);
+ expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth+1);
  expect(layout.fontSize).toBeGreaterThanOrEqual(8.5);
  const last=nav.locator('[data-view="more"]');
  await last.scrollIntoViewIfNeeded();
