@@ -29,7 +29,9 @@ test('OS1600 mobile keeps shell compact and action-first',async({page})=>{
  expect(next.split(' ').filter(Boolean).length).toBe(1);
  const areaHeight=await page.locator('.os1600-area').first().evaluate(el=>el.getBoundingClientRect().height);
  expect(areaHeight).toBeLessThanOrEqual(82);
- const nav=await page.locator('#bottomNav').evaluate(el=>({display:getComputedStyle(el).display,overflowX:getComputedStyle(el).overflowX}));
- expect(nav.display).toBe('flex');
- expect(['auto','scroll']).toContain(nav.overflowX);
+ const nav=await page.locator('#bottomNav').evaluate(el=>{const s=getComputedStyle(el);return{display:s.display,columns:s.gridTemplateColumns,rows:s.gridTemplateRows,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth}});
+ expect(nav.display).toBe('grid');
+ expect(nav.columns.split(' ').filter(Boolean)).toHaveLength(5);
+ expect(nav.rows.split(' ').filter(Boolean)).toHaveLength(2);
+ expect(nav.scrollWidth).toBeLessThanOrEqual(nav.clientWidth+1);
 });
