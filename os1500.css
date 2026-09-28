@@ -181,3 +181,69 @@ html[data-os1500="1"] .os1500-primary-label.good:before{background:var(--os1500-
   .os1600-areas{grid-template-columns:1fr 1fr}
   .os1600-head .os1400-button{min-width:36px;padding-inline:9px}
 }
+
+/* Product calm mode — advanced system tooling stays available without occupying daily work. */
+.os1500-advanced-tools{
+  border:1px solid var(--os1500-line);
+  border-radius:15px;
+  background:#0d131a;
+  overflow:hidden;
+}
+.os1500-advanced-tools>summary{
+  list-style:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  min-height:58px;
+  padding:12px 15px;
+  color:#9aa6b5;
+}
+.os1500-advanced-tools>summary::-webkit-details-marker{display:none}
+.os1500-advanced-tools>summary:hover{background:#121a23}
+.os1500-advanced-tools>summary>div{display:grid;gap:3px}
+.os1500-advanced-tools>summary b{font-size:11.5px;color:#c7d0db}
+.os1500-advanced-tools>summary span{font-size:9.5px;line-height:1.4;color:#748194}
+.os1500-advanced-tools>summary em{
+  font-style:normal;
+  white-space:nowrap;
+  font-size:9px;
+  font-weight:800;
+  color:#738297;
+}
+.os1500-advanced-tools[open]>summary{border-bottom:1px solid rgba(148,163,184,.10)}
+.os1500-advanced-tools[open]>summary em:before{content:"Skrýt";font-size:0}
+.os1500-advanced-body{display:grid;gap:8px;padding:9px}
+.os1500-advanced-body>.pr1300-panel{border-radius:11px!important;background:#101720!important}
+.os1500-advanced-body>.pr1300-panel .pr1300-panel-head{padding:11px 12px!important}
+.os1500-advanced-body>.pr1300-panel .os1500-section-note{padding:0 12px 10px}
+
+@media(max-width:760px){
+  html[data-os1500="1"] .os2-app{padding-bottom:74px!important}
+  html[data-os1500="1"] .os2-main{padding-bottom:86px!important}
+  html[data-os1500="1"] .os2-bottom{
+    height:68px!important;
+    display:flex!important;
+    grid-template-columns:none!important;
+    grid-template-rows:none!important;
+    gap:3px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x proximity;
+    padding:5px 7px max(5px,env(safe-area-inset-bottom))!important;
+    scrollbar-width:none;
+  }
+  html[data-os1500="1"] .os2-bottom::-webkit-scrollbar{display:none}
+  html[data-os1500="1"] .os2-bottom button{
+    flex:0 0 72px!important;
+    min-width:72px!important;
+    width:72px!important;
+    height:52px!important;
+    padding:4px 2px!important;
+    scroll-snap-align:center;
+    font-size:8.5px!important;
+    line-height:1.05!important;
+  }
+  html[data-os1500="1"] .os2-bottom button span{font-size:14px!important}
+}
