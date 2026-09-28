@@ -4,6 +4,11 @@ import assert from 'node:assert/strict';
 const docs=fs.readFileSync('js/documentsPage141.js','utf8');
 const today=fs.readFileSync('js/todayPage2000.js','utf8');
 const css=fs.readFileSync('os1500.css','utf8');
+const app=fs.readFileSync('js/app.js','utf8');
+const tasks=fs.readFileSync('js/tasksOverview.js','utf8');
+const family=fs.readFileSync('js/familyPage140.js','utf8');
+const home=fs.readFileSync('js/homePage140.js','utf8');
+const property=fs.readFileSync('js/propertyPage1300.js','utf8');
 
 assert.match(docs,/data-doc1500-advanced/,'advanced OS tooling must be behind one explicit disclosure');
 const insuranceAt=docs.indexOf('<h2>Pojištění</h2>');
@@ -18,6 +23,13 @@ assert.match(today,/toneRank=\{bad:3,warn:2,good:1,'':0\}/,'Today must prioritiz
 assert.match(today,/problémy první · vše na jeden klik/,'Today must explain the priority ordering');
 assert.match(css,/Product calm mode/,'calm product override must stay present');
 assert.match(css,/\.os1500-advanced-tools/,'advanced tooling needs a quiet disclosure style');
+assert.match(tasks,/top\?'<button class="pr1300-btn primary"[^>]*data-task-open/,'urgent Tasks item must outrank creating a new task');
+assert.match(family,/p\?'<button class="pr1300-btn primary"[^>]*data-family1500-primary/,'current Family obligation must be primary');
+assert.match(home,/data-home1500-primary/,'current Home deadline must be directly actionable');
+assert.match(docs,/data-doc1500-primary>Vyřešit teď/,'current document issue must outrank new intake');
+assert.match(property,/data-property-candidate="'\+best\.index\+'">Otevřít kandidáta/,'best Property candidate must be the primary action');
+assert.match(app,/function revealMobileDestination\(view\)/,'mobile navigation must reveal the active destination');
+assert.match(app,/updateChrome\(\);revealMobileDestination\(current\);quickShell/,'navigation must reveal the selected mobile destination');
 const mobile=css.slice(css.lastIndexOf('@media(max-width:760px)'));
 assert.match(mobile,/\.os2-bottom\{[\s\S]*height:68px!important;[\s\S]*display:flex!important;[\s\S]*overflow-x:auto!important;/,'mobile navigation must be one horizontally scrollable row');
 assert.doesNotMatch(mobile,/grid-template-rows:repeat\(2/,'final mobile override must not restore a two-row nav');
