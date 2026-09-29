@@ -5,10 +5,11 @@ const index=fs.readFileSync('index.html','utf8');
 const app=fs.readFileSync('js/app.js','utf8');
 const today=fs.readFileSync('js/todayPage2000.js','utf8');
 const work=fs.readFileSync('js/workPage1300.js','utf8');
-const css=fs.readFileSync('os1500.css','utf8');
+const css=fs.readFileSync('os-canonical.css','utf8');
+const registry=fs.readFileSync('js/viewRegistry.js','utf8');
 
 const checks=[
- ()=>assert.match(app,/today:'Dnes'.*work:'Práce'.*tickets:'Vstupenky'/s,'1 page titles use calm sentence case'),
+ ()=>assert.match(registry,/today:\{title:'Dnes'[\s\S]*work:\{title:'Práce'[\s\S]*tickets:\{title:'Vstupenky'/s,'1 page titles use calm sentence case'),
  ()=>assert.match(app,/current==='today'\?new Date\(\)\.toLocaleDateString/,'2 date is shown only on Today'),
  ()=>assert.match(app,/setAttribute\('aria-label',`Rychle přidat/,'3 quick add has contextual accessible label'),
  ()=>assert.match(index,/placeholder="Co chceš udělat\?"/,'4 command placeholder is short'),

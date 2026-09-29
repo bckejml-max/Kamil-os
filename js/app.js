@@ -10,6 +10,8 @@ import {installRuntimeOwnership1100,ownEvent1100,ownCleanup1100,schedule1100,can
 import {scheduleFrame1110,scheduleIdle1110} from './osHardening1110.js';
 import {restoreCanonicalProductStyles} from './productAdvancedStyles.js';
 import {isPersonalScope527} from './personalScope527.js';
+import {VIEW_ORDER,viewMeta,viewFromUrl,writeViewToUrl} from './viewRegistry.js';
+import {recordDiagnostic,copyDiagnostic} from './diagnostics.js';
 
 const OWNER='core.app41';
 installRuntimeOwnership1100();
@@ -20,17 +22,13 @@ export async function withActionLock(fn){if(actionLock)return false;actionLock=t
 let current='today',stopAuthWatch=()=>{},renderSeq=0,renderQueued=false,renderForce=false,stateRevision=0,sessionSeq=0;
 const viewRevision=new Map();
 let recoveryMode=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
-const pageTitles={today:'Dnes',work:'Práce',tickets:'Vstupenky',property:'Reality',money:'Peníze',betting:'Sázení',inbox:'Úkoly',family:'Rodina',home:'Domov',more:'Dokumenty'};
-const viewHosts={today:'todayView',work:'workView',tickets:'ticketIntelView',property:'propertyView',money:'moneyView',betting:'bettingView',inbox:'inboxView',family:'familyView',home:'homeView',more:'moreView'};
-const quickLabels={today:'Přidat',work:'Pracovní úkol',tickets:'Úkol k ticketům',property:'Úkol k realitě',money:'Finanční úkol',betting:'Úkol k sázení',inbox:'Úkol',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
-const captureTypeForView=()=>({today:'task',work:'work-task',tickets:'ticket-task',property:'property-task',money:'money-task',betting:'betting-task',inbox:'task',family:'family-task',home:'home-task',more:'document-source'})[current]||'task';
 const hasPrivateSnapshotKey=()=>{try{return new URLSearchParams(location.hash.replace(/^#/,'')).has('privateSnapshotKey')}catch{return false}};
 async function importPrivateSnapshotIfPresent(){
  if(!hasPrivateSnapshotKey())return false;
  try{const m=await import('./privateSnapshotImport1320.js');const result=await m.importPrivateSnapshot1320();if(result?.ok){stateRevision++;scheduleRender(true);toast('Aktuální soukromá data byla načtena do Kamil OS.');return true}toast('Soukromý snapshot se nepodařilo načíst.');return false}catch(error){console.warn('[app41:private-snapshot]',error);toast('Soukromý snapshot se nepodařilo načíst.');return false}
 }
-const hostForView=view=>qs(`#${viewHosts[view]||`${view}View`}`);
-const openCapture=(type=null)=>withActionLock(()=>openCapture41(type||captureTypeForView()));
+const hostForView=view=>qs(`#${viewMeta(view).host}`);
+const openCapture=(type=null)=>withActionLock(()=>openCapture41(type||viewMeta(current).capture));
 const warnAction=(scope,error)=>{console.warn(`[app41:${scope}]`,error);toast('Akci se nepodařilo dokončit')};
 
 const NAV_CLOSED1333=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED','PAYOUT_RECEIVED','CANCELLED','CANCELED']);
@@ -69,12 +67,12 @@ function applyNavSignals1333(s){
 function updateChrome(){
  const s=store.get();
  const label=qs('#todayLabel');if(label)label.textContent=current==='today'?new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'}):'';
- const page=qs('#pageTitle');if(page)page.textContent=pageTitles[current]||'KAMIL OS';
+ const meta=viewMeta(current),page=qs('#pageTitle');if(page)page.textContent=meta.title;
  qsa('.version').forEach(x=>x.textContent=APP_VERSION);
  qsa('[data-view]').forEach(x=>{const on=x.dataset.view===current;x.classList.toggle('on',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
  applyNavSignals1333(s);
  const undo=qs('#undoBtn');if(undo)undo.disabled=store.undoCount()===0;
- const add=qs('#quickAddBtn');if(add){add.classList.remove('hidden');const text=qs('b',add),name=quickLabels[current]||'Přidat';if(text)text.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`;add.setAttribute('aria-label',`Rychle přidat ${name.toLowerCase()}`)}
+ const add=qs('#quickAddBtn');if(add){add.classList.remove('hidden');const text=qs('b',add),name=meta.quick||'Přidat';if(text)text.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`;add.setAttribute('aria-label',`Rychle přidat ${name.toLowerCase()}`)}
  refreshRiskBadge41(s);
 }
 function revealMobileDestination(view){
@@ -84,7 +82,7 @@ function revealMobileDestination(view){
 }
 function quickShell(view){
  const host=hostForView(view);if(!host||host.dataset.fastShell==='1'||host.dataset.viewReady==='1')return;host.dataset.fastShell='1';
- const title=pageTitles[view]||'Kamil OS';
+ const title=viewMeta(view).title;
  host.innerHTML=`<div class="view-head os1900-loading" data-os1900-loading><div><div class="eyebrow">${title}</div><h1>Načítám…</h1><p>Aktuální obsah se vykreslí z jednoho kanonického rendereru.</p></div></div>`;
 }
 async function render(force=false){
@@ -97,13 +95,23 @@ async function render(force=false){
   if(seq!==renderSeq||view!==current)return;
   const currentHost=hostForView(view);if(currentHost){currentHost.dataset.viewReady='1';currentHost.removeAttribute('data-fast-shell')}
   viewRevision.set(view,revision);markFirstView41(view);window.dispatchEvent(new CustomEvent('kamil:release-stamp'));await renderExtras41(view);if(!currentHost?.dataset.productAdvanced)restoreCanonicalProductStyles();
- }catch(error){console.error('[app41] render',view,error);const failed=hostForView(view);if(failed){failed.removeAttribute('data-fast-shell');failed.removeAttribute('data-view-ready');failed.innerHTML=`<div class="card"><h2>Modul se nepodařilo načíst</h2><p class="muted">Obnov stránku. Uložená data nebyla smazána.</p></div>`}}
+ }catch(error){
+  console.error('[app41] render',view,error);
+  const failed=hostForView(view),diag=recordDiagnostic('render:'+view,error,{view});
+  if(failed){
+   failed.removeAttribute('data-fast-shell');failed.removeAttribute('data-view-ready');
+   failed.innerHTML=`<div class="card" data-runtime-error><div class="eyebrow">DIAGNOSTIKA</div><h2>Modul se nepodařilo načíst</h2><p class="muted">Data zůstala uložená. Můžeš zkusit renderer znovu nebo zkopírovat diagnostiku.</p><div class="row"><span>Kód chyby</span><b>${diag.id}</b></div><div class="row-actions"><button class="btn primary" data-runtime-retry>Zkusit znovu</button><button class="btn" data-runtime-copy>Kopírovat diagnostiku</button></div></div>`;
+   const retry=failed.querySelector('[data-runtime-retry]'),copy=failed.querySelector('[data-runtime-copy]');
+   if(retry)retry.onclick=()=>scheduleRender(true);
+   if(copy)copy.onclick=async()=>toast(await copyDiagnostic(diag.id)?'Diagnostika zkopírována':'Diagnostiku se nepodařilo zkopírovat');
+  }
+ }
 }
 function scheduleRender(force=false){
  renderForce=renderForce||force;if(renderQueued)return;renderQueued=true;
  scheduleFrame1110('app-render',()=>{const runForce=renderForce;renderForce=false;renderQueued=false;void render(runForce)});
 }
-function navigate(v){
+function navigate(v,{syncUrl=true,replaceUrl=false}={}){
  const next=validViews41.has(v)?v:'today';
  if(next===current){
   const sameHost=hostForView(current);
@@ -120,7 +128,7 @@ function navigate(v){
  }
  const leavingHost=hostForView(current);
  if(leavingHost?.dataset.productAdvanced==='1'){leavingHost.removeAttribute('data-product-advanced');leavingHost.removeAttribute('data-view-ready');viewRevision.delete(current);restoreCanonicalProductStyles()}
- current=next;qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');updateChrome();revealMobileDestination(current);quickShell(current);
+ current=next;if(syncUrl)writeViewToUrl(current,{replace:replaceUrl});qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');updateChrome();revealMobileDestination(current);quickShell(current);
  if(viewRevision.get(current)!==stateRevision)scheduleRender();
  void prefetchView41(current);window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:current}));window.scrollTo({top:0,behavior:'auto'});
 }
@@ -130,6 +138,7 @@ ownEvent1100(OWNER,document,'pointerover',warmNav,{passive:true});
 ownEvent1100(OWNER,document,'pointerdown',warmNav,{passive:true});
 ownEvent1100(OWNER,document,'focusin',warmNav,{passive:true});
 ownEvent1100(OWNER,window,'kamil:navigate',e=>navigate(e.detail));
+ownEvent1100(OWNER,window,'popstate',()=>navigate(viewFromUrl(),{syncUrl:false}));
 ownEvent1100(OWNER,window,'kamil:more',async e=>{await setMoreMode41(e.detail);if(current==='more')scheduleRender(true)});
 ownEvent1100(OWNER,window,'kamil:logout',()=>withActionLock(async()=>{await logout();await handleSession(null)}).catch(error=>warnAction('logout',error)));
 ownEvent1100(OWNER,window,'kamil:capture',e=>openCapture(e.detail||null).catch(error=>warnAction('capture',error)));
@@ -143,10 +152,7 @@ qs('#logoutBtn').onclick=()=>withActionLock(async()=>{await logout();await handl
 const quickAdd=qs('#quickAddBtn');if(quickAdd)ownEvent1100(OWNER,quickAdd,'click',()=>openCapture().catch(error=>warnAction('quick-add',error)));
 
 const input=qs('#commandInput'),commandBox=qs('#commandResults');let commandSeq=0,commandHomeIndex1333=0;
-const commandNav1332=[
- ['today','Dnes','⌂'],['inbox','Úkoly','✓'],['work','Práce','W'],['tickets','Vstupenky','T'],['money','Peníze','Kč'],
- ['property','Reality','R'],['betting','Sázení','S'],['family','Rodina','F'],['home','Domov','D'],['more','Dokumenty','▤']
-];
+const commandNav1332=VIEW_ORDER.map(view=>{const meta=viewMeta(view);return[view,meta.title,meta.icon]});
 function cancelCommandTimer(){cancelScheduled1100(OWNER,'command-debounce')}
 function hideCommand1332(){commandBox?.classList.add('hidden');if(commandBox)commandBox.innerHTML=''}
 function commandHomeButtons1333(){return [...(commandBox?.querySelectorAll('[data-command-nav1332]')||[])]}
@@ -213,7 +219,7 @@ function authCooldownRender(){cancelScheduled1100(OWNER,'auth-cooldown');const m
 function showResetView(){qs('#authView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#resetView').classList.remove('hidden');schedule1100(OWNER,'focus-reset',()=>qs('#resetPassword1')?.focus(),30)}
 function showLoginView(message=''){qs('#resetView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#authView').classList.remove('hidden');const email=qs('#loginEmail'),last=store.meta().lastCloudEmail;if(email&&!email.value&&last)email.value=last;if(message)qs('#authMessage').textContent=message;authCooldownRender();schedule1100(OWNER,'focus-login',()=>email?.focus(),30)}
 function showApp(){cancelScheduled1100(OWNER,'auth-cooldown');qs('#authView').classList.add('hidden');qs('#resetView').classList.add('hidden');qs('#appView').classList.remove('hidden')}
-function schedulePreflight(){scheduleIdle1110('app-preflight',async()=>{try{const pf=await runPreflight41();store.get().meta.preflight=pf;store.persist()}catch{}},3000)}
+function schedulePreflight(){scheduleIdle1110('app-preflight',async()=>{try{const pf=await runPreflight41();store.get().meta.preflight=pf;store.persist()}catch(error){recordDiagnostic('preflight',error);console.warn('[app41:preflight]',error)}},3000)}
 
 async function handleSession(sess){
  const seq=++sessionSeq;
@@ -240,7 +246,7 @@ qs('#setPasswordBtn').onclick=async()=>{const p1=qs('#resetPassword1').value,p2=
 qs('#resetPassword2').onkeydown=e=>{if(e.key==='Enter')qs('#setPasswordBtn').click()};
 
 // Rychlý start: lokální data vykreslíme dřív, než čekáme na SDK/cloud session.
-showApp();localSyncStatus();quickShell('today');scheduleRender(true);warmRuntime41();markPerf41('shell-visible');
+showApp();localSyncStatus();const initialView=viewFromUrl();if(initialView!=='today')navigate(initialView,{syncUrl:false});else{quickShell('today');scheduleRender(true)}warmRuntime41();markPerf41('shell-visible');
 const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
 if(hashParams.get('error')){recoveryMode=false;history.replaceState({},document.title,location.pathname+location.search);toast(hashParams.get('error_code')==='otp_expired'?'Přihlašovací/resetovací odkaz vypršel. Pošli si nový a otevři vždy nejnovější e-mail.':'Cloudové přihlášení se nepodařilo. Kamil OS běží lokálně.');await handleSession(await session())}else if(recoveryMode){await session();showResetView();await startAuthWatch()}else{const sess=await session();if(sess){await handleSession(sess);await importPrivateSnapshotIfPresent();await startAuthWatch()}else{store.get().meta.cloudMode='local';await importPrivateSnapshotIfPresent();schedulePreflight();markPerf41('session-check-complete')}}
 

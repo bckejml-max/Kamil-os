@@ -11,6 +11,7 @@ const state=read('js/state.js');
 const cloud=read('js/cloudPayload32.js');
 const app=read('js/app.js');
 const runtime=read('js/viewRuntime41.js');
+const registry=read('js/viewRegistry.js');
 const instant=read('js/instantShell64.js');
 const today=read('js/todayPage2000.js');
 const ticketPage=read('js/ticketPage100.js');
@@ -28,7 +29,7 @@ const investmentSeed=read('js/externalInvestments33.js');
 const platform43=read('js/platform43.js');
 const stability431=read('js/platform431Stability.js');
 const diagnostics=read('js/systemDiagnostics421.js');
-const product=read('productReset1300.css');
+const product=read('os-canonical.css');
 const rootPackage=JSON.parse(read('package.json'));
 
 const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
@@ -38,7 +39,7 @@ assert.equal(release,version,'APP_RELEASE must equal APP_VERSION');
 assert.equal(rootPackage.version,version,'root package version must match APP_VERSION');
 assert.ok(config.includes('SCHEMA_VERSION = 80'),'schema 80 must remain');
 
-const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/todayPage2000.js','js/workPage1300.js','js/propertyPage1300.js','js/ticketPage100.js','js/bettingPage527.js','js/moneyOverview.js','js/ticketOverview.js','js/bettingOverview.js','js/tasksOverview.js','js/familyPage140.js','js/homePage140.js','js/documentsPage141.js','js/bettingBootstrap543.js','js/state.js','js/privateSnapshot1320.js','js/privateSnapshotImport1320.js','js/cloudPayload32.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','os2000_guard.mjs','runtime_boot_guard.mjs','runtime_ownership_1100_guard.mjs','release_guard_333.mjs','os1500_product_guard.mjs'];
+const syntaxFiles=['js/instantShell64.js','js/app.js','js/viewRuntime41.js','js/viewRegistry.js','js/diagnostics.js','js/todayPage2000.js','js/workPage1300.js','js/propertyPage1300.js','js/ticketPage100.js','js/bettingPage527.js','js/moneyOverview.js','js/ticketOverview.js','js/bettingOverview.js','js/tasksOverview.js','js/familyPage140.js','js/homePage140.js','js/documentsPage141.js','js/bettingBootstrap543.js','js/state.js','js/privateSnapshot1320.js','js/privateSnapshotImport1320.js','js/cloudPayload32.js','js/ticketCloud660.js','js/ticketSales150.js','js/ticketSaleDetail151.js','os2000_guard.mjs','runtime_boot_guard.mjs','runtime_ownership_1100_guard.mjs','release_guard_333.mjs','os1500_product_guard.mjs'];
 for(const file of syntaxFiles)execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 
 // Canonical product shell eagerly loads only the approved shared visual layers.
@@ -55,11 +56,11 @@ assert.ok(!instant.includes('optionalImport(')&&!instant.includes('deferredImpor
 assert.ok(!instant.includes('ticketDesk331.js')&&!instant.includes('todayCockpit363.js'),'heavy domains must stay off startup');
 
 // Canonical Today and lazy views.
-assert.ok(runtime.includes("today:['./todayPage2000.js','renderTodayPage2000']"),'OS2 Today renderer mapping missing');
-assert.ok(runtime.includes("work:['./workPage1300.js','renderWorkPage1300']")&&runtime.includes("property:['./propertyPage1300.js','renderPropertyPage1300']"),'OS1300 Work/Reality renderer mapping missing');
-assert.ok(runtime.includes("money:['./moneyOverview.js','renderMoneyOverview']")&&runtime.includes("tickets:['./ticketOverview.js','renderTicketOverview']")&&runtime.includes("betting:['./bettingOverview.js','renderBettingOverview']")&&runtime.includes("inbox:['./tasksOverview.js','renderTasksOverview']"),'Product-first overview mappings missing');
+assert.ok(registry.includes("today:{title:'Dnes',host:'todayView'")&&registry.includes("module:'./todayPage2000.js',renderer:'renderTodayPage2000'"),'OS2 Today renderer mapping missing');
+assert.ok(registry.includes("work:{title:'Práce',host:'workView'")&&registry.includes("property:{title:'Reality',host:'propertyView'"),'OS1300 Work/Reality renderer mapping missing');
+assert.ok(registry.includes("money:{title:'Peníze',host:'moneyView'")&&registry.includes("tickets:{title:'Vstupenky',host:'ticketIntelView'")&&registry.includes("betting:{title:'Sázení',host:'bettingView'")&&registry.includes("inbox:{title:'Úkoly',host:'inboxView'"),'Product-first overview mappings missing');
 for(const [name,file,marker] of [['Money',moneyOverview,'data-money-overview'],['Tickets',ticketOverview,'data-ticket-overview'],['Betting',bettingOverview,'data-betting-overview'],['Tasks',tasksOverview,'data-tasks-overview']])assert.ok(file.includes(marker),`${name} simple overview missing`);
-assert.ok(runtime.includes('ensureViewStyles')&&runtime.includes('dataset.os2Lazy'),'view-specific CSS lazy loading missing');
+assert.ok(!runtime.includes('ensureViewStyles')&&!runtime.includes('dataset.os2Lazy'),'retired view-specific CSS loader must stay removed');
 assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateColdView42(key)'),'lazy view hydration/cache missing');
 for(const symbol of ['data-os2-today','data-product-home1300','data-os1400-home','os1600-next','os1600-areas','os1400-list','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today product cockpit missing ${symbol}`);
 assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');
@@ -69,13 +70,13 @@ assert.ok(app.includes("const input=qs('#commandInput')")&&app.includes('execute
 
 // Tickets remain on demand; business/data safety remains unchanged.
 assert.ok(ticketPage.includes('let bootPromise=null')&&ticketPage.includes("await import('./ticketDesk331.js')")&&ticketPage.includes('state.criticalDone=true'),'Ticket canonical critical-first adapter missing');
-assert.ok(runtime.includes("tickets:['./ticketOverview.js','renderTicketOverview']"),'Simple Ticket operations overview must own the default view');
+assert.ok(registry.includes("tickets:{title:'Vstupenky',host:'ticketIntelView'")&&registry.includes("module:'./ticketOverview.js',renderer:'renderTicketOverview'"),'Simple Ticket operations overview must own the default view');
 assert.ok(ticketOverview.includes("import('./ticketAdvanced100.js')"),'Advanced Ticket desk must stay explicit/on-demand');
 assert.ok(ticketCloud.includes("from('ticket_inventory')")&&!/service[_-]?role/i.test(ticketCloud),'Ticket cloud contract missing or unsafe');
 assert.ok(ticketCloud.includes("c.includes('official-api')")&&ticketCloud.includes("u.includes('viagogo.com')"),'Viagogo source detection missing');
 
 // Betting remains fully view-owned and may not revive the global legacy runtime.
-assert.ok(runtime.includes("betting:['./bettingOverview.js','renderBettingOverview']"),'Simple Betting overview must own the default view');
+assert.ok(registry.includes("betting:{title:'Sázení',host:'bettingView'")&&registry.includes("module:'./bettingOverview.js',renderer:'renderBettingOverview'"),'Simple Betting overview must own the default view');
 assert.ok(bettingOverview.includes("import('./bettingAdvanced527.js')"),'Advanced betting scanner must stay explicit/on-demand');
 assert.ok(bettingPage.includes("import('./bettingBootstrap543.js')")&&bettingPage.includes('installBettingBootstrap543'),'Betting lazy bootstrap bridge missing');
 assert.ok(bettingBootstrap.includes('export function installBettingBootstrap543'),'Betting view-owned bootstrap export missing');

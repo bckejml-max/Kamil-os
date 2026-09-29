@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 const docs=fs.readFileSync('js/documentsPage141.js','utf8');
 const today=fs.readFileSync('js/todayPage2000.js','utf8');
-const css=fs.readFileSync('os1500.css','utf8');
+const css=fs.readFileSync('os-canonical.css','utf8');
 const app=fs.readFileSync('js/app.js','utf8');
 const tasks=fs.readFileSync('js/tasksOverview.js','utf8');
 const family=fs.readFileSync('js/familyPage140.js','utf8');

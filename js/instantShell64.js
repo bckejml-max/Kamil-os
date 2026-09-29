@@ -7,7 +7,7 @@ window.__KAMIL_BOOT_BUDGET343__=BOOT343;
 window.__KAMIL_DEFERRED345__=DEFER345;
 
 const parse=(raw,fallback=null)=>{try{return JSON.parse(raw)}catch{return fallback}};
-function applyTheme(){try{root.classList.remove('theme-light');root.classList.add('theme-dark');root.dataset.theme='dark';root.dataset.os2='1';root.style.colorScheme='dark'}catch{}document.title='Kamil OS'}
+function applyTheme(){try{root.classList.remove('theme-light');root.classList.add('theme-dark');root.dataset.theme='dark';root.dataset.os2='1';root.style.colorScheme='dark'}catch(error){console.warn('[instantShell:theme]',error)}document.title='Kamil OS'}
 function fallbackHtml(){
  const s=parse(localStorage.getItem('kamil-os-state')||'null',{})||{};
  const closed=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT RECEIVED','PAYOUT_RECEIVED','CANCELLED','CANCELED']);

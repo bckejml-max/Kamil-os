@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const root=new URL('./',import.meta.url),read=p=>readFile(new URL(p,root),'utf8');
-const [index,boot,views,today,betting,css,product,sw]=await Promise.all([read('./index.html'),read('./js/instantShell64.js'),read('./js/viewRuntime41.js'),read('./js/todayPage2000.js'),read('./js/bettingBootstrap543.js'),read('./os2.css'),read('./productReset1300.css'),read('./sw.js')]);
+const [index,boot,views,registry,today,betting,css,product,sw]=await Promise.all([read('./index.html'),read('./js/instantShell64.js'),read('./js/viewRuntime41.js'),read('./js/viewRegistry.js'),read('./js/todayPage2000.js'),read('./js/bettingBootstrap543.js'),read('./os-canonical.css'),read('./os-canonical.css'),read('./sw.js')]);
 
 assert.match(index,/data-os2="1"/,'OS2 index marker missing');
 const eagerStyles=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(x=>x[1]);
@@ -17,11 +17,12 @@ assert.equal((boot.match(/optionalImport\s*\(/g)||[]).length,0,'old optionalImpo
 assert.equal((boot.match(/deferredImport\s*\(/g)||[]).length,0,'old deferredImport queue must remain retired');
 for(const legacy of ['todayCockpit363.js','workspaces305.js','ticketQa332.js','performance330.js','bettingBootstrap543.js'])assert.equal(boot.includes(legacy),false,`${legacy} must not eager-load in OS2`);
 
-assert.match(views,/today:\['\.\/todayPage2000\.js','renderTodayPage2000'\]/,'OS2 Today must be canonical');
-assert.match(views,/ensureViewStyles/,'view CSS loader missing');
+assert.match(registry,/today:\{title:'Dnes',host:'todayView'[\s\S]*module:'\.\/todayPage2000\.js',renderer:'renderTodayPage2000'/,'OS2 Today must be canonical');
+assert.equal(views.includes('ensureViewStyles'),false,'retired view CSS loader must stay removed');
+assert.equal(views.includes('loadCss'),false,'retired lazy CSS loader must stay removed');
+assert.equal(views.includes('dataset.os2Lazy'),false,'retired lazy CSS marker must stay removed');
 assert.equal(views.includes('ensureInboxShell'),false,'Inbox must be static shell, not runtime DOM injection');
 assert.equal(views.includes('ensureBettingShell'),false,'Betting must be static shell, not runtime DOM injection');
-assert.match(views,/data-os2-lazy|dataset\.os2Lazy/,'lazy view stylesheet marker missing');
 
 for(const symbol of ['os1400-home','os1600-next','os1600-areas','os1400-list','__KAMIL_TODAY_OS2000__'])assert.match(today,new RegExp(symbol),`Today product cockpit missing ${symbol}`);
 assert.ok((today.match(/ownEvent1100\s*\(/g)||[]).length<=1,'Today OS2 should own at most one delegated UI listener');

@@ -8,7 +8,7 @@ const tickets=fs.readFileSync('js/ticketOverview.js','utf8');
 const money=fs.readFileSync('js/moneyOverview.js','utf8');
 const property=fs.readFileSync('js/propertyPage1300.js','utf8');
 const betting=fs.readFileSync('js/bettingOverview.js','utf8');
-const css=fs.readFileSync('os1500.css','utf8');
+const css=fs.readFileSync('os-canonical.css','utf8');
 const release=fs.readFileSync('js/releaseMeta.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 assert.match(index,/data-os1700="1"/);
@@ -23,6 +23,6 @@ assert.ok(betting.indexOf('(d.open.length?') < betting.indexOf('os1500-summary-g
 assert.match(work,/Termíny, rizika a zakázky v pořadí/);
 assert.match(money,/Nejdřív akce, která něco mění/);
 assert.match(property,/Nejdřív nejlepší kandidát a důvod/);
-assert.match(release,/739\.0\.0/);
-assert.match(sw,/kamil-os-739\.0\.0-core-r144/);
+assert.match(release,/740\.0\.0/);
+assert.match(sw,/kamil-os-740\.0\.0-core-r145/);
 console.log('OS1700 canonical product reset: 13/13 PASS');

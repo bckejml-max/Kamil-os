@@ -5,6 +5,7 @@ const read=p=>fs.readFileSync(p,'utf8');
 const boot=read('js/instantShell64.js');
 const app=read('js/app.js');
 const views=read('js/viewRuntime41.js');
+const registry=read('js/viewRegistry.js');
 const ticketPage=read('js/ticketPage100.js');
 const ticketOverview=read('js/ticketOverview.js');
 const bettingOverview=read('js/bettingOverview.js');
@@ -37,11 +38,11 @@ assert.ok(index.includes('id="view-inbox"')&&index.includes('id="view-betting"')
 assert.ok(ticketPage.includes("import('./ticketDesk331.js')"),'ticketPage100 must delegate to Ticket Desk 331');
 assert.ok(ticketPage.includes("'./ticketUi421.js','installTicketUi421','CANONICAL UI 421/466'")&&ticketUi.includes('canonical-466'),'ticketPage100 must boot the canonical Ticket DOM owner first');
 assert.ok(ticketConsolidation.includes('logicOnly:true')&&!ticketConsolidation.includes('function reorder('),'ticket consolidation must remain logic-only');
-assert.ok(views.includes("tickets:['./ticketOverview.js','renderTicketOverview']"),'Simple Tickets overview must be lazy through viewRuntime41');
+assert.ok(registry.includes("tickets:{title:'Vstupenky',host:'ticketIntelView'")&&registry.includes("module:'./ticketOverview.js',renderer:'renderTicketOverview'")&&views.includes('VIEW_REGISTRY[key]?.heavy'),'Simple Tickets overview must be lazy through the canonical view registry');
 assert.ok(ticketOverview.includes("import('./ticketAdvanced100.js')"),'Advanced Ticket Desk must remain explicit/on-demand');
 
 // Betting enrichment is lazy and must only start from the Betting view.
-assert.ok(views.includes("betting:['./bettingOverview.js','renderBettingOverview']"),'Simple Betting overview must be lazy through viewRuntime41');
+assert.ok(registry.includes("betting:{title:'Sázení',host:'bettingView'")&&registry.includes("module:'./bettingOverview.js',renderer:'renderBettingOverview'")&&views.includes('VIEW_REGISTRY[key]?.heavy'),'Simple Betting overview must be lazy through the canonical view registry');
 assert.ok(bettingOverview.includes("import('./bettingAdvanced527.js')"),'Advanced betting must remain explicit/on-demand');
 const betting=read('js/bettingPage527.js');
 assert.ok(betting.includes("import('./bettingBootstrap543.js')"),'Betting enrichment must boot on-demand from the Betting page');
