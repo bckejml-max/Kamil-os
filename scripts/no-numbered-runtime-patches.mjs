@@ -17,5 +17,7 @@ function walk(dir){
 }
 walk(root);
 const added=found.filter(x=>!allow.has(x));
+const stale=[...allow].filter(x=>!found.includes(x));
 assert.deepEqual(added,[],`New numbered runtime patch files are forbidden. Use descriptive filenames instead: ${added.join(', ')}`);
+assert.deepEqual(stale,[],`Numbered runtime allowlist contains removed files; prune it so deleted patches cannot return: ${stale.join(', ')}`);
 console.log(`numbered runtime freeze PASS: ${found.length} legacy files frozen`);
