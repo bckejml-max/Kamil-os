@@ -67,11 +67,11 @@ function applyNavSignals1333(s){
 function updateChrome(){
  const s=store.get();
  const label=qs('#todayLabel');if(label)label.textContent=current==='today'?new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'}):'';
- const meta=viewMeta(current),page=qs('#pageTitle');if(page)page.textContent=meta.title;
+ const meta=viewMeta(current),page=qs('#pageTitle');if(page)page.textContent=meta.title;const commandInput=qs('#commandInput');if(commandInput)commandInput.placeholder=meta.hint||'Co chceš udělat?';
  qsa('.version').forEach(x=>x.textContent=APP_VERSION);
  qsa('[data-view]').forEach(x=>{const on=x.dataset.view===current;x.classList.toggle('on',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
  applyNavSignals1333(s);
- const undo=qs('#undoBtn');if(undo)undo.disabled=store.undoCount()===0;
+ const undo=qs('#undoBtn');if(undo){const undoCount=store.undoCount(),undoLabel=store.undoLabel?.();undo.disabled=undoCount===0;undo.title=undoLabel?'Vrátit: '+undoLabel:'Není co vrátit';undo.setAttribute('aria-label',undoLabel?'Vrátit poslední změnu: '+undoLabel:'Vrátit poslední změnu')}
  const add=qs('#quickAddBtn');if(add){add.classList.remove('hidden');const text=qs('b',add),name=meta.quick||'Přidat';if(text)text.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`;add.setAttribute('aria-label',`Rychle přidat ${name.toLowerCase()}`)}
  refreshRiskBadge41(s);
 }
@@ -144,14 +144,25 @@ ownEvent1100(OWNER,window,'kamil:logout',()=>withActionLock(async()=>{await logo
 ownEvent1100(OWNER,window,'kamil:capture',e=>openCapture(e.detail||null).catch(error=>warnAction('capture',error)));
 ownEvent1100(OWNER,window,'kamil:cloud-login',e=>showLoginView(e.detail?.reason==='recovery'?'Toto zařízení nemá tvoje uložená data. Připoj existující cloudový profil — nejjednodušší je e-mailový odkaz bez hesla.':'Cloud je volitelný. Kamil OS funguje i bez přihlášení.'));
 
-const stopStore=store.subscribe(()=>{stateRevision++;if(document.visibilityState==='visible')scheduleRender();scheduleNotifications41()});
+const stopStore=store.subscribe(()=>{stateRevision++;if(store.get().meta?.cloudMode!=='cloud')localSyncStatus();if(document.visibilityState==='visible')scheduleRender();scheduleNotifications41()});
 ownCleanup1100(OWNER,stopStore);
 ownEvent1100(OWNER,document,'visibilitychange',()=>{if(document.visibilityState==='hidden')scheduleNotifications41(0);else if(viewRevision.get(current)!==stateRevision)scheduleRender()});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
 qs('#logoutBtn').onclick=()=>withActionLock(async()=>{await logout();await handleSession(null)}).catch(error=>warnAction('logout-button',error));
 const quickAdd=qs('#quickAddBtn');if(quickAdd)ownEvent1100(OWNER,quickAdd,'click',()=>openCapture().catch(error=>warnAction('quick-add',error)));
 
-const input=qs('#commandInput'),commandBox=qs('#commandResults');let commandSeq=0,commandHomeIndex1333=0;
+const input=qs('#commandInput'),commandBox=qs('#commandResults');let commandSeq=0,commandHomeIndex1333=0,commandHistoryIndex741=-1;
+const COMMAND_HISTORY_KEY741='kamil-os-command-history-v1',COMMAND_FAVORITES_KEY741='kamil-os-command-favorites-v1';
+const commandEsc741=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function readCommandList741(key){try{const x=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(x)?x.filter(Boolean).map(String):[]}catch(error){recordDiagnostic('command-storage-read',error,{key});return[]}}
+function writeCommandList741(key,rows){try{localStorage.setItem(key,JSON.stringify([...new Set(rows)].slice(0,20)));return true}catch(error){recordDiagnostic('command-storage-write',error,{key});return false}}
+function recordCommand741(value){const v=String(value||'').trim();if(!v)return;writeCommandList741(COMMAND_HISTORY_KEY741,[v,...readCommandList741(COMMAND_HISTORY_KEY741).filter(x=>x!==v)]);commandHistoryIndex741=-1}
+function toggleFavorite741(value){const v=String(value||'').trim();if(!v)return false;const list=readCommandList741(COMMAND_FAVORITES_KEY741),on=list.includes(v),next=on?list.filter(x=>x!==v):[v,...list];writeCommandList741(COMMAND_FAVORITES_KEY741,next);return !on}
+function commandMemoryHtml741(){
+ const favorites=readCommandList741(COMMAND_FAVORITES_KEY741).slice(0,4),recent=readCommandList741(COMMAND_HISTORY_KEY741).filter(x=>!favorites.includes(x)).slice(0,4);
+ const group=(title,rows,pinned)=>rows.length?'<div class="os741-command-memory"><b>'+title+'</b>'+rows.map(x=>'<div><button type="button" data-command-run741="'+commandEsc741(x)+'">'+commandEsc741(x)+'</button><button type="button" aria-label="'+(pinned?'Odepnout':'Připnout')+'" title="'+(pinned?'Odepnout':'Připnout')+'" data-command-pin741="'+commandEsc741(x)+'">'+(pinned?'★':'☆')+'</button></div>').join('')+'</div>':'';
+ return group('Oblíbené',favorites,true)+group('Poslední příkazy',recent,false);
+}
 const commandNav1332=VIEW_ORDER.map(view=>{const meta=viewMeta(view);return[view,meta.title,meta.icon]});
 function cancelCommandTimer(){cancelScheduled1100(OWNER,'command-debounce')}
 function hideCommand1332(){commandBox?.classList.add('hidden');if(commandBox)commandBox.innerHTML=''}
@@ -170,7 +181,7 @@ function openCommandHomeSelection1333(){
 function showCommandHome1332(){
  if(!commandBox||String(input?.value||'').trim())return false;
  commandBox.classList.remove('hidden');
- commandBox.innerHTML='<div class="os1332-command-home" data-command-home1332><div class="os1332-command-head"><div><b>Rychle otevřít</b><span>bez hledání a bez dalšího menu</span></div><span>Šipky · Enter · Esc</span></div><div class="os1332-command-grid">'+commandNav1332.map(([view,label,icon])=>'<button type="button" data-command-nav1332="'+view+'" aria-selected="false"><i>'+icon+'</i><span>'+label+'</span></button>').join('')+'</div><div class="os1332-command-actions"><button type="button" class="primary" data-command-add1332>＋ Přidat podle aktuální sekce</button><span>Piš pro hledání v datech nebo příkaz, např. „ukaž práci“.</span></div></div>';
+ commandBox.innerHTML='<div class="os1332-command-home" data-command-home1332><div class="os1332-command-head"><div><b>Rychle otevřít</b><span>bez hledání a bez dalšího menu</span></div><span>Šipky · Enter · Esc</span></div><div class="os1332-command-grid">'+commandNav1332.map(([view,label,icon])=>'<button type="button" data-command-nav1332="'+view+'" aria-selected="false"><i>'+icon+'</i><span>'+label+'</span></button>').join('')+'</div>'+commandMemoryHtml741()+'<div class="os1332-command-actions"><button type="button" class="primary" data-command-add1332>＋ Přidat podle aktuální sekce</button><span>Piš pro hledání napříč daty nebo příkaz, např. „co dnes hoří“.</span></div></div>';
  commandHomeIndex1333=Math.max(0,commandNav1332.findIndex(([view])=>view===current));
  paintCommandHome1333();
  return true;
@@ -179,7 +190,7 @@ function renderCommandSafe(value,seq){
  if(!String(value||'').trim()){showCommandHome1332();return Promise.resolve(true)}
  return renderCommandResults41(value).then(()=>{if(seq!==commandSeq){const next=++commandSeq;const latest=input.value;if(!String(latest||'').trim()){showCommandHome1332();return next}return renderCommandResults41(latest).catch(error=>warnAction('command-refresh',error)).then(()=>next)}}).catch(error=>warnAction('command-results',error))
 }
-function runCommand(value){const v=String(value||'').trim();if(!v){showCommandHome1332();return}commandSeq++;return executeCommand41(v).then(()=>hideCommand1332()).catch(error=>warnAction('command-execute',error))}
+function runCommand(value){const v=String(value||'').trim();if(!v){showCommandHome1332();return}recordCommand741(v);commandSeq++;return executeCommand41(v).then(()=>hideCommand1332()).catch(error=>warnAction('command-execute',error))}
 input.onfocus=()=>{if(!input.value.trim())showCommandHome1332()};
 input.oninput=()=>{cancelCommandTimer();const seq=++commandSeq,value=input.value;schedule1100(OWNER,'command-debounce',()=>void renderCommandSafe(value,seq),70)};
 input.onkeydown=e=>{
@@ -194,13 +205,15 @@ input.onkeydown=e=>{
   if(e.key==='End'){commandHomeIndex1333=commandNav1332.length-1;paintCommandHome1333()}
   return;
  }
+ if(e.key==='ArrowUp'&&!homeVisible){const hist=readCommandList741(COMMAND_HISTORY_KEY741);if(hist.length){e.preventDefault();commandHistoryIndex741=Math.min(hist.length-1,commandHistoryIndex741+1);input.value=hist[commandHistoryIndex741]||'';input.setSelectionRange(input.value.length,input.value.length);return}}
+ if(e.key==='ArrowDown'&&!homeVisible&&commandHistoryIndex741>=0){const hist=readCommandList741(COMMAND_HISTORY_KEY741);e.preventDefault();commandHistoryIndex741=Math.max(-1,commandHistoryIndex741-1);input.value=commandHistoryIndex741<0?'':hist[commandHistoryIndex741]||'';return}
  if(e.key==='Enter'){e.preventDefault();cancelCommandTimer();if(homeVisible&&openCommandHomeSelection1333())return;const v=input.value;input.value='';runCommand(v)}
  if(e.key==='Escape'){cancelCommandTimer();input.value='';commandSeq++;hideCommand1332();input.blur()}
 };
 qs('#commandGo').onclick=()=>{cancelCommandTimer();const v=input.value;input.value='';runCommand(v)};
 if(commandBox){
  ownEvent1100(OWNER,commandBox,'pointerover',e=>{const nav=e.target.closest('[data-command-nav1332]');if(!nav)return;const buttons=commandHomeButtons1333(),i=buttons.indexOf(nav);if(i>=0){commandHomeIndex1333=i;paintCommandHome1333()}},{passive:true});
- ownEvent1100(OWNER,commandBox,'click',e=>{const nav=e.target.closest('[data-command-nav1332]');if(nav){hideCommand1332();input.blur();navigate(nav.dataset.commandNav1332);return}if(e.target.closest('[data-command-add1332]')){hideCommand1332();input.blur();openCapture().catch(error=>warnAction('command-home-add',error))}});
+ ownEvent1100(OWNER,commandBox,'click',e=>{const searchTask=e.target.closest('[data-command-task741]');if(searchTask){hideCommand1332();input.blur();openCapture({type:'task',defaults:{title:'Follow-up: '+searchTask.dataset.commandTask741,area:searchTask.dataset.commandArea741||'Osobní',category:'Search follow-up'}}).catch(error=>warnAction('command-search-task',error));return}const pin=e.target.closest('[data-command-pin741]');if(pin){toggleFavorite741(pin.dataset.commandPin741);showCommandHome1332();return}const run=e.target.closest('[data-command-run741]');if(run){input.value='';runCommand(run.dataset.commandRun741);input.blur();return}const nav=e.target.closest('[data-command-nav1332]');if(nav){hideCommand1332();input.blur();navigate(nav.dataset.commandNav1332);return}if(e.target.closest('[data-command-add1332]')){hideCommand1332();input.blur();openCapture().catch(error=>warnAction('command-home-add',error))}});
 }
 ownEvent1100(OWNER,document,'keydown',e=>{
  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();input.focus();input.select();if(!input.value.trim())showCommandHome1332();import('./command.js').catch(()=>{})}
@@ -214,7 +227,7 @@ ownCleanup1100(OWNER,stopSyncStatus);
 function setCloudConnectedStatus(sess,result={}){const el=qs('#syncStatus');if(!el||!sess)return;const x=authConnectedLabel32({email:sess.user?.email,lastCloudAt:result.updatedAt||store.meta().lastCloudAt});el.className='sync ok';el.innerHTML=`<i></i> ${x.short}`;el.title=x.detail}
 function setCloudLoadingStatus(){const el=qs('#syncStatus');if(!el)return;el.className='sync saving';el.innerHTML='<i></i> Cloud • Načítám data…';el.title='Lokální obrazovka už funguje; cloud se synchronizuje na pozadí.'}
 function openCloudConnect(){showLoginView('Připoj existující cloudový profil. Heslo není nutné — stačí e-mailový přihlašovací odkaz.')}
-function localSyncStatus(){const el=qs('#syncStatus');if(!el)return;el.className='sync local';el.innerHTML='<i></i> Jen toto zařízení';el.title='Klikni a připoj existující cloudová data. Kamil OS jinak dál funguje lokálně.';el.setAttribute('role','button');el.tabIndex=0;el.style.cursor='pointer';el.onclick=openCloudConnect;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCloudConnect()}}}
+function localSyncStatus(){const el=qs('#syncStatus');if(!el)return;el.className='sync local';el.innerHTML='<i></i> Lokálně • uloženo';el.title='Aktuální stav je uložený v tomto zařízení. Klikni pro volitelné připojení cloudu.';el.setAttribute('role','button');el.tabIndex=0;el.style.cursor='pointer';el.onclick=openCloudConnect;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCloudConnect()}}}
 function authCooldownRender(){cancelScheduled1100(OWNER,'auth-cooldown');const magic=qs('#magicLinkBtn'),reset=qs('#forgotPasswordBtn'),m=store.meta(),magicLeft=authCooldownSeconds32(m.lastMagicLinkAt),resetLeft=authCooldownSeconds32(m.lastPasswordResetAt);if(magic){magic.disabled=magicLeft>0;magic.textContent=magicLeft>0?`Další odkaz za ${magicLeft} s`:'Poslat přihlašovací odkaz bez hesla'}if(reset){reset.disabled=resetLeft>0;reset.textContent=resetLeft>0?`Reset znovu za ${resetLeft} s`:'Obnovit cloudové heslo'}if(magicLeft||resetLeft)schedule1100(OWNER,'auth-cooldown',authCooldownRender,1000,{pauseWhenHidden:true})}
 function showResetView(){qs('#authView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#resetView').classList.remove('hidden');schedule1100(OWNER,'focus-reset',()=>qs('#resetPassword1')?.focus(),30)}
 function showLoginView(message=''){qs('#resetView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#authView').classList.remove('hidden');const email=qs('#loginEmail'),last=store.meta().lastCloudEmail;if(email&&!email.value&&last)email.value=last;if(message)qs('#authMessage').textContent=message;authCooldownRender();schedule1100(OWNER,'focus-login',()=>email?.focus(),30)}

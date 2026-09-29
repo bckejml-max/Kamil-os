@@ -17,8 +17,9 @@ test('deep links restore the canonical section and browser history',async({page}
 test('canonical shell has one stylesheet and no retired family host',async({page})=>{
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
- await expect(page.locator('link[rel="stylesheet"]')).toHaveCount(1);
  await expect(page.locator('link[href="./os-canonical.css"]')).toHaveCount(1);
+ const retired=await page.locator('link[rel="stylesheet"]').evaluateAll(xs=>xs.map(x=>x.getAttribute('href')).filter(h=>['./styles.css','./os2.css','./productReset1300.css','./os1331.css','./os1332.css','./os1333.css','./os1334.css','./os1400.css','./os1500.css'].includes(h)));
+ expect(retired).toEqual([]);
  await expect(page.locator('#ticketsView')).toHaveCount(0);
  await expect(page.locator('#familyView')).toHaveCount(1);
 });
@@ -32,5 +33,5 @@ test('runtime diagnostics retain a safe copyable record',async({page})=>{
  });
  expect(row.id).toMatch(/^D/);
  expect(row.text).toContain('synthetic renderer failure');
- expect(row.text).toContain('"release": "740.0.0"');
+ expect(row.text).toContain('"release": "741.0.0"');
 });

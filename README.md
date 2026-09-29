@@ -1,4 +1,4 @@
-# Kamil OS 740.0.0
+# Kamil OS 741.0.0
 
 Kamil OS je osobní **Daily Personal Assistant + Ticket Intelligence**. Hlavní uživatelské rozhraní má deset přímo dostupných oblastí: **Dnes / Úkoly / Práce / Vstupenky / Peníze / Reality / Sázení / Rodina / Domov / Dokumenty**.
 
@@ -50,3 +50,14 @@ Aktuální release má statické guardy, core/cloud safety testy a Playwright E2
 - Aktivní sekce má deep-link přes `?view=` a funguje Back/Forward.
 - Pád rendereru vytvoří bezpečný diagnostický záznam, nabídne opakování a zkopírování diagnostiky bez mazání dat.
 - Nové očíslované JS/CSS/MJS patch soubory jsou v CI zakázané; stávající legacy názvy jsou zmražené allowlistem.
+
+
+## Runtime 741.0
+
+- Jeden **Action Truth Engine** skládá priority napříč Úkoly, Prací, Vstupenkami, Penězi, Realitami, Sázením, Rodinou, Domovem a Dokumenty. Dnes už nevytváří vlastní paralelní prioritu.
+- Každá doporučená akce má jednotné skóre, deduplikaci a vysvětlení **Proč to vidím?**. Dnes navíc ukazuje Follow-upy, Zítra, co může počkat, datovou jistotu a denní/týdenní review.
+- `dataSourceRegistry.js` drží master ID, freshness a konflikty pro klíčové zdroje. Zastaralá nebo konfliktní data se nesmí tvářit jako čerstvá.
+- Command bar má kontext podle sekce, historii, oblíbené příkazy, globální hledání napříč OS a umí z výsledku rovnou založit navazující úkol.
+- Peníze mají reconciliation, volnou hotovost a úrokovou příležitost z uložených sazeb. Vstupenky mají lifecycle, realizovaný/čekající profit, kapitál a transfer risk. Sázení má koncentraci, settlement audit a historické segmenty. Reality mají lifecycle, compare lock a reverzibilní cleanup. Práce má blocker/closeout kontrolu.
+- Dokumenty obsahují 90denní pojistný radar, datovou integritu, 30denní obnovitelný koš a interní repo-debt dashboard.
+- CI hlídá architektonický budget, repo-health snapshot, canonical CSS konflikty a OS741 browser/accessibility/layout kontrakty.

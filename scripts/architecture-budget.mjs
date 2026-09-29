@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+
+const read=p=>fs.readFileSync(p,'utf8');
+const index=read('index.html'),registry=read('js/viewRegistry.js'),app=read('js/app.js'),runtime=read('js/viewRuntime41.js'),today=read('js/todayPage2000.js'),truth=read('js/actionTruthEngine.js'),sources=read('js/dataSourceRegistry.js'),state=read('js/state.js'),css=read('os-canonical.css');
+const styles=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(x=>x[1]);
+assert.deepEqual(styles,['./os-canonical.css'],'architectural budget: exactly one eager runtime stylesheet');
+assert.equal((registry.match(/^\s*[a-z]+:\{title:/gm)||[]).length,10,'architectural budget: exactly ten canonical primary views');
+assert.ok(Buffer.byteLength(css)<180000,'architectural budget: canonical CSS must stay under 180 KB');
+assert.ok(Buffer.byteLength(app)<70000,'architectural budget: app shell must stay under 70 KB');
+assert.ok(Buffer.byteLength(runtime)<30000,'architectural budget: view runtime must stay under 30 KB');
+assert.ok(Buffer.byteLength(today)<60000,'architectural budget: Today renderer must stay under 60 KB');
+assert.doesNotMatch(index,/Ostatní|allSectionsBtn|mobileMenuBtn/,'architectural budget: no hidden Ostatní navigation');
+for(const file of [index,app,runtime,today,css])assert.doesNotMatch(file,/ticketsView/,'architectural budget: retired family host must never return');
+assert.match(truth,/export function buildActionTruth741/,'architectural budget: one unified Action Truth engine required');
+assert.equal((today.match(/buildActionTruth741\(/g)||[]).length,1,'architectural budget: Today may instantiate Action Truth once');
+assert.match(sources,/MASTER_DATA_REGISTRY/,'architectural budget: master/freshness registry required');
+for(const id of ['TICKET_MASTER_ID_1336','BETTING_MASTER_ID_1335','INSURANCE_MASTER_ID_1336'])assert.match(sources,new RegExp(id),'architectural budget: '+id+' must remain canonical');
+assert.match(state,/TRASH_RETENTION_DAYS741=30/,'architectural budget: soft-delete retention must remain 30 days');
+assert.match(app,/COMMAND_HISTORY_KEY741/);assert.match(app,/COMMAND_FAVORITES_KEY741/);
+assert.match(runtime,/globalSearch\.js/,'architectural budget: global search remains routed through command runtime');
+console.log('OS741 architecture budget PASS');
