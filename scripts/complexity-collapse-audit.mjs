@@ -38,9 +38,12 @@ const referencedElsewhere=file=>{
   return false;
 };
 const unreferencedRootCss=rootCss.filter(x=>!referencedElsewhere(x.path)).map(x=>x.path).sort();
+const unreferencedRootChangelogs=rootChangelogs.filter(x=>x.path!=='CHANGELOG.md'&&!referencedElsewhere(x.path)).map(x=>x.path).sort();
+const rootMjsCanonical=rootMjs.filter(x=>referencedElsewhere(x.path)).map(x=>x.path).sort();
+const unreferencedRootMjs=rootMjs.filter(x=>!referencedElsewhere(x.path)).map(x=>x.path).sort();
 
 const report={
-  version:'742-audit-1',
+  version:'742-audit-2',
   totalFiles:rows.length,
   rootFiles:root.length,
   rootCss:rootCss.length,
@@ -48,7 +51,12 @@ const report={
   rootChangelogs:rootChangelogs.length,
   numberedRuntime:numberedRuntime.length,
   unreferencedRootCssCount:unreferencedRootCss.length,
-  unreferencedRootCss
+  unreferencedRootChangelogCount:unreferencedRootChangelogs.length,
+  referencedRootMjsCount:rootMjsCanonical.length,
+  unreferencedRootMjsCount:unreferencedRootMjs.length,
+  unreferencedRootCss,
+  unreferencedRootChangelogs,
+  unreferencedRootMjs
 };
 
 const budgets={
@@ -61,5 +69,7 @@ const budgets={
 };
 for(const [key,max] of Object.entries(budgets))assert.ok(report[key]<=max,`OS742 complexity budget exceeded: ${key}=${report[key]} > ${max}`);
 
-console.log('OS742 complexity budget PASS',JSON.stringify({...report,unreferencedRootCss:undefined}));
+console.log('OS742 complexity budget PASS',JSON.stringify({...report,unreferencedRootCss:undefined,unreferencedRootChangelogs:undefined,unreferencedRootMjs:undefined}));
 if(unreferencedRootCss.length)console.log('OS742 unreferenced root CSS candidates:',unreferencedRootCss.join(', '));
+if(unreferencedRootChangelogs.length)console.log('OS742 unreferenced root changelog candidates:',unreferencedRootChangelogs.join(', '));
+if(unreferencedRootMjs.length)console.log('OS742 unreferenced root MJS candidates (first 120):',unreferencedRootMjs.slice(0,120).join(', '));
