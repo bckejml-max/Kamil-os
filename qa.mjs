@@ -59,7 +59,7 @@ assert.ok(runtime.includes("today:['./todayPage2000.js','renderTodayPage2000']")
 assert.ok(runtime.includes("work:['./workPage1300.js','renderWorkPage1300']")&&runtime.includes("property:['./propertyPage1300.js','renderPropertyPage1300']"),'OS1300 Work/Reality renderer mapping missing');
 assert.ok(runtime.includes("money:['./moneyOverview.js','renderMoneyOverview']")&&runtime.includes("tickets:['./ticketOverview.js','renderTicketOverview']")&&runtime.includes("betting:['./bettingOverview.js','renderBettingOverview']")&&runtime.includes("inbox:['./tasksOverview.js','renderTasksOverview']"),'Product-first overview mappings missing');
 for(const [name,file,marker] of [['Money',moneyOverview,'data-money-overview'],['Tickets',ticketOverview,'data-ticket-overview'],['Betting',bettingOverview,'data-betting-overview'],['Tasks',tasksOverview,'data-tasks-overview']])assert.ok(file.includes(marker),`${name} simple overview missing`);
-assert.ok(runtime.includes('ensureViewStyles')&&runtime.includes('dataset.os2Lazy'),'view-specific CSS lazy loading missing');
+assert.ok(!runtime.includes('ensureViewStyles')&&!runtime.includes('dataset.os2Lazy'),'retired view-specific CSS loader must stay removed');
 assert.ok(runtime.includes('warmViews=new Map()')&&runtime.includes('hydrateColdView42(key)'),'lazy view hydration/cache missing');
 for(const symbol of ['data-os2-today','data-product-home1300','data-os1400-home','os1600-next','os1600-areas','os1400-list','__KAMIL_TODAY_OS2000__'])assert.ok(today.includes(symbol),`Today product cockpit missing ${symbol}`);
 assert.ok(app.includes("dataset.viewReady==='1'"),'rendered views must stay mounted');
