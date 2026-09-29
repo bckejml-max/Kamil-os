@@ -6,6 +6,7 @@ const css=read('os-canonical.css');
 const app=read('js/app.js');
 const commandSearch610=read('js/commandSearch610.js');
 const runtime=read('js/viewRuntime41.js');
+const registry=read('js/viewRegistry.js');
 const advancedStyles=read('js/productAdvancedStyles.js');
 const today=read('js/todayPage2000.js');
 const personalQuery=read('js/personalQuery29.js');
@@ -164,7 +165,7 @@ assert.match(personalActionExecution,/CALENDAR_PREP_CLOSED_641/,'generic calenda
 assert.match(familyHomeActions,/PREP_CLOSED_644/,'family calendar prep must ignore closed prior prep tasks');
 assert.doesNotMatch(documents,/data-doc-filter/,'Documents canonical page must not hide content behind filters');
 
-assert.match(app,/betting:'betting-task'/,'shell quick add must support betting');
+assert.match(registry,/betting:\{[^\n]*capture:'betting-task'/,'shell quick add must support betting through the canonical registry');
 assert.match(app,/sameHost\?\.dataset\.productAdvanced==='1'/,'clicking the active nav item must exit advanced detail');
 assert.match(commandSearch610,/filter\(isActivePropertyCandidate472\)/,'command search must hide closed Property candidates');
 assert.match(commandSearch610,/property:\$\{i\}/,'Property search results must carry an exact candidate focus');
