@@ -219,7 +219,7 @@ function authCooldownRender(){cancelScheduled1100(OWNER,'auth-cooldown');const m
 function showResetView(){qs('#authView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#resetView').classList.remove('hidden');schedule1100(OWNER,'focus-reset',()=>qs('#resetPassword1')?.focus(),30)}
 function showLoginView(message=''){qs('#resetView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#authView').classList.remove('hidden');const email=qs('#loginEmail'),last=store.meta().lastCloudEmail;if(email&&!email.value&&last)email.value=last;if(message)qs('#authMessage').textContent=message;authCooldownRender();schedule1100(OWNER,'focus-login',()=>email?.focus(),30)}
 function showApp(){cancelScheduled1100(OWNER,'auth-cooldown');qs('#authView').classList.add('hidden');qs('#resetView').classList.add('hidden');qs('#appView').classList.remove('hidden')}
-function schedulePreflight(){scheduleIdle1110('app-preflight',async()=>{try{const pf=await runPreflight41();store.get().meta.preflight=pf;store.persist()}catch{}},3000)}
+function schedulePreflight(){scheduleIdle1110('app-preflight',async()=>{try{const pf=await runPreflight41();store.get().meta.preflight=pf;store.persist()}catch(error){recordDiagnostic('preflight',error);console.warn('[app41:preflight]',error)}},3000)}
 
 async function handleSession(sess){
  const seq=++sessionSeq;
