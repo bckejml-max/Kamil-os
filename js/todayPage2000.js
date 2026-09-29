@@ -12,6 +12,8 @@ import {personalDaysTo650} from './personalDate650.js';
 import {insuranceCenter} from './insurance25.js';
 import {isPersonalScope527} from './personalScope527.js';
 import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
+import {buildActionTruth741} from './actionTruthEngine.js';
+import {modal} from './utils.js';
 
 const OWNER='today.os2000';
 const openInsuranceCenter=()=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true})};
@@ -94,30 +96,57 @@ function queue(d){
 }
 function metric(label,value){return '<div class="os1400-metric"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>'}
 
+function truthFollowups741(truth){
+ const rows=truth.followUps.slice(0,4);if(!rows.length)return'';
+ return '<section class="os1600-section os741-waiting"><div class="os1600-section-head"><div><span class="os1400-kicker">Čekám</span><h2>Follow-upy</h2></div><span>'+rows.length+' teď zkontrolovat</span></div><div class="os1400-list">'+rows.map(x=>'<button type="button" class="os1400-row" data-today1300-nav="'+esc(x.route||'inbox')+'"><div><b>'+esc(x.title)+'</b><small>'+esc(x.detail||x.person||'Na tahu je druhá strana.')+'</small></div><div class="os1400-side warn">'+esc(x.dueAt?fmtDate({date:x.dueAt}):x.ageDays!==null?x.ageDays+' d čekání':'follow-up')+' →</div></button>').join('')+'</div></section>';
+}
+function truthTomorrow741(truth){
+ if(!truth.tomorrow.length)return'';
+ return '<section class="os1600-section os741-tomorrow"><div class="os1600-section-head"><div><span class="os1400-kicker">Zítra</span><h2>Předání do dalšího dne</h2></div><span>'+truth.tomorrow.length+' položek</span></div><div class="os1400-list">'+truth.tomorrow.slice(0,4).map(x=>'<button type="button" class="os1400-row" data-today1300-nav="'+esc(x.route||'today')+'"><div><b>'+esc(x.title)+'</b><small>'+esc(x.source)+'</small></div><div class="os1400-side">'+esc(fmtDate({date:x.dueAt}))+' →</div></button>').join('')+'</div></section>';
+}
+function truthIgnore741(truth){
+ if(!truth.ignore.length)return'';
+ return '<section class="os1600-section os741-ignore"><div class="os1600-section-head"><div><span class="os1400-kicker">Může počkat</span><h2>Dnes nemusíš řešit</h2></div><span>bez zjevného rizika</span></div><div class="os741-ignore-grid">'+truth.ignore.map(x=>'<button type="button" data-today1300-nav="'+esc(x.route)+'"><b>'+esc(x.title)+'</b><small>'+esc(x.reason)+'</small></button>').join('')+'</div></section>';
+}
+function truthData741(truth){
+ if(!truth.staleSources.length&&!truth.conflicts.length)return'';
+ const rows=[...truth.conflicts.map(x=>({title:x.title,detail:x.detail,route:x.route,tone:'bad'})),...truth.staleSources.map(x=>({title:x.label+' potřebuje obnovit',detail:x.updatedAt?'Poslední potvrzená aktualizace '+new Date(x.updatedAt).toLocaleDateString('cs-CZ')+'.':'Chybí potvrzený čas aktualizace.',route:x.route,tone:'warn'}))].slice(0,6);
+ return '<section class="os1600-section os741-data"><div class="os1600-section-head"><div><span class="os1400-kicker">Datová jistota</span><h2>'+truth.conflicts.length+' konfliktů · '+truth.staleSources.length+' zastaralých zdrojů</h2></div><span>OS nic nedohaduje</span></div><div class="os1400-list">'+rows.map(x=>'<button type="button" class="os1400-row" data-today1300-nav="'+esc(x.route||'today')+'"><div><b>'+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></div><div class="os1400-side '+x.tone+'">zkontrolovat →</div></button>').join('')+'</div></section>';
+}
+function truthReview741(truth){
+ const c=truth.dailyClose,w=truth.weeklyReview,b=truth.backupHealth;
+ return '<details class="os741-review"><summary><div><span class="os1400-kicker">Review</span><b>Uzávěrka, týden a stav dat</b></div><span>rozbalit</span></summary><div class="os741-review-grid"><div><span>Dnes změn</span><b>'+c.changes+'</b><small>'+c.completed+' dokončených · '+c.carry+' důležitých přenést</small></div><div><span>7 dní</span><b>'+w.changes+'</b><small>'+w.completed+' dokončených změn</small></div><div><span>Záloha / stav</span><b>'+(b.stateValid?'OK':'ZKONTROLOVAT')+'</b><small>'+b.issues.length+' upozornění · '+b.fatal.length+' fatálních</small></div></div><div class="os741-timeline">'+truth.timeline.slice(0,5).map(x=>'<div><span>'+esc(new Date(x.at).toLocaleString('cs-CZ',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))+'</span><b>'+esc(x.label)+'</b></div>').join('')+'</div></details>';
+}
+
 function render(){
  const host=document.querySelector('#todayView');if(!host)return false;
- const d=baseData(),items=queue(d),toneRank={bad:3,warn:2,good:1,'':0},system=systemState(d).map((x,i)=>({...x,_order:i})).sort((a,b)=>(toneRank[b.tone]||0)-(toneRank[a.tone]||0)||a._order-b._order),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
+ const d=baseData(),truth=buildActionTruth741(d.s),items=truth.actions.slice(0,6).map(x=>({...x,detail:x.detail||x.why,cta:x.cta||'otevřít'})),toneRank={bad:3,warn:2,good:1,'':0},system=systemState(d).map((x,i)=>({...x,_order:i})).sort((a,b)=>(toneRank[b.tone]||0)-(toneRank[a.tone]||0)||a._order-b._order),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
  const primary=items[0]||null,later=items.slice(1,5),now=Date.now(),due48=[...d.urgentTasks,...d.calendar].filter(x=>{const t=ts(x);return t!==null&&t>=now&&t<=now+2*86400000}).length;
  const severity=primary?.tone==='bad'?'bad':primary?'warn':'good';
  const summary=[
   {label:'Po termínu',value:String(d.overdue.length),tone:d.overdue.length?'bad':'good'},
-  {label:'Čekám',value:String(d.waiting.length),tone:d.waiting.length?'warn':'good'},
+  {label:'Čekám',value:String(truth.waiting.length),tone:truth.followUps.length?'warn':'good'},
   {label:'Transfery',value:String(d.transfer.length),tone:d.transfer.length?'bad':'good'},
   {label:'Do 48 h',value:String(due48),tone:due48?'warn':'good'}
  ];
  host.innerHTML='<div class="os1600-home" data-os2-today data-product-home1300 data-os1400-home data-os1600-home>'+
   '<header class="os1600-head"><div><div class="os1400-kicker">'+esc(today)+'</div><h1>'+greeting()+', Kamile.</h1><p>Nejdřív další krok. Pak dnešní fronta a přehled oblastí.</p></div><button class="os1400-button primary" type="button" data-today1300-add aria-label="Přidat nový úkol">＋ Přidat</button></header>'+
   '<div class="os1600-summary">'+summary.map(x=>'<div class="os1600-summary-item '+x.tone+'"><span>'+esc(x.label)+'</span><b>'+esc(x.value)+'</b></div>').join('')+'</div>'+
-  '<section class="os1600-next '+severity+'" aria-live="polite"><div class="os1600-next-copy"><span class="os1400-kicker">Další krok</span><h2>'+esc(primary?.title||'Nic akutního.')+'</h2><p>'+esc(primary?.detail||'Můžeš pokračovat podle plánu nebo si přidat nový úkol.')+'</p></div>'+
+  '<section class="os1600-next '+severity+'" aria-live="polite"><div class="os1600-next-copy"><span class="os1400-kicker">Další krok</span><h2>'+esc(primary?.title||'Nic akutního.')+'</h2><p>'+esc(primary?.detail||'Můžeš pokračovat podle plánu nebo si přidat nový úkol.')+'</p>'+(primary?'<button type="button" class="os741-why" data-today741-explain="'+esc(primary.id)+'">Proč to vidím?</button>':'')+'</div>'+
    (primary?'<button type="button" class="os1600-next-action" '+actionAttr(primary)+'><span>'+esc(primary.cta||'vyřešit')+'</span><b>Otevřít →</b></button>':'<button type="button" class="os1600-next-action quiet" data-today1300-add><span>máš prostor</span><b>＋ Přidat úkol</b></button>')+
   '</section>'+
   (later.length?'<section class="os1600-section os1600-later"><div class="os1600-section-head"><div><span class="os1400-kicker">Dnes ještě</span><h2>Další kroky</h2></div><span>'+later.length+' další</span></div>'+actionRows(later)+'</section>':'')+
   '<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Přehled</span><h2>Oblasti podle priority</h2></div><span>problémy první · vše na jeden klik</span></div>'+systemRows(system)+'</section>'+
+  truthFollowups741(truth)+truthTomorrow741(truth)+truthIgnore741(truth)+truthData741(truth)+
   (d.calendar.length?'<section class="os1600-section"><div class="os1600-section-head"><div><span class="os1400-kicker">Kalendář</span><h2>Nejbližší</h2></div><span>max. 3 události</span></div>'+calendarRows(d.calendar)+'</section>':'')+
+  truthReview741(truth)+
  '</div>';
+ host.__truth741=truth;
  if(!host.dataset.today1300Bound){
   host.dataset.today1300Bound='1';
   ownEvent1100(OWNER,host,'click',async e=>{
+   const explain=e.target.closest('[data-today741-explain]');
+   if(explain){const action=host.__truth741?.actions?.find(x=>String(x.id)===String(explain.dataset.today741Explain));if(action){await modal('Proč to vidím?',`<div class="card"><div class="eyebrow">ACTION ENGINE 741</div><h2>${esc(action.title)}</h2><p class="muted">${esc(action.detail||'')}</p><div class="row"><span>Priorita</span><b>${Number(action.score||0)}</b></div><div class="row"><span>Zdroj</span><b>${esc(action.source||action.route||'OS')}</b></div><div class="row"><span>Důvod</span><b>${esc(action.why||'otevřená položka')}</b></div>${action.dueAt?'<div class="row"><span>Termín</span><b>'+esc(new Date(action.dueAt).toLocaleString('cs-CZ'))+'</b></div>':''}${action.moneyImpactCzk?'<div class="row"><span>Finanční dopad</span><b>'+money(action.moneyImpactCzk)+'</b></div>':''}</div>`,[{label:'Otevřít sekci',value:'open',primary:true},{label:'Zavřít',value:null}]).then(choice=>{if(choice==='open')window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:action.route||'today'}))})}return}
    if(e.target.closest('[data-today1300-insurance]')){openInsuranceCenter();return}
    const personalButton=e.target.closest('[data-today1300-personal]');
    if(personalButton){const action=personalDailyAssistant650(store.get()).top.find(x=>String(x.id)===personalButton.dataset.today1300Personal);if(action){const {openPersonalAction641}=await import('./personalActionExecution641.js');await openPersonalAction641(action);render()}return}
@@ -127,7 +156,7 @@ function render(){
    if(e.target.closest('[data-today1300-add]'))window.dispatchEvent(new CustomEvent('kamil:capture',{detail:'task'}))
   })
  }
- window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,primary:primary?.title||null,due48,tasks:d.tasks.length,waiting:d.waiting.length,tickets:d.ticketState?.p?.queue?.activePositions||0,ticketQty:d.ticketState?.p?.queue?.activeQty||0,ticketTasks:d.ticketState?.ticketTasks?.length||0,ticketAttention:d.ticketState?.attention?.length||0,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open.length,bettingPositions:d.bet.open.length,bettingTickets:d.bet.openTickets,bettingExposure:d.bet.exposure,overdue:d.overdue.length,inboxLocal:d.inboxState?.counts?.total||0,inboxUrgent:d.inboxState?.counts?.urgent||0,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
+ window.__KAMIL_TODAY_OS2000__={healthy:true,version:2000,productReset:1331,usabilityReset:1500,attention:items.length,primary:primary?.title||null,due48,tasks:d.tasks.length,waiting:truth.waiting.length,followUps:truth.followUps.length,staleSources:truth.staleSources.length,dataConflicts:truth.conflicts.length,tomorrow:truth.tomorrow.length,tickets:d.ticketState?.p?.queue?.activePositions||0,ticketQty:d.ticketState?.p?.queue?.activeQty||0,ticketTasks:d.ticketState?.ticketTasks?.length||0,ticketAttention:d.ticketState?.attention?.length||0,work:d.work.status,property:d.property.best?.decision.code||null,cashKnown:d.cash!==null,cash:d.cash,bettingOpen:d.bet.open.length,bettingPositions:d.bet.open.length,bettingTickets:d.bet.openTickets,bettingExposure:d.bet.exposure,overdue:d.overdue.length,inboxLocal:d.inboxState?.counts?.total||0,inboxUrgent:d.inboxState?.counts?.urgent||0,personalPriorities:d.personal?.top?.length||0,systemRows:system.length,at:Date.now()};
  return true;
 }
 export function renderTodayPage2000(){return render()}
