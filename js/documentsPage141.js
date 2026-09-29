@@ -5,6 +5,7 @@ import {ensurePersonalVault640,personalVault640} from './personalVault640.js';
 import {personalDaysTo650} from './personalDate650.js';
 import {insuranceCenter} from './insurance25.js';
 import {openVaultRecord640,addSourceInbox650} from './personalDocuments640.js';
+import {buildActionTruth741} from './actionTruthEngine.js';
 
 const OWNER='documents.page1500';
 const typeLabel=v=>v.recordType==='insurance'?'Pojištění':v.recordType==='utility'?'Smlouva / energie':v.recordType==='mortgage'?'Hypotéka':v.recordType==='bank-data'?'Bankovní data':v.recordType==='property'?'Nemovitost':'Dokument';
@@ -26,7 +27,7 @@ const primaryDetail=p=>p?.source==='insurance'?`${p.lifecycleLabel||'Pojištěn�
 const rows=records=>records.length?records.map(v=>`<button type="button" class="pr1300-row pr1300-clickrow" data-doc1500-record="${h(v.id)}"><div class="pr1300-row-main"><b>${h(v.title)}</b><small>${h(typeLabel(v))} · ${h(validity(v))} · ${h(v.nextAction||'bez další akce')}</small></div><div class="pr1300-row-side ${tone(v)}">${h(v.status?.label||bucket(v))} <span class="os1500-row-arrow">→</span></div></button>`).join(''):'<div class="os1500-empty">Zatím tu nejsou uložené smlouvy ani dokumenty.</div>';
 
 export function renderDocumentsPage141(){
- const host=document.querySelector('#moreView');if(!host)return false;const d=data(),p=d.primary;
+ const host=document.querySelector('#moreView');if(!host)return false;const d=data(),p=d.primary,truth=buildActionTruth741(d.s),insTruth=truth.domains.insuranceTruth,trash=Array.isArray(d.s.trash?.items)?d.s.trash.items:[];
  host.innerHTML=`<div class="pr1300-shell" data-documents-page1500>
   <div class="pr1300-head"><div><div class="pr1300-kicker">Dokumenty</div><h1>Smlouvy, pojistky a důležité údaje.</h1><p>Všechno je na jedné stránce. Co vyžaduje akci je nahoře, platné věci a archiv zůstávají pod tím.</p></div><span class="pr1300-status ${d.actionTotal?'bad':d.counts.ending?'warn':'good'}">${d.actionTotal?d.actionTotal+' řešit':d.counts.ending?d.counts.ending+' končí':'klid'}</span></div>
   <section class="pr1320-now"><div><div class="pr1300-kicker">Teď</div><h2>${h(p?.title||'Dokumenty jsou bez akutního problému.')}</h2><p>${h(p?primaryDetail(p):'Žádná smlouva nebo pojistka teď nevyžaduje okamžitý zásah.')}</p></div><div class="pr1320-now-actions">${p?`<button class="pr1300-btn primary" type="button" data-doc1500-primary>Vyřešit teď →</button><button class="pr1300-btn" type="button" id="documentInbox650">＋ Přidat zdroj</button>`:`<button class="pr1300-btn primary" type="button" id="documentInbox650">＋ Přidat zdroj</button>`}</div></section>
@@ -34,6 +35,9 @@ export function renderDocumentsPage141(){
   <section class="pr1300-panel"><div class="pr1300-panel-head"><div><h2>Pojištění</h2><span>${d.insurance.active} aktivní · ${d.insurance.review} ověřit · ${d.insurance.terminating} ukončované</span></div><button class="pr1300-btn primary" type="button" id="insurance25Tile">Otevřít pojištění →</button></div><div class="os1500-section-note">Aktivní smlouvy, nové smlouvy, ukončování, nabídky a historie jsou v jednom specializovaném přehledu.</div></section>
   <div class="os1500-summary-grid"><div class="os1500-summary"><span>Řešit</span><b>${d.actionTotal}</b></div><div class="os1500-summary"><span>Do 90 dní</span><b>${d.counts.ending}</b></div><div class="os1500-summary"><span>Platné</span><b>${d.counts.valid}</b></div><div class="os1500-summary"><span>Archiv</span><b>${d.counts.archive}</b></div></div>
   <section class="pr1300-panel"><div class="pr1300-panel-head"><h2>Všechny dokumenty a údaje</h2><span>${d.records.length} záznamů · ${d.refs} zdrojů</span></div><div class="os1500-direct-list">${rows(d.records)}</div></section>
+  <section class="pr1300-panel os741-insurance-radar"><div class="pr1300-panel-head"><div><h2>Pojištění · radar 90 dní</h2><span>${insTruth.radar.length} termínů · ${insTruth.matrix.filter(x=>x.verified).length}/${insTruth.matrix.length} potvrzených zdrojů</span></div><button class="pr1300-btn" type="button" id="insurance25Radar">Detail →</button></div><div class="os741-radar-grid">${insTruth.radar.slice(0,6).map(x=>`<div><b>${h(x.title)}</b><small>${h(x.provider||'—')} · ${x.days===0?'dnes':'za '+x.days+' d'} · ${h(x.sourceStatus||'UNKNOWN')}</small></div>`).join('')||'<div class="os1500-empty">Do 90 dní není známý pojistný termín.</div>'}</div></section>
+  <section class="pr1300-panel os741-backup-health"><div class="pr1300-panel-head"><div><h2>Datová integrita</h2><span>${truth.backupHealth.stateValid?'stav lze bezpečně serializovat':'stav potřebuje kontrolu'}</span></div></div><div class="os1500-summary-grid"><div class="os1500-summary"><span>Stale zdroje</span><b>${truth.counts.stale}</b></div><div class="os1500-summary"><span>Konflikty</span><b>${truth.counts.conflicts}</b></div><div class="os1500-summary"><span>Upozornění stavu</span><b>${truth.backupHealth.issues.length}</b></div><div class="os1500-summary"><span>Koš</span><b>${trash.length}</b></div></div></section>
+  ${trash.length?'<section class="pr1300-panel os741-trash"><div class="pr1300-panel-head"><div><h2>Koš · 30 dní</h2><span>'+trash.length+' obnovitelných záznamů</span></div></div><div class="os1500-direct-list">'+trash.slice(0,10).map(x=>'<div class="pr1300-row"><div class="pr1300-row-main"><b>'+h(x.value?.title||x.value?.name||x.sourceId||'Záznam')+'</b><small>'+h(x.sourcePath)+' · '+date(x.deletedAt)+'</small></div><div class="pr1300-row-side"><button class="pr1300-btn" type="button" data-doc741-restore="'+h(x.id)+'">Obnovit</button></div></div>').join('')+'</div></section>':''}
   <details class="os1500-advanced-tools" data-doc1500-advanced>
    <summary><div><b>Pokročilé nástroje OS</b><span>Technické vrstvy a interní moduly. Pro běžnou práci je nepotřebuješ.</span></div><em>Rozbalit</em></summary>
    <div class="os1500-advanced-body">
@@ -53,10 +57,11 @@ export function renderDocumentsPage141(){
   if(e.target.closest('[data-doc1500-execution]')){const m=await import('./osExecution2200.js');m.renderExecutionCenter2200?.();return}
   if(e.target.closest('[data-doc1500-portfolio]')){const m=await import('./osPortfolio2300.js');m.renderPortfolioCenter2300?.();return}
   if(e.target.closest('[data-doc1500-strategy]')){const m=await import('./osStrategy2400.js');m.renderStrategyCenter2400?.();return}
-  if(e.target.closest('#insurance25Tile')){const m=await import('./insuranceUi25.js');m.renderInsurance25?.();return}
+  if(e.target.closest('#insurance25Tile')||e.target.closest('#insurance25Radar')){const m=await import('./insuranceUi25.js');m.renderInsurance25?.();return}
+  const restore=e.target.closest('[data-doc741-restore]');if(restore){if(store.restoreTrash(restore.dataset.doc741Restore))return renderDocumentsPage141();return}
   if(e.target.closest('#documentInbox650')){await addSourceInbox650(cur.records);return renderDocumentsPage141()}
   if(e.target.closest('[data-doc1500-primary]')&&cur.primary){if(cur.primary.source==='insurance'){const m=await import('./insuranceUi25.js');m.renderInsurance25?.();return}await openVaultRecord640(cur.primary.id);return renderDocumentsPage141()}
   const rb=e.target.closest('[data-doc1500-record]');if(rb){await openVaultRecord640(rb.dataset.doc1500Record);return renderDocumentsPage141()}
  })}
- window.__KAMIL_DOCUMENTS141__={healthy:true,core:'os1500',records:d.records.length,action:d.actionTotal,insuranceAction:d.insuranceAction.length,ending:d.counts.ending,refs:d.refs,primarySource:d.primary?.source||'vault',at:Date.now()};return true;
+ window.__KAMIL_DOCUMENTS141__={healthy:true,core:'os1500',records:d.records.length,action:d.actionTotal,insuranceAction:d.insuranceAction.length,ending:d.counts.ending,refs:d.refs,primarySource:d.primary?.source||'vault',insuranceRadar:insTruth.radar.length,trash:trash.length,stale:truth.counts.stale,conflicts:truth.counts.conflicts,at:Date.now()};return true;
 }
