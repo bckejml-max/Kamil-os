@@ -1,11 +1,11 @@
 {
   "version": "741.0.0",
-  "totalFiles": 1404,
+  "totalFiles": 1392,
   "js": 711,
   "mjs": 453,
-  "css": 131,
+  "css": 119,
   "e2e": 150,
   "guards": 84,
-  "numberedRuntime": 787,
+  "numberedRuntime": 778,
   "canonicalCssBytes": 114762
 }
