@@ -120,8 +120,8 @@ function truthReview741(truth){
 
 function render(){
  const host=document.querySelector('#todayView');if(!host)return false;
- const d=baseData(),truth=buildActionTruth741(d.s),ranked=truth.actions,visibleActions=[...ranked.slice(0,6)],insuranceAction=ranked.find(x=>x.insurance===true);
- if(insuranceAction&&!visibleActions.some(x=>x.id===insuranceAction.id)){if(visibleActions.length>=6)visibleActions[visibleActions.length-1]=insuranceAction;else visibleActions.push(insuranceAction);visibleActions.sort((a,b)=>Number(b.score||0)-Number(a.score||0))}
+ const d=baseData(),truth=buildActionTruth741(d.s),ranked=truth.actions,visibleActions=[...ranked.slice(0,5)],insuranceAction=ranked.find(x=>x.insurance===true);
+ if(insuranceAction&&!visibleActions.some(x=>x.id===insuranceAction.id)){if(visibleActions.length>=5)visibleActions[visibleActions.length-1]=insuranceAction;else visibleActions.push(insuranceAction);visibleActions.sort((a,b)=>Number(b.score||0)-Number(a.score||0))}
  const items=visibleActions.map(x=>({...x,detail:x.detail||x.why,cta:x.cta||'otevřít'})),toneRank={bad:3,warn:2,good:1,'':0},system=systemState(d).map((x,i)=>({...x,_order:i})).sort((a,b)=>(toneRank[b.tone]||0)-(toneRank[a.tone]||0)||a._order-b._order),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
  const primary=items[0]||null,later=items.slice(1,5),now=Date.now(),due48=[...d.urgentTasks,...d.calendar].filter(x=>{const t=ts(x);return t!==null&&t>=now&&t<=now+2*86400000}).length;
  const severity=primary?.tone==='bad'?'bad':primary?'warn':'good';
