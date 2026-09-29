@@ -10,7 +10,26 @@ const S=()=>store.get?.()||{};
 const CLOSED610=new Set(['DONE','HOTOVO','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','CANCELLED','CANCELED','COMPLETED','FINISHED']);
 const active610=x=>!CLOSED610.has(String(x?.status||x?.workflow||x?.state||'OPEN').trim().toUpperCase());
 const fireFocus=(target,focus)=>window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{focus,target}}));
-const openTarget=(target,focus=null)=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));if(target==='more'&&focus==='insurance')schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true});if(focus&&focus!=='insurance')for(const ms of [120,420,900,1600,2800,4500])schedule1100(OWNER,`focus:${target}:${focus}:${ms}`,()=>fireFocus(target,focus),ms,{pauseWhenHidden:true})};
+const advanced610={
+ insurance:()=>import('./insuranceUi25.js').then(m=>m.renderInsurance25?.()),
+ upgrades2050:()=>import('./osUpgrades2050.js').then(m=>m.renderUpgradeCenter2050?.()),
+ automation2100:()=>import('./osAutomation2100.js').then(m=>m.renderAutomationCenter2100?.()),
+ execution2200:()=>import('./osExecution2200.js').then(m=>m.renderExecutionCenter2200?.()),
+ portfolio2300:()=>import('./osPortfolio2300.js').then(m=>m.renderPortfolioCenter2300?.()),
+ strategy2400:()=>import('./osStrategy2400.js').then(m=>m.renderStrategyCenter2400?.())
+};
+function openFocused610(target,focus,attempt=0){
+ if(!focus)return;
+ const host=document.querySelector(target==='more'?'#moreView':`#${target}View`);
+ if(host?.dataset.viewReady==='1'){
+  const direct=target==='more'?advanced610[focus]:null;
+  if(direct){Promise.resolve(direct()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return}
+  fireFocus(target,focus);return
+ }
+ if(attempt>=10)return;
+ schedule1100(OWNER,`focus-ready:${target}:${focus}`,()=>openFocused610(target,focus,attempt+1),80+attempt*70,{pauseWhenHidden:true});
+}
+const openTarget=(target,focus=null)=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));openFocused610(target||'today',focus)};
 const addMatch=(out,q,kind,title,detail,target,id,focus)=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,focus})};
 
 export function searchExtended610(raw){
