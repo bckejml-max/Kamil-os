@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const read=p=>readFile(new URL(p,import.meta.url),'utf8');
 
-const [runtime,betting,money,tickets]=await Promise.all([
+const [runtime,registry,betting,money,tickets]=await Promise.all([
   read('./js/viewRuntime41.js'),
+  read('./js/viewRegistry.js'),
   read('./js/bettingPage527.js'),
   read('./js/moneyPage100.js'),
   read('./js/ticketDesk331.js')
@@ -11,8 +12,8 @@ const [runtime,betting,money,tickets]=await Promise.all([
 
 assert.doesNotMatch(runtime,/load\('\.\/decisionFocus2020\.js'\)/,'decision-focus overlays must stay off the canonical runtime');
 assert.match(runtime,/renderExtras41\(view='today'\)\{syncChrome142\(view\);return null\}/,'render extras must remain non-blocking');
-assert.match(runtime,/heavyViews=new Set\(\['money','tickets','betting'\]\)/,'heavy views must be explicitly classified');
-assert.match(runtime,/heavyViews\.has\(key\).*#view-\$\{key\}\.on/s,'inactive heavy views must not be speculatively prefetched');
+for(const view of ['money','tickets','betting'])assert.match(registry,new RegExp(view+':[\\s\\S]*?heavy:true'),`heavy view ${view} must be explicitly classified in the registry`);
+assert.match(runtime,/VIEW_REGISTRY\[key\]\?\.heavy.*#view-\$\{key\}\.on/s,'inactive heavy views must not be speculatively prefetched');
 
 assert.match(betting,/renderBettingPage144\(\)/,'Betting core renderer must run immediately');
 assert.doesNotMatch(betting,/Betting centrum nedokončilo načtení včas/,'Betting view must not fail because enrichment timed out');
