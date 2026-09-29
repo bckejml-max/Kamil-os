@@ -16,7 +16,8 @@ test('command palette remembers history, contextual hints and global search acti
  await boot(page);
  await page.locator('#mainNav [data-view="money"]').click();
  await expect(page.locator('#commandInput')).toHaveAttribute('placeholder',/účet|platbu|pojistku/i);
- await page.locator('#commandInput').fill('Allianz');
+ await page.evaluate(async()=>{const {store}=await import('./js/state.js');store.mutate('e2e global search project',s=>{s.projects=s.projects||[];s.projects.push({id:'e2e-global-project',name:'Projekt Hvězda 741',status:'ACTIVE'})},{undo:false,cloud:false,audit:false})});
+ await page.locator('#commandInput').fill('Projekt Hvězda 741');
  await expect(page.locator('[data-command-task741]').first()).toBeVisible({timeout:10000});
  await page.locator('#commandInput').fill('ukaž práci');
  await page.locator('#commandInput').press('Enter');
