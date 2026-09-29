@@ -21,6 +21,7 @@ assert.doesNotMatch(runtime,/\bviewStyles\b|\bloadCss\b|\bensureViewStyles\b|\bs
 const eager=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(x=>x[1]);
 assert.deepEqual(eager,['./os-canonical.css'],'runtime must load one canonical stylesheet');
 assert.match(css,/#familyView/,'canonical CSS must target familyView');
+for(const retired of ['styles.css','os2.css','productReset1300.css','os1331.css','os1332.css','os1333.css','os1334.css','os1400.css','os1500.css'])assert.equal(fs.existsSync(retired),false,`retired runtime stylesheet must stay deleted: ${retired}`);
 assert.match(app,/recordDiagnostic\('render:'/,'renderer failures must record diagnostics');
 assert.match(app,/data-runtime-retry/,'renderer failure UI must expose retry');
 assert.match(app,/data-runtime-copy/,'renderer failure UI must expose diagnostic copy');
