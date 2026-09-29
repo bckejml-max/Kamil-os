@@ -22,6 +22,7 @@ function openFocused610(target,focus,attempt=0){
  if(!focus)return;
  const host=document.querySelector(target==='more'?'#moreView':`#${target}View`);
  if(host?.dataset.viewReady==='1'){
+  if(target==='more'&&focus==='insurance'){Promise.resolve(advanced610.insurance()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return}
   const direct=target==='more'?advanced610[focus]:null;
   if(direct){Promise.resolve(direct()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return}
   fireFocus(target,focus);return
