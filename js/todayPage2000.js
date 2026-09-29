@@ -16,7 +16,13 @@ import {buildActionTruth741} from './actionTruthEngine.js';
 import {modal} from './utils.js';
 
 const OWNER='today.os2000';
-const openInsuranceCenter=()=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true})};
+function renderInsuranceWhenReady(attempt=0){
+ const host=document.querySelector('#moreView');
+ if(host?.dataset.viewReady==='1'){void import('./insuranceUi25.js').then(m=>m.renderInsurance25?.()).catch(error=>console.warn('[today:insurance-open]',error));return}
+ if(attempt>=10)return;
+ schedule1100(OWNER,'insurance-open-ready',()=>renderInsuranceWhenReady(attempt+1),80+attempt*70,{pauseWhenHidden:true});
+}
+const openInsuranceCenter=()=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));renderInsuranceWhenReady()};
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT_RECEIVED','PAYOUT RECEIVED','CANCELLED','CANCELED']);
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const upper=v=>String(v||'').toUpperCase();
