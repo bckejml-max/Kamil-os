@@ -182,6 +182,7 @@ class Store{
   this.s.undo=compactUndo(this.legacyUndo||this.readUndo());this.legacyUndo=null;this.undoLoaded=true;this.undoCountCache=this.s.undo.length;return this.s.undo;
  }
  undoCount(){return this.undoLoaded?(this.s.undo||[]).length:Number(this.undoCountCache||0)}
+ undoLabel(){const rows=this.undoLoaded?(this.s.undo||[]):(this.legacyUndo||this.readUndo());return rows?.[0]?.label||null}
  compactLegacyStorage(){
   try{
    if(this.legacyUndo?.length&&!localStorage.getItem(UNDO_KEY))localStorage.setItem(UNDO_KEY,JSON.stringify(compactUndo(this.legacyUndo)));
