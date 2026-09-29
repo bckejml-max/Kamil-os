@@ -1,4 +1,4 @@
-# Kamil OS 739.0.0
+# Kamil OS 740.0.0
 
 Kamil OS je osobní **Daily Personal Assistant + Ticket Intelligence**. Hlavní uživatelské rozhraní má deset přímo dostupných oblastí: **Dnes / Úkoly / Práce / Vstupenky / Peníze / Reality / Sázení / Rodina / Domov / Dokumenty**.
 
@@ -39,9 +39,14 @@ Privátní ticket inventory a snapshoty nejsou publikované do veřejného repoz
 Aktuální release má statické guardy, core/cloud safety testy a Playwright E2E pro osobní flow i Ticket Intelligence. Legacy market enginy zůstávají kompatibilní a nesmí převzít hlavní osobní Home.
 
 
-## Runtime 739.0
+## Runtime 740.0
 
-- Jeden kanonický runtime stylesheet: `os-canonical.css`; historické CSS vrstvy zůstávají jen jako zdrojová historie a nejsou načítané přímo v produkci.
+- Jeden kanonický runtime stylesheet: `os-canonical.css`; historické CSS vrstvy nejsou načítané přímo v produkci.
 - Dnes se při startu nerehydratuje z dvoudenního HTML snapshotu. Startovní shell je neutrální a skutečný obsah kreslí jediný kanonický renderer.
 - Rodina má vlastní DOM host `familyView`; už nesdílí historický identifikátor `ticketsView`.
 - Mobilní navigace drží všech deset oblastí přímo viditelných v rozložení 5×2.
+
+- Metadata všech 10 hlavních sekcí jsou v jediném `js/viewRegistry.js`; app shell ani view runtime už nedrží vlastní kopie map.
+- Aktivní sekce má deep-link přes `?view=` a funguje Back/Forward.
+- Pád rendereru vytvoří bezpečný diagnostický záznam, nabídne opakování a zkopírování diagnostiky bez mazání dat.
+- Nové očíslované JS/CSS/MJS patch soubory jsou v CI zakázané; stávající legacy názvy jsou zmražené allowlistem.
