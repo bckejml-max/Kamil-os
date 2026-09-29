@@ -2,43 +2,18 @@ import {hydrateColdView42} from './coldPartition42.js';
 import {APP_RELEASE} from './releaseMeta.js';
 import {ownEvent1100} from './runtimeOwnership1100.js';
 import {restoreCanonicalProductStyles} from './productAdvancedStyles.js';
+import {VIEW_REGISTRY,VALID_VIEWS,viewMeta} from './viewRegistry.js';
 
 const OWNER='core.viewRuntime41';
-const modules=new Map(),warmViews=new Map(),stylePromises=new Map();
-const titles={today:'DNES',work:'PRÁCE',tickets:'VSTUPENKY',property:'REALITY',money:'PENÍZE',betting:'SÁZENÍ',inbox:'ÚKOLY',family:'RODINA',home:'DOMOV',more:'DOKUMENTY'};
-const quick={today:'Přidat',work:'Pracovní úkol',tickets:'Úkol k ticketům',property:'Úkol k realitě',money:'Finanční úkol',betting:'Úkol k sázení',inbox:'Úkol',family:'Rodinný úkol',home:'Domácí úkol',more:'Dokument / zdroj'};
-const heavyViews=new Set(['money','tickets','betting']);
-const viewDefs={
- today:['./todayPage2000.js','renderTodayPage2000'],
- work:['./workPage1300.js','renderWorkPage1300'],
- inbox:['./tasksOverview.js','renderTasksOverview'],
- money:['./moneyOverview.js','renderMoneyOverview'],
- tickets:['./ticketOverview.js','renderTicketOverview'],
- property:['./propertyPage1300.js','renderPropertyPage1300'],
- betting:['./bettingOverview.js','renderBettingOverview'],
- family:['./familyPage140.js','renderFamilyPage140'],
- home:['./homePage140.js','renderHomePage140'],
- more:['./documentsPage141.js','renderDocumentsPage141']
-};
-const viewStyles={
- inbox:[],
- money:[],
- tickets:[],
- betting:[],
- family:[],
- home:[],
- more:[]
-};
+const modules=new Map(),warmViews=new Map();
 
-export const validViews41=new Set(Object.keys(viewDefs));
+export const validViews41=VALID_VIEWS;
 function load(path){if(modules.has(path))return modules.get(path);const p=import(path).catch(err=>{modules.delete(path);throw err});modules.set(path,p);return p}
-function loadCss(href){if(stylePromises.has(href))return stylePromises.get(href);const existing=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>x.getAttribute('href')===href||x.href.endsWith(href.replace('./','/')));if(existing){const p=Promise.resolve(true);stylePromises.set(href,p);return p}const p=new Promise(resolve=>{const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset.os2Lazy='1';l.onload=()=>resolve(true);l.onerror=()=>resolve(false);document.head.appendChild(l)});stylePromises.set(href,p);return p}
-async function ensureViewStyles(view){const hrefs=viewStyles[view]||[];if(hrefs.length)await Promise.all(hrefs.map(loadCss));restoreCanonicalProductStyles();return true}
-function syncChrome142(view){if(typeof document==='undefined')return;const p=document.querySelector('#pageTitle');if(p)p.textContent=titles[view]||'KAMIL OS';document.querySelectorAll('[data-view]').forEach(x=>{const on=x.dataset.view===view;x.classList.toggle('on',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});const add=document.querySelector('#quickAddBtn');if(add){add.classList.remove('hidden');const b=add.querySelector('b'),name=quick[view]||'Přidat';if(b)b.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`}}
+function syncChrome142(view){if(typeof document==='undefined')return;const meta=viewMeta(view),p=document.querySelector('#pageTitle');if(p)p.textContent=meta.title.toUpperCase();document.querySelectorAll('[data-view]').forEach(x=>{const on=x.dataset.view===view;x.classList.toggle('on',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});const add=document.querySelector('#quickAddBtn');if(add){add.classList.remove('hidden');const b=add.querySelector('b'),name=meta.quick||'Přidat';if(b)b.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`}}
 ownEvent1100(OWNER,window,'kamil:view-change',e=>syncChrome142(e.detail));syncChrome142('today');
-function warmView(name='today'){const key=validViews41.has(name)?name:'today';if(warmViews.has(key))return warmViews.get(key);const def=viewDefs[key],p=Promise.resolve().then(()=>ensureViewStyles(key)).then(()=>hydrateColdView42(key)).then(()=>load(def[0])).then(m=>{const renderer=m?.[def[1]];if(typeof renderer!=='function')throw new Error(`Chybí renderer ${def[1]} pro ${key}`);return renderer}).catch(err=>{warmViews.delete(key);throw err});warmViews.set(key,p);return p}
+function warmView(name='today'){const key=validViews41.has(name)?name:'today';if(warmViews.has(key))return warmViews.get(key);const meta=VIEW_REGISTRY[key],p=Promise.resolve().then(()=>hydrateColdView42(key)).then(()=>load(meta.module)).then(m=>{const renderer=m?.[meta.renderer];if(typeof renderer!=='function')throw new Error(`Chybí renderer ${meta.renderer} pro ${key}`);return renderer}).catch(err=>{warmViews.delete(key);throw err});warmViews.set(key,p);return p}
 export function getViewRenderer41(name='today'){return warmView(name)}
-export function prefetchView41(name='today'){const key=validViews41.has(name)?name:'today';if(heavyViews.has(key)&&!document.querySelector(`#view-${key}.on`))return Promise.resolve(false);return warmView(key).then(()=>true).catch(error=>{console.warn(`[viewRuntime41] prefetch ${key}`,error);return false})}
+export function prefetchView41(name='today'){const key=validViews41.has(name)?name:'today';if(VIEW_REGISTRY[key]?.heavy&&!document.querySelector(`#view-${key}.on`))return Promise.resolve(false);return warmView(key).then(()=>true).catch(error=>{console.warn(`[viewRuntime41] prefetch ${key}`,error);return false})}
 export async function setMoreMode41(){return Promise.resolve(null)}
 export async function openCapture41(type='task'){if(type==='money-task'){const m=await load('./personalMoneyActions645.js');return m.createMoneyTask645()}if(type==='document-source'){const btn=document.querySelector('#documentInbox650');if(btn){btn.click();return true}return null}const m=await load('./personalCapture643.js');if(type==='work-task')return m.openPersonalCapture643('task',{area:'Práce',category:'Práce'});if(type==='property-task')return m.openPersonalCapture643('task',{area:'Reality',category:'Reality'});if(type==='betting-task')return m.openPersonalCapture643('task',{area:'Sázení',category:'Sázení'});if(type==='family-task')return m.openPersonalCapture643('task',{area:'Rodina',category:'Rodina'});if(type==='home-task')return m.openPersonalCapture643('task',{area:'Domov',category:'Domov'});if(type==='ticket-task')return m.openPersonalCapture643('task',{area:'Vstupenky',category:'Vstupenky'});return m.openPersonalCapture643(['task','waiting','admin','insurance','contract'].includes(type)?type:'task')}
 export async function renderCommandResults41(q=''){try{const c=await load('./capitalCommand100.js');if(c.isCapitalQuestion100(q)){const box=document.querySelector('#commandResults');if(box){const amount=c.parseCapitalAmount100(q);box.classList.remove('hidden');box.innerHTML=`<div class="search-row"><div><b>Rozhodnout, co s ${Number(amount||0).toLocaleString('cs-CZ')} Kč</b><div class="muted">Capital Allocation Brain</div></div><button class="btn" data-capital-command100>Vyhodnotit</button></div>`;box.querySelector('[data-capital-command100]')?.addEventListener('click',()=>{box.classList.add('hidden');c.openCapitalDecision100(q)});return}}}catch{}try{const x=await load('./commandSearch610.js');x.installCommandSearch610?.();if(x.renderExtendedResults610?.(q))return}catch(e){console.warn('[command-search610]',e)}const m=await load('./command.js');return m.renderResults(q)}
