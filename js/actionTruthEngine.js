@@ -60,12 +60,18 @@ function normalizedAction(row,now=Date.now()){
 }
 function dedupeActions(rows,now=Date.now()){
  const map=new Map();
+ const mergeSemantics=(winner,other)=>{
+  if(winner.insurance===true||other.insurance===true){winner.insurance=true;winner.route='more';winner.cta=winner.cta||'pojištění'}
+  if(!winner.taskId&&other.taskId)winner.taskId=other.taskId;
+  if(!winner.personalId&&other.personalId)winner.personalId=other.personalId;
+  return winner
+ };
  for(const raw of rows.map(x=>normalizedAction(x,now))){
   const keys=[raw.canonicalKey,raw.sourceId?U(raw.source)+':'+U(raw.sourceId):null,raw.title?fold(raw.title):null].filter(Boolean);
   const existing=[...map.values()].find(x=>keys.includes(x.canonicalKey)||keys.includes(fold(x.title))||(raw.sourceId&&x.source===raw.source&&x.sourceId===raw.sourceId));
   if(!existing){map.set(raw.canonicalKey,raw);continue}
-  if(raw.score>existing.score){raw.reasons=[...new Set([...(existing.reasons||[]),...(raw.reasons||[])])];raw.why=raw.reasons.join(' · ');map.delete(existing.canonicalKey);map.set(raw.canonicalKey,raw)}
-  else{existing.reasons=[...new Set([...(existing.reasons||[]),...(raw.reasons||[])])];existing.why=existing.reasons.join(' · ')}
+  if(raw.score>existing.score){raw.reasons=[...new Set([...(existing.reasons||[]),...(raw.reasons||[])])];raw.why=raw.reasons.join(' · ');mergeSemantics(raw,existing);map.delete(existing.canonicalKey);map.set(raw.canonicalKey,raw)}
+  else{existing.reasons=[...new Set([...(existing.reasons||[]),...(raw.reasons||[])])];existing.why=existing.reasons.join(' · ');mergeSemantics(existing,raw)}
  }
  return [...map.values()].sort((a,b)=>b.score-a.score||(at(a.dueAt)||Infinity)-(at(b.dueAt)||Infinity));
 }
