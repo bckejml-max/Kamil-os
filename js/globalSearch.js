@@ -35,7 +35,7 @@ export function resolveCommand741(query,input=null){
  if(/cekam|čekám|follow.?up/.test(q))return{route:'inbox',label:'Otevírám čekání a follow-upy'};
  if(/neprodan|ticket|vstupenk/.test(q))return{route:'tickets',label:'Otevírám vstupenky'};
  if(/cash|hotovost|peniz|peněz|finance|spor/.test(q))return{route:'money',label:'Otevírám peníze'};
- if(/pojist|smlouv|dokument/.test(q))return{route:'more',label:'Otevírám dokumenty a pojištění'};
+ if(/kos|koš|smazan|repo health|technicky stav|technický stav|pojist|smlouv|dokument/.test(q))return{route:'more',label:'Otevírám dokumenty, koš a technický stav'};
  if(/realit|byt|nemovit/.test(q))return{route:'property',label:'Otevírám reality'};
  if(/saz|sáz|kurz|bankroll/.test(q))return{route:'betting',label:'Otevírám sázení'};
  if(/zakaz|zakáz|prace|práce|projekt/.test(q))return{route:'work',label:'Otevírám práci'};
