@@ -23,7 +23,7 @@ const blank=()=>({
  debtBook:{items:[],review:[]},
  personalAdmin:{items:[]},familyHome:{members:[]},personalSettings:{maskSensitive:true,notificationMode:'IMPORTANT'},emergencyFile:{contacts:[],assets:[]},
  personalInbox:{items:[]},assetBook:{items:[]},personalGoals:{items:[]},
- personalSpending:{transactions:[]},importCenter:{history:[]},netWorthBook:{items:[],history:[]},
+ personalSpending:{transactions:[]},importCenter:{history:[]},netWorthBook:{items:[],history:[]},trash:{items:[]},
  inbox:[],delegations:[],learning:{typeBias:{},feedback:[]},
  ui:{},audit:[],undo:[]
 });
@@ -69,6 +69,7 @@ export function migrate(input){
  s.personalSpending={transactions:[],...(s.personalSpending||{})};s.personalSpending.transactions=Array.isArray(s.personalSpending.transactions)?s.personalSpending.transactions:[];
  s.importCenter={history:[],...(s.importCenter||{})};s.importCenter.history=Array.isArray(s.importCenter.history)?s.importCenter.history:[];
  s.netWorthBook={items:[],history:[],...(s.netWorthBook||{})};s.netWorthBook.items=Array.isArray(s.netWorthBook.items)?s.netWorthBook.items:[];s.netWorthBook.history=Array.isArray(s.netWorthBook.history)?s.netWorthBook.history:[];
+ s.trash={items:[],...(s.trash||{})};s.trash.items=Array.isArray(s.trash.items)?s.trash.items:[];
  s.inbox=Array.isArray(s.inbox)?s.inbox:[];
  s.delegations=Array.isArray(s.delegations)?s.delegations:[];
  s.learning=s.learning||{typeBias:{},feedback:[]};s.learning.typeBias=s.learning.typeBias||{};s.learning.feedback=Array.isArray(s.learning.feedback)?s.learning.feedback:[];
@@ -91,6 +92,7 @@ export function migrate(input){
  for(const x of s.importCenter.history)if(!x.id)x.id=uid('import');
  for(const x of s.netWorthBook.items)if(!x.id)x.id=uid('networth');
  for(const x of s.netWorthBook.history)if(!x.id)x.id=uid('networth-snapshot');
+ for(const x of s.trash.items)if(!x.id)x.id=uid('trash');
  s.meta.migratedFrom=from;s.meta.schemaVersion=SCHEMA_VERSION;
  return s;
 }
@@ -125,6 +127,8 @@ export function validateState(input){
  if(input.netWorthBook!==undefined&&typeof input.netWorthBook!=='object')issues.push('netWorthBook má neplatný formát');
  if(input.netWorthBook?.items!==undefined&&!Array.isArray(input.netWorthBook.items))issues.push('netWorthBook.items nebylo pole');
  if(input.netWorthBook?.history!==undefined&&!Array.isArray(input.netWorthBook.history))issues.push('netWorthBook.history nebylo pole');
+ if(input.trash!==undefined&&typeof input.trash!=='object')issues.push('trash má neplatný formát');
+ if(input.trash?.items!==undefined&&!Array.isArray(input.trash.items))issues.push('trash.items nebylo pole');
  const ids=new Set(),dupIds=[];
  const scan=(a,label)=>Array.isArray(a)&&a.forEach(x=>{if(x?.id){if(ids.has(x.id))dupIds.push(`${label}:${x.id}`);ids.add(x.id)}});
  scan(input.tasks,'task');scan(input.projects,'project');scan(input.ticketBook?.items,'ticket');scan(input.ticketBook?.watchlist,'ticket-watch');scan(input.bettingLedger?.bets,'bet');scan(input.debtBook?.items,'debt');scan(input.personalAdmin?.items,'personal');scan(input.familyHome?.members,'family');scan(input.emergencyFile?.contacts,'emergency-contact');scan(input.emergencyFile?.assets,'emergency-asset');scan(input.personalInbox?.items,'personal-inbox');scan(input.assetBook?.items,'asset');scan(input.personalGoals?.items,'goal');scan(input.personalSpending?.transactions,'txn');scan(input.importCenter?.history,'import');scan(input.netWorthBook?.items,'networth');scan(input.netWorthBook?.history,'networth-snapshot');
@@ -136,9 +140,11 @@ export function repairState(input){
  const dedupe=a=>{const seen=new Set();return (Array.isArray(a)?a:[]).filter(x=>{if(!x?.id)return true;if(seen.has(x.id))return false;seen.add(x.id);return true})};
  fixed.tasks=dedupe(fixed.tasks);fixed.projects=dedupe(fixed.projects);
  fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.ticketBook.watchlist=dedupe(fixed.ticketBook.watchlist);fixed.bettingLedger.bets=dedupe(fixed.bettingLedger.bets);fixed.debtBook.items=dedupe(fixed.debtBook.items);
- fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);fixed.personalGoals.items=dedupe(fixed.personalGoals.items);fixed.personalSpending.transactions=dedupe(fixed.personalSpending.transactions);fixed.importCenter.history=dedupe(fixed.importCenter.history);fixed.netWorthBook.items=dedupe(fixed.netWorthBook.items);fixed.netWorthBook.history=dedupe(fixed.netWorthBook.history);
+ fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);fixed.personalGoals.items=dedupe(fixed.personalGoals.items);fixed.personalSpending.transactions=dedupe(fixed.personalSpending.transactions);fixed.importCenter.history=dedupe(fixed.importCenter.history);fixed.netWorthBook.items=dedupe(fixed.netWorthBook.items);fixed.netWorthBook.history=dedupe(fixed.netWorthBook.history);fixed.trash.items=dedupe(fixed.trash.items);
  return {state:fixed,report};
 }
+const collectionAtPath741=(root,path)=>{const keys=String(path||'').split('.').filter(Boolean);let cur=root;for(const key of keys){if(cur==null)return null;cur=cur[key]}return Array.isArray(cur)?cur:null};
+const TRASH_RETENTION_DAYS741=30;
 class Store{
  constructor(){
   this.listeners=new Set();this.cloudWriter=null;this.dirty=!!localStorage.getItem(QUEUE_KEY);
@@ -228,6 +234,15 @@ class Store{
    this.s.meta.lastMutationAt=new Date().toISOString();
    this.s.audit.unshift({id:uid('audit'),label:`Vráceno: ${x.label}`,at:new Date().toISOString()});
    this.persist();this.dirty=true;this.queueSync(this.s);this.emit('undo');if(this.cloudWriter)this.cloudWriter();return true;
+ }
+ softDelete(label,{path,id}={}){
+  let moved=null;this.mutate(label||'Přesunuto do koše',state=>{const arr=collectionAtPath741(state,path);if(!arr)return;const i=arr.findIndex(x=>String(x?.id)===String(id));if(i<0)return;moved=arr.splice(i,1)[0];state.trash=state.trash||{items:[]};state.trash.items=Array.isArray(state.trash.items)?state.trash.items:[];state.trash.items.unshift({id:uid('trash'),sourcePath:path,sourceId:moved?.id||id,deletedAt:new Date().toISOString(),value:clone(moved)});state.trash.items=state.trash.items.slice(0,200)},{undo:true,cloud:true,audit:true});return moved
+ }
+ restoreTrash(trashId){
+  let restored=false;this.mutate('Obnoveno z koše',state=>{const rows=state.trash?.items||[],i=rows.findIndex(x=>String(x.id)===String(trashId));if(i<0)return;const row=rows[i],arr=collectionAtPath741(state,row.sourcePath);if(!arr||arr.some(x=>String(x?.id)===String(row.sourceId)))return;arr.push(clone(row.value));rows.splice(i,1);restored=true},{undo:true,cloud:true,audit:true});return restored
+ }
+ purgeTrash(days=TRASH_RETENTION_DAYS741){
+  const cutoff=Date.now()-Math.max(1,Number(days||TRASH_RETENTION_DAYS741))*86400000;let removed=0;this.mutate('Vyčištěn koš',state=>{const rows=state.trash?.items||[],keep=rows.filter(x=>{const t=Date.parse(x.deletedAt||'');const old=Number.isFinite(t)&&t<cutoff;if(old)removed++;return !old});state.trash.items=keep},{undo:false,cloud:true,audit:true});return removed
  }
  queueSync(payload){const slim=payload&&typeof payload==='object'?{...payload,undo:[]}:payload;localStorage.setItem(QUEUE_KEY,JSON.stringify({at:new Date().toISOString(),payload:slim}))}
  readQueue(){try{return JSON.parse(localStorage.getItem(QUEUE_KEY)||'null')}catch{return null}}
