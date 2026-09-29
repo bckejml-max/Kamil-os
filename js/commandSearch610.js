@@ -18,17 +18,18 @@ const advanced610={
  portfolio2300:()=>import('./osPortfolio2300.js').then(m=>m.renderPortfolioCenter2300?.()),
  strategy2400:()=>import('./osStrategy2400.js').then(m=>m.renderStrategyCenter2400?.())
 };
-function openFocused610(target,focus,attempt=0){
+function openFocused610(target,focus){
  if(!focus)return;
- const host=document.querySelector(target==='more'?'#moreView':`#${target}View`);
- if(host?.dataset.viewReady==='1'){
-  if(target==='more'&&focus==='insurance'){Promise.resolve(advanced610.insurance()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return}
+ const tryOpen=()=>{
+  const host=document.querySelector(target==='more'?'#moreView':`#${target}View`);
+  if(host?.dataset.viewReady!=='1')return false;
+  if(target==='more'&&focus==='insurance'){Promise.resolve(advanced610.insurance()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return true}
   const direct=target==='more'?advanced610[focus]:null;
-  if(direct){Promise.resolve(direct()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return}
-  fireFocus(target,focus);return
- }
- if(attempt>=10)return;
- schedule1100(OWNER,`focus-ready:${target}:${focus}`,()=>openFocused610(target,focus,attempt+1),80+attempt*70,{pauseWhenHidden:true});
+  if(direct){Promise.resolve(direct()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return true}
+  fireFocus(target,focus);return true
+ };
+ if(tryOpen())return;
+ [100,220,420,700,1100,1700,2600,4000].forEach((ms,i)=>schedule1100(OWNER,`focus-ready:${target}:${focus}:${i}`,()=>tryOpen(),ms,{pauseWhenHidden:true}));
 }
 const openTarget=(target,focus=null)=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));openFocused610(target||'today',focus)};
 const addMatch=(out,q,kind,title,detail,target,id,focus)=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,focus})};
