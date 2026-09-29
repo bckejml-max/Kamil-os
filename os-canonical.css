@@ -175,7 +175,7 @@ button{color:inherit}
 
 .os2-main{width:min(1480px,100%);margin:0 auto;padding:22px 28px 64px;min-width:0}
 .view:not(.on){display:none!important}.view{min-width:0;max-width:100%}
-#todayView,#ticketIntelView,#inboxView,#moneyView,#bettingView,#ticketsView,#homeView,#moreView{min-width:0;max-width:100%}
+#todayView,#ticketIntelView,#inboxView,#moneyView,#bettingView,#familyView,#homeView,#moreView{min-width:0;max-width:100%}
 
 /* OS 2.0 canonical Today */
 .os2-today{display:grid;gap:16px;animation:os2-in .18s ease both}
@@ -307,7 +307,7 @@ html[data-product-reset1300="1"] #moneyView [data-property-hub620],
 html[data-product-reset1300="1"] #moneyView [data-property-finance610],
 html[data-product-reset1300="1"] #bettingView [data-betting-hub630],
 html[data-product-reset1300="1"] #ticketIntelView [data-ticket-hub640],
-html[data-product-reset1300="1"] #ticketsView [data-family-hub610]{display:none!important}
+html[data-product-reset1300="1"] #familyView [data-family-hub610]{display:none!important}
 
 
 /* OS1320 usability reset: fewer choices, stronger action hierarchy. */
