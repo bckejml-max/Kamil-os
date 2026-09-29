@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const root=new URL('./',import.meta.url),read=p=>readFile(new URL(p,root),'utf8');
-const [index,boot,views,registry,today,betting,css,product,sw]=await Promise.all([read('./index.html'),read('./js/instantShell64.js'),read('./js/viewRuntime41.js'),read('./js/viewRegistry.js'),read('./js/todayPage2000.js'),read('./js/bettingBootstrap543.js'),read('./os2.css'),read('./productReset1300.css'),read('./sw.js')]);
+const [index,boot,views,registry,today,betting,css,product,sw]=await Promise.all([read('./index.html'),read('./js/instantShell64.js'),read('./js/viewRuntime41.js'),read('./js/viewRegistry.js'),read('./js/todayPage2000.js'),read('./js/bettingBootstrap543.js'),read('./os-canonical.css'),read('./os-canonical.css'),read('./sw.js')]);
 
 assert.match(index,/data-os2="1"/,'OS2 index marker missing');
 const eagerStyles=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(x=>x[1]);
