@@ -60,7 +60,7 @@ function navIntent(raw){const q=norm(raw);const map=[
  [['rodina','family','rodinný týden','rodinny tyden','family hub'],['family',null]],
  [['práce','prace','zakázky','zakazky','work'],['work',null]],
  [['domov','dům','dum','home'],['home',null]],
- [['pojistky','pojištění','pojisteni'],['more','insurance']],
+ [['pojistky','pojištění','pojisteni','ukaž pojištění','ukaz pojisteni','ukaž pojistky','ukaz pojistky'],['more','insurance']],
  [['os strategy','strategy horizon','strategie','patych 50','pátých 50','north star','decision portfolio','long horizon'],['more','strategy2400']],
  [['os portfolio','portfolio resilience','capital allocation','ctvrtych 50','čtvrtých 50','resilience','compliance board','continuous improvement'],['more','portfolio2300']],
  [['os execution','execution','governance','autopilot','kill switch','treti 50','třetích 50','tretich 50','execution governance'],['more','execution2200']],
