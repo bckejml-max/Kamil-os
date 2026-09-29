@@ -8,6 +8,15 @@ import {openVaultRecord640,addSourceInbox650} from './personalDocuments640.js';
 import {buildActionTruth741} from './actionTruthEngine.js';
 
 const OWNER='documents.page1500';
+async function openMoreFocus610(focus){
+ if(focus==='insurance'){const m=await import('./insuranceUi25.js');m.renderInsurance25?.();return true}
+ if(focus==='upgrades2050'){const m=await import('./osUpgrades2050.js');m.renderUpgradeCenter2050?.();return true}
+ if(focus==='automation2100'){const m=await import('./osAutomation2100.js');m.renderAutomationCenter2100?.();return true}
+ if(focus==='execution2200'){const m=await import('./osExecution2200.js');m.renderExecutionCenter2200?.();return true}
+ if(focus==='portfolio2300'){const m=await import('./osPortfolio2300.js');m.renderPortfolioCenter2300?.();return true}
+ if(focus==='strategy2400'){const m=await import('./osStrategy2400.js');m.renderStrategyCenter2400?.();return true}
+ return false
+}
 const typeLabel=v=>v.recordType==='insurance'?'Pojištění':v.recordType==='utility'?'Smlouva / energie':v.recordType==='mortgage'?'Hypotéka':v.recordType==='bank-data'?'Bankovní data':v.recordType==='property'?'Nemovitost':'Dokument';
 const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
 const validity=v=>v.validUntil?`do ${date(v.validUntil)}`:v.noticeBy?`rozhodnout do ${date(v.noticeBy)}`:v.reviewAt?`kontrola ${date(v.reviewAt)}`:v.asOf?`stav k ${date(v.asOf)}`:'bez známého termínu';
@@ -51,7 +60,7 @@ export function renderDocumentsPage141(){
   <div class="os1500-section-note">${d.s.meta?.cloudMode==='cloud'?'Osobní metadata jsou synchronizovaná s cloudem.':'Data jsou zatím jen na tomto zařízení.'}</div>
  </div>`;
  host.__documents1500=d;
- if(!host.dataset.documents1500Bound){host.dataset.documents1500Bound='1';ownEvent1100(OWNER,window,'kamil:focus610',async e=>{if(e.detail?.target==='more'&&e.detail?.focus==='upgrades2050'){const m=await import('./osUpgrades2050.js');m.renderUpgradeCenter2050?.()}if(e.detail?.target==='more'&&e.detail?.focus==='automation2100'){const m=await import('./osAutomation2100.js');m.renderAutomationCenter2100?.()}if(e.detail?.target==='more'&&e.detail?.focus==='execution2200'){const m=await import('./osExecution2200.js');m.renderExecutionCenter2200?.()}if(e.detail?.target==='more'&&e.detail?.focus==='portfolio2300'){const m=await import('./osPortfolio2300.js');m.renderPortfolioCenter2300?.()}if(e.detail?.target==='more'&&e.detail?.focus==='strategy2400'){const m=await import('./osStrategy2400.js');m.renderStrategyCenter2400?.()}});ownEvent1100(OWNER,host,'click',async e=>{
+ if(!host.dataset.documents1500Bound){host.dataset.documents1500Bound='1';ownEvent1100(OWNER,window,'kamil:focus610',async e=>{if(e.detail?.target==='more'&&e.detail?.focus){if(window.__KAMIL_PENDING_FOCUS610__?.target==='more')delete window.__KAMIL_PENDING_FOCUS610__;await openMoreFocus610(e.detail.focus)}});ownEvent1100(OWNER,host,'click',async e=>{
   const cur=host.__documents1500||data();
   if(e.target.closest('[data-doc741-repo-health]')){try{const m=await import('./repoHealth.js'),x=m.repoHealthSummary741(await m.loadRepoHealth741());await modal('Repo debt dashboard',`<div class="card"><div class="eyebrow">OS 741 · TECHNICKÝ STAV</div><div class="row"><span>Soubory</span><b>${x.files}</b></div><div class="row"><span>JS + MJS</span><b>${x.runtime}</b></div><div class="row"><span>CSS</span><b>${x.css}</b></div><div class="row"><span>E2E</span><b>${x.e2e}</b></div><div class="row"><span>Guardy</span><b>${x.guards}</b></div><div class="row"><span>Legacy číslované runtime soubory</span><b>${x.numbered}</b></div><div class="row"><span>Canonical CSS</span><b>${x.canonicalCssKb} kB</b></div></div>`,[{label:'Zavřít',value:null,primary:true}])}catch(error){console.warn('[repo-health741]',error)}return}
   if(e.target.closest('[data-doc1500-upgrades]')){const m=await import('./osUpgrades2050.js');m.renderUpgradeCenter2050?.();return}
@@ -65,5 +74,7 @@ export function renderDocumentsPage141(){
   if(e.target.closest('[data-doc1500-primary]')&&cur.primary){if(cur.primary.source==='insurance'){const m=await import('./insuranceUi25.js');m.renderInsurance25?.();return}await openVaultRecord640(cur.primary.id);return renderDocumentsPage141()}
   const rb=e.target.closest('[data-doc1500-record]');if(rb){await openVaultRecord640(rb.dataset.doc1500Record);return renderDocumentsPage141()}
  })}
- window.__KAMIL_DOCUMENTS141__={healthy:true,core:'os1500',records:d.records.length,action:d.actionTotal,insuranceAction:d.insuranceAction.length,ending:d.counts.ending,refs:d.refs,primarySource:d.primary?.source||'vault',insuranceRadar:insTruth.radar.length,trash:trash.length,stale:truth.counts.stale,conflicts:truth.counts.conflicts,at:Date.now()};return true;
+ window.__KAMIL_DOCUMENTS141__={healthy:true,core:'os1500',records:d.records.length,action:d.actionTotal,insuranceAction:d.insuranceAction.length,ending:d.counts.ending,refs:d.refs,primarySource:d.primary?.source||'vault',insuranceRadar:insTruth.radar.length,trash:trash.length,stale:truth.counts.stale,conflicts:truth.counts.conflicts,at:Date.now()};
+ const pending=window.__KAMIL_PENDING_FOCUS610__;if(pending?.target==='more'&&pending.focus){delete window.__KAMIL_PENDING_FOCUS610__;void openMoreFocus610(pending.focus)}
+ return true;
 }
