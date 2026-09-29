@@ -29,7 +29,7 @@ const investmentSeed=read('js/externalInvestments33.js');
 const platform43=read('js/platform43.js');
 const stability431=read('js/platform431Stability.js');
 const diagnostics=read('js/systemDiagnostics421.js');
-const product=read('productReset1300.css');
+const product=read('os-canonical.css');
 const rootPackage=JSON.parse(read('package.json'));
 
 const version=meta.match(/APP_VERSION='([^']+)'/)?.[1];
