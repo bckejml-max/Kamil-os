@@ -1,7 +1,6 @@
 import {store} from './state.js';
 import {norm,h,money} from './utils.js';
 import {search as baseSearch} from './command.js';
-import {schedule1100} from './runtimeOwnership1100.js';
 import {isActivePropertyCandidate472} from './propertyDecision472.js';
 
 const A=v=>Array.isArray(v)?v:[];
@@ -19,19 +18,16 @@ const advanced610={
  strategy2400:()=>import('./osStrategy2400.js').then(m=>m.renderStrategyCenter2400?.())
 };
 function openFocused610(target,focus){
- if(!focus)return;
- const tryOpen=()=>{
-  const host=document.querySelector(target==='more'?'#moreView':`#${target}View`);
-  if(host?.dataset.viewReady!=='1')return false;
-  if(target==='more'&&focus==='insurance'){Promise.resolve(advanced610.insurance()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return true}
-  const direct=target==='more'?advanced610[focus]:null;
-  if(direct){Promise.resolve(direct()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return true}
-  fireFocus(target,focus);return true
- };
- if(tryOpen())return;
- [100,220,420,700,1100,1700,2600,4000].forEach((ms,i)=>schedule1100(OWNER,`focus-ready:${target}:${focus}:${i}`,()=>tryOpen(),ms,{pauseWhenHidden:true}));
+ if(!focus)return false;
+ window.__KAMIL_PENDING_FOCUS610__={target,focus,at:Date.now()};
+ const host=document.querySelector(target==='more'?'#moreView':`#${target}View`);
+ if(host?.dataset.viewReady!=='1')return false;
+ if(target==='more'&&focus==='insurance'){delete window.__KAMIL_PENDING_FOCUS610__;Promise.resolve(advanced610.insurance()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return true}
+ const direct=target==='more'?advanced610[focus]:null;
+ if(direct){delete window.__KAMIL_PENDING_FOCUS610__;Promise.resolve(direct()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return true}
+ delete window.__KAMIL_PENDING_FOCUS610__;fireFocus(target,focus);return true
 }
-const openTarget=(target,focus=null)=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));openFocused610(target||'today',focus)};
+const openTarget=(target,focus=null)=>{if(focus)window.__KAMIL_PENDING_FOCUS610__={target:target||'today',focus,at:Date.now()};window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));openFocused610(target||'today',focus)};
 const addMatch=(out,q,kind,title,detail,target,id,focus)=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,focus})};
 
 export function searchExtended610(raw){
