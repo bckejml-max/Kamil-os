@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const read=p=>fs.readFileSync(p,'utf8');
 const index=read('index.html');
-const css=read('os1500.css');
+const css=read('os-canonical.css');
 const app=read('js/app.js');
 const commandSearch610=read('js/commandSearch610.js');
 const runtime=read('js/viewRuntime41.js');
