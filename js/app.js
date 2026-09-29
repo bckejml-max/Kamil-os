@@ -101,8 +101,9 @@ async function render(force=false){
   if(failed){
    failed.removeAttribute('data-fast-shell');failed.removeAttribute('data-view-ready');
    failed.innerHTML=`<div class="card" data-runtime-error><div class="eyebrow">DIAGNOSTIKA</div><h2>Modul se nepodařilo načíst</h2><p class="muted">Data zůstala uložená. Můžeš zkusit renderer znovu nebo zkopírovat diagnostiku.</p><div class="row"><span>Kód chyby</span><b>${diag.id}</b></div><div class="row-actions"><button class="btn primary" data-runtime-retry>Zkusit znovu</button><button class="btn" data-runtime-copy>Kopírovat diagnostiku</button></div></div>`;
-   failed.querySelector('[data-runtime-retry]')?.addEventListener('click',()=>scheduleRender(true));
-   failed.querySelector('[data-runtime-copy]')?.addEventListener('click',async()=>toast(await copyDiagnostic(diag.id)?'Diagnostika zkopírována':'Diagnostiku se nepodařilo zkopírovat'));
+   const retry=failed.querySelector('[data-runtime-retry]'),copy=failed.querySelector('[data-runtime-copy]');
+   if(retry)retry.onclick=()=>scheduleRender(true);
+   if(copy)copy.onclick=async()=>toast(await copyDiagnostic(diag.id)?'Diagnostika zkopírována':'Diagnostiku se nepodařilo zkopírovat');
   }
  }
 }
