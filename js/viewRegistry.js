@@ -1,5 +1,5 @@
 export const VIEW_REGISTRY={
- today:{title:'Dnes',host:'todayView',quick:'Přidat',capture:'task',module:'./todayPage2000.js',renderer:'renderTodayPage2000',icon:'⌂',group:'Řízení',heavy:false,hint:'Co dnes hoří?'},
+ today:{title:'Dnes',host:'todayView',quick:'Přidat',capture:'task',module:'./todayPage2000.js',renderer:'renderTodayPage2000',icon:'⌂',group:'Řízení',heavy:false,hint:'Co chceš udělat?'},
  inbox:{title:'Úkoly',host:'inboxView',quick:'Úkol',capture:'task',module:'./tasksOverview.js',renderer:'renderTasksOverview',icon:'✓',group:'Řízení',heavy:false,hint:'Hledej úkol, čekání nebo termín…'},
  work:{title:'Práce',host:'workView',quick:'Pracovní úkol',capture:'work-task',module:'./workPage1300.js',renderer:'renderWorkPage1300',icon:'W',group:'Řízení',heavy:false,hint:'Hledej zakázku nebo blokátor…'},
  tickets:{title:'Vstupenky',host:'ticketIntelView',quick:'Úkol k ticketům',capture:'ticket-task',module:'./ticketOverview.js',renderer:'renderTicketOverview',icon:'T',group:'Trh & peníze',heavy:true,hint:'Hledej event, transfer nebo payout…'},
