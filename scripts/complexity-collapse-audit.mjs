@@ -52,9 +52,9 @@ const report={
 };
 
 const budgets={
-  totalFiles:1415,
-  rootFiles:667,
-  rootCss:141,
+  totalFiles:1411,
+  rootFiles:663,
+  rootCss:137,
   rootMjs:439,
   rootChangelogs:56,
   numberedRuntime:795
