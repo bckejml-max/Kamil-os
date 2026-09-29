@@ -7,6 +7,7 @@ const release=read('./js/releaseMeta.js');
 const boot=read('./js/instantShell64.js');
 const index=read('./index.html');
 const views=read('./js/viewRuntime41.js');
+const registry=read('./js/viewRegistry.js');
 const app=read('./js/app.js');
 const today=read('./js/todayPage2000.js');
 const ticketPage=read('./js/ticketPage100.js');
@@ -21,7 +22,7 @@ const releaseVersion=release.match(/APP_VERSION='([^']+)'/)?.[1]||'';
 if(pkg.version!==releaseVersion)fail(`package version ${pkg.version} does not match releaseMeta ${releaseVersion}`);
 
 for(const p of [
- './os2.css','./productReset1300.css','./os1400.css','./js/todayPage2000.js','./js/privateSnapshot1320.js','./js/privateSnapshotImport1320.js','./js/workPage1300.js','./js/propertyPage1300.js','./js/app.js','./js/viewRuntime41.js','./js/runtimeOwnership1100.js',
+ './os-canonical.css','./js/viewRegistry.js','./js/diagnostics.js','./js/todayPage2000.js','./js/privateSnapshot1320.js','./js/privateSnapshotImport1320.js','./js/workPage1300.js','./js/propertyPage1300.js','./js/app.js','./js/viewRuntime41.js','./js/runtimeOwnership1100.js',
  './js/ticketOverview.js','./js/ticketAdvanced100.js','./js/ticketPage100.js','./js/ticketDesk331.js','./js/ticketUi421.js','./js/ticketCloud660.js','./js/moneyOverview.js','./js/moneyAdvanced100.js','./js/bettingOverview.js','./js/bettingAdvanced527.js','./js/tasksOverview.js','./js/inboxAdvanced141.js',
  './js/bettingPage527.js','./js/bettingBootstrap543.js','./js/command.js','./js/commandSearch610.js'
 ])if(!exists(p))fail(`missing required OS2 file ${p}`);
@@ -40,16 +41,17 @@ if(boot.includes('optionalImport(')||boot.includes('deferredImport('))fail('laye
 for(const p of ['ticketDesk331.js','bettingBootstrap543.js','workspaces305.js','todayCockpit363.js','commandCenter467.js'])if(boot.includes(p))fail(`${p} must not be an eager OS2 boot dependency`);
 
 for(const token of [
- "today:['./todayPage2000.js','renderTodayPage2000']",
- "work:['./workPage1300.js','renderWorkPage1300']",
- "property:['./propertyPage1300.js','renderPropertyPage1300']",
- "inbox:['./tasksOverview.js','renderTasksOverview']",
- "money:['./moneyOverview.js','renderMoneyOverview']",
- "tickets:['./ticketOverview.js','renderTicketOverview']",
- "betting:['./bettingOverview.js','renderBettingOverview']"
-])if(!views.includes(token))fail(`view runtime missing ${token}`);
-if(!views.includes('ensureViewStyles'))fail('view-specific CSS must remain lazy');
-if(!views.includes("tickets:[]"))fail('Heavy Ticket styles must stay off the default simple view');
+ "today:{title:'Dnes',host:'todayView'",
+ "work:{title:'Práce',host:'workView'",
+ "property:{title:'Reality',host:'propertyView'",
+ "inbox:{title:'Úkoly',host:'inboxView'",
+ "money:{title:'Peníze',host:'moneyView'",
+ "tickets:{title:'Vstupenky',host:'ticketIntelView'",
+ "betting:{title:'Sázení',host:'bettingView'",
+ "family:{title:'Rodina',host:'familyView'"
+])if(!registry.includes(token))fail(`view registry missing ${token}`);
+if(views.includes('ensureViewStyles')||views.includes('loadCss')||views.includes('dataset.os2Lazy'))fail('retired lazy CSS loader must stay removed');
+if(!registry.includes("tickets:{title:'Vstupenky'")||!registry.includes("heavy:true"))fail('Ticket heavy-view policy must live in the canonical registry');
 
 for(const symbol of ['data-os2-today','data-product-home1300','data-os1400-home','os1600-next','os1600-areas','os1400-list','__KAMIL_TODAY_OS2000__'])if(!today.includes(symbol))fail(`Today product cockpit missing ${symbol}`);
 if(!app.includes("const input=qs('#commandInput')")||!app.includes('executeCommand41(v)'))fail('canonical command bar missing');
