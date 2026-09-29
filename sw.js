@@ -1,4 +1,4 @@
-const CACHE='kamil-os-740.0.0-core-r145';
+const CACHE='kamil-os-741.0.0-core-r146';
 const CRITICAL=[
  "./",
  "./index.html",
