@@ -11,21 +11,12 @@ import {personalVault640} from './personalVault640.js';
 import {personalDaysTo650} from './personalDate650.js';
 import {insuranceCenter} from './insurance25.js';
 import {isPersonalScope527} from './personalScope527.js';
-import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
+import {ownEvent1100} from './runtimeOwnership1100.js';
 import {buildActionTruth741} from './actionTruthEngine.js';
 import {modal} from './utils.js';
 
 const OWNER='today.os2000';
-function renderInsuranceWhenReady(){
- const tryOpen=()=>{
-  const host=document.querySelector('#moreView');
-  if(host?.dataset.viewReady!=='1')return false;
-  void import('./insuranceUi25.js').then(m=>m.renderInsurance25?.()).catch(error=>console.warn('[today:insurance-open]',error));return true
- };
- if(tryOpen())return;
- [100,220,420,700,1100,1700,2600,4000].forEach((ms,i)=>schedule1100(OWNER,`insurance-open-ready:${i}`,()=>tryOpen(),ms,{pauseWhenHidden:true}));
-}
-const openInsuranceCenter=()=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));renderInsuranceWhenReady()};
+const openInsuranceCenter=()=>{window.__KAMIL_PENDING_FOCUS610__={target:'more',focus:'insurance',at:Date.now()};window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}))};
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOUT_RECEIVED','PAYOUT RECEIVED','CANCELLED','CANCELED']);
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const upper=v=>String(v||'').toUpperCase();
@@ -129,7 +120,9 @@ function truthReview741(truth){
 
 function render(){
  const host=document.querySelector('#todayView');if(!host)return false;
- const d=baseData(),truth=buildActionTruth741(d.s),items=truth.actions.slice(0,6).map(x=>({...x,detail:x.detail||x.why,cta:x.cta||'otevřít'})),toneRank={bad:3,warn:2,good:1,'':0},system=systemState(d).map((x,i)=>({...x,_order:i})).sort((a,b)=>(toneRank[b.tone]||0)-(toneRank[a.tone]||0)||a._order-b._order),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
+ const d=baseData(),truth=buildActionTruth741(d.s),ranked=truth.actions,visibleActions=[...ranked.slice(0,6)],insuranceAction=ranked.find(x=>x.insurance===true);
+ if(insuranceAction&&!visibleActions.some(x=>x.id===insuranceAction.id)){if(visibleActions.length>=6)visibleActions[visibleActions.length-1]=insuranceAction;else visibleActions.push(insuranceAction);visibleActions.sort((a,b)=>Number(b.score||0)-Number(a.score||0))}
+ const items=visibleActions.map(x=>({...x,detail:x.detail||x.why,cta:x.cta||'otevřít'})),toneRank={bad:3,warn:2,good:1,'':0},system=systemState(d).map((x,i)=>({...x,_order:i})).sort((a,b)=>(toneRank[b.tone]||0)-(toneRank[a.tone]||0)||a._order-b._order),today=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
  const primary=items[0]||null,later=items.slice(1,5),now=Date.now(),due48=[...d.urgentTasks,...d.calendar].filter(x=>{const t=ts(x);return t!==null&&t>=now&&t<=now+2*86400000}).length;
  const severity=primary?.tone==='bad'?'bad':primary?'warn':'good';
  const summary=[
