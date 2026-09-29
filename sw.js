@@ -1,4 +1,4 @@
-const CACHE='kamil-os-739.0.0-core-r144';
+const CACHE='kamil-os-740.0.0-core-r145';
 const CRITICAL=[
  './','./index.html','./manifest.webmanifest','./os-canonical.css',
  './js/osHardening1110.js','./js/dataIntegrity1130.js','./js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js',
