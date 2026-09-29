@@ -41,7 +41,7 @@ Aktuální release má statické guardy, core/cloud safety testy a Playwright E2
 
 ## Runtime 740.0
 
-- Jeden kanonický runtime stylesheet: `os-canonical.css`; historické CSS vrstvy nejsou načítané přímo v produkci.
+- Jeden kanonický runtime stylesheet: `os-canonical.css`; devět duplicitních historických runtime CSS vrstev bylo fyzicky odstraněno a zůstává jen Git historie.
 - Dnes se při startu nerehydratuje z dvoudenního HTML snapshotu. Startovní shell je neutrální a skutečný obsah kreslí jediný kanonický renderer.
 - Rodina má vlastní DOM host `familyView`; už nesdílí historický identifikátor `ticketsView`.
 - Mobilní navigace drží všech deset oblastí přímo viditelných v rozložení 5×2.
