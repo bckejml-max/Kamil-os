@@ -15,7 +15,7 @@ const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','SOLD','PAYOU
 const blank=()=>({
  meta:{schemaVersion:SCHEMA_VERSION,createdAt:new Date().toISOString(),lastMutationAt:null,lastCloudAt:null},
  tasks:[],projects:[],routines:[],routineDone:{},calendar:{events:[],asOf:null,source:null},
- financePlan:{cashNow:0,expectedIncome:0,reserveFloor:0,plannedInvestment:0},
+ financePlan:{cashNow:0,expectedIncome:0,reserveFloor:0,plannedInvestment:0},propertyBook:{candidates:[],mortgageScenario:{}},
  xtbReport:{czkValue:0,eurValue:0,czkProfit:0,eurProfit:0,asOf:null},
  xtbHub:{},xtbStrategy:{overrides:{}},tradeJournal:{trades:[]},
  ticketBook:{items:[],watchlist:[],history:[],review:[]},
@@ -51,6 +51,7 @@ export function migrate(input){
  s.projects=Array.isArray(s.projects)?s.projects:[];
  s.calendar=s.calendar||{events:[]};s.calendar.events=Array.isArray(s.calendar.events)?s.calendar.events:[];
  s.financePlan={cashNow:0,expectedIncome:0,reserveFloor:0,plannedInvestment:0,...(s.financePlan||{})};
+ s.propertyBook={candidates:[],mortgageScenario:{},...(s.propertyBook||{})};s.propertyBook.candidates=Array.isArray(s.propertyBook.candidates)?s.propertyBook.candidates:[];s.propertyBook.mortgageScenario=s.propertyBook.mortgageScenario&&typeof s.propertyBook.mortgageScenario==='object'?s.propertyBook.mortgageScenario:{};
  s.xtbReport={czkValue:0,eurValue:0,czkProfit:0,eurProfit:0,...(s.xtbReport||{})};
  s.xtbStrategy={overrides:{},...(s.xtbStrategy||{})};s.xtbStrategy.overrides=s.xtbStrategy.overrides&&typeof s.xtbStrategy.overrides==='object'?s.xtbStrategy.overrides:{};
  s.ticketBook=s.ticketBook||{items:[],watchlist:[],history:[],review:[]};s.ticketBook.items=Array.isArray(s.ticketBook.items)?s.ticketBook.items:[];s.ticketBook.watchlist=Array.isArray(s.ticketBook.watchlist)?s.ticketBook.watchlist:[];
@@ -78,6 +79,7 @@ export function migrate(input){
  if(Array.isArray(s.inboxItems)&&!s.inbox.length)s.inbox=s.inboxItems;
  for(const t of s.tasks)if(!t.id)t.id=uid('task');
  for(const p of s.projects)if(!p.id)p.id=uid('project');
+ for(const p of s.propertyBook.candidates)if(!p.id)p.id=uid('property');
  for(const x of s.ticketBook.items)if(!x.id)x.id=uid('ticket');
  for(const x of s.ticketBook.watchlist)if(!x.id)x.id=uid('ticket-watch');
  for(const x of s.debtBook.items)if(!x.id)x.id=uid('debt');
@@ -107,6 +109,8 @@ export function validateState(input){
  if(input.bettingLedger?.bets!==undefined&&!Array.isArray(input.bettingLedger.bets))issues.push('bettingLedger.bets nebylo pole');
  if(input.debtBook!==undefined&&typeof input.debtBook!=='object')fatal.push('debtBook má neplatný formát');
  if(input.financePlan!==undefined&&typeof input.financePlan!=='object')issues.push('financePlan má neplatný formát');
+ if(input.propertyBook!==undefined&&typeof input.propertyBook!=='object')issues.push('propertyBook má neplatný formát');
+ if(input.propertyBook?.candidates!==undefined&&!Array.isArray(input.propertyBook.candidates))issues.push('propertyBook.candidates nebylo pole');
  if(input.personalAdmin!==undefined&&typeof input.personalAdmin!=='object')issues.push('personalAdmin má neplatný formát');
  if(input.personalAdmin?.items!==undefined&&!Array.isArray(input.personalAdmin.items))issues.push('personalAdmin.items nebylo pole');
  if(input.familyHome!==undefined&&typeof input.familyHome!=='object')issues.push('familyHome má neplatný formát');
@@ -138,7 +142,7 @@ export function validateState(input){
 export function repairState(input){
  const report=validateState(input),fixed=migrate(input);
  const dedupe=a=>{const seen=new Set();return (Array.isArray(a)?a:[]).filter(x=>{if(!x?.id)return true;if(seen.has(x.id))return false;seen.add(x.id);return true})};
- fixed.tasks=dedupe(fixed.tasks);fixed.projects=dedupe(fixed.projects);
+ fixed.tasks=dedupe(fixed.tasks);fixed.projects=dedupe(fixed.projects);fixed.propertyBook.candidates=dedupe(fixed.propertyBook.candidates);
  fixed.ticketBook.items=dedupe(fixed.ticketBook.items);fixed.ticketBook.watchlist=dedupe(fixed.ticketBook.watchlist);fixed.bettingLedger.bets=dedupe(fixed.bettingLedger.bets);fixed.debtBook.items=dedupe(fixed.debtBook.items);
  fixed.personalAdmin.items=dedupe(fixed.personalAdmin.items);fixed.familyHome.members=dedupe(fixed.familyHome.members);fixed.emergencyFile.contacts=dedupe(fixed.emergencyFile.contacts);fixed.emergencyFile.assets=dedupe(fixed.emergencyFile.assets);fixed.personalInbox.items=dedupe(fixed.personalInbox.items);fixed.assetBook.items=dedupe(fixed.assetBook.items);fixed.personalGoals.items=dedupe(fixed.personalGoals.items);fixed.personalSpending.transactions=dedupe(fixed.personalSpending.transactions);fixed.importCenter.history=dedupe(fixed.importCenter.history);fixed.netWorthBook.items=dedupe(fixed.netWorthBook.items);fixed.netWorthBook.history=dedupe(fixed.netWorthBook.history);fixed.trash.items=dedupe(fixed.trash.items);
  return {state:fixed,report};
