@@ -71,7 +71,7 @@ function updateChrome(){
  qsa('.version').forEach(x=>x.textContent=APP_VERSION);
  qsa('[data-view]').forEach(x=>{const on=x.dataset.view===current;x.classList.toggle('on',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});
  applyNavSignals1333(s);
- const undo=qs('#undoBtn');if(undo)undo.disabled=store.undoCount()===0;
+ const undo=qs('#undoBtn');if(undo){const undoCount=store.undoCount(),undoLabel=store.undoLabel?.();undo.disabled=undoCount===0;undo.title=undoLabel?'Vrátit: '+undoLabel:'Není co vrátit';undo.setAttribute('aria-label',undoLabel?'Vrátit poslední změnu: '+undoLabel:'Vrátit poslední změnu')}
  const add=qs('#quickAddBtn');if(add){add.classList.remove('hidden');const text=qs('b',add),name=meta.quick||'Přidat';if(text)text.textContent=name;add.title=`Rychle přidat ${name.toLowerCase()} · Ctrl N`;add.setAttribute('aria-label',`Rychle přidat ${name.toLowerCase()}`)}
  refreshRiskBadge41(s);
 }
@@ -144,7 +144,7 @@ ownEvent1100(OWNER,window,'kamil:logout',()=>withActionLock(async()=>{await logo
 ownEvent1100(OWNER,window,'kamil:capture',e=>openCapture(e.detail||null).catch(error=>warnAction('capture',error)));
 ownEvent1100(OWNER,window,'kamil:cloud-login',e=>showLoginView(e.detail?.reason==='recovery'?'Toto zařízení nemá tvoje uložená data. Připoj existující cloudový profil — nejjednodušší je e-mailový odkaz bez hesla.':'Cloud je volitelný. Kamil OS funguje i bez přihlášení.'));
 
-const stopStore=store.subscribe(()=>{stateRevision++;if(document.visibilityState==='visible')scheduleRender();scheduleNotifications41()});
+const stopStore=store.subscribe(()=>{stateRevision++;if(store.get().meta?.cloudMode!=='cloud')localSyncStatus();if(document.visibilityState==='visible')scheduleRender();scheduleNotifications41()});
 ownCleanup1100(OWNER,stopStore);
 ownEvent1100(OWNER,document,'visibilitychange',()=>{if(document.visibilityState==='hidden')scheduleNotifications41(0);else if(viewRevision.get(current)!==stateRevision)scheduleRender()});
 qs('#undoBtn').onclick=()=>{if(!store.undo())toast('Není co vrátit')};
@@ -227,7 +227,7 @@ ownCleanup1100(OWNER,stopSyncStatus);
 function setCloudConnectedStatus(sess,result={}){const el=qs('#syncStatus');if(!el||!sess)return;const x=authConnectedLabel32({email:sess.user?.email,lastCloudAt:result.updatedAt||store.meta().lastCloudAt});el.className='sync ok';el.innerHTML=`<i></i> ${x.short}`;el.title=x.detail}
 function setCloudLoadingStatus(){const el=qs('#syncStatus');if(!el)return;el.className='sync saving';el.innerHTML='<i></i> Cloud • Načítám data…';el.title='Lokální obrazovka už funguje; cloud se synchronizuje na pozadí.'}
 function openCloudConnect(){showLoginView('Připoj existující cloudový profil. Heslo není nutné — stačí e-mailový přihlašovací odkaz.')}
-function localSyncStatus(){const el=qs('#syncStatus');if(!el)return;el.className='sync local';el.innerHTML='<i></i> Jen toto zařízení';el.title='Klikni a připoj existující cloudová data. Kamil OS jinak dál funguje lokálně.';el.setAttribute('role','button');el.tabIndex=0;el.style.cursor='pointer';el.onclick=openCloudConnect;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCloudConnect()}}}
+function localSyncStatus(){const el=qs('#syncStatus');if(!el)return;el.className='sync local';el.innerHTML='<i></i> Lokálně • uloženo';el.title='Aktuální stav je uložený v tomto zařízení. Klikni pro volitelné připojení cloudu.';el.setAttribute('role','button');el.tabIndex=0;el.style.cursor='pointer';el.onclick=openCloudConnect;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCloudConnect()}}}
 function authCooldownRender(){cancelScheduled1100(OWNER,'auth-cooldown');const magic=qs('#magicLinkBtn'),reset=qs('#forgotPasswordBtn'),m=store.meta(),magicLeft=authCooldownSeconds32(m.lastMagicLinkAt),resetLeft=authCooldownSeconds32(m.lastPasswordResetAt);if(magic){magic.disabled=magicLeft>0;magic.textContent=magicLeft>0?`Další odkaz za ${magicLeft} s`:'Poslat přihlašovací odkaz bez hesla'}if(reset){reset.disabled=resetLeft>0;reset.textContent=resetLeft>0?`Reset znovu za ${resetLeft} s`:'Obnovit cloudové heslo'}if(magicLeft||resetLeft)schedule1100(OWNER,'auth-cooldown',authCooldownRender,1000,{pauseWhenHidden:true})}
 function showResetView(){qs('#authView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#resetView').classList.remove('hidden');schedule1100(OWNER,'focus-reset',()=>qs('#resetPassword1')?.focus(),30)}
 function showLoginView(message=''){qs('#resetView').classList.add('hidden');qs('#appView').classList.add('hidden');qs('#authView').classList.remove('hidden');const email=qs('#loginEmail'),last=store.meta().lastCloudEmail;if(email&&!email.value&&last)email.value=last;if(message)qs('#authMessage').textContent=message;authCooldownRender();schedule1100(OWNER,'focus-login',()=>email?.focus(),30)}
