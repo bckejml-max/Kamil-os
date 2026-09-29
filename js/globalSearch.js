@@ -25,7 +25,7 @@ export function globalSearch741(query,input=null){
 export function renderGlobalSearch741(query,box,input=null){
  const rows=globalSearch741(query,input);if(!rows.length)return false;
  box.classList.remove('hidden');
- box.innerHTML='<div class="os741-search-head"><b>Napříč Kamil OS</b><span>'+rows.length+' výsledků</span></div>'+rows.map(x=>'<button type="button" class="search-row os741-search-row" data-command-nav1332="'+h(x.route)+'"><div><b>'+h(x.title)+'</b><div class="muted">'+h(x.kind)+(x.detail?' · '+h(x.detail):'')+'</div></div><span>Otevřít →</span></button>').join('');
+ box.innerHTML='<div class="os741-search-head"><b>Napříč Kamil OS</b><span>'+rows.length+' výsledků</span></div>'+rows.map(x=>'<div class="search-row os741-search-row"><button type="button" data-command-nav1332="'+h(x.route)+'"><div><b>'+h(x.title)+'</b><div class="muted">'+h(x.kind)+(x.detail?' · '+h(x.detail):'')+'</div></div><span>Otevřít →</span></button><button type="button" class="os741-search-task" title="Přidat navazující úkol" aria-label="Přidat navazující úkol" data-command-task741="'+h(x.title)+'" data-command-area741="'+h(x.kind)+'">＋</button></div>').join('');
  return true;
 }
 
