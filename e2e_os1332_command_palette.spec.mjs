@@ -29,13 +29,17 @@ test('OS1332 command understands work and reality navigation explicitly',async({
  await expect(page.locator('#view-property')).toHaveClass(/on/);
 });
 test('OS1332 insurance command opens the canonical Insurance Center',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('kamil-os-state',JSON.stringify({
+  meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+  personalAdmin:{items:[{id:'command-insurance-test',title:'Testovací pojistka',category:'INSURANCE',provider:'Test provider',amount:1200,currency:'CZK',cadence:'YEARLY',status:'ACTIVE',insurance:{kind:'PROPERTY',insured:'Test majetek',lifecycle:'ACTIVE',sourceStatus:'CONFIRMED'}}]}
+ })));
  await boot(page);
  const input=page.locator('#commandInput');
  await input.fill('ukaž pojištění');
  await input.press('Enter');
  await expect(page.locator('#view-more')).toHaveClass(/on/);
  await expect(page.locator('#moreView')).toContainText('Všechny pojistky na jednom místě',{timeout:10000});
- await expect(page.locator('#moreView')).toContainText('Fiat Croma');
+ await expect(page.locator('#moreView')).toContainText('Testovací pojistka');
 });
 
 test('OS1332 command search routes domain tasks to their domain instead of Today',async({page})=>{
