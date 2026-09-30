@@ -197,7 +197,7 @@ export function buildActionTruth741(input=null,{now=Date.now()}={}){
  const portable=backupHealth(s,input?{}:store.meta(),new Date(now));
  const searchHealth={...portable,serializable:true,stateValid:stateCheck.ok&&!stateCheck.fatal.length,issues:stateCheck.issues||[],fatal:stateCheck.fatal||[],roundTripOk:portable.roundTrip?.ok===true};
  return {
-  version:'743.0.0',generatedAt:new Date(now).toISOString(),actions,primary:actions[0]||null,secondary:actions.slice(1,5),waiting,followUps:waiting.filter(x=>x.needsFollowUp),freshness,staleSources:freshness.filter(x=>x.stale),conflicts,
+  version:'744.0.0',generatedAt:new Date(now).toISOString(),actions,primary:actions[0]||null,secondary:actions.slice(1,5),waiting,followUps:waiting.filter(x=>x.needsFollowUp),freshness,staleSources:freshness.filter(x=>x.stale),conflicts,
   ignore:ignore741(domains,actions),tomorrow,dailyClose:audit.dailyClose,weeklyReview:audit.weeklyReview,timeline:audit.timeline,domains,backupHealth:searchHealth,
   counts:{actions:actions.length,high:actions.filter(x=>x.score>=100).length,followUps:waiting.filter(x=>x.needsFollowUp).length,stale:freshness.filter(x=>x.stale).length,conflicts:conflicts.length,tomorrow:tomorrow.length}
  };
