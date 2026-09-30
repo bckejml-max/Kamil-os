@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 const read=p=>fs.readFileSync(p,'utf8');
 const truth=read('js/actionTruthEngine.js'),sources=read('js/dataSourceRegistry.js'),today=read('js/todayPage2000.js'),app=read('js/app.js'),runtime=read('js/viewRuntime41.js'),state=read('js/state.js'),money=read('js/moneyOverview.js'),tickets=read('js/ticketOverview.js'),betting=read('js/bettingOverview.js'),property=read('js/propertyPage1300.js'),work=read('js/workPage1300.js'),docs=read('js/documentsPage141.js'),search=read('js/globalSearch.js'),pkg=JSON.parse(read('package.json')),release=read('js/releaseMeta.js'),sw=read('sw.js');
 
-assert.equal(pkg.version,'741.0.0');
+assert.equal(pkg.version,'743.0.0');
 assert.match(release,/741\.0\.0/);
-assert.match(sw,/kamil-os-741\.0\.0-core-r146/);
+assert.match(sw,/kamil-os-743\.0\.0-core-r147/);
 
 for(const symbol of ['buildActionTruth741','buildUnifiedWaiting741','dedupeActions','financeTruth741','ticketTruth741','bettingTruth741','propertyTruth741','workTruth741','insuranceTruth741','conflicts741','tomorrow741','auditSummary741','ignore741'])assert.match(truth,new RegExp(symbol),'Action Truth missing '+symbol);
 assert.match(sources,/MASTER_DATA_REGISTRY/);
