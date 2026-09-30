@@ -13,8 +13,10 @@ need(runtime.includes("'./legacyCleanup987.js','installLegacyCleanup987'"),'OS98
 need(!boot.includes('runtimeCoordinator1050'),'OS2 Betting bootstrap must not revive the global legacy runtime coordinator');
 need(!boot.includes("import('./legacyCleanup987Boot.js')"),'legacy OS987 direct bootstrap returned');
 need(!/(deleteFile|delete_file|unlinkSync|rmSync|autoMerge:true|autoDeploy:true|placeBet|buyTicket|sellTicket|sendMoney)/.test(c),'OS987 destructive execution pattern detected');
-const gatewayGuards=['operator_717_guard.mjs','operator_truth_737_guard.mjs','data_truth_738_guard.mjs','strategy_788_guard.mjs','strategy_789_guard.mjs','copilot_840_guard.mjs','autonomous_943_guard.mjs','scripts/proposal_review_944_guard.mjs','scripts/safe_change_plan_945_guard.mjs'];
-for(const f of gatewayGuards){const x=read(f);need(x.includes('oneOS977.js'),`${f} must validate OS977 gateway`);need(!x.includes('js/personalMore640.js'),`${f} still depends on legacy More wiring`)}
+const retiredGatewayGuards=['operator_717_guard.mjs','operator_truth_737_guard.mjs','data_truth_738_guard.mjs','strategy_788_guard.mjs','strategy_789_guard.mjs','copilot_840_guard.mjs','autonomous_943_guard.mjs','scripts/proposal_review_944_guard.mjs','scripts/safe_change_plan_945_guard.mjs'];
+for(const f of retiredGatewayGuards)need(!fs.existsSync(f),`${f} must stay retired; OS977 owns the legacy gateway contract`);
+const oneOS=read('js/oneOS977.js');
+for(const token of ["ONE_OS977_VERSION='977.0.0'",'retirementRegistry969','openLegacy969','oneOSFirst:true','legacyAccessible:true'])need(oneOS.includes(token),`OS977 gateway missing ${token}`);
 const workflows=fs.readdirSync('.github/workflows').filter(f=>/\.ya?ml$/i.test(f)).sort();
 const canonical=['desktop.yml','os1047-control-operations.yml','os333-browser.yml','qa.yml','vercel-production-333.yml'].sort();
 need(JSON.stringify(workflows)===JSON.stringify(canonical),`OS987 workflow inventory must be canonical five: ${workflows.join(', ')}`);

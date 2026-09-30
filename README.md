@@ -1,4 +1,4 @@
-# Kamil OS 744.0.0
+# Kamil OS 745.0.0
 
 Kamil OS je osobní **Daily Personal Assistant + Ticket Intelligence**. Hlavní uživatelské rozhraní má deset přímo dostupných oblastí: **Dnes / Úkoly / Práce / Vstupenky / Peníze / Reality / Sázení / Rodina / Domov / Dokumenty**.
 
@@ -78,3 +78,12 @@ Aktuální release má statické guardy, core/cloud safety testy a Playwright E2
 - Runtime a release guardy jsou řízené jedním manifestem `scripts/qa-suites.mjs` místo obřích ručních příkazů v `package.json`.
 - CI budget hlídá duplicitu release suite, concurrency cancellation, affected scopes a existenci všech guard souborů.
 - Docs-only změny nespouštějí plný browser ani production source guard.
+
+
+## Runtime 745.0
+
+- Fyzicky odstraněno 29 odpojených legacy guardů; guard inventory klesl z 84 na 55.
+- Fyzicky odstraněno 84 nedosažitelných Playwright speců; E2E inventory kleslo z 151 na 67 skutečně připojených speců.
+- Numbered runtime allowlist klesl z 767 na 691 položek.
+- Nový `scripts/qa-reachability.mjs` zakazuje guard/E2E soubor bez cesty z package scriptu, workflow nebo canonical QA suite.
+- Canonical i legacy browser suites zůstávají explicitní; smazané byly pouze soubory, které nebyly z žádné suite ani workflow dosažitelné.
