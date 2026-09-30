@@ -112,9 +112,10 @@ assert.match(insurance,/upcomingCosts/,'Insurance Center must expose upcoming in
 assert.match(insurance,/startDays<0\?60:startDays<=45\?76:20/,'confirmed upcoming insurance must classify as SOON before start, REVIEW only after a missed start');
 assert.match(insurance,/needsAction=lc==='UPCOMING'/,'Insurance Center must distinguish informational upcoming state from actionable issues');
 assert.match(insuranceUi,/AKTUÁLNÍ STAV SMLUV/,'Insurance Center lifecycle heading must not overstate review/terminating policies as active');
-assert.match(vault,/SUPERSEDED_INSURANCE_RECOVERY_640/,'superseded recovery insurance must be archived once canonical insurance registry exists');
-assert.match(insuranceMaster,/kamil-allianz-life/,'canonical insurance registry must include Kamil Allianz life policy');
-assert.match(insuranceMaster,/vlasatice-pvzp-home/,'canonical insurance registry must include Vlasatice property insurance recovery');
+assert.match(vault,/seededFrom==='recovery-62\.5'/,'legacy recovery insurance may be archived only by generic provenance, never by hardcoded identities');
+assert.match(insuranceMaster,/embedded:false/,'public insurance master must explicitly remain data-free');
+assert.match(insuranceMaster,/Object\.freeze\(\[\]\)/,'public insurance master must contain no policy rows');
+assert.doesNotMatch(insuranceMaster,/policy\(/,'public insurance master must never embed policy builders or records');
 assert.match(personalAssistant,/insuranceCenter\(s\)/,'personal assistant must read insurance from canonical Insurance Center');
 assert.match(personalAssistant,/calendar\?\.events\|\|\[\]\)\.filter\(open\)\.filter\(personal\)/,'personal assistant must hide closed calendar events');
 assert.match(personalActions,/a\.category==='INSURANCE'/,'generic personal action engine must not duplicate canonical insurance actions');
