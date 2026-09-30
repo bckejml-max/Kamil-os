@@ -22,11 +22,25 @@ async function stabilize(page,width,height){
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
  await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important} html{scroll-behavior:auto!important}'});
 }
+async function settleView(page,view){
+ await page.evaluate(async v=>{
+  await document.fonts?.ready;
+  const root=document.querySelector('#view-'+v);if(!root)return;
+  await new Promise(resolve=>{
+   let quiet=null,done=false;
+   const finish=()=>{if(done)return;done=true;observer.disconnect();clearTimeout(cap);clearTimeout(quiet);resolve()};
+   const arm=()=>{clearTimeout(quiet);quiet=setTimeout(finish,350)};
+   const observer=new MutationObserver(arm);observer.observe(root,{subtree:true,childList:true,attributes:true,characterData:true});
+   const cap=setTimeout(finish,3000);arm();
+  });
+ },view);
+}
 async function viewHash(page,view){
  const nav=page.locator((await page.viewportSize()).width<600?'#bottomNav [data-view="'+view+'"]':'#mainNav [data-view="'+view+'"]');
  await nav.click();
  await expect(page.locator('#view-'+view)).toHaveClass(/on/);
- await expect.poll(()=>page.evaluate(v=>document.querySelector('#view-'+v+' [data-view-ready], #view-'+v+' > div[data-view-ready]')!==null,v).catch(()=>true),{timeout:4000}).toBeTruthy().catch(()=>{});
+ await expect(page.locator('#view-'+view+' > div')).toHaveAttribute('data-view-ready','1',{timeout:10000});
+ await settleView(page,view);
  await page.evaluate(()=>window.scrollTo(0,0));
  const png=await page.screenshot({fullPage:false,animations:'disabled'});
  return createHash('sha256').update(png).digest('hex');
