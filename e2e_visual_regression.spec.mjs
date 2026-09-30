@@ -38,8 +38,8 @@ for(const mode of ['desktop','mobile']){
   const actual={},missing=[],mismatch=[];
   for(const view of VIEWS){
    const hash=await viewHash(page,view);actual[view]=hash;
-   const expectedHash=baseline.hashes[mode+'-'+view];
-   if(!expectedHash)missing.push(view);else if(expectedHash!==hash)mismatch.push({view,expected:expectedHash,actual:hash});
+   const expectedHash=baseline.hashes[mode+'-'+view],accepted=Array.isArray(expectedHash)?expectedHash:[expectedHash].filter(Boolean);
+   if(!accepted.length)missing.push(view);else if(!accepted.includes(hash))mismatch.push({view,expected:accepted,actual:hash});
   }
   console.log('VISUAL_BASELINE '+mode+' '+JSON.stringify(actual));
   expect(missing,'Missing visual baseline entries; update visual-baseline.json from VISUAL_BASELINE logs').toEqual([]);
