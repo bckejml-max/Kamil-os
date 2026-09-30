@@ -26,6 +26,6 @@ assert.match(property,/Lifecycle shortlistu/);assert.match(property,/data-proper
 assert.match(work,/Closeout a jistota termínů/);assert.match(work,/Zádržné/);assert.match(work,/deadlineConfirmed/);
 assert.match(docs,/Pojištění · radar 90 dní/);assert.match(docs,/Datová integrita/);assert.match(docs,/Koš · 30 dní/);assert.match(docs,/Repo debt dashboard/);
 
-for(const p of ['scripts/architecture-budget.mjs','scripts/repo-debt-report.mjs','repo-health.json','e2e_action_truth.spec.mjs'])assert.ok(fs.existsSync(p),'OS741 artifact missing '+p);
-assert.match(pkg.scripts['test:structural'],/architecture-budget/);assert.match(pkg.scripts['test:structural'],/repo-debt-report/);assert.match(pkg.scripts['test:e2e'],/e2e_action_truth\.spec\.mjs/);
-console.log('OS741 Action Truth contract PASS');
+for(const p of ['scripts/architecture-budget.mjs','scripts/repo-debt-report.mjs','repo-health.json','e2e_action_truth.spec.mjs','e2e_visual_regression.spec.mjs','visual-baseline.json','backup_guard_test.mjs'])assert.ok(fs.existsSync(p),'OS743 artifact missing '+p);
+assert.match(pkg.scripts['test:structural'],/architecture-budget/);assert.match(pkg.scripts['test:structural'],/repo-debt-report/);assert.match(pkg.scripts['test:e2e'],/e2e_action_truth\.spec\.mjs/);assert.match(pkg.scripts['test:e2e'],/e2e_visual_regression\.spec\.mjs/);assert.match(pkg.scripts['test:structural'],/backup_guard_test\.mjs/);
+console.log('OS743 Action Truth + integrity contract PASS');
