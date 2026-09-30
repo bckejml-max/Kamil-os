@@ -51,7 +51,12 @@ test('Insurance Center renders only insurance records supplied by private state'
  await page.locator('#insurance25Tile').click();
  await expect(page.locator('#moreView')).toContainText('Soukromá testovací pojistka');
  await expect(page.locator('#moreView')).toContainText('Soukromá testovací nabídka');
- const d=await page.evaluate(()=>window.__KAMIL_INSURANCE_CENTER1336__);
+ const d=await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  const {insuranceCenter}=await import('./js/insurance25.js');
+  const x=insuranceCenter(store.get());
+  return {active:x.active,offers:x.offers.length,total:x.total};
+ });
  expect(d.active).toBe(1);
  expect(d.offers).toBe(1);
  expect(d.total).toBe(1);
