@@ -27,7 +27,5 @@ export async function loadProductAdvancedStyles(hrefs=[]){
   link.addEventListener('error',()=>resolve(link),{once:true});
   document.head.appendChild(link);
  })));
- // Keep the single canonical runtime stylesheet above optional advanced styles while the advanced surface is open.
- promote('./productReset1300.css');
  return true;
 }
