@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {readdir,readFile} from 'node:fs/promises';
+import {QA_SUITES} from './scripts/qa-suites.mjs';
 
 const root=new URL('./',import.meta.url);
 const workflowsDir=new URL('./.github/workflows/',root);
@@ -19,7 +20,8 @@ const retired=new Set([
 assert.deepEqual(workflows.filter(f=>retired.has(f)),[],`Retired duplicate workflows returned`);
 
 const pkg=JSON.parse(await readFile(new URL('./package.json',root),'utf8'));
-const release=String(pkg.scripts?.['test:release']||'');
+assert.match(String(pkg.scripts?.['test:release']||''),/run-qa-suite\.mjs release/,'Canonical release script must route through the QA manifest runner');
+const release=QA_SUITES.release.files.join(' ');
 for(const token of [
   'api_runtime_guard.mjs','repo_hygiene_guard.mjs','os2000_guard.mjs','runtime_boot_guard.mjs',
   'runtime_ownership_1100_guard.mjs','runtime_inventory_1100_guard.mjs','runtime_hotspot_1101_guard.mjs',
@@ -39,4 +41,4 @@ const jsDir=new URL('./js/',root);
 const jsFiles=(await readdir(jsDir)).filter(f=>f.endsWith('.js'));
 let intervals=0,timeouts=0,listeners=0;
 for(const name of jsFiles){const src=await readFile(new URL(name,jsDir),'utf8');intervals+=(src.match(/\bsetInterval\s*\(/g)||[]).length;timeouts+=(src.match(/\bsetTimeout\s*\(/g)||[]).length;listeners+=(src.match(/\.addEventListener\s*\(/g)||[]).length}
-console.log(`Repo hygiene PASS: 5 workflows, ${jsFiles.length} JS modules, timers=${intervals+timeouts}, listeners=${listeners}, canonical=os2`);
+console.log(`Repo hygiene PASS: 5 workflows, ${jsFiles.length} JS modules, timers=${intervals+timeouts}, listeners=${listeners}, canonical=os2, release=${QA_SUITES.release.files.length} guards`);
