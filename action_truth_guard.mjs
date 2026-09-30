@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 const read=p=>fs.readFileSync(p,'utf8');
 const truth=read('js/actionTruthEngine.js'),sources=read('js/dataSourceRegistry.js'),today=read('js/todayPage2000.js'),app=read('js/app.js'),runtime=read('js/viewRuntime41.js'),state=read('js/state.js'),money=read('js/moneyOverview.js'),tickets=read('js/ticketOverview.js'),betting=read('js/bettingOverview.js'),property=read('js/propertyPage1300.js'),work=read('js/workPage1300.js'),docs=read('js/documentsPage141.js'),search=read('js/globalSearch.js'),pkg=JSON.parse(read('package.json')),release=read('js/releaseMeta.js'),sw=read('sw.js');
 
-assert.equal(pkg.version,'743.0.0');
-assert.match(release,/743\.0\.0/);
-assert.match(sw,/kamil-os-743\.0\.0-core-r147/);
+assert.equal(pkg.version,'744.0.0');
+assert.match(release,/744\.0\.0/);
+assert.match(sw,/kamil-os-744\.0\.0-core-r148/);
 
 for(const symbol of ['buildActionTruth741','buildUnifiedWaiting741','dedupeActions','financeTruth741','ticketTruth741','bettingTruth741','propertyTruth741','workTruth741','insuranceTruth741','conflicts741','tomorrow741','auditSummary741','ignore741'])assert.match(truth,new RegExp(symbol),'Action Truth missing '+symbol);
 assert.match(sources,/MASTER_DATA_REGISTRY/);
@@ -26,6 +26,6 @@ assert.match(property,/Lifecycle shortlistu/);assert.match(property,/data-proper
 assert.match(work,/Closeout a jistota termínů/);assert.match(work,/Zádržné/);assert.match(work,/deadlineConfirmed/);
 assert.match(docs,/Pojištění · radar 90 dní/);assert.match(docs,/Datová integrita/);assert.match(docs,/Koš · 30 dní/);assert.match(docs,/Repo debt dashboard/);
 
-for(const p of ['scripts/architecture-budget.mjs','scripts/repo-debt-report.mjs','repo-health.json','e2e_action_truth.spec.mjs','e2e_visual_regression.spec.mjs','visual-baseline.json','backup_guard_test.mjs'])assert.ok(fs.existsSync(p),'OS743 artifact missing '+p);
+for(const p of ['scripts/architecture-budget.mjs','scripts/repo-debt-report.mjs','repo-health.json','e2e_action_truth.spec.mjs','e2e_visual_regression.spec.mjs','visual-baseline.json','backup_guard_test.mjs'])assert.ok(fs.existsSync(p),'OS744 artifact missing '+p);
 assert.match(pkg.scripts['test:structural'],/architecture-budget/);assert.match(pkg.scripts['test:structural'],/repo-debt-report/);assert.match(pkg.scripts['test:e2e'],/e2e_action_truth\.spec\.mjs/);assert.match(pkg.scripts['test:e2e'],/e2e_visual_regression\.spec\.mjs/);assert.match(pkg.scripts['test:structural'],/backup_guard_test\.mjs/);
-console.log('OS743 Action Truth + integrity contract PASS');
+console.log('OS744 Action Truth + integrity contract PASS');
