@@ -1,6 +1,6 @@
-import {TICKET_MASTER_ID_1336} from './ticketMaster1336.js';
-import {BETTING_MASTER_ID_1335} from './bettingMaster1335.js';
-import {INSURANCE_MASTER_ID_1336} from './insuranceMaster1336.js';
+const TICKET_MASTER_ID_1336='flipovani-2024-2026-2026-09-23';
+const BETTING_MASTER_ID_1335='sazky_portfolio_FINAL_2026-09-23';
+const INSURANCE_MASTER_ID_1336='insurance-registry-2026-09-25-v2';
 
 const DAY=86400000;
 const ts=v=>{const n=Date.parse(v||'');return Number.isFinite(n)?n:null};
