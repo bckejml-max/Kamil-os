@@ -5,34 +5,33 @@ async function boot(page){
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
  await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
 }
-test('OS1335 replaces stale betting data with the final Sep 23 master once',async({page})=>{
+
+test('OS745 never seeds or replaces private betting data from public code',async({page})=>{
  await page.addInitScript(()=>{
   localStorage.setItem('kamil-os-state',JSON.stringify({
    meta:{schemaVersion:80,createdAt:new Date().toISOString()},
-   bettingLedger:{bets:[{id:'old',status:'OPEN',label:'OLD',stakeCzk:123}],bankrollCzk:0,unitCzk:0,updatedAt:'2026-09-01T00:00:00Z'}
+   bettingLedger:{bets:[{id:'private-bet-1',status:'OPEN',label:'Soukromá testovací sázka',stakeCzk:1234,odds:2}],bankrollCzk:10000,unitCzk:1000,updatedAt:'2026-09-30T10:00:00Z',masterId:'private-ledger'}
   }));
+  localStorage.setItem('kamil_betting_ledger_543',JSON.stringify({bets:[{id:'legacy',status:'OPEN',label:'LEGACY MUST NOT LOAD',stakeCzk:9999}]}));
  });
  await boot(page);
  await page.locator('#mainNav [data-view="betting"]').click();
- await expect(page.locator('#view-betting')).toHaveClass(/on/);
- await expect(page.locator('#bettingView [data-betting-open-row]')).toHaveCount(58);
- const d=await page.evaluate(()=>({
-  overview:window.__KAMIL_BETTING_OVERVIEW__,
-  ledger:JSON.parse(localStorage.getItem('kamil-os-state')||'{}').bettingLedger
- }));
- expect(d.overview.masterId).toBe('sazky_portfolio_FINAL_2026-09-23');
- expect(d.overview.ticketCount).toBe(140);
- expect(d.overview.positionCount).toBe(58);
- expect(d.overview.openPositions).toBe(58);
- expect(d.overview.openTickets).toBe(140);
- expect(d.overview.exposure).toBe(277000);
- await expect(page.locator('#bettingView')).toContainText('58 pozic');
- await expect(page.locator('#bettingView')).toContainText('140 tiketů');
- expect(d.ledger.masterMeta.totalStakedCzk).toBe(277000);
- expect(d.ledger.masterMeta.potentialPayoutCzk).toBe(1779165);
- expect(d.ledger.masterMeta.remainingToPlaceCzk).toBe(0);
- expect(d.ledger.masterMeta.categoryTotals['Evropské poháry']).toBe(123000);
- expect(d.ledger.masterMeta.categoryTotals['Domácí liga']).toBe(114000);
- expect(d.ledger.masterMeta.categoryTotals['Liga národů']).toBe(40000);
- expect(d.ledger.bets.reduce((a,x)=>a+Number(x.stakeCzk||0),0)).toBe(277000);
+ await expect(page.locator('#bettingView [data-betting-open-row]')).toHaveCount(1);
+ await expect(page.locator('#bettingView')).toContainText('Soukromá testovací sázka');
+ await expect(page.locator('#bettingView')).not.toContainText('LEGACY MUST NOT LOAD');
+ const ledger=await page.evaluate(()=>JSON.parse(localStorage.getItem('kamil-os-state')||'{}').bettingLedger);
+ expect(ledger.bets).toHaveLength(1);
+ expect(ledger.bets[0].id).toBe('private-bet-1');
+ expect(ledger.masterId).toBe('private-ledger');
+});
+
+test('OS745 empty canonical betting ledger stays empty instead of reviving legacy localStorage',async({page})=>{
+ await page.addInitScript(()=>{
+  localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80,createdAt:new Date().toISOString()},bettingLedger:{bets:[],bankrollCzk:0,unitCzk:0,updatedAt:null}}));
+  localStorage.setItem('kamil_betting_ledger_543',JSON.stringify({bets:[{id:'legacy-only',status:'OPEN',label:'LEGACY ONLY',stakeCzk:5000}]}));
+ });
+ await boot(page);
+ await page.locator('#mainNav [data-view="betting"]').click();
+ await expect(page.locator('#bettingView [data-betting-open-row]')).toHaveCount(0);
+ await expect(page.locator('#bettingView')).not.toContainText('LEGACY ONLY');
 });
