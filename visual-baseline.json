@@ -1,7 +1,7 @@
 {
   "version": 1,
   "release": "743.0.0",
-  "capture": "viewport",
+  "capture": "active-view",
   "viewport": {
     "desktop": {
       "width": 1440,
@@ -12,32 +12,5 @@
       "height": 844
     }
   },
-  "hashes": {
-    "desktop-today": [
-      "0516e8ffaa3603b14c08b57e85ff36ea4171d1c0728f51a251b31b8278bb0243",
-      "8d1ac7382f077ed7e1b08fc92f00dfe176c76f525bf61b9a3b7154fa514ff6c4"
-    ],
-    "desktop-inbox": "fd114bc11e36367ef0789a4e4c3cb52037ea10e76cdbd3185a1accefad6224a4",
-    "desktop-work": "e5248c0b8183ce28822e439032ded618303fc96bcf18e48fd6eb03ebecf7241d",
-    "desktop-tickets": "495b2a4896b0e29997228647c5e3a9fb611c239d64e95fa357d10972c758b82b",
-    "desktop-money": "d7c3334706d1b5751223bd5d7fa6274a3350447de8497485740e52b885b9bc4b",
-    "desktop-property": "cb57c5cd930ddddb2e42c49ea0f2314d204a071a5463d24ce52cad63a459b29e",
-    "desktop-betting": "babf7ced84aeb8b0125134eed1bf9e1050f477c5d8de16e9ca240f3c3d1b9df0",
-    "desktop-family": "834920fc72b8a8751213aaa61103e08f71e3d5d47df19e111f073bc439067457",
-    "desktop-home": "641c84422b99a2b932b02ef2b81e7cabd1dabb5a2d1e650dfc297e8ea80ea1d7",
-    "desktop-more": "791122806db1157c8d5254945bcac5cdaa246f836df61bb722845812282d5c29",
-    "mobile-today": "33556971d397c17e2e18b1d192552f4de695bf82c67636464c18fd99a15f35c1",
-    "mobile-inbox": "6f0bb080c7eeff52ba98f4cfec03fc17d2072362a8ef7486f2e486845b77afcb",
-    "mobile-work": "c662aff73ae20509504e3ef83770fbd9a7184d4f7d74fba7bef54b2f5f954e50",
-    "mobile-tickets": "dda9f747a57e324f6e514fa13a50087931cf482abbbf0ea4ffba204d128ce418",
-    "mobile-money": "bd0fc1bf83f97c4a0cfd736418f8d5a092335185b1c2f64e97c518818ea11dff",
-    "mobile-property": "49b769f753d051824dcb6a75563629b733b09f1ef3f095cc4933977d3fcfab86",
-    "mobile-betting": "1047383297b89e4b97792a350a8c22c2ae216e5da2bb5dca083d76fd30bf4d9a",
-    "mobile-family": "a9bd0a960aa3a16f1a10340f6b3af756622511586350dfadbef7642919403550",
-    "mobile-home": "05af4e3de1815b53b2434abc383dda9951a0075f9f50eef2ef38c9fa9ab6b871",
-    "mobile-more": [
-      "5eaf6fcd9baf487402e9b0eee4968c6a786f8668230504396044cc062033bf82",
-      "10c7c6c2544ab9607e407cd763c21005c656a4c41715fd2b24d48701939188d9"
-    ]
-  }
+  "hashes": {}
 }
