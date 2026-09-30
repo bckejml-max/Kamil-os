@@ -10,6 +10,42 @@ const marketHistory=read('api/market-history.js');
 const vercel=read('vercel.json');
 const gmail=read('api/ticket-gmail-sync.js');
 
+const state=read('js/state.js');
+const bettingOverview=read('js/bettingOverview.js');
+const sw=read('sw.js');
+const privateBootFiles=['js/bettingMaster1335.js','js/ticketMaster1336.js','js/insuranceMaster1336.js','js/personalDataRecovery625.js','js/personalDataConfidence626.js','js/personalVault640.js','js/personalMissingDataResolver627.js'];
+for(const file of privateBootFiles){
+ const src=read(file);
+ assert.ok(src.length<12000,file+' unexpectedly contains a large embedded private payload');
+}
+for(const file of ['js/bettingMaster1335.js','js/ticketMaster1336.js','js/insuranceMaster1336.js']){
+ const src=read(file);
+ assert.match(src,/embedded:false/,'public master contract must explicitly be data-free: '+file);
+}
+assert.doesNotMatch(state,/apply(?:Betting|Ticket|Insurance)Master133[56]\(s\)/,'state migration must never auto-apply public personal masters');
+assert.doesNotMatch(bettingOverview,/kamil_betting_ledger_543/,'canonical betting UI must never revive legacy localStorage');
+for(const file of ['bettingMaster1335.js','ticketMaster1336.js','insuranceMaster1336.js'])assert.equal(sw.includes(file),false,'service worker must not precache private master contracts: '+file);
+
+const repoTextFiles=[];
+const walk=dir=>{for(const ent of fs.readdirSync(dir,{withFileTypes:true})){if(['.git','node_modules','test-results','playwright-report'].includes(ent.name))continue;const path=dir==='.'?ent.name:dir+'/'+ent.name;if(ent.isDirectory())walk(path);else if(/\.(?:js|mjs|json|md|html|css)$/i.test(ent.name)&&path!=='privacy_security_guard.mjs')repoTextFiles.push(path)}};
+walk('.');
+const forbiddenPrivateTokens=[
+ 'sazky_portfolio_FINAL_2026-09-23'+'.xlsx',
+ 'Sázky(1)'+'.xlsx',
+ 'Kamil · Allianz '+'ŽIVOT',
+ 'Tereza · NN '+'Orange Risk',
+ '552093'+'1006',
+ '335040'+'9671',
+ '3424369'+'.42',
+ '4382826'+'.31',
+ '5700287'+'.82'
+];
+for(const file of repoTextFiles){
+ const src=read(file);
+ for(const token of forbiddenPrivateTokens)assert.equal(src.includes(token),false,`private token leaked in ${file}: ${token}`);
+}
+
+
 for(const forbidden of ['RAW_TICKETS','RAW_XTB','DEBTS=[','KNOWN_BETS','Sázky.xlsx','Dluhy.xlsx']){
  assert.equal(snapshot.includes(forbidden),false,`personalSnapshot737.js must not embed personal data: ${forbidden}`);
 }
