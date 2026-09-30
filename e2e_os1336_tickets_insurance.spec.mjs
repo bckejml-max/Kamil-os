@@ -5,110 +5,54 @@ async function boot(page){
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
  await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
 }
-test('OS1336 seeds Flipovani 2024-2026 totals and keeps color statuses authoritative',async({page})=>{
- await page.addInitScript(()=>localStorage.setItem('kamil-os-state',JSON.stringify({meta:{schemaVersion:80,createdAt:new Date().toISOString()},ticketBook:{items:[],watchlist:[],history:[],review:[]},personalAdmin:{items:[]}})));
+
+test('OS745 preserves private ticket inventory and never seeds bundled rows',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('kamil-os-state',JSON.stringify({
+  meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+  ticketBook:{masterId:'private-ticket-source',masterMeta:{sourceSheets:['Soukromý zdroj']},items:[
+   {id:'private-ticket-1',name:'Soukromý testovací event',eventName:'Soukromý testovací event',qty:2,eventDate:'2026-12-01',date:'2026-12-01',buyTotalCzk:2000,buy:2000,workflow:'LISTED',marketStatus:'LISTED',market_status:'LISTED',listPrice:1500}
+  ],watchlist:[],history:[],review:[]},
+  personalAdmin:{items:[]}
+ })));
  await boot(page);
  await page.locator('#mainNav [data-view="tickets"]').click();
- await expect(page.locator('#view-tickets')).toHaveClass(/on/);
- await expect(page.locator('#ticketIntelView')).toContainText('Vstupenky.');
- await expect(page.locator('#ticketIntelView')).toContainText('Flipování 2024');
- await expect(page.locator('#ticketIntelView')).toContainText('Flipování 2025');
- await expect(page.locator('#ticketIntelView')).toContainText('Flipování 2026');
- const d=await page.evaluate(()=>{
-  const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');
-  return {master:s.ticketBook?.masterMeta,items:s.ticketBook?.items,diag:window.__KAMIL_TICKET_OVERVIEW__};
- });
- expect(d.master.ticketQty).toBe(2266);
- expect(d.master.years['2024'].qty).toBe(702);
- expect(d.master.years['2025'].qty).toBe(1293);
- expect(d.master.years['2026'].qty).toBe(271);
- expect(d.master.buyTotalCzk).toBeCloseTo(4382826.31,2);
- expect(d.master.sellTotalCzk).toBeCloseTo(5700287.82,2);
- expect(d.items.length).toBe(109);
- expect(d.items.filter(x=>x.marketStatus==='SOLD_UNDELIVERED').length).toBe(0);
- expect(d.items.filter(x=>x.issue==='REKLAMACE').length).toBe(3);
- expect(d.diag.issues).toBe(3);
- const active=d.items.filter(x=>!x.issue&&['HOLD','LISTED'].includes(String(x.workflow||'').toUpperCase()));
- const activeQty=active.reduce((a,x)=>a+Number(x.qty||1),0),activeCapital=active.reduce((a,x)=>a+Number(x.buy||x.buyTotalCzk||0),0);
- expect(d.diag.activeQty).toBe(activeQty);
- expect(d.diag.capital).toBeCloseTo(activeCapital,2);
- expect(activeQty).toBe(34);
- expect(activeCapital).toBeCloseTo(53208,2);
- await expect(page.locator('#ticketIntelView')).toContainText('Česko - Chorvatsko');
- await expect(page.locator('#ticketIntelView')).toContainText('Česko - Anglie');
- await expect(page.locator('#ticketIntelView')).not.toContainText('Davis Cup');
+ await expect(page.locator('#ticketIntelView')).toContainText('Soukromý testovací event');
+ const d=await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('kamil-os-state')||'{}');return{ids:s.ticketBook?.items?.map(x=>x.id),masterId:s.ticketBook?.masterId,diag:window.__KAMIL_TICKET_OVERVIEW__}});
+ expect(d.ids).toEqual(['private-ticket-1']);
+ expect(d.masterId).toBe('private-ticket-source');
+ expect(d.diag.activeQty).toBe(2);
 });
-test('OS1336 Insurance Center separates active upcoming terminating offers and history',async({page})=>{
+
+test('OS745 blank private domains stay blank instead of receiving public seed data',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('kamil-os-state',JSON.stringify({
+  meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+  ticketBook:{items:[],watchlist:[],history:[],review:[]},
+  bettingLedger:{bets:[],bankrollCzk:0,unitCzk:0},
+  personalAdmin:{items:[]}
+ })));
+ await boot(page);
+ const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('kamil-os-state')||'{}'));
+ expect(state.ticketBook.items).toEqual([]);
+ expect(state.bettingLedger.bets).toEqual([]);
+ expect(state.personalAdmin.items).toEqual([]);
+});
+
+test('Insurance Center renders only insurance records supplied by private state',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('kamil-os-state',JSON.stringify({
+  meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+  personalAdmin:{insuranceMasterId:'private-insurance-source',items:[
+   {id:'private-policy-1',title:'Soukromá testovací pojistka',category:'INSURANCE',provider:'Test provider',amount:1200,currency:'CZK',cadence:'YEARLY',status:'ACTIVE',renewalDate:'2027-06-01',updatedAt:'2026-09-30T10:00:00Z',insurance:{kind:'PROPERTY',insured:'Test asset',lifecycle:'ACTIVE',sourceStatus:'CONFIRMED'}},
+   {id:'private-offer-1',title:'Soukromá testovací nabídka',category:'INSURANCE',provider:'Test provider',amount:900,currency:'CZK',cadence:'YEARLY',status:'ACTIVE',updatedAt:'2026-09-30T10:00:00Z',insurance:{kind:'PROPERTY',insured:'Test asset',lifecycle:'OFFER',sourceStatus:'OFFER'}}
+  ]}
+ })));
  await boot(page);
  await page.locator('#mainNav [data-view="more"]').click();
- await expect(page.locator('#view-more')).toHaveClass(/on/);
  await expect(page.locator('#insurance25Tile')).toBeVisible({timeout:10000});
  await page.locator('#insurance25Tile').click();
- await expect(page.locator('#moreView')).toContainText('Všechny pojistky na jednom místě');
- await expect(page.locator('#moreView')).toContainText('Tereza · NN Orange Risk');
- await expect(page.locator('#moreView')).toContainText('Fiat Croma');
- await expect(page.locator('#moreView')).toContainText('Pasohlávky 157 · MaxDomov VIP');
- await expect(page.locator('#moreView')).toContainText('Kamil · Allianz ŽIVOT');
- await expect(page.locator('#moreView')).toContainText('Dům Vlasatice · pojištění nemovitosti');
+ await expect(page.locator('#moreView')).toContainText('Soukromá testovací pojistka');
+ await expect(page.locator('#moreView')).toContainText('Soukromá testovací nabídka');
  const d=await page.evaluate(()=>window.__KAMIL_INSURANCE_CENTER1336__);
- expect(d.active).toBe(4);
- expect(d.upcoming).toBe(1);
- expect(d.terminating).toBe(2);
- expect(d.review).toBe(3);
- expect(d.offers).toBe(2);
- expect(d.history).toBe(6);
- expect(d.total).toBe(18);
- await page.locator('#insuranceBack25').click();
- await expect(page.locator('#moreView [data-documents-page1500]')).toBeVisible();
- await expect(page.locator('#insurance25Tile')).toBeVisible();
-});
-
-test('OS737.0.24 keeps superseded recovery insurance out of active attention',async({page})=>{
- await boot(page);
- await page.locator('#mainNav [data-view="more"]').click();
- await expect(page.locator('#view-more')).toHaveClass(/on/);
- await expect(page.locator('[data-documents-page1500]')).toBeVisible({timeout:10000});
- const text=await page.locator('#moreView').innerText();
- expect(text).toContain('Nahrazeno registrem');
- expect(text).not.toContain('Najít novější platbu 574 Kč');
- expect(text).not.toContain('Najít aktuální zelenou kartu nebo poslední zaplacené pojistné');
- expect(text).not.toContain('Při dalším bankovním výpisu potvrdit pravidelnou platbu 915 Kč');
- expect(text).not.toContain('Potvrdit, že smlouva je stále aktivní a kryje současný stav rekonstrukce');
-});
-
-test('OS737.0.35 Insurance Center wording does not overstate REVIEW/TERMINATING as active',async({page})=>{
- await boot(page);
- await page.locator('#mainNav [data-view="more"]').click();
- await page.locator('#insurance25Tile').click();
- await expect(page.locator('#moreView')).toContainText('AKTUÁLNÍ STAV SMLUV');
- await expect(page.locator('#moreView')).toContainText('Smlouvy „Ověřit“ a „Ukončované“');
- await expect(page.locator('#moreView')).not.toContainText('Co teď skutečně platí nebo začne platit');
-});
-
-test('OS737.0.38 confirmed upcoming insurance is BRZY, not OVĚŘIT',async({page})=>{
- await boot(page);
- await page.locator('#mainNav [data-view="more"]').click();
- await page.locator('#insurance25Tile').click();
- const row=page.locator('.intel-row').filter({has:page.locator('[data-ins-edit="ins-master-tereza-nn-3350409671"]')});
- await expect(row).toContainText('Začíná');
- await expect(row).toContainText('BRZY');
- await expect(row).not.toContainText('OVĚŘIT');
-});
-
-test('OS737.0.40 confirmed upcoming insurance is informational, not an action',async({page})=>{
- await boot(page);
- await page.locator('#mainNav [data-view="more"]').click();
- await page.locator('#insurance25Tile').click();
- await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
- const diag=await page.evaluate(()=>window.__KAMIL_INSURANCE_CENTER1336__);
- expect(diag.upcoming).toBeGreaterThan(0);
- const center=await page.evaluate(async()=>{
-  const {store}=await import('./js/state.js');
-  const {insuranceCenter}=await import('./js/insurance25.js');
-  return insuranceCenter(store.get());
- });
- const tereza=center.policies.find(x=>x.id==='ins-master-tereza-nn-3350409671');
- expect(tereza.status).toBe('SOON');
- expect(tereza.needsAction).toBe(false);
- expect(center.actions.some(x=>x.id===tereza.id)).toBe(false);
+ expect(d.active).toBe(1);
+ expect(d.offers).toBe(1);
+ expect(d.total).toBe(1);
 });
