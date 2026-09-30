@@ -196,7 +196,7 @@ test('OS737.0.36 Home insurance card shows actual yearly cadence',async({page})=
  await expect(page.locator('[data-home-page1500]')).toBeVisible({timeout:10000});
  const card=page.locator('#homeView .os1500-record').filter({hasText:'Test dům · pojištění'});
  await expect(card).toContainText('3 600 Kč/rok');
- await expect(card).toContainText('Ověřit');
+ await expect(card).toContainText('Aktivní');
 });
 
 test('OS737.0.37 Today insurance priority deep-links to Insurance Center',async({page})=>{
