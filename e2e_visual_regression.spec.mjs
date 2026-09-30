@@ -20,6 +20,8 @@ async function stabilize(page,width,height){
  },FIXED);
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
+ await page.evaluate(async()=>{const m=await import('./js/personalVault640.js');m.ensurePersonalVault640()});
+ await page.waitForTimeout(150);
  await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important} html{scroll-behavior:auto!important}'});
 }
 async function settleView(page,view){
