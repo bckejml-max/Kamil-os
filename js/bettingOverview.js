@@ -8,9 +8,8 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'
 const money=v=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(Number(v||0));
 
 function ledger(input=null){
- let legacy={};try{legacy=JSON.parse(localStorage.getItem('kamil_betting_ledger_543')||'{}')}catch{}
- const canonical=(input||store.get())?.bettingLedger||{},useCanonical=canonical.updatedAt||Number(canonical.bankrollCzk||0)!==0||Number(canonical.unitCzk||0)!==0||(Array.isArray(canonical.bets)&&canonical.bets.length>0),bets=useCanonical?(Array.isArray(canonical.bets)?canonical.bets:[]):(Array.isArray(legacy.bets)?legacy.bets:[]);
- return {bets,bankrollCzk:Number(useCanonical?canonical.bankrollCzk:legacy.bankrollCzk||0),unitCzk:Number(useCanonical?canonical.unitCzk:legacy.unitCzk||0)};
+ const canonical=(input||store.get())?.bettingLedger||{},bets=Array.isArray(canonical.bets)?canonical.bets:[];
+ return {bets,bankrollCzk:Number(canonical.bankrollCzk||0),unitCzk:Number(canonical.unitCzk||0)};
 }
 export function bettingData1334(input=null){
  const state=input||store.get(),l=ledger(state),master=state?.bettingLedger?.masterMeta||null,open=l.bets.filter(x=>String(x.status||'OPEN').toUpperCase()==='OPEN').sort((a,b)=>Number(b.stakeCzk||0)-Number(a.stakeCzk||0)),settled=l.bets.filter(x=>['WIN','LOSS','VOID'].includes(String(x.status||'').toUpperCase()));
