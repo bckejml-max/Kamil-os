@@ -53,6 +53,20 @@ export function readBackup(raw){
  return {ok:true,legacy:true,payload:raw,schema,exportedAt:null,appVersion:null,fingerprint:null,bytes:utf8Bytes(JSON.stringify(raw))};
 }
 
+
+export function backupRoundTripHealth(state,now=new Date()){
+ try{
+  const envelope=createBackupEnvelope(state,now);
+  const serialized=JSON.stringify(envelope);
+  const parsed=JSON.parse(serialized);
+  const read=readBackup(parsed);
+  if(!read.ok)return {ok:false,stage:'read',code:read.code||'READ_FAILED',message:read.message||'Round-trip import selhal.',bytes:serialized.length};
+  const before=backupFingerprint(envelope.payload),after=backupFingerprint(read.payload);
+  const ok=before===after&&after===envelope.fingerprint;
+  return {ok,stage:ok?'complete':'compare',code:ok?'OK':'FINGERPRINT_MISMATCH',fingerprint:after,bytes:serialized.length,schemaVersion:envelope.schemaVersion,appVersion:envelope.appVersion};
+ }catch(error){return {ok:false,stage:'exception',code:'ROUNDTRIP_EXCEPTION',message:String(error?.message||error),bytes:0}}
+}
+
 const daysAgo=(iso,now)=>{const t=new Date(iso||0).getTime();if(!Number.isFinite(t)||t<=0)return null;return Math.max(0,Math.floor((new Date(now).getTime()-t)/86400000))};
 const active=a=>(Array.isArray(a)?a:[]).filter(x=>String(x?.status||'ACTIVE').toUpperCase()!=='ARCHIVED').length;
 
@@ -75,5 +89,6 @@ export function backupHealth(state,meta={},now=new Date()){
   tickets:active(state?.ticketBook?.items),
   debts:active(state?.debtBook?.items)
  };
- return {status,label,ageDays,lastBackupAt:meta.lastBackupAt||null,lastRestoreAt:meta.lastRestoreAt||null,currentFingerprint:env.fingerprint,currentBytes:env.bytes,counts,note:backupGuardNote};
+ const roundTrip=backupRoundTripHealth(state,now);
+ return {status,label,ageDays,lastBackupAt:meta.lastBackupAt||null,lastRestoreAt:meta.lastRestoreAt||null,currentFingerprint:env.fingerprint,currentBytes:env.bytes,roundTrip,counts,note:backupGuardNote};
 }

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const read=p=>fs.readFileSync(p,'utf8');
-const index=read('index.html'),registry=read('js/viewRegistry.js'),app=read('js/app.js'),runtime=read('js/viewRuntime41.js'),today=read('js/todayPage2000.js'),truth=read('js/actionTruthEngine.js'),sources=read('js/dataSourceRegistry.js'),state=read('js/state.js'),css=read('os-canonical.css');
+const index=read('index.html'),registry=read('js/viewRegistry.js'),app=read('js/app.js'),runtime=read('js/viewRuntime41.js'),today=read('js/todayPage2000.js'),truth=read('js/actionTruthEngine.js'),sources=read('js/dataSourceRegistry.js'),state=read('js/state.js'),backup=read('js/backupGuard26.js'),css=read('os-canonical.css'),visual=JSON.parse(read('visual-baseline.json'));
 const styles=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(x=>x[1]);
 assert.deepEqual(styles,['./os-canonical.css'],'architectural budget: exactly one eager runtime stylesheet');
 assert.equal((registry.match(/^\s*[a-z]+:\{title:/gm)||[]).length,10,'architectural budget: exactly ten canonical primary views');
@@ -19,4 +19,12 @@ for(const id of ['TICKET_MASTER_ID_1336','BETTING_MASTER_ID_1335','INSURANCE_MAS
 assert.match(state,/TRASH_RETENTION_DAYS741=30/,'architectural budget: soft-delete retention must remain 30 days');
 assert.match(app,/COMMAND_HISTORY_KEY741/);assert.match(app,/COMMAND_FAVORITES_KEY741/);
 assert.match(runtime,/globalSearch\.js/,'architectural budget: global search remains routed through command runtime');
+assert.match(backup,/export function backupRoundTripHealth/,'architectural budget: backup round-trip health required');
+assert.equal(visual.release,'743.0.0','architectural budget: visual baseline release must match OS743');
+assert.equal(Object.keys(visual.hashes||{}).length,20,'architectural budget: exactly 20 visual baselines required');
+for(const mode of ['desktop','mobile'])for(const view of ['today','inbox','work','tickets','money','property','betting','family','home','more']){
+ const raw=visual.hashes?.[mode+'-'+view],accepted=Array.isArray(raw)?raw:[raw].filter(Boolean);
+ assert.ok(accepted.length>=1&&accepted.length<=2,'architectural budget: each visual baseline has one or at most two verified raster variants');
+ for(const hash of accepted)assert.match(String(hash),/^[a-f0-9]{64}$/,'architectural budget: invalid visual baseline '+mode+'-'+view);
+}
 console.log('OS741 architecture budget PASS');

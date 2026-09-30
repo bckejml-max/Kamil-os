@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "release": "743.0.0",
+  "capture": "active-view",
+  "viewport": {
+    "desktop": {
+      "width": 1440,
+      "height": 1000
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "hashes": {
+    "desktop-today": "87f3ecbe683e2c89eb0c0378f8fce954d473470437b52c1d587c27e1b9bcd2af",
+    "desktop-inbox": "a3a82493f8f9b2c366b9fc9bc160b17e442760d5e806886db7ccc1685450a10b",
+    "desktop-work": "20d68f0fc30e7a9d34a7949403407555c83b3373408be7ba097060bdd3cd3f86",
+    "desktop-tickets": "aff798d17b004adb4514ff1eb67398a1a1eff6e28163a9c4734fd3278078cf48",
+    "desktop-money": "f290c1086952a42379ceb1f1b122ac7cd03d0f15cfdc4fe3ad0bab6501dc7e78",
+    "desktop-property": "85f9f56ef10e8538a9f80fbf971d1f1b77caad0bd902f674d5f124ec6cac8e02",
+    "desktop-betting": "21278f9caf9abcfee3d9d485c70e05aac5ab595fa9ce8070bdf9951b8b104af9",
+    "desktop-family": "cdc4895c8c1206a62cb339c31336ac63ee5e6070c4f76f0a41f67f5c54f5d7db",
+    "desktop-home": "2140d882cd868211909e193fb1251ca35c4247158fce8a71906e6169995390d8",
+    "desktop-more": "0b025b0d9de548e5aa12c475c2bf7bb040381c5ca86e89fac3d3fb97d7fbaf4b",
+    "mobile-today": "1bb74fda793df39fc46d3185152897349d1b344f6e462a86e43e9faa0e2d8c8c",
+    "mobile-inbox": "5aa42b5b78b31f14588aaae79f3dcb398e16c2b9237fd74fa085d2070856b3d8",
+    "mobile-work": "7ca69b927d84850b55d5cd9615cedac241fe102983c20cf3cc1bc39dc332b5d5",
+    "mobile-tickets": "5bd35c83169378dd75f91cd370420296cfe7d151a43b3ecd2f3418a2ad91279d",
+    "mobile-money": "fdc9f6947b96bd7b9892ab4a29e753453ace173c0e32bc36b0d2d32daf810ef5",
+    "mobile-property": "d1c5814e7b8e22efb0ec9df4d63ec7dad1283dc4593ff63c95ba899f988d6b78",
+    "mobile-betting": "dd92681bad3347aec8a2563676350d5c74c325f1daf45f6044b80206f8c9670e",
+    "mobile-family": "83fbf87d01230cf8ccf45fd44fa218fd1aa7b730cfa7976b8ddd8aef0996b923",
+    "mobile-home": "28557f567f88220a00e8c7be64e7871ecc5cb68e970a6ee9eaeac44d9a9c0d6a",
+    "mobile-more": "e4e3f0c3180909cd0812281e6ef229f63115d44b7d6f8e3824d6160a66b2a5dd"
+  }
+}

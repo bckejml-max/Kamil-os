@@ -1,4 +1,4 @@
-# Kamil OS 741.0.0
+# Kamil OS 743.0.0
 
 Kamil OS je osobní **Daily Personal Assistant + Ticket Intelligence**. Hlavní uživatelské rozhraní má deset přímo dostupných oblastí: **Dnes / Úkoly / Práce / Vstupenky / Peníze / Reality / Sázení / Rodina / Domov / Dokumenty**.
 
@@ -61,3 +61,10 @@ Aktuální release má statické guardy, core/cloud safety testy a Playwright E2
 - Peníze mají reconciliation, volnou hotovost a úrokovou příležitost z uložených sazeb. Vstupenky mají lifecycle, realizovaný/čekající profit, kapitál a transfer risk. Sázení má koncentraci, settlement audit a historické segmenty. Reality mají lifecycle, compare lock a reverzibilní cleanup. Práce má blocker/closeout kontrolu.
 - Dokumenty obsahují 90denní pojistný radar, datovou integritu, 30denní obnovitelný koš a interní repo-debt dashboard.
 - CI hlídá architektonický budget, repo-health snapshot, canonical CSS konflikty a OS741 browser/accessibility/layout kontrakty.
+
+
+## Runtime 743.0
+
+- Backup health ověřuje skutečný export → JSON → import round-trip a porovnává canonical fingerprint; test je součástí povinného structural release gate.
+- Vizuální regression pokrývá všech 10 hlavních sekcí na desktopu i mobilu pomocí deterministických screenshot hashů.
+- Každá změna canonical layoutu musí projít explicitní aktualizací vizuální baseline; náhodný CSS/layout drift shodí browser QA.

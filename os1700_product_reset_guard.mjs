@@ -23,6 +23,6 @@ assert.ok(betting.indexOf('(d.open.length?') < betting.indexOf('os1500-summary-g
 assert.match(work,/Termíny, rizika a zakázky v pořadí/);
 assert.match(money,/Nejdřív akce, která něco mění/);
 assert.match(property,/Nejdřív nejlepší kandidát a důvod/);
-assert.match(release,/741\.0\.0/);
-assert.match(sw,/kamil-os-741\.0\.0-core-r146/);
+assert.match(release,/743\.0\.0/);
+assert.match(sw,/kamil-os-743\.0\.0-core-r147/);
 console.log('OS1700 canonical product reset: 13/13 PASS');

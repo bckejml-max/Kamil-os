@@ -2,6 +2,7 @@ import {store} from './state.js';
 import {norm,h,money} from './utils.js';
 import {search as baseSearch} from './command.js';
 import {isActivePropertyCandidate472} from './propertyDecision472.js';
+import {schedule1100} from './runtimeOwnership1100.js';
 
 const A=v=>Array.isArray(v)?v:[];
 const OWNER='product.commandSearch610';
@@ -27,7 +28,18 @@ function openFocused610(target,focus){
  if(direct){delete window.__KAMIL_PENDING_FOCUS610__;Promise.resolve(direct()).catch(error=>console.warn('[commandSearch610:focus]',focus,error));return true}
  delete window.__KAMIL_PENDING_FOCUS610__;fireFocus(target,focus);return true
 }
-const openTarget=(target,focus=null)=>{if(focus)window.__KAMIL_PENDING_FOCUS610__={target:target||'today',focus,at:Date.now()};window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:target||'today'}));openFocused610(target||'today',focus)};
+const openTarget=(target,focus=null)=>{
+ const view=target||'today';
+ if(focus)window.__KAMIL_PENDING_FOCUS610__={target:view,focus,at:Date.now()};
+ window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:view}));
+ if(!focus||openFocused610(view,focus))return true;
+ const retry=delay=>schedule1100(OWNER,`advanced-focus-${view}-${focus}-${delay}`,()=>{
+  const active=document.querySelector(`#view-${view}.on`);if(!active)return;
+  if(openFocused610(view,focus))return;
+ },delay,{pauseWhenHidden:true});
+ retry(60);retry(180);retry(420);
+ return true
+};
 const addMatch=(out,q,kind,title,detail,target,id,focus)=>{if(norm(`${title} ${detail}`).includes(q))out.push({kind,title,detail,target,id,focus})};
 
 export function searchExtended610(raw){

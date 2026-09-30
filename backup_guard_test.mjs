@@ -1,5 +1,5 @@
 const {SCHEMA_VERSION}=await import('./js/config.js');
-const {createBackupEnvelope,readBackup,backupPayload,backupHealth,BACKUP_FORMAT}=await import('./js/backupGuard26.js');
+const {createBackupEnvelope,readBackup,backupPayload,backupHealth,backupRoundTripHealth,BACKUP_FORMAT}=await import('./js/backupGuard26.js');
 const assert=(x,m)=>{if(!x)throw new Error(m)};
 const ref=new Date('2026-08-20T10:00:00+02:00');
 const state={
@@ -26,8 +26,9 @@ const downloaded=JSON.parse(JSON.stringify(env));read=readBackup(downloaded);ass
 const tampered=structuredClone(downloaded);tampered.payload.personalAdmin.items[0].title='Změněno';read=readBackup(tampered);assert(!read.ok&&read.code==='FINGERPRINT_MISMATCH','tampering detected');
 read=readBackup({meta:{schemaVersion:38},personalAdmin:{items:[]}});assert(read.ok&&read.legacy,'legacy raw JSON remains supported');
 read=readBackup({format:BACKUP_FORMAT,formatVersion:1,schemaVersion:SCHEMA_VERSION+1,fingerprint:'x',payload:{meta:{schemaVersion:SCHEMA_VERSION+1}}});assert(!read.ok&&read.code==='FUTURE_SCHEMA','future schema blocked');
+const roundTrip=backupRoundTripHealth(state,ref);assert(roundTrip.ok&&roundTrip.code==='OK','portable backup survives export JSON import roundtrip');assert(roundTrip.fingerprint===env.fingerprint,'roundtrip preserves canonical fingerprint');
 let health=backupHealth(state,{},ref);assert(health.status==='NO_BACKUP','missing backup detected');
 health=backupHealth(state,{lastBackupAt:'2026-08-01T10:00:00+02:00'},ref);assert(health.status==='AGING','aging backup detected');
 health=backupHealth(state,{lastBackupAt:'2026-07-01T10:00:00+02:00'},ref);assert(health.status==='STALE','stale backup detected');
-health=backupHealth(state,{lastBackupAt:'2026-08-18T10:00:00+02:00'},ref);assert(health.status==='OK','fresh backup detected');assert(health.counts.emergencyContacts===1&&health.counts.personalAdmin===1&&health.counts.personalInbox===1&&health.counts.assets===1&&health.counts.goals===1&&health.counts.transactions===1&&health.counts.imports===1&&health.counts.netWorthItems===1&&health.counts.netWorthSnapshots===1,'personal + import + net worth coverage counted');
+health=backupHealth(state,{lastBackupAt:'2026-08-18T10:00:00+02:00'},ref);assert(health.status==='OK','fresh backup detected');assert(health.roundTrip?.ok===true,'backup health includes successful roundtrip');assert(health.counts.emergencyContacts===1&&health.counts.personalAdmin===1&&health.counts.personalInbox===1&&health.counts.assets===1&&health.counts.goals===1&&health.counts.transactions===1&&health.counts.imports===1&&health.counts.netWorthItems===1&&health.counts.netWorthSnapshots===1,'personal + import + net worth coverage counted');
 console.log('BACKUP & RECOVERY GUARD QA PASS');

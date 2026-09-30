@@ -9,6 +9,7 @@ import {bettingData1334} from './bettingOverview.js';
 import {familyData140} from './familyPage140.js';
 import {personalHomeTimeline650} from './personalAssistant650.js';
 import {insuranceCenter} from './insurance25.js';
+import {backupHealth} from './backupGuard26.js';
 
 const DAY=86400000;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','PAYOUT RECEIVED','PAYOUT_RECEIVED','CANCELLED','CANCELED']);
@@ -193,9 +194,10 @@ export function buildActionTruth741(input=null,{now=Date.now()}={}){
  const domains={inbox,work,tickets,money,property,betting,family,homeTimeline,insurance};
  domains.finance=financeTruth741(s,money);domains.ticketTruth=ticketTruth741(s,tickets);domains.bettingTruth=bettingTruth741(s,betting);domains.propertyTruth=propertyTruth741(s,property);domains.workTruth=workTruth741(s,work);domains.insuranceTruth=insuranceTruth741(s,insurance);
  const actions=actions741(s,domains,freshness,waiting,now),conflicts=conflicts741(s,domains),tomorrow=tomorrow741(s,waiting,now),audit=auditSummary741(s,actions,now),stateCheck=validateState(JSON.parse(JSON.stringify({...s,undo:[]})));
- const searchHealth={serializable:true,stateValid:stateCheck.ok&&!stateCheck.fatal.length,issues:stateCheck.issues||[],fatal:stateCheck.fatal||[]};
+ const portable=backupHealth(s,input?{}:store.meta(),new Date(now));
+ const searchHealth={...portable,serializable:true,stateValid:stateCheck.ok&&!stateCheck.fatal.length,issues:stateCheck.issues||[],fatal:stateCheck.fatal||[],roundTripOk:portable.roundTrip?.ok===true};
  return {
-  version:'741.0.0',generatedAt:new Date(now).toISOString(),actions,primary:actions[0]||null,secondary:actions.slice(1,5),waiting,followUps:waiting.filter(x=>x.needsFollowUp),freshness,staleSources:freshness.filter(x=>x.stale),conflicts,
+  version:'743.0.0',generatedAt:new Date(now).toISOString(),actions,primary:actions[0]||null,secondary:actions.slice(1,5),waiting,followUps:waiting.filter(x=>x.needsFollowUp),freshness,staleSources:freshness.filter(x=>x.stale),conflicts,
   ignore:ignore741(domains,actions),tomorrow,dailyClose:audit.dailyClose,weeklyReview:audit.weeklyReview,timeline:audit.timeline,domains,backupHealth:searchHealth,
   counts:{actions:actions.length,high:actions.filter(x=>x.score>=100).length,followUps:waiting.filter(x=>x.needsFollowUp).length,stale:freshness.filter(x=>x.stale).length,conflicts:conflicts.length,tomorrow:tomorrow.length}
  };
