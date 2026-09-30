@@ -20,11 +20,11 @@ assert.match(state,/TRASH_RETENTION_DAYS741=30/,'architectural budget: soft-dele
 assert.match(app,/COMMAND_HISTORY_KEY741/);assert.match(app,/COMMAND_FAVORITES_KEY741/);
 assert.match(runtime,/globalSearch\.js/,'architectural budget: global search remains routed through command runtime');
 assert.match(backup,/export function backupRoundTripHealth/,'architectural budget: backup round-trip health required');
-assert.equal(visual.release,'744.0.0','architectural budget: visual baseline release must match OS744');
+assert.equal(visual.release,'745.0.0','architectural budget: visual baseline release must match OS745');
 assert.equal(Object.keys(visual.hashes||{}).length,20,'architectural budget: exactly 20 visual baselines required');
 for(const mode of ['desktop','mobile'])for(const view of ['today','inbox','work','tickets','money','property','betting','family','home','more']){
  const raw=visual.hashes?.[mode+'-'+view],accepted=Array.isArray(raw)?raw:[raw].filter(Boolean);
  assert.ok(accepted.length>=1&&accepted.length<=2,'architectural budget: each visual baseline has one or at most two verified raster variants');
  for(const hash of accepted)assert.match(String(hash),/^[a-f0-9]{64}$/,'architectural budget: invalid visual baseline '+mode+'-'+view);
 }
-console.log('OS744 architecture budget PASS');
+console.log('OS745 architecture budget PASS');
