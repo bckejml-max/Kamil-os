@@ -9,6 +9,7 @@ const runtime=read('js/viewRuntime41.js');
 const registry=read('js/viewRegistry.js');
 const advancedStyles=read('js/productAdvancedStyles.js');
 const today=read('js/todayPage2000.js');
+const truth=read('js/actionTruthEngine.js');
 const personalQuery=read('js/personalQuery29.js');
 const work=read('js/workPage1300.js');
 const tickets=read('js/ticketOverview.js');
@@ -60,8 +61,8 @@ assert.match(today,/d\.moneyState\?\.attention\?\.length/,'Today Money status mu
 assert.match(today,/usabilityReset:1500/);
 assert.match(today,/ticketState=ticketData1300\(s\)/,'Today Tickets must use canonical Ticket Overview state');
 assert.match(today,/inboxState=localInboxSummary660\(s\)/,'Today Tasks card must read canonical local Inbox state');
-assert.match(today,/sourceKey:/,'Today priority rows must carry source identity for deduplication');
-assert.match(today,/x\.sourceKey\|\|x\.personalId/,'Today queue must deduplicate by source identity before title/route');
+assert.match(truth,/sourceKey:/,'Action Truth rows must carry source identity for deduplication');
+assert.match(truth,/function canonicalKey\(x\)/,'Action Truth must own canonical source identity deduplication');
 assert.match(today,/d\.inboxState\?\.counts\?\.total/,'Today Tasks status must mirror local Inbox counts');
 assert.match(today,/activeTicketQty=d\.ticketState\?\.p\?\.queue\?\.activeQty/,'Today ticket card must display canonical active quantity');
 assert.match(today,/ticketAlert=d\.ticketState\?\.attention\?\.\[0\]/,'Today ticket priority must use canonical Ticket attention');
