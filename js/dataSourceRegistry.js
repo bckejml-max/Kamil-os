@@ -23,10 +23,10 @@ const sourceUpdatedAt=(key,s)=>{
  if(key==='tickets')return latest(s.ticketBook?.updatedAt,s.ticketBook?.masterMeta?.confirmedAt);
  if(key==='betting')return latest(s.bettingLedger?.updatedAt,s.bettingLedger?.masterMeta?.confirmedAt);
  if(key==='insurance')return latest(s.personalAdmin?.insuranceMasterAt,latestFrom(s.personalAdmin?.items||[]));
- if(key==='money')return latest(s.financePlan?.updatedAt,s.xtbReport?.asOf,latestFrom(s.netWorthBook?.history||[],['asOf','date','createdAt']),latestFrom(s.personalSpending?.transactions||[]));
+ if(key==='money')return latest(s.financePlan?.updatedAt,s.xtbReport?.asOf,s.xtbHub?.updatedAt,latestFrom(s.personalVault?.items||[]),latestFrom(s.netWorthBook?.history||[],['asOf','createdAt']),latestFrom(s.personalSpending?.transactions||[]));
  if(key==='property')return latest(latestFrom(s.propertyBook?.candidates||[]),s.propertyBook?.updatedAt);
- if(key==='work')return latest(latestFrom(s.projects||[]),latestFrom(s.tasks||[]));
- if(key==='calendar')return latest(s.calendar?.asOf,latestFrom(s.calendar?.events||[],['updatedAt','start','date','createdAt']));
+ if(key==='work'){const workTasks=(s.tasks||[]).filter(x=>/prac|zakaz|zakáz|work/i.test(String(x?.area||'')+' '+String(x?.category||'')+' '+String(x?.project||'')));return latest(s.workState?.updatedAt,latestFrom(s.projects||[]),latestFrom(workTasks));}
+ if(key==='calendar')return latest(s.calendar?.asOf,s.calendar?.updatedAt,latestFrom(s.calendar?.events||[],['updatedAt','createdAt']));
  if(key==='personal')return latest(s.meta?.lastMutationAt,latestFrom(s.personalAdmin?.items||[]),latestFrom(s.familyHome?.members||[]));
  return null;
 };
