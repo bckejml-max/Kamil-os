@@ -1,39 +1,69 @@
-name: Kamil OS Control Plane + Operations QA
+name: Kamil OS Control Plane QA
+
 on:
   pull_request:
     paths:
       - 'index.html'
-      - 'os2.css'
-      - 'os2010.css'
-      - 'os2020.css'
+      - 'os-canonical.css'
       - 'js/instantShell64.js'
       - 'js/app.js'
+      - 'js/viewRegistry.js'
       - 'js/viewRuntime41.js'
+      - 'js/diagnostics.js'
       - 'js/todayPage2000.js'
-      - 'js/decisionFocus2020.js'
+      - 'js/actionTruthEngine.js'
       - 'js/runtimeOwnership1100.js'
       - 'js/runtimeHealth1120.js'
       - 'js/runtimeLeak1210.js'
       - 'js/performanceBudget1220.js'
       - 'js/viewLifecycle1230.js'
-      - 'js/bettingPage527.js'
-      - 'js/bettingBootstrap543.js'
-      - 'js/ticketPage100.js'
       - 'os2000_guard.mjs'
       - 'os2020_guard.mjs'
       - 'runtime_boot_guard.mjs'
       - 'runtime_ownership_1100_guard.mjs'
       - 'runtime_inventory_1100_guard.mjs'
-      - 'e2e_os2000_redesign.spec.mjs'
-      - 'e2e_os2020_decision_focus.spec.mjs'
-      - 'e2e_os347_critical_path.spec.mjs'
       - 'scripts/control_plane_1037_guard.mjs'
       - 'scripts/control_operations_1047_guard.mjs'
       - 'scripts/legacy_cleanup_987_guard.mjs'
+      - 'scripts/qa-suites.mjs'
+      - 'scripts/run-qa-suite.mjs'
+      - 'package.json'
       - '.github/workflows/os1047-control-operations.yml'
   push:
     branches: [main]
+    paths:
+      - 'index.html'
+      - 'os-canonical.css'
+      - 'js/instantShell64.js'
+      - 'js/app.js'
+      - 'js/viewRegistry.js'
+      - 'js/viewRuntime41.js'
+      - 'js/diagnostics.js'
+      - 'js/todayPage2000.js'
+      - 'js/actionTruthEngine.js'
+      - 'js/runtimeOwnership1100.js'
+      - 'js/runtimeHealth1120.js'
+      - 'js/runtimeLeak1210.js'
+      - 'js/performanceBudget1220.js'
+      - 'js/viewLifecycle1230.js'
+      - 'os2000_guard.mjs'
+      - 'os2020_guard.mjs'
+      - 'runtime_boot_guard.mjs'
+      - 'runtime_ownership_1100_guard.mjs'
+      - 'runtime_inventory_1100_guard.mjs'
+      - 'scripts/control_plane_1037_guard.mjs'
+      - 'scripts/control_operations_1047_guard.mjs'
+      - 'scripts/legacy_cleanup_987_guard.mjs'
+      - 'scripts/qa-suites.mjs'
+      - 'scripts/run-qa-suite.mjs'
+      - 'package.json'
+      - '.github/workflows/os1047-control-operations.yml'
   workflow_dispatch:
+
+concurrency:
+  group: control-qa-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   control:
     runs-on: ubuntu-latest
@@ -41,31 +71,24 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - name: OS 2.0 runtime syntax
+          node-version: 24
+
+      - name: Control-plane syntax
         run: |
           node --check js/instantShell64.js
           node --check js/app.js
+          node --check js/viewRegistry.js
           node --check js/viewRuntime41.js
+          node --check js/diagnostics.js
           node --check js/todayPage2000.js
-          node --check js/decisionFocus2020.js
+          node --check js/actionTruthEngine.js
           node --check js/runtimeOwnership1100.js
           node --check js/runtimeHealth1120.js
           node --check js/runtimeLeak1210.js
           node --check js/performanceBudget1220.js
           node --check js/viewLifecycle1230.js
-          node --check js/bettingPage527.js
-          node --check js/bettingBootstrap543.js
-          node --check js/ticketPage100.js
-          node --check os2000_guard.mjs
-          node --check os2020_guard.mjs
-          node --check runtime_boot_guard.mjs
-          node --check runtime_ownership_1100_guard.mjs
-          node --check runtime_inventory_1100_guard.mjs
-          node --check e2e_os2000_redesign.spec.mjs
-          node --check e2e_os2020_decision_focus.spec.mjs
-          node --check e2e_os347_critical_path.spec.mjs
-      - name: OS 2.0 runtime contracts
+
+      - name: Control-plane contracts
         run: |
           node os2000_guard.mjs
           node os2020_guard.mjs
@@ -75,15 +98,3 @@ jobs:
           node scripts/control_plane_1037_guard.mjs
           node scripts/control_operations_1047_guard.mjs
           node scripts/legacy_cleanup_987_guard.mjs
-      - name: Canonical compatibility
-        run: npm run test:release
-      - name: Install browser QA
-        run: npm ci --ignore-scripts --no-audit --no-fund
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: OS 2.0 browser smoke
-        run: |
-          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-control-http.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_os2000_redesign.spec.mjs e2e_os2020_decision_focus.spec.mjs e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
