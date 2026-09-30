@@ -2,6 +2,25 @@ import {test,expect} from '@playwright/test';
 const BASE='http://127.0.0.1:4173';
 
 async function boot(page){
+ await page.addInitScript(()=>{
+  if(localStorage.getItem('kamil-os-state'))return;
+  const now=new Date().toISOString();
+  localStorage.setItem('kamil-os-state',JSON.stringify({
+   meta:{schemaVersion:80,createdAt:now},
+   ticketBook:{items:[
+    {id:'ticket-test-active',name:'Test event active',qty:2,buy:2000,buyTotalCzk:2000,workflow:'LISTED',market_status:'LISTED'},
+    {id:'ticket-test-dispute',name:'Test event dispute',qty:1,buy:1000,buyTotalCzk:1000,workflow:'HOLD',market_status:'NOT_LISTED',issue:'REKLAMACE'}
+   ],watchlist:[],history:[],review:[],masterId:'private-test-ticket-source'},
+   bettingLedger:{bets:[],bankrollCzk:0,unitCzk:0,updatedAt:now,masterId:'private-test-betting-source'},
+   personalAdmin:{insuranceMasterId:'private-test-insurance-source',items:[
+    {id:'ins-test-home',title:'Test dům · pojištění',category:'INSURANCE',provider:'Test provider',amount:3600,currency:'CZK',cadence:'YEARLY',status:'ACTIVE',renewalDate:'2027-03-25',updatedAt:now,insurance:{kind:'PROPERTY',insured:'Test dům',lifecycle:'ACTIVE',sourceStatus:'CONFIRMED'}},
+    {id:'ins-test-life',title:'Test životní pojistka',category:'INSURANCE',provider:'Test provider',amount:1200,currency:'CZK',cadence:'MONTHLY',status:'ACTIVE',renewalDate:'2027-09-01',updatedAt:now,insurance:{kind:'LIFE',insured:'Test osoba',lifecycle:'ACTIVE',sourceStatus:'CONFIRMED'}},
+    {id:'ins-test-upcoming',title:'Test budoucí pojistka',category:'INSURANCE',provider:'Test provider',amount:24000,currency:'CZK',cadence:'YEARLY',status:'ACTIVE',updatedAt:now,insurance:{kind:'LIFE',insured:'Test osoba',lifecycle:'UPCOMING',startDate:'2026-11-01',sourceStatus:'CONFIRMED'}},
+    {id:'ins-test-review',title:'Test pojistka k ověření',category:'INSURANCE',provider:'Test provider',amount:6000,currency:'CZK',cadence:'YEARLY',status:'ACTIVE',updatedAt:now,insurance:{kind:'VEHICLE',insured:'Test auto',lifecycle:'REVIEW',sourceStatus:'VERIFY'}}
+   ]},
+   personalVault:{version:1,evidence:[],items:[{id:'legacy-ins-test',title:'Starý recovery záznam',section:'documents',recordType:'insurance',seededFrom:'recovery-62.5',confidence:70,confidenceLabel:'OVĚŘIT',createdAt:now,updatedAt:now}]}
+  }));
+ });
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true);
  await expect(page.locator('[data-os2-today]')).toBeVisible({timeout:10000});
@@ -91,8 +110,8 @@ test('OS737.0.27 derived Today ticket counts exclude disputes',async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('kamil-os-state',JSON.stringify({
   meta:{schemaVersion:80,createdAt:new Date().toISOString()},
   ticketBook:{items:[
-   {id:'active',name:'Česko - Anglie - 115',qty:4,buy:7516,workflow:'LISTED'},
-   {id:'issue',name:'Davis Cup - reklamace',qty:3,buy:7590,workflow:'HOLD',issue:'REKLAMACE'}
+   {id:'active',name:'Test event active',qty:4,buy:7516,workflow:'LISTED'},
+   {id:'issue',name:'Test event dispute',qty:3,buy:7590,workflow:'HOLD',issue:'REKLAMACE'}
   ],watchlist:[],history:[],review:[],masterId:'flipovani-2024-2026-2026-09-23'},
   personalAdmin:{items:[]}
  })));
@@ -108,10 +127,10 @@ test('OS737.0.29 Home hides archived recovery insurance and shows canonical prop
  await page.locator('#mainNav [data-view="home"]').click();
  await expect(page.locator('[data-home-page1500]')).toBeVisible({timeout:10000});
  const records=page.locator('#homeView .os1500-record');
- const canonical=records.filter({hasText:'Dům Vlasatice · pojištění nemovitosti'});
+ const canonical=records.filter({hasText:'Test dům · pojištění'});
  await expect(canonical).toHaveCount(1);
- await expect(canonical).toContainText('Dům Vlasatice · pojištění nemovitosti');
- await expect(page.locator('#homeView')).not.toContainText('Pojištění domu Vlasatice');
+ await expect(canonical).toContainText('Test dům · pojištění');
+ await expect(page.locator('#homeView')).not.toContainText('Starý recovery záznam');
 });
 
 test('OS737.0.30 Money separates current and upcoming insurance and excludes disputed tickets',async({page})=>{
@@ -141,17 +160,17 @@ test('OS737.0.32 recurring Money list uses canonical insurance and separates upc
  await boot(page);
  await page.locator('#mainNav [data-view="money"]').click();
  await page.locator('[data-money-advanced]').click();
- await expect(page.locator('[data-money-group="recurring"]')).toContainText('Kamil · Allianz ŽIVOT');
+ await expect(page.locator('[data-money-group="recurring"]')).toContainText('Test životní pojistka');
  await expect(page.locator('[data-money-group="recurring"]')).toContainText('Začne později');
- await expect(page.locator('[data-money-group="recurring"]')).toContainText('Tereza · NN Orange Risk');
- await expect(page.locator('[data-money-group="recurring"]')).not.toContainText('Životní pojištění Kamil');
+ await expect(page.locator('[data-money-group="recurring"]')).toContainText('Test budoucí pojistka');
+ await expect(page.locator('[data-money-group="recurring"]')).not.toContainText('Starý recovery záznam');
 });
 
 test('OS737.0.33 insurance cards deep-link to Insurance Center',async({page})=>{
  await boot(page);
  await page.locator('#mainNav [data-view="home"]').click();
  await expect(page.locator('[data-home-page1500]')).toBeVisible({timeout:10000});
- const homeInsurance=page.locator('#homeView .os1500-record').filter({hasText:'Dům Vlasatice · pojištění nemovitosti'});
+ const homeInsurance=page.locator('#homeView .os1500-record').filter({hasText:'Test dům · pojištění'});
  await homeInsurance.click();
  await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
  await page.locator('#mainNav [data-view="money"]').click();
@@ -165,18 +184,18 @@ test('OS737.0.34 recurring insurance rows show actual payment cadence',async({pa
  await page.locator('#mainNav [data-view="money"]').click();
  await page.locator('[data-money-advanced]').click();
  const recurring=page.locator('[data-money-group="recurring"]');
- await expect(recurring).toContainText('Fiat Croma · Auto & pohoda');
- await expect(recurring).toContainText('3 868 Kč/rok');
- await expect(recurring).toContainText('Kamil · Allianz ŽIVOT');
- await expect(recurring).toContainText('915 Kč/měs.');
+ await expect(recurring).toContainText('Test dům · pojištění');
+ await expect(recurring).toContainText('3 600 Kč/rok');
+ await expect(recurring).toContainText('Test životní pojistka');
+ await expect(recurring).toContainText('1 200 Kč/měs.');
 });
 
 test('OS737.0.36 Home insurance card shows actual yearly cadence',async({page})=>{
  await boot(page);
  await page.locator('#mainNav [data-view="home"]').click();
  await expect(page.locator('[data-home-page1500]')).toBeVisible({timeout:10000});
- const card=page.locator('#homeView .os1500-record').filter({hasText:'Dům Vlasatice · pojištění nemovitosti'});
- await expect(card).toContainText('2 600 Kč/rok');
+ const card=page.locator('#homeView .os1500-record').filter({hasText:'Test dům · pojištění'});
+ await expect(card).toContainText('3 600 Kč/rok');
  await expect(card).toContainText('Ověřit');
 });
 
@@ -205,7 +224,7 @@ test('OS737.0.44 handed-over projects do not remain active in Work',async({page}
   const {workCommandCenter440}=await import('./js/workCommandCenter440.js');
   return workCommandCenter440({
    projects:[
-    {id:'active',name:'Aktivní',status:'OPEN',next:'Další krok',owner:'Kamil'},
+    {id:'active',name:'Aktivní',status:'OPEN',next:'Další krok',owner:'Test owner'},
     {id:'handover',name:'Předaná',status:'PŘEDÁNO'},
     {id:'done-en',name:'Finished',status:'FINISHED'}
    ],
@@ -256,7 +275,7 @@ test('OS737.0.47 personal action engine does not duplicate Insurance Center acti
   const {insuranceCenter}=await import('./js/insurance25.js');
   const state=store.get(),personal=personalActions640(state),insurance=insuranceCenter(state);
   return {
-   duplicated:personal.all.filter(x=>String(x.id||'').startsWith('admin:ins-master-')).map(x=>x.id),
+   duplicated:personal.all.filter(x=>String(x.id||'').startsWith('admin:ins-test-')).map(x=>x.id),
    insuranceActions:insurance.actions.map(x=>x.id)
   };
  });
