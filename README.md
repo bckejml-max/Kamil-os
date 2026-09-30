@@ -1,4 +1,4 @@
-# Kamil OS 743.0.0
+# Kamil OS 744.0.0
 
 Kamil OS je osobní **Daily Personal Assistant + Ticket Intelligence**. Hlavní uživatelské rozhraní má deset přímo dostupných oblastí: **Dnes / Úkoly / Práce / Vstupenky / Peníze / Reality / Sázení / Rodina / Domov / Dokumenty**.
 
@@ -68,3 +68,13 @@ Aktuální release má statické guardy, core/cloud safety testy a Playwright E2
 - Backup health ověřuje skutečný export → JSON → import round-trip a porovnává canonical fingerprint; test je součástí povinného structural release gate.
 - Vizuální regression pokrývá všech 10 hlavních sekcí na desktopu i mobilu pomocí deterministických screenshot hashů.
 - Každá změna canonical layoutu musí projít explicitní aktualizací vizuální baseline; náhodný CSS/layout drift shodí browser QA.
+
+
+## Runtime 744.0
+
+- Plný `test:release` má na pull requestu jediného vlastníka: canonical browser workflow. Ticket a Control workflow už celý release neopakují.
+- Ticket QA a Control QA jsou scoped podle změněných souborů a při nerelevantní změně se nespouštějí.
+- Ticket/Control QA už neinstalují Chromium; browser testy vlastní pouze canonical browser workflow.
+- Runtime a release guardy jsou řízené jedním manifestem `scripts/qa-suites.mjs` místo obřích ručních příkazů v `package.json`.
+- CI budget hlídá duplicitu release suite, concurrency cancellation, affected scopes a existenci všech guard souborů.
+- Docs-only změny nespouštějí plný browser ani production source guard.

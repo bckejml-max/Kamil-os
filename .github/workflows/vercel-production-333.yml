@@ -1,27 +1,33 @@
-name: Production Release Guard
+name: Production Source Guard
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   workflow_dispatch:
 
 concurrency:
-  group: production-release-main
+  group: production-source-main
   cancel-in-progress: true
 
 jobs:
-  validate-production:
+  validate-production-source:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Validate canonical release
-        run: npm run test:release
-      - name: Verify production security contracts
+
+      - name: Structural release integrity
+        run: npm run test:structural
+
+      - name: Production security contracts
         run: |
           node privacy_security_guard.mjs
           node ticket_gmail_sync_health_guard.mjs
+
       - name: Deployment ownership
-        run: echo 'Production deployment is owned by the Vercel Git integration for main; this workflow validates the exact source commit before/alongside that deployment.'
+        run: echo 'Production deployment is owned by the Vercel Git integration for main; the canonical browser workflow owns the full release suite.'

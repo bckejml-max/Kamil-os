@@ -1,19 +1,51 @@
-name: Kamil OS 217 Ticket Data Readiness Center QA
+name: Kamil OS Ticket Data Readiness QA
+
 on:
+  pull_request:
+    paths:
+      - 'js/ticket*.js'
+      - 'js/state.js'
+      - 'js/cloud.js'
+      - 'js/config.js'
+      - 'js/utils.js'
+      - 'js/dataIntegrity1130.js'
+      - 'js/runtimeOwnership1100.js'
+      - 'js/dataSourceRegistry.js'
+      - 'ticket*.mjs'
+      - 'qa.mjs'
+      - 'package.json'
+      - '.github/workflows/qa.yml'
   push:
     branches: [main]
-  pull_request:
+    paths:
+      - 'js/ticket*.js'
+      - 'js/state.js'
+      - 'js/cloud.js'
+      - 'js/config.js'
+      - 'js/utils.js'
+      - 'js/dataIntegrity1130.js'
+      - 'js/runtimeOwnership1100.js'
+      - 'js/dataSourceRegistry.js'
+      - 'ticket*.mjs'
+      - 'qa.mjs'
+      - 'package.json'
+      - '.github/workflows/qa.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ticket-qa-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  qa:
+  ticket-contracts:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
-      - name: OS 2.0 release QA
+      - name: Ticket release QA
         run: node qa.mjs
 
       - name: Deployment, cloud and decision safety
@@ -64,32 +96,3 @@ jobs:
           node ticket_presale_execution_wiring_216_test.mjs
           node ticket_data_readiness_217_test.mjs
           node ticket_market_api_65_6_test.mjs
-
-      - name: Canonical release chain
-        run: npm run test:release
-
-      - name: Current runtime syntax belt
-        run: |
-          node --check js/instantShell64.js
-          node --check js/app.js
-          node --check js/viewRuntime41.js
-          node --check js/todayPage2000.js
-          node --check js/ticketPage100.js
-          node --check js/bettingPage527.js
-          node --check js/bettingBootstrap543.js
-          node --check js/moneyPage100.js
-          node --check js/ticketCloud660.js
-          node --check js/ticketSales150.js
-          node --check js/ticketSaleDetail151.js
-          node --check os2000_guard.mjs
-
-      - name: Install browser QA
-        run: npm ci --ignore-scripts --no-audit --no-fund
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: OS 2.0 shell and on-demand Ticket smoke
-        run: |
-          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/kamil-http.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill $SERVER_PID' EXIT
-          npx playwright test e2e_os2000_redesign.spec.mjs --reporter=line --workers=1

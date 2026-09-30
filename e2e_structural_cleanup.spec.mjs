@@ -33,5 +33,5 @@ test('runtime diagnostics retain a safe copyable record',async({page})=>{
  });
  expect(row.id).toMatch(/^D/);
  expect(row.text).toContain('synthetic renderer failure');
- expect(row.text).toContain('"release": "743.0.0"');
+ expect(row.text).toContain('"release": "744.0.0"');
 });
