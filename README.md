@@ -1,4 +1,4 @@
-# Kamil OS 744.0.0
+# Kamil OS 745.0.0
 
 Kamil OS je osobní **Daily Personal Assistant + Ticket Intelligence**. Hlavní uživatelské rozhraní má deset přímo dostupných oblastí: **Dnes / Úkoly / Práce / Vstupenky / Peníze / Reality / Sázení / Rodina / Domov / Dokumenty**.
 
@@ -32,7 +32,7 @@ Profit Commander ukazuje nákup, tržní pásmo, vlastní nabídkovou cenu, dopo
 
 Kamil OS **automaticky nevystavuje, nepřecenňuje, netransferuje ani neprodává vstupenky**. Market/Ticket Intelligence navrhuje akci, ale změny na tržišti zůstávají explicitní a ruční.
 
-Privátní ticket inventory a snapshoty nejsou publikované do veřejného repozitáře. Supabase data jsou oddělená od veřejného frontend kódu a chráněná přes RLS.
+Veřejný frontend nesmí obsahovat žádný osobní ticket, betting, insurance ani recovery payload. Soukromá data se načítají pouze ze zařízení, privátního snapshotu nebo autentizovaného Supabase stavu chráněného přes RLS.
 
 ## QA
 
@@ -78,3 +78,15 @@ Aktuální release má statické guardy, core/cloud safety testy a Playwright E2
 - Runtime a release guardy jsou řízené jedním manifestem `scripts/qa-suites.mjs` místo obřích ručních příkazů v `package.json`.
 - CI budget hlídá duplicitu release suite, concurrency cancellation, affected scopes a existenci všech guard souborů.
 - Docs-only změny nespouštějí plný browser ani production source guard.
+
+
+## Runtime 745.0
+
+- Veřejný runtime už neobsahuje vložené ticket, betting ani insurance mastery; v klientu zůstávají pouze datově prázdné kontrakty/verze.
+- State migrace už nikdy automaticky neseeduje ani nepřepisuje osobní ticket, betting nebo insurance data.
+- Sázení už neumí potichu obnovit starý ledger z legacy localStorage; jediným zdrojem je canonical private state.
+- Personal recovery, confidence, vault a missing-data resolver už neobsahují hardcoded osobní fakta ani částky.
+- Service worker privátní master kontrakty neprecachuje.
+- Freshness kalendáře, práce a peněz se odvozuje z času aktualizace zdroje, ne z budoucího termínu události nebo nesouvisejícího úkolu.
+- Calendar/XTB hub chyby se zapisují do diagnostiky místo tichého spolknutí.
+- Privacy release gate prohledává source tree na návrat známých privátních payloadů a zakazuje veřejné auto-seeding kontrakty.
