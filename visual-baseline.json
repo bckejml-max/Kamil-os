@@ -1,6 +1,7 @@
 {
   "version": 1,
   "release": "743.0.0",
+  "capture": "viewport",
   "viewport": {
     "desktop": {
       "width": 1440,
@@ -12,25 +13,25 @@
     }
   },
   "hashes": {
-    "desktop-today": "4016c5cceadcf022ac49f86b5e26ce055ff63bb1be7e4aec9b382f78ad0632be",
-    "desktop-inbox": "ab8ad5cc579f2bba412758f6df286218e63440dec0bf0aec5b0343584f029ad6",
-    "desktop-work": "616fe7a0699dab2a027836deeceb7c30245f51653e499a25076f4941de181a4f",
-    "desktop-tickets": "164764b732f9ee23b76b198553e62ff04afee37bbf0b05d6a8c3168f6c74e6fa",
-    "desktop-money": "668b3d05f61d019d08851ff99acae2645edd33ad76956d7dbda5a96da9ac6925",
-    "desktop-property": "d988250701e88cf130ba2c28bb6b38c227586a7f267e78296c9bc2c4199bdfdb",
-    "desktop-betting": "c006cdd0f3f2a5df1045cb94e0f6a08a320bd1cb8e9e4c462bfb2d4da61d60e5",
-    "desktop-family": "1057176ce2181d2ae2aab32ab8c069f2df9df38bf984ed35ac18ef6da0dd892e",
-    "desktop-home": "e50450868d8d87d5da21f586c3f67819ec72c04a09e45b66df4c565cbea9f3d0",
-    "desktop-more": "80686b64949148a462cea4b791c1e96a85ee13b0defbb40de1ba5177263d9db6",
-    "mobile-today": "c2464d871708fe32d7c777b0b818bc7290e5dc3a7dcdbd0b2c2ba8dda0af76c5",
-    "mobile-inbox": "1a3cf96920c033a969111592543b1992e07762c988d45e5ec89babef08e14587",
-    "mobile-work": "0cde643bdd300b50038a76ba43e1f149f0d9e7259a73a2baa84deb2fd52900e2",
-    "mobile-tickets": "9a17443dfb8f4229fd4049b99c84df6932965df0be381d2dd9691c37452356a4",
-    "mobile-money": "492b3197b70ed9a02ed478e55efd4a7dbc9590401e1a1ee35d664afb4231303c",
-    "mobile-property": "3f9031b759fec2ed605f12e15b51d50795b1a2de99d0ef1f6df05f6b6b88c272",
-    "mobile-betting": "71bd325d19131083314b28471a2172d99be28bb6332f8afff80abdeaa92798cc",
-    "mobile-family": "537be6931244de5aa22deccd65355b2a4d28413f6f99c612ec9eff008c8c57f2",
-    "mobile-home": "5c21243a0d40f128b7d4fc1a519e8e07de7fc8d70a098401736abc69ed573a32",
-    "mobile-more": "e7ad819cca62fbc0ea20f83b301a8bf6240e7a0ad683b35718e3160158de0a6e"
+    "desktop-today": "0516e8ffaa3603b14c08b57e85ff36ea4171d1c0728f51a251b31b8278bb0243",
+    "desktop-inbox": "fd114bc11e36367ef0789a4e4c3cb52037ea10e76cdbd3185a1accefad6224a4",
+    "desktop-work": "e5248c0b8183ce28822e439032ded618303fc96bcf18e48fd6eb03ebecf7241d",
+    "desktop-tickets": "495b2a4896b0e29997228647c5e3a9fb611c239d64e95fa357d10972c758b82b",
+    "desktop-money": "d7c3334706d1b5751223bd5d7fa6274a3350447de8497485740e52b885b9bc4b",
+    "desktop-property": "cb57c5cd930ddddb2e42c49ea0f2314d204a071a5463d24ce52cad63a459b29e",
+    "desktop-betting": "babf7ced84aeb8b0125134eed1bf9e1050f477c5d8de16e9ca240f3c3d1b9df0",
+    "desktop-family": "834920fc72b8a8751213aaa61103e08f71e3d5d47df19e111f073bc439067457",
+    "desktop-home": "641c84422b99a2b932b02ef2b81e7cabd1dabb5a2d1e650dfc297e8ea80ea1d7",
+    "desktop-more": "791122806db1157c8d5254945bcac5cdaa246f836df61bb722845812282d5c29",
+    "mobile-today": "33556971d397c17e2e18b1d192552f4de695bf82c67636464c18fd99a15f35c1",
+    "mobile-inbox": "6f0bb080c7eeff52ba98f4cfec03fc17d2072362a8ef7486f2e486845b77afcb",
+    "mobile-work": "c662aff73ae20509504e3ef83770fbd9a7184d4f7d74fba7bef54b2f5f954e50",
+    "mobile-tickets": "dda9f747a57e324f6e514fa13a50087931cf482abbbf0ea4ffba204d128ce418",
+    "mobile-money": "bd0fc1bf83f97c4a0cfd736418f8d5a092335185b1c2f64e97c518818ea11dff",
+    "mobile-property": "49b769f753d051824dcb6a75563629b733b09f1ef3f095cc4933977d3fcfab86",
+    "mobile-betting": "1047383297b89e4b97792a350a8c22c2ae216e5da2bb5dca083d76fd30bf4d9a",
+    "mobile-family": "a9bd0a960aa3a16f1a10340f6b3af756622511586350dfadbef7642919403550",
+    "mobile-home": "05af4e3de1815b53b2434abc383dda9951a0075f9f50eef2ef38c9fa9ab6b871",
+    "mobile-more": "5eaf6fcd9baf487402e9b0eee4968c6a786f8668230504396044cc062033bf82"
   }
 }
