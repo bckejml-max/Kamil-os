@@ -28,7 +28,7 @@ async function viewHash(page,view){
  await expect(page.locator('#view-'+view)).toHaveClass(/on/);
  await expect.poll(()=>page.evaluate(v=>document.querySelector('#view-'+v+' [data-view-ready], #view-'+v+' > div[data-view-ready]')!==null,v).catch(()=>true),{timeout:4000}).toBeTruthy().catch(()=>{});
  await page.evaluate(()=>window.scrollTo(0,0));
- const png=await page.screenshot({fullPage:true,animations:'disabled'});
+ const png=await page.screenshot({fullPage:false,animations:'disabled'});
  return createHash('sha256').update(png).digest('hex');
 }
 
