@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "release": "743.0.0",
   "viewport": {
     "desktop": {
       "width": 1440,
@@ -10,5 +11,26 @@
       "height": 844
     }
   },
-  "hashes": {}
+  "hashes": {
+    "desktop-today": "4016c5cceadcf022ac49f86b5e26ce055ff63bb1be7e4aec9b382f78ad0632be",
+    "desktop-inbox": "ab8ad5cc579f2bba412758f6df286218e63440dec0bf0aec5b0343584f029ad6",
+    "desktop-work": "616fe7a0699dab2a027836deeceb7c30245f51653e499a25076f4941de181a4f",
+    "desktop-tickets": "164764b732f9ee23b76b198553e62ff04afee37bbf0b05d6a8c3168f6c74e6fa",
+    "desktop-money": "668b3d05f61d019d08851ff99acae2645edd33ad76956d7dbda5a96da9ac6925",
+    "desktop-property": "d988250701e88cf130ba2c28bb6b38c227586a7f267e78296c9bc2c4199bdfdb",
+    "desktop-betting": "c006cdd0f3f2a5df1045cb94e0f6a08a320bd1cb8e9e4c462bfb2d4da61d60e5",
+    "desktop-family": "1057176ce2181d2ae2aab32ab8c069f2df9df38bf984ed35ac18ef6da0dd892e",
+    "desktop-home": "e50450868d8d87d5da21f586c3f67819ec72c04a09e45b66df4c565cbea9f3d0",
+    "desktop-more": "80686b64949148a462cea4b791c1e96a85ee13b0defbb40de1ba5177263d9db6",
+    "mobile-today": "c2464d871708fe32d7c777b0b818bc7290e5dc3a7dcdbd0b2c2ba8dda0af76c5",
+    "mobile-inbox": "1a3cf96920c033a969111592543b1992e07762c988d45e5ec89babef08e14587",
+    "mobile-work": "0cde643bdd300b50038a76ba43e1f149f0d9e7259a73a2baa84deb2fd52900e2",
+    "mobile-tickets": "9a17443dfb8f4229fd4049b99c84df6932965df0be381d2dd9691c37452356a4",
+    "mobile-money": "492b3197b70ed9a02ed478e55efd4a7dbc9590401e1a1ee35d664afb4231303c",
+    "mobile-property": "3f9031b759fec2ed605f12e15b51d50795b1a2de99d0ef1f6df05f6b6b88c272",
+    "mobile-betting": "71bd325d19131083314b28471a2172d99be28bb6332f8afff80abdeaa92798cc",
+    "mobile-family": "537be6931244de5aa22deccd65355b2a4d28413f6f99c612ec9eff008c8c57f2",
+    "mobile-home": "5c21243a0d40f128b7d4fc1a519e8e07de7fc8d70a098401736abc69ed573a32",
+    "mobile-more": "e7ad819cca62fbc0ea20f83b301a8bf6240e7a0ad683b35718e3160158de0a6e"
+  }
 }
