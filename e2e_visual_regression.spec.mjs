@@ -42,7 +42,9 @@ async function viewHash(page,view){
  await expect(page.locator('#view-'+view+' > div')).toHaveAttribute('data-view-ready','1',{timeout:10000});
  await settleView(page,view);
  await page.evaluate(()=>window.scrollTo(0,0));
- const png=await page.screenshot({fullPage:false,animations:'disabled'});
+ const target=page.locator('#view-'+view+' > div').first();
+ await expect(target).toBeVisible();
+ const png=await target.screenshot({animations:'disabled'});
  return createHash('sha256').update(png).digest('hex');
 }
 
