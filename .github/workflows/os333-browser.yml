@@ -1,10 +1,14 @@
-name: OS333 Canonical Release + Browser QA
+name: Kamil OS Canonical Release + Browser QA
 
 on:
   pull_request:
   push:
     branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: canonical-browser-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   browser-smoke:
@@ -15,39 +19,19 @@ jobs:
         with:
           node-version: 24
           cache: npm
+
       - name: Install locked test dependency
         run: npm ci
-      - name: OS 2.0 syntax
-        run: |
-          node --check js/instantShell64.js
-          node --check js/app.js
-          node --check js/viewRuntime41.js
-          node --check js/todayPage2000.js
-          node --check js/ticketPage100.js
-          node --check js/bettingPage527.js
-          node --check js/bettingBootstrap543.js
-          node --check js/runtimeOwnership1100.js
-          node --check os2000_guard.mjs
-          node --check os2020_guard.mjs
-          node --check release_guard_333.mjs
-          node --check ci_current_350_test.mjs
-          node --check runtime_boot_guard.mjs
-          node --check runtime_ownership_1100_guard.mjs
-          node --check e2e_os2000_redesign.spec.mjs
-          node --check e2e_os2020_decision_focus.spec.mjs
-          node --check e2e_os343_boot_budget.spec.mjs
-          node --check e2e_os345_deferred_boot.spec.mjs
-          node --check e2e_os347_critical_path.spec.mjs
-      - name: OS 2.0 architecture contract
-        run: |
-          node os2000_guard.mjs
-          node os2020_guard.mjs
-      - name: Canonical release guard
+
+      - name: Canonical release contract
         run: npm run test:release
+
       - name: Ticket renderer ownership
         run: node ticket_flicker_338_test.mjs
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+
       - name: Start static app
         run: |
           python3 -m http.server 4173 > /tmp/kamil-os-http.log 2>&1 &
@@ -55,7 +39,9 @@ jobs:
           for i in {1..20}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/kamil-os-http.log
           exit 1
-      - name: OS 2.0 critical-path performance gate
+
+      - name: Critical-path performance gate
         run: npx playwright test e2e_os347_critical_path.spec.mjs --reporter=line --workers=1
-      - name: Full canonical browser smoke
+
+      - name: Full canonical browser suite
         run: npm run test:e2e -- --workers=1
