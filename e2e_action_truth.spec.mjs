@@ -5,7 +5,7 @@ async function boot(page,path=''){await page.goto(BASE+path,{waitUntil:'domconte
 test('Action Truth exposes one ranked cross-domain model',async({page})=>{
  await boot(page);
  const result=await page.evaluate(async()=>{const m=await import('./js/actionTruthEngine.js'),x=m.buildActionTruth741();return{version:x.version,counts:x.counts,primary:x.primary?{score:x.primary.score,why:x.primary.why,route:x.primary.route}:null,waiting:x.waiting.length,freshness:x.freshness.length,backup:x.backupHealth}});
- expect(result.version).toBe('744.0.0');
+ expect(result.version).toBe('745.0.0');
  expect(result.freshness).toBe(8);
  expect(result.counts).toHaveProperty('conflicts');
  expect(result.backup.stateValid).toBe(true);

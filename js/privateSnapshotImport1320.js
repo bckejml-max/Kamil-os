@@ -13,6 +13,7 @@ function scrubKey(){
 export async function importPrivateSnapshot1320(){
  const keyRaw=importKey();if(!keyRaw)return {ok:false,reason:'NO_KEY'};
  const {PRIVATE_SNAPSHOT_1320:snap}=await import('./privateSnapshot1320.js');
+ if(!snap?.embedded||!snap?.iv||!snap?.ciphertext){scrubKey();return {ok:false,reason:'NO_EMBEDDED_SNAPSHOT'}}
  try{
   const key=await crypto.subtle.importKey('raw',b64(keyRaw),'AES-GCM',false,['decrypt']);
   const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(snap.iv),additionalData:new TextEncoder().encode(snap.aad)},key,b64(snap.ciphertext));

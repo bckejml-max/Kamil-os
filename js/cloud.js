@@ -2,6 +2,7 @@ import {SUPABASE_URL,SUPABASE_KEY,STATE_TABLE,CALENDAR_TABLE,XTB_TABLE,SCHEMA_VE
 import {store} from './state.js';
 import {cloudPayload32,cloudPayloadNeedsNormalize32,cloudSchema32,mergeCloudIntoDevice32} from './cloudPayload32.js';
 import {replaceColdState42} from './coldPartition42.js';
+import {recordDiagnostic} from './diagnostics.js';
 import {installRuntimeOwnership1100,ownEvent1100,schedule1100,cancelScheduled1100} from './runtimeOwnership1100.js';
 
 const SUPABASE_SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -132,11 +133,11 @@ export async function resolveConflict(choice,cloudPayload,updatedAt=null){if(cho
 export async function loadDataHubs(){
  const c=await getClient(),sess=c?await currentSession(c):null;if(!sess)return;
  const captured=epoch(),userId=sess.user.id;
- try{const query=c.from(CALENDAR_TABLE).select('source,as_of,events').eq('id',1).maybeSingle();const {data}=await withCloudTimeout(query,'calendar-hub');const active=await currentSession(c);if(data&&stillCurrent(captured,userId,active))store.mutate('Aktualizován kalendář',s=>{s.calendar={source:data.source,asOf:data.as_of,events:(data.events||[]).map(e=>({...e,title:e.title||e.summary||'Událost'}))}},{undo:false,cloud:false,audit:false})}catch{}
+ try{const query=c.from(CALENDAR_TABLE).select('source,as_of,events').eq('id',1).maybeSingle();const {data}=await withCloudTimeout(query,'calendar-hub');const active=await currentSession(c);if(data&&stillCurrent(captured,userId,active))store.mutate('Aktualizován kalendář',s=>{s.calendar={source:data.source,asOf:data.as_of,events:(data.events||[]).map(e=>({...e,title:e.title||e.summary||'Událost'}))}},{undo:false,cloud:false,audit:false})}catch(error){recordDiagnostic('calendar-hub',error,{source:'cloud'});console.warn('[cloud32:calendar-hub]',error)}
  try{
    const query=c.from(XTB_TABLE).select('source,as_of,report,trade_journal,cfd_summary,updated_at').eq('id',1).maybeSingle();const {data}=await withCloudTimeout(query,'xtb-hub');const active=await currentSession(c);
    if(data&&stillCurrent(captured,userId,active))store.mutate('Aktualizováno XTB',s=>{const a=data.report?.accounts||{},czk=Object.values(a).find(x=>x.currency==='CZK')||a['51850491']||{},eur=Object.values(a).find(x=>x.currency==='EUR')||a['56069932']||{};s.xtbHub={source:data.source,asOf:data.as_of,updatedAt:data.updated_at,accounts:a,positionCount:data.report?.position_count||0,report:data.report};s.xtbReport={asOf:data.as_of,czkValue:czk.value||0,czkProfit:czk.profit||0,eurValue:eur.value||0,eurProfit:eur.profit||0,source:data.source};s.tradeJournal={...(s.tradeJournal||{}),asOf:data.as_of,trades:data.trade_journal||[]}},{undo:false,cloud:false,audit:false});
- }catch{}
+ }catch(error){recordDiagnostic('xtb-hub',error,{source:'cloud'});console.warn('[cloud32:xtb-hub]',error)}
 }
 ownEvent1100(OWNER,window,'online',()=>void flushQueue());
 ownEvent1100(OWNER,window,'offline',()=>status('offline'));

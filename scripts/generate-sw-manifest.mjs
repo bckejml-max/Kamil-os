@@ -5,7 +5,7 @@ import {VIEW_ORDER,VIEW_REGISTRY} from '../js/viewRegistry.js';
 const base=[
  './','./index.html','./manifest.webmanifest','./os-canonical.css',
  './js/osHardening1110.js','./js/dataIntegrity1130.js','./js/instantShell64.js','./js/app.js','./js/releaseMeta.js','./js/config.js',
- './js/state.js','./js/bettingMaster1335.js','./js/ticketMaster1336.js','./js/insuranceMaster1336.js','./js/utils.js',
+ './js/state.js','./js/utils.js',
  './js/viewRegistry.js','./js/diagnostics.js','./js/viewRuntime41.js','./js/runtimeOwnership1100.js'
 ];
 const extras=['./js/propertyHub620.js','./js/cloud.js','./js/authUx32.js','./js/perf41.js','./js/coldPartition42.js'];

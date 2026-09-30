@@ -1,4 +1,4 @@
-const CACHE='kamil-os-744.0.0-core-r148';
+const CACHE='kamil-os-745.0.0-core-r149';
 const CRITICAL=[
  "./",
  "./index.html",
@@ -11,9 +11,6 @@ const CRITICAL=[
  "./js/releaseMeta.js",
  "./js/config.js",
  "./js/state.js",
- "./js/bettingMaster1335.js",
- "./js/ticketMaster1336.js",
- "./js/insuranceMaster1336.js",
  "./js/utils.js",
  "./js/viewRegistry.js",
  "./js/diagnostics.js",

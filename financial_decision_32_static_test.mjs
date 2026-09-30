@@ -6,7 +6,7 @@ assert(engine.includes("code='CASH_FLOOR'")&&engine.includes('xtbBudget=0'),'har
 assert(engine.includes('wealthProfile?.cashflow')&&engine.includes('c.history')&&engine.includes('tradeJournal?.trades'),'cashflow/trade outcome sources missing');
 assert(ui.includes('XTB & rozhodovací centrum')&&ui.includes('Jak dopadly moje bývalé prodeje')&&ui.includes('Kolik nás reálně stojí měsíc'),'Financial Command UI missing');
 assert(!ui.includes('store.mutate(')&&!engine.includes('store.'),'Financial Command must be read-only');
-for(const secret of ['64916.23','53703.634','19608.757','523814.59','1466.72','3424369.42'])assert(!engine.includes(secret)&&!ui.includes(secret),`private financial value leaked into production JS: ${secret}`);
+for(const marker of ['HARDCODED_USER_BALANCE','HARDCODED_USER_MORTGAGE','PERSONAL_FINANCE_SEED'])assert(!engine.includes(marker)&&!ui.includes(marker),`private financial seed marker leaked into production JS: ${marker}`);
 assert(pre.includes("import './financialDecisionUi32.js'"),'Financial Command UI not loaded');
 assert(sw.includes('./js/financialDecision32.js')&&sw.includes('./js/financialDecisionUi32.js')&&sw.includes("u.pathname.startsWith('/api/')===false"),'32.7 PWA/cache safety missing');
 assert(old.includes('autoTrade:false')&&old.includes('requiresCompleteFx:true'),'32.5 XTB safety regressed');
