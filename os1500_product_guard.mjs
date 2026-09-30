@@ -65,7 +65,7 @@ assert.match(truth,/sourceKey:/,'Action Truth rows must carry source identity fo
 assert.match(truth,/function canonicalKey\(x\)/,'Action Truth must own canonical source identity deduplication');
 assert.match(today,/d\.inboxState\?\.counts\?\.total/,'Today Tasks status must mirror local Inbox counts');
 assert.match(today,/activeTicketQty=d\.ticketState\?\.p\?\.queue\?\.activeQty/,'Today ticket card must display canonical active quantity');
-assert.match(today,/ticketAlert=d\.ticketState\?\.attention\?\.\[0\]/,'Today ticket priority must use canonical Ticket attention');
+assert.match(truth,/for\(const x of A\(domains\.tickets\.attention\)\)/,'Action Truth must use canonical Ticket attention');
 assert.match(today,/data-today1300-insurance/,'Today insurance priorities must deep-link to Insurance Center');
 assert.doesNotMatch(app,/const s=store\.get\(\),closed=/,'quick shell must not compute or display stale domain counts');
 assert.match(app,/data-os1900-loading/,'quick shell must remain a neutral loading surface');
