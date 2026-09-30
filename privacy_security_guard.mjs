@@ -13,11 +13,13 @@ const gmail=read('api/ticket-gmail-sync.js');
 const state=read('js/state.js');
 const bettingOverview=read('js/bettingOverview.js');
 const sw=read('sw.js');
-const privateBootFiles=['js/bettingMaster1335.js','js/ticketMaster1336.js','js/insuranceMaster1336.js','js/personalDataRecovery625.js','js/personalDataConfidence626.js','js/personalVault640.js','js/personalMissingDataResolver627.js'];
+const privateBootFiles=['js/bettingMaster1335.js','js/ticketMaster1336.js','js/insuranceMaster1336.js','js/personalDataRecovery625.js','js/personalDataConfidence626.js','js/personalVault640.js','js/personalMissingDataResolver627.js','js/privateSnapshot1320.js'];
 for(const file of privateBootFiles){
  const src=read(file);
  assert.ok(src.length<12000,file+' unexpectedly contains a large embedded private payload');
 }
+assert.match(read('js/privateSnapshot1320.js'),/embedded:false/,'public client must not ship an encrypted personal snapshot payload');
+assert.match(read('js/privateSnapshot1320.js'),/ciphertext:''/,'public snapshot payload must be empty');
 for(const file of ['js/bettingMaster1335.js','js/ticketMaster1336.js','js/insuranceMaster1336.js']){
  const src=read(file);
  assert.match(src,/embedded:false/,'public master contract must explicitly be data-free: '+file);
