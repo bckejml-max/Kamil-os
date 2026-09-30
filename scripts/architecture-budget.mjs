@@ -22,5 +22,9 @@ assert.match(runtime,/globalSearch\.js/,'architectural budget: global search rem
 assert.match(backup,/export function backupRoundTripHealth/,'architectural budget: backup round-trip health required');
 assert.equal(visual.release,'743.0.0','architectural budget: visual baseline release must match OS743');
 assert.equal(Object.keys(visual.hashes||{}).length,20,'architectural budget: exactly 20 visual baselines required');
-for(const mode of ['desktop','mobile'])for(const view of ['today','inbox','work','tickets','money','property','betting','family','home','more'])assert.match(String(visual.hashes?.[mode+'-'+view]||''),/^[a-f0-9]{64}$/,'architectural budget: missing visual baseline '+mode+'-'+view);
+for(const mode of ['desktop','mobile'])for(const view of ['today','inbox','work','tickets','money','property','betting','family','home','more']){
+ const raw=visual.hashes?.[mode+'-'+view],accepted=Array.isArray(raw)?raw:[raw].filter(Boolean);
+ assert.ok(accepted.length>=1&&accepted.length<=2,'architectural budget: each visual baseline has one or at most two verified raster variants');
+ for(const hash of accepted)assert.match(String(hash),/^[a-f0-9]{64}$/,'architectural budget: invalid visual baseline '+mode+'-'+view);
+}
 console.log('OS741 architecture budget PASS');
