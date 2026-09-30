@@ -1,10 +1,10 @@
 {
   "version": "741.0.0",
-  "totalFiles": 1380,
+  "totalFiles": 1382,
   "js": 711,
-  "mjs": 453,
+  "mjs": 454,
   "css": 107,
-  "e2e": 150,
+  "e2e": 151,
   "guards": 84,
   "numberedRuntime": 767,
   "canonicalCssBytes": 114762
