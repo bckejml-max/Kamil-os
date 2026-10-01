@@ -1,4 +1,4 @@
-export const INSURANCE_MASTER_ID_1336='insurance-registry-2026-09-25-v2';
+export const INSURANCE_MASTER_ID_1336='insurance-registry-2026-10-01-v3';
 
 const policy=(id,title,provider,amount,cadence,lifecycle,kind,insured,policyNumber,extra={})=>({
  id:'ins-master-'+id,title,category:'INSURANCE',provider,amount,currency:'CZK',cadence,
@@ -29,9 +29,9 @@ export const INSURANCE_MASTER_ITEMS_1336=[
   notes:'Poslední doložená zelená karta byla do 6. 3. 2026. V aktuálních podkladech nemám nové potvrzení období po tomto datu — ověřit aktuální smlouvu / cenu.',
   source:'Gmail · Allianz potvrzení a zelená karta',sourceStatus:'VERIFY'
  }),
- policy('kamil-allianz-life','Kamil · Allianz ŽIVOT','Allianz',915,'MONTHLY','ACTIVE','LIFE','Kamil','',{
-  notes:'Smluvní podklady a audit platby potvrzují známé pojistné 915 Kč měsíčně. Při dalším bankovním výpisu pouze potvrdit pravidelnou platbu.',
-  source:'Archiv Allianz ŽIVOT + audit platby 31. 7. 2026',sourceStatus:'CONFIRMED'
+ policy('kamil-allianz-life','Kamil · Allianz ŽIVOT','Allianz',915,'MONTHLY','HISTORY','LIFE','Kamil','',{
+  notes:'Původní životní smlouva. Uživatel 1. 10. 2026 potvrdil, že staré smlouvy jsou vypovězené; nahrazuje je rodinná NN Orange Risk 3350409671 od 1. 11. 2026.',
+  source:'Allianz smluvní dokumentace + uživatelské potvrzení 1. 10. 2026',sourceStatus:'TERMINATED'
  }),
  policy('vlasatice-pvzp-home','Dům Vlasatice · pojištění nemovitosti','Pojišťovna VZP',2600,'YEARLY','REVIEW','PROPERTY','Dům Vlasatice','',{
   startDate:'2026-03-25',renewalDate:'2027-03-25',
@@ -42,22 +42,22 @@ export const INSURANCE_MASTER_ITEMS_1336=[
   notes:'Starší autopojištění sjednané v březnu 2025; později je pro Roomster doložena nová Pillow smlouva 26160739.',
   source:'Gmail · Allianz/Srovnejto 19. 3. 2025',sourceStatus:'SUPERSEDED'
  }),
- policy('tereza-nn-3350409671','Tereza · NN Orange Risk','NN',2000,'MONTHLY','UPCOMING','LIFE','Tereza','3350409671',{
+ policy('tereza-nn-3350409671','Rodina · NN Orange Risk','NN',2000,'MONTHLY','UPCOMING','LIFE','Kamil + Tereza + Mia','3350409671',{
   startDate:'2026-11-01',renewalDate:'2027-11-01',contact:'Alena Vlachová / OVB',
-  notes:'Nová riziková životní smlouva. Počátek 1. 11. 2026, běžné pojistné 2 000 Kč měsíčně. Krytí zahrnuje úmrtí, invalidity, závažná onemocnění a trvalé následky.',
+  notes:'Nová rodinná riziková životní smlouva. Počátek 1. 11. 2026, pojistné 2 000 Kč/měs. Kamil: invalidita I/II/III 0,5/1/3 mil. Kč, smrt klesající 2,19 mil. Kč, závažná onemocnění 0,5 mil. Kč, TNU Premium 0,2 mil. Kč. Tereza: invalidita I/II/III 0,5/1/3 mil. Kč, smrt 0,4 mil. Kč, závažná onemocnění 0,5 mil. Kč, TNU Premium 0,2 mil. Kč. Mia: závažná onemocnění 2 mil. Kč + TNU dítěte Premium 0,2 mil. Kč.',
   source:'Gmail 23. 9. 2026 · Smlouva Rizikové životní pojištění (16).pdf',sourceStatus:'CONFIRMED'
  }),
- policy('tereza-allianz-060817864','Tereza · Allianz ŽIVOT','Allianz',null,'MONTHLY','TERMINATING','LIFE','Tereza','060817864',{
-  notes:'Historicky aktivní životní pojištění. Poradkyně 23. 9. 2026 uvedla, že všechny výpovědi byly zpracované a odeslané; evidovat jako ukončované do potvrzení zániku.',
-  source:'Gmail · Allianz + zpráva poradkyně 23. 9. 2026',sourceStatus:'TERMINATING'
+ policy('tereza-allianz-060817864','Tereza · Allianz ŽIVOT','Allianz',null,'MONTHLY','HISTORY','LIFE','Tereza','060817864',{
+  notes:'Původní životní pojištění. Uživatel 1. 10. 2026 potvrdil, že staré smlouvy jsou vypovězené; nahrazuje je rodinná NN 3350409671.',
+  source:'Allianz smlouva + uživatelské potvrzení 1. 10. 2026',sourceStatus:'TERMINATED'
  }),
- policy('tereza-nn-old-3350318872','Tereza · NN Orange Risk (původní)','NN',null,'MONTHLY','TERMINATING','LIFE','Tereza','3350318872',{
-  notes:'Původní NN smlouva. Nová smlouva 3350409671 ji nahrazuje; výpověď / změna se zpracovává. Nezapočítávat jako jistý dlouhodobý náklad po 1. 11. 2026.',
-  source:'Gmail · NN 2025–2026 + zpráva poradkyně 23. 9. 2026',sourceStatus:'TERMINATING'
+ policy('tereza-nn-old-3350318872','Tereza · NN Orange Risk (původní)','NN',574,'MONTHLY','HISTORY','LIFE','Tereza','3350318872',{
+  notes:'Původní NN smlouva za 574 Kč/měs. Uživatel 1. 10. 2026 potvrdil výpověď; nahrazuje ji rodinná NN 3350409671.',
+  source:'NN smlouva 3350318872 + uživatelské potvrzení 1. 10. 2026',sourceStatus:'TERMINATED'
  }),
- policy('kb-elan-life','Rizikové životní ELÁN k hypotéce','Komerční pojišťovna',null,'MONTHLY','REVIEW','LIFE','Kamil','',{
-  notes:'Existence doložena dotazem k ukončení z 28. 7. 2026. Aktuální zánik ani pojistné nejsou v dostupných podkladech potvrzené — ověřit.',
-  source:'Gmail · dotaz k ukončení 28. 7. 2026',sourceStatus:'VERIFY'
+ policy('kb-elan-life','Rizikové životní ELÁN k hypotéce','Komerční pojišťovna',200,'MONTHLY','HISTORY','LIFE','Kamil','9016002757',{
+  notes:'Původní ELÁN: 200 Kč/měs., smrt 10 000 Kč + klesající 870 536 Kč, invalidita I/II/III klesající 224 000 Kč. Uživatel 1. 10. 2026 potvrdil výpověď.',
+  source:'Dodatek ELÁN 9016002757 + uživatelské potvrzení 1. 10. 2026',sourceStatus:'TERMINATED'
  }),
  policy('pasohlavky-rixo-7613','Pasohlávky 157 · MaxDomov VIP','RIXO / nabídka',7613,'YEARLY','OFFER','PROPERTY','Dům + domácnost · Pasohlávky 157','',{
   notes:'Pouze nabídka ze srovnání 17. 9. 2026. Není evidována jako sjednaná smlouva.',
