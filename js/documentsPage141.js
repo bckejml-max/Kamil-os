@@ -29,11 +29,24 @@ function data(){
  const top=records.filter(x=>['action','ending'].includes(bucket(x))),refs=records.reduce((n,x)=>n+(Array.isArray(x.attachments)?x.attachments.length:0),0),insuranceAction=[...(insurance.actions||[])].sort((a,b)=>Number(b.priority||0)-Number(a.priority||0));
  const vaultPrimary=top[0]||null,ins=insuranceAction[0]||null,insurancePrimary=ins?{source:'insurance',id:ins.id,title:ins.title,nextAction:ins.issues?.[0]||'Otevřít pojištění.',lifecycleLabel:ins.lifecycleLabel,severity:Number(ins.priority||0)}:null,primary=insurancePrimary&&insurancePrimary.severity>=Number(vaultPrimary?.status?.severity||0)?insurancePrimary:vaultPrimary;
  const actionTotal=counts.action+insuranceAction.length;
- return {s,vault,records,insurance,counts,top,refs,insuranceAction,actionTotal,primary};
+ const assets=Array.isArray(s.assetBook?.items)?s.assetBook.items:[];
+ const activeAssets=assets.filter(x=>!['ARCHIVED','HISTORY','SOLD','CLOSED'].includes(String(x.status||'').toUpperCase()));
+ const assetCounts={
+  realEstate:activeAssets.filter(x=>x.kind==='property').length,
+  vehicles:activeAssets.filter(x=>x.kind==='vehicle').length,
+  cash:activeAssets.filter(x=>x.kind==='bank-account').length,
+  liabilities:activeAssets.filter(x=>x.kind==='liability').length
+ };
+ const knownAssetValue=activeAssets.filter(x=>Number(x.value)>0).reduce((a,x)=>a+Number(x.value||0),0);
+ const knownLiabilities=activeAssets.filter(x=>x.kind==='liability').reduce((a,x)=>a+Math.abs(Number(x.balance||x.value||0)),0);
+ return {s,vault,records,insurance,counts,top,refs,insuranceAction,actionTotal,primary,assets:activeAssets,assetCounts,knownAssetValue,knownLiabilities};
 }
 const tone=v=>Number(v.status?.severity||0)>0?'bad':bucket(v)==='ending'?'warn':'good';
 const primaryDetail=p=>p?.source==='insurance'?`${p.lifecycleLabel||'Pojištění'} · ${p.nextAction||'Zkontrolovat pojistku.'}`:p?`${validity(p)} · ${p.nextAction||'Zkontrolovat dokument.'}`:'';
 const rows=records=>records.length?records.map(v=>`<button type="button" class="pr1300-row pr1300-clickrow" data-doc1500-record="${h(v.id)}"><div class="pr1300-row-main"><b>${h(v.title)}</b><small>${h(typeLabel(v))} · ${h(validity(v))} · ${h(v.nextAction||'bez další akce')}</small></div><div class="pr1300-row-side ${tone(v)}">${h(v.status?.label||bucket(v))} <span class="os1500-row-arrow">→</span></div></button>`).join(''):'<div class="os1500-empty">Zatím tu nejsou uložené smlouvy ani dokumenty.</div>';
+const assetType=x=>x.kind==='property'?'Nemovitost':x.kind==='vehicle'?'Vozidlo':x.kind==='bank-account'?'Hotovost / účet':x.kind==='liability'?'Závazek':'Majetek';
+const assetValue=x=>Number.isFinite(Number(x.value))&&Number(x.value)!==0?`${Math.abs(Number(x.value)).toLocaleString('cs-CZ')} Kč`:x.balance?`${Number(x.balance).toLocaleString('cs-CZ')} Kč`:'hodnota neuvedena';
+const assetRows=assets=>assets.length?assets.map(x=>`<div class="pr1300-row"><div class="pr1300-row-main"><b>${h(x.title||x.name||'Majetek')}</b><small>${h(assetType(x))} · ${h(x.ownerLabel||x.ownershipRole||'vlastník neuveden')} · ${h(x.asOf?'stav k '+date(x.asOf):'aktuální evidence')}<br>${h(x.nextAction||x.notes||'')}</small></div><div class="pr1300-row-side">${h(assetValue(x))}</div></div>`).join(''):'<div class="os1500-empty">V majetkovém soupisu zatím nejsou položky.</div>';
 
 export function renderDocumentsPage141(){
  const host=document.querySelector('#moreView');if(!host)return false;const d=data(),p=d.primary,truth=buildActionTruth741(d.s),insTruth=truth.domains.insuranceTruth,trash=Array.isArray(d.s.trash?.items)?d.s.trash.items:[];
@@ -41,6 +54,7 @@ export function renderDocumentsPage141(){
   <div class="pr1300-head"><div><div class="pr1300-kicker">Dokumenty</div><h1>Smlouvy, pojistky a důležité údaje.</h1><p>Všechno je na jedné stránce. Co vyžaduje akci je nahoře, platné věci a archiv zůstávají pod tím.</p></div><span class="pr1300-status ${d.actionTotal?'bad':d.counts.ending?'warn':'good'}">${d.actionTotal?d.actionTotal+' řešit':d.counts.ending?d.counts.ending+' končí':'klid'}</span></div>
   <section class="pr1320-now"><div><div class="pr1300-kicker">Teď</div><h2>${h(p?.title||'Dokumenty jsou bez akutního problému.')}</h2><p>${h(p?primaryDetail(p):'Žádná smlouva nebo pojistka teď nevyžaduje okamžitý zásah.')}</p></div><div class="pr1320-now-actions">${p?`<button class="pr1300-btn primary" type="button" data-doc1500-primary>Vyřešit teď →</button><button class="pr1300-btn" type="button" id="documentInbox650">＋ Přidat zdroj</button>`:`<button class="pr1300-btn primary" type="button" id="documentInbox650">＋ Přidat zdroj</button>`}</div></section>
 
+  <section class="pr1300-panel"><div class="pr1300-panel-head"><div><h2>Majetek a závazky</h2><span>${d.assets.length} evidovaných položek · ${d.assetCounts.realEstate} nemovitosti · ${d.assetCounts.vehicles} vozidla</span></div></div><div class="os1500-summary-grid"><div class="os1500-summary"><span>Nemovitosti</span><b>${d.assetCounts.realEstate}</b></div><div class="os1500-summary"><span>Vozidla</span><b>${d.assetCounts.vehicles}</b></div><div class="os1500-summary"><span>Cash účty</span><b>${d.assetCounts.cash}</b></div><div class="os1500-summary"><span>Závazky</span><b>${d.assetCounts.liabilities}</b></div></div><div class="os1500-direct-list">${assetRows(d.assets)}</div><div class="os1500-section-note">Hodnoty jsou snapshoty, ne živé bankovní či tržní feedy. Neznámé hodnoty OS nevymýšlí.</div></section>
   <section class="pr1300-panel"><div class="pr1300-panel-head"><div><h2>Pojištění</h2><span>${d.insurance.active} aktivní · ${d.insurance.review} ověřit · ${d.insurance.terminating} ukončované</span></div><button class="pr1300-btn primary" type="button" id="insurance25Tile">Otevřít pojištění →</button></div><div class="os1500-section-note">Aktivní smlouvy, nové smlouvy, ukončování, nabídky a historie jsou v jednom specializovaném přehledu.</div></section>
   <div class="os1500-summary-grid"><div class="os1500-summary"><span>Řešit</span><b>${d.actionTotal}</b></div><div class="os1500-summary"><span>Do 90 dní</span><b>${d.counts.ending}</b></div><div class="os1500-summary"><span>Platné</span><b>${d.counts.valid}</b></div><div class="os1500-summary"><span>Archiv</span><b>${d.counts.archive}</b></div></div>
   <section class="pr1300-panel"><div class="pr1300-panel-head"><h2>Všechny dokumenty a údaje</h2><span>${d.records.length} záznamů · ${d.refs} zdrojů</span></div><div class="os1500-direct-list">${rows(d.records)}</div></section>

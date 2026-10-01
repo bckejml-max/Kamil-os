@@ -1,6 +1,7 @@
 import {applyBettingMaster1335} from './bettingMaster1335.js';
 import {applyTicketMaster1336} from './ticketMaster1336.js';
 import {applyInsuranceMaster1336} from './insuranceMaster1336.js';
+import {applyPersonalMaster1337} from './personalMaster1337.js';
 import {LOCAL_KEY,META_KEY,QUEUE_KEY,SCHEMA_VERSION,MAX_UNDO} from './config.js';
 import {clone,uid} from './utils.js';
 import {schedule1100} from './runtimeOwnership1100.js';
@@ -66,6 +67,7 @@ export function migrate(input){
  s.emergencyFile={contacts:[],assets:[],...(s.emergencyFile||{})};s.emergencyFile.contacts=Array.isArray(s.emergencyFile.contacts)?s.emergencyFile.contacts:[];s.emergencyFile.assets=Array.isArray(s.emergencyFile.assets)?s.emergencyFile.assets:[];
  s.personalInbox={items:[],...(s.personalInbox||{})};s.personalInbox.items=Array.isArray(s.personalInbox.items)?s.personalInbox.items:[];
  s.assetBook={items:[],...(s.assetBook||{})};s.assetBook.items=Array.isArray(s.assetBook.items)?s.assetBook.items:[];
+ applyPersonalMaster1337(s);
  s.personalGoals={items:[],...(s.personalGoals||{})};s.personalGoals.items=Array.isArray(s.personalGoals.items)?s.personalGoals.items:[];
  s.personalSpending={transactions:[],...(s.personalSpending||{})};s.personalSpending.transactions=Array.isArray(s.personalSpending.transactions)?s.personalSpending.transactions:[];
  s.importCenter={history:[],...(s.importCenter||{})};s.importCenter.history=Array.isArray(s.importCenter.history)?s.importCenter.history:[];
