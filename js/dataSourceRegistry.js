@@ -34,16 +34,17 @@ const sourceUpdatedAt=(key,s)=>{
 export function sourceFreshness741(s={},now=Date.now()){
  return Object.entries(MASTER_DATA_REGISTRY).map(([key,cfg])=>{
   const at=sourceUpdatedAt(key,s),ageDays=at===null?null:Math.max(0,(now-at)/DAY),masterActual=cfg.masterPath?getPath(s,cfg.masterPath):null;
-  const masterOk=!cfg.masterPath||masterActual===cfg.id;
+  const masterConnected=masterActual!==null&&masterActual!==undefined&&String(masterActual).trim()!=='';
+  const masterOk=!cfg.masterPath||!masterConnected||masterActual===cfg.id;
   const stale=ageDays===null||ageDays>cfg.staleAfterDays;
-  return {key,...cfg,updatedAt:at?new Date(at).toISOString():null,ageDays,stale,masterOk,masterActual,confidence:!masterOk?'conflict':stale?'stale':'fresh'};
+  return {key,...cfg,updatedAt:at?new Date(at).toISOString():null,ageDays,stale,masterOk,masterConnected,masterActual,confidence:!masterOk?'conflict':stale?'stale':'fresh'};
  });
 }
 export function masterConflicts741(s={}){
- return sourceFreshness741(s).filter(x=>!x.masterOk).map(x=>({
+ return sourceFreshness741(s).filter(x=>x.masterConnected&&!x.masterOk).map(x=>({
   id:'master:'+x.key,domain:x.key,route:x.route,severity:'bad',
   title:x.label+' používá jiný master',
-  detail:'Očekávám '+x.id+', ale stav uvádí '+String(x.masterActual||'žádný')+'.',
+  detail:'Očekávám '+x.id+', ale stav uvádí '+String(x.masterActual)+'.',
   expected:x.id,actual:x.masterActual
  }));
 }
