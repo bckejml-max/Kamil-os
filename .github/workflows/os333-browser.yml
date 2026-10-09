@@ -51,3 +51,12 @@ jobs:
 
       - name: Full canonical browser suite
         run: npm run test:e2e -- --workers=1
+
+      - name: Upload visual review captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: os745-visual-captures
+          path: visual-captures/*.png
+          if-no-files-found: ignore
+          retention-days: 7
