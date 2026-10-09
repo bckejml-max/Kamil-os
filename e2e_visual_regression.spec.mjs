@@ -6,6 +6,8 @@ const BASE='http://127.0.0.1:4173';
 const VIEWS=['today','inbox','work','tickets','money','property','betting','family','home','more'];
 const baseline=JSON.parse(fs.readFileSync('visual-baseline.json','utf8'));
 const FIXED=Date.parse('2026-09-30T08:00:00Z');
+const CAPTURE_DIR='visual-captures';
+fs.mkdirSync(CAPTURE_DIR,{recursive:true});
 
 async function stabilize(page,width,height){
  await page.setViewportSize({width,height});
@@ -37,7 +39,7 @@ async function settleView(page,view){
   });
  },view);
 }
-async function viewHash(page,view){
+async function viewHash(page,mode,view){
  const nav=page.locator((await page.viewportSize()).width<600?'#bottomNav [data-view="'+view+'"]':'#mainNav [data-view="'+view+'"]');
  await nav.click();
  await expect(page.locator('#view-'+view)).toHaveClass(/on/);
@@ -47,6 +49,7 @@ async function viewHash(page,view){
  const target=page.locator('#view-'+view+' > div').first();
  await expect(target).toBeVisible();
  const png=await target.screenshot({animations:'disabled'});
+ fs.writeFileSync(`${CAPTURE_DIR}/${mode}-${view}.png`,png);
  return createHash('sha256').update(png).digest('hex');
 }
 
@@ -55,7 +58,7 @@ for(const mode of ['desktop','mobile']){
   const size=baseline.viewport[mode];await stabilize(page,size.width,size.height);
   const actual={},missing=[],mismatch=[];
   for(const view of VIEWS){
-   const hash=await viewHash(page,view);actual[view]=hash;
+   const hash=await viewHash(page,mode,view);actual[view]=hash;
    const expectedHash=baseline.hashes[mode+'-'+view],accepted=Array.isArray(expectedHash)?expectedHash:[expectedHash].filter(Boolean);
    if(!accepted.length)missing.push(view);else if(!accepted.includes(hash))mismatch.push({view,expected:accepted,actual:hash});
   }
