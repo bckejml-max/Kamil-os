@@ -8,8 +8,27 @@ test('Action Truth exposes one ranked cross-domain model',async({page})=>{
  expect(result.version).toBe('745.0.0');
  expect(result.freshness).toBe(8);
  expect(result.counts).toHaveProperty('conflicts');
+ expect(result.counts).toHaveProperty('missing');
  expect(result.backup.stateValid).toBe(true);
  if(result.primary){expect(result.primary.score).toBeGreaterThanOrEqual(0);expect(result.primary.why.length).toBeGreaterThan(0);expect(result.primary.route.length).toBeGreaterThan(0)}
+});
+
+test('unconnected sources are missing, never falsely stale or conflicting',async({page})=>{
+ await boot(page);
+ const result=await page.evaluate(async()=>{const {buildActionTruth741}=await import('./js/actionTruthEngine.js');const x=buildActionTruth741();return{stale:x.counts.stale,missing:x.counts.missing,conflicts:x.counts.conflicts,missingRows:x.missingSources.map(v=>v.key),staleRows:x.staleSources.map(v=>v.key)}});
+ expect(result.stale).toBe(0);
+ expect(result.conflicts).toBe(0);
+ expect(result.missing).toBe(8);
+ expect(result.missingRows).toHaveLength(8);
+ expect(result.staleRows).toEqual([]);
+ await expect(page.locator('#todayView .os741-data')).toHaveCount(0);
+});
+
+test('a connected old source is stale while absent sources remain missing',async({page})=>{
+ await boot(page);
+ const result=await page.evaluate(async()=>{const {sourceFreshness741}=await import('./js/dataSourceRegistry.js');const rows=sourceFreshness741({ticketBook:{items:[{id:'ticket-old',updatedAt:'2026-01-01T00:00:00Z'}]}},Date.parse('2026-09-30T12:00:00Z'));return Object.fromEntries(rows.map(x=>[x.key,{missing:x.missing,stale:x.stale,confidence:x.confidence}]))});
+ expect(result.tickets).toEqual({missing:false,stale:true,confidence:'stale'});
+ expect(result.calendar).toEqual({missing:true,stale:false,confidence:'missing'});
 });
 
 test('command palette remembers history, contextual hints and global search actions',async({page})=>{
