@@ -78,47 +78,25 @@ function dedupeActions(rows,now=Date.now()){
 }
 
 export function buildUnifiedWaiting741(s=store.get(),now=Date.now()){
- const out=[];
- const add=(x,source,route='inbox',extra={})=>{if(!x||!open(x))return;const created=x.lastContactAt||x.updatedAt||x.createdAt||null,dueAt=due(x),age=ageDays(created,now),d=dayDiff(dueAt,now),needsFollowUp=d!==null?d<=0:(age!==null&&age>=5);out.push({
-  id:U(x.id||source+':'+title(x)),source,sourceId:x.id||null,title:title(x),detail:U(x.notes||x.detail||x.reason||''),route,dueAt:iso(dueAt),ageDays:age,needsFollowUp,
-  score:(needsFollowUp?85:45)+(d!==null&&d<0?15:0),person:U(x.person||x.owner||''),raw:x,...extra
- })};
- for(const x of A(s.directorBook?.waiting))add(x,'director-waiting','inbox');
- for(const x of A(s.delegations))add(x,'delegation','inbox');
- for(const x of A(s.personalInbox?.items).filter(x=>U(x.bucket).toLowerCase()==='waiting'))add(x,'personal-waiting','inbox');
- const td=ticketData1300(s);
- for(const x of td.payout)add(x,'ticket-payout','tickets',{detail:'Prodej je dokončený, čeká se na payout.',needsFollowUp:true,score:88});
- const ins=insuranceCenter(s);
- for(const x of A(ins.actions).filter(x=>['TERMINATING','UPCOMING','REVIEW'].includes(up(x.lifecycle||x.status))))add({id:x.id,title:x.title,notes:x.issues?.[0],followUpAt:x.noticeDate||x.renewalDate||null,updatedAt:x.updatedAt},'insurance-wait','more',{score:72});
- return out.sort((a,b)=>Number(b.needsFollowUp)-Number(a.needsFollowUp)||b.score-a.score||(at(a.dueAt)||Infinity)-(at(b.dueAt)||Infinity));
+ const rows=[];
+ const add=(x,source,route)=>{if(!open(x))return;const started=at(x.waitingSince||x.createdAt||x.at),age=started===null?null:ageDays(new Date(started).toISOString(),now),follow=x.followUpAt||x.nextFollowUpAt||x.due||x.dueAt||null,followDay=dayDiff(follow,now),needsFollowUp=followDay!==null?followDay<=0:age!==null&&age>=5;rows.push({id:source+':'+(x.id||fold(title(x))),source,sourceId:x.id||null,title:title(x),detail:U(x.detail||x.notes||x.reason||''),person:U(x.person||x.owner||x.assignee||''),route,waitingSince:iso(x.waitingSince||x.createdAt||x.at),dueAt:iso(follow),ageDays:age,needsFollowUp,score:(needsFollowUp?75:30)+(followDay!==null&&followDay<0?Math.min(25,Math.abs(followDay)*3):0)})};
+ A(s.directorBook?.waiting).forEach(x=>add(x,'director',x.route||'inbox'));A(s.delegations).forEach(x=>add(x,'delegation',x.route||'inbox'));A(s.personalInbox?.items).filter(x=>fold(x.bucket)==='waiting').forEach(x=>add(x,'personalInbox',x.route||'inbox'));
+ A(s.tasks).filter(x=>['WAITING','BLOCKED','ČEKÁM','CEKAM'].includes(up(x.status))).forEach(x=>add(x,'task',x.route||'inbox'));
+ return rows.sort((a,b)=>b.score-a.score||(at(a.dueAt)||Infinity)-(at(b.dueAt)||Infinity));
 }
-
-function financeTruth741(s,money){
- const bankRecords=A(money?.v?.records).filter(x=>x.recordType==='bank-data'&&up(x.status?.code)!=='ARCHIVED');
- const readVal=x=>['balance','cashBalance','currentBalance'].map(k=>num(x?.[k])).find(v=>v!==null);
- const vaultBank=bankRecords.map(readVal).filter(v=>v!==null).reduce((a,b)=>a+b,0),vaultKnown=bankRecords.some(x=>readVal(x)!==null);
- const plan=num(s.financePlan?.cashNow),planKnown=!!s.financePlan?.updatedAt&&plan!==null;
- const difference=vaultKnown&&planKnown?vaultBank-plan:null;
- const currentRate=num(s.financePlan?.currentSavingsRatePct),bestRate=num(s.financePlan?.bestSavingsRatePct),capital=num(s.financePlan?.savingsCapitalCzk)??(money?.bankKnown?money.bank:null);
- const monthlyOpportunity=currentRate!==null&&bestRate!==null&&capital!==null&&bestRate>currentRate?capital*(bestRate-currentRate)/100/12:null;
- const reserve=num(s.financePlan?.reserveFloor)||0,planned=num(s.financePlan?.plannedInvestment)||0,free=money?.bankKnown?money.bank-reserve-planned:null;
- return {bank:money.bank,bankKnown:money.bankKnown,assets:money.assets,net:money.net,debt:money.debt,invest:money.invest,tickets:money.tickets,vaultBank:vaultKnown?vaultBank:null,planCash:planKnown?plan:null,reconciliationDifference:difference,reconciled:difference===null?null:Math.abs(difference)<=Math.max(1000,Math.abs(vaultBank)*.01),currentRate,bestRate,monthlyOpportunity,freeCash:free,reserveFloor:reserve,plannedInvestment:planned};
+function financeTruth741(s,m){
+ const vaultBankValues=A(m.v?.records).filter(x=>x.recordType==='bank-data'&&x.status?.code!=='ARCHIVED').map(x=>num(x.balance??x.cashBalance??x.currentBalance)).filter(x=>x!==null),vaultBank=vaultBankValues.length?vaultBankValues.reduce((a,b)=>a+b,0):null,planCash=s.financePlan?.updatedAt?num(s.financePlan?.cashNow):null,reconciliationDifference=vaultBank!==null&&planCash!==null?vaultBank-planCash:null,reconciled=reconciliationDifference===null?null:Math.abs(reconciliationDifference)<=Math.max(1000,Math.abs(vaultBank)*.01);
+ const reserve=num(s.financePlan?.reserveFloor)||0,planned=num(s.financePlan?.plannedInvestment)||0,freeCash=m.bankKnown?m.bank-reserve-planned:null,currentRate=num(s.financePlan?.currentSavingsRatePct),bestRate=num(s.financePlan?.bestSavingsRatePct),capital=num(s.financePlan?.savingsCapitalCzk)??(m.bankKnown?m.bank:null),monthlyOpportunity=currentRate!==null&&bestRate!==null&&capital!==null&&bestRate>currentRate?capital*(bestRate-currentRate)/100/12:null;
+ return {bank:m.bank,bankKnown:m.bankKnown,vaultBank,planCash,reconciliationDifference,reconciled,reserve,planned,freeCash,currentRate,bestRate,capital,monthlyOpportunity};
 }
 function ticketTruth741(s,t){
- const items=A(t.items),sum=(rows,key)=>rows.reduce((a,x)=>a+(num(x?.[key])||0),0),status=x=>up(x.market_status||x.marketStatus||x.workflow);
- const paid=items.filter(x=>status(x)==='PAYOUT_RECEIVED'),waiting=items.filter(x=>['SOLD_WAITING_PAYMENT','WAITING_PAYOUT','PAYOUT WAIT'].includes(status(x))),listed=items.filter(x=>status(x)==='LISTED'),held=items.filter(x=>['NOT_LISTED','HOLD'].includes(status(x))),undelivered=items.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(status(x)));
- const realizedBuy=sum(paid,'buyTotalCzk'),realizedSell=sum(paid,'sellTotalCzk'),waitingBuy=sum(waiting,'buyTotalCzk'),waitingSell=sum(waiting,'sellTotalCzk');
- const deadlineRisk=undelivered.map(x=>({id:x.id,title:title(x),date:iso(x.eventDate||x.date),days:dayDiff(x.eventDate||x.date),route:'tickets'})).sort((a,b)=>(a.days??999)-(b.days??999));
- return {lifecycle:{held:held.length,listed:listed.length,undelivered:undelivered.length,waitingPayout:waiting.length,paid:paid.length},profit:{realized:realizedSell-realizedBuy,waitingExpected:waitingSell-waitingBuy,realizedRevenue:realizedSell,waitingRevenue:waitingSell},capitalExposure:sum([...listed,...held],'buyTotalCzk'),deadlineRisk};
+ const status=x=>up(x.market_status||x.marketStatus||x.workflow),sum=(rows,key)=>rows.reduce((a,x)=>a+Number(x?.[key]||0),0),items=A(t.items),paid=items.filter(x=>status(x)==='PAYOUT_RECEIVED'),waiting=items.filter(x=>['SOLD_WAITING_PAYMENT','WAITING_PAYOUT','PAYOUT WAIT'].includes(status(x))),listed=items.filter(x=>status(x)==='LISTED'),held=items.filter(x=>['NOT_LISTED','HOLD'].includes(status(x))),undelivered=items.filter(x=>['SOLD_UNDELIVERED','TRANSFER_REQUIRED','SOLD_WAITING_TRANSFER'].includes(status(x)));
+ return {paid:paid.length,waiting:waiting.length,listed:listed.length,held:held.length,undelivered:undelivered.length,realizedProfit:sum(paid,'sellTotalCzk')-sum(paid,'buyTotalCzk'),waitingProfit:sum(waiting,'sellTotalCzk')-sum(waiting,'buyTotalCzk'),capitalExposure:sum([...listed,...held],'buyTotalCzk')};
 }
 function bettingTruth741(s,b){
- const groups=new Map();
- for(const x of b.open){const key=fold(x.selection||x.event||'ostatní')||'ostatni',g=groups.get(key)||{key,label:x.selection||x.event||'Ostatní',stakeCzk:0,positions:0,tickets:0};g.stakeCzk+=num(x.stakeCzk)||0;g.positions++;g.tickets+=Math.max(1,num(x.ticketCount)||1);groups.set(key,g)}
- const heatmap=[...groups.values()].sort((a,b)=>b.stakeCzk-a.stakeCzk).slice(0,8);
- const settlementAudit=b.settled.map(x=>({id:x.id,label:x.label||x.selection||x.event,missing:['stakeCzk','odds','status'].filter(k=>x?.[k]===null||x?.[k]===undefined||x?.[k]==='').concat(x.pnlCzk===null||x.pnlCzk===undefined?['pnlCzk']:[])})).filter(x=>x.missing.length);
- const byCategory=new Map();for(const x of b.settled){const k=x.category||x.league||'Ostatní',g=byCategory.get(k)||{category:k,stake:0,pnl:0,wins:0,losses:0};g.stake+=num(x.stakeCzk)||0;g.pnl+=num(x.pnlCzk)||0;if(up(x.status)==='WIN')g.wins++;if(up(x.status)==='LOSS')g.losses++;byCategory.set(k,g)}
- const performance=[...byCategory.values()].map(g=>({...g,roi:g.stake?g.pnl/g.stake*100:0,hitRate:g.wins+g.losses?g.wins/(g.wins+g.losses)*100:0})).sort((a,b)=>b.stake-a.stake);
- return {heatmap,settlementAudit,performance};
+ const grouped=new Map();for(const x of b.open){const key=U(x.selection||x.event||'Ostatní'),g=grouped.get(key)||{label:key,stake:0,positions:0,tickets:0};g.stake+=Number(x.stakeCzk||0);g.positions++;g.tickets+=Math.max(1,Number(x.ticketCount||1));grouped.set(key,g)}
+ const settlementIssues=b.settled.filter(x=>['stakeCzk','odds','status','pnlCzk'].some(k=>x?.[k]===null||x?.[k]===undefined||x?.[k]==='')).length;
+ return {heatmap:[...grouped.values()].sort((a,b)=>b.stake-a.stake),settlementIssues,openPositions:b.open.length,openTickets:b.openTickets,exposure:b.exposure,profit:b.profit,roi:b.roi,winRate:b.winRate};
 }
 function propertyTruth741(s,p){
  const raw=A(s.propertyBook?.candidates),life={new:0,review:0,negotiating:0,closed:0,bought:0},deadLinks=[];
@@ -128,9 +106,7 @@ function propertyTruth741(s,p){
 function workTruth741(s,w){
  const blockers=A(w.topRisks).slice(0,6).map(x=>({title:x.title,kind:x.kind,detail:x.detail,score:x.score}));
  const closeout=A(s.projects).filter(open).map(p=>{
-  const checks=[
-   ['Fotky',p.photosDone??p.photosComplete],['Revize',p.revisionDone??p.revisionComplete],['DSPS',p.dspsDone??p.dspsComplete],['Předávák',p.handoverDone??p.handoverComplete],['Fakturace',p.invoicedDone??p.invoicingComplete],['Šanon',p.binderDone??p.binderComplete],['Zádržné',p.retentionDone??p.retentionComplete]
-  ];
+  const checks=[['Fotky',p.photosDone??p.photosComplete],['Revize',p.revisionDone??p.revisionComplete],['DSPS',p.dspsDone??p.dspsComplete],['Předávák',p.handoverDone??p.handoverComplete],['Fakturace',p.invoicedDone??p.invoicingComplete],['Šanon',p.binderDone??p.binderComplete],['Zádržné',p.retentionDone??p.retentionComplete]];
   const known=checks.filter(([,v])=>v!==undefined&&v!==null),missing=known.filter(([,v])=>v!==true).map(([k])=>k);
   const d=due(p);return {id:p.id,name:p.name||'Zakázka',deadline:iso(d),deadlineConfidence:d?(p.deadlineConfirmed===true?'confirmed':p.deadlineConfirmed===false?'estimated':'unknown'):'missing',knownChecks:known.length,missing};
  }).filter(x=>x.knownChecks||x.deadline);
@@ -142,7 +118,6 @@ function insuranceTruth741(s,ins){
  const matrix=policies.map(x=>({id:x.id,title:x.title,kind:x.insurance?.kind||'OTHER',provider:x.provider||'—',sourceStatus:x.insurance?.sourceStatus||'UNKNOWN',coverageAmount:num(x.insurance?.coverageAmount),deductible:num(x.insurance?.deductible),verified:up(x.insurance?.sourceStatus)==='CONFIRMED'}));
  return {radar,matrix,actionCount:Number(ins.actionCount||A(ins.actions).length)};
 }
-
 function conflicts741(s,domains){
  const rows=[...masterConflicts741(s)];
  const fin=domains.finance;if(fin.reconciled===false)rows.push({id:'money:reconciliation',domain:'money',route:'money',severity:'warn',title:'Bankovní součty se rozcházejí',detail:'Rozdíl mezi vaultem a financePlan je '+Math.round(fin.reconciliationDifference).toLocaleString('cs-CZ')+' Kč.'});
@@ -150,7 +125,6 @@ function conflicts741(s,domains){
  const urls=new Map();A(s.propertyBook?.candidates).forEach((x,i)=>{if(!x.url)return;const key=U(x.url).replace(/[?#].*$/,'');if(urls.has(key))rows.push({id:'property:url:'+i,domain:'property',route:'property',severity:'warn',title:'Duplicitní realitní odkaz',detail:(x.name||'Kandidát')+' sdílí odkaz s jiným kandidátem.'});else urls.set(key,i)});
  return rows;
 }
-
 function actions741(s,domains,freshness,waiting,now){
  const rows=[],fresh=Object.fromEntries(freshness.map(x=>[x.key,x]));
  const add=x=>rows.push(x);
@@ -196,9 +170,10 @@ export function buildActionTruth741(input=null,{now=Date.now()}={}){
  const actions=actions741(s,domains,freshness,waiting,now),conflicts=conflicts741(s,domains),tomorrow=tomorrow741(s,waiting,now),audit=auditSummary741(s,actions,now),stateCheck=validateState(JSON.parse(JSON.stringify({...s,undo:[]})));
  const portable=backupHealth(s,input?{}:store.meta(),new Date(now));
  const searchHealth={...portable,serializable:true,stateValid:stateCheck.ok&&!stateCheck.fatal.length,issues:stateCheck.issues||[],fatal:stateCheck.fatal||[],roundTripOk:portable.roundTrip?.ok===true};
+ const staleSources=freshness.filter(x=>x.stale),missingSources=freshness.filter(x=>x.missing);
  return {
-  version:'745.0.0',generatedAt:new Date(now).toISOString(),actions,primary:actions[0]||null,secondary:actions.slice(1,5),waiting,followUps:waiting.filter(x=>x.needsFollowUp),freshness,staleSources:freshness.filter(x=>x.stale),conflicts,
+  version:'745.0.0',generatedAt:new Date(now).toISOString(),actions,primary:actions[0]||null,secondary:actions.slice(1,5),waiting,followUps:waiting.filter(x=>x.needsFollowUp),freshness,staleSources,missingSources,conflicts,
   ignore:ignore741(domains,actions),tomorrow,dailyClose:audit.dailyClose,weeklyReview:audit.weeklyReview,timeline:audit.timeline,domains,backupHealth:searchHealth,
-  counts:{actions:actions.length,high:actions.filter(x=>x.score>=100).length,followUps:waiting.filter(x=>x.needsFollowUp).length,stale:freshness.filter(x=>x.stale).length,conflicts:conflicts.length,tomorrow:tomorrow.length}
+  counts:{actions:actions.length,high:actions.filter(x=>x.score>=100).length,followUps:waiting.filter(x=>x.needsFollowUp).length,stale:staleSources.length,missing:missingSources.length,connected:freshness.length-missingSources.length,conflicts:conflicts.length,tomorrow:tomorrow.length}
  };
 }
