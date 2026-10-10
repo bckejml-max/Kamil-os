@@ -63,19 +63,6 @@ function ensureStyles(){
  document.head.appendChild(style);
 }
 
-function ensurePolish541(){
- let link=document.querySelector('link[data-betting-polish541]');
- if(!link){
-  link=document.createElement('link');
-  link.rel='stylesheet';
-  link.href='./bettingPolish541.css';
-  link.dataset.bettingPolish541='1';
-  document.head.appendChild(link);
- }
- document.documentElement.dataset.bettingPolish541='1';
- window.__KAMIL_BETTING_POLISH541__={version:'541.0.0',healthy:true,at:Date.now()};
-}
-
 function loading(host){
  host.innerHTML=`<div class="bet144"><section class="bet144-hero"><div><div class="eyebrow">SÁZENÍ · CHANCE</div><h1>Betting centrum</h1><p>Načítám ledger a stav automatického value scanneru…</p></div></section></div>`;
 }
