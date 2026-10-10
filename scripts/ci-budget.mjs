@@ -39,7 +39,11 @@ assert.match(desktop,/KAMIL_DESKTOP_BUILD/,'CI budget: desktop releases need a u
 assert.match(desktop,/git tag \$tag \$env:GITHUB_SHA/,'CI budget: desktop release must pre-create a tag for the exact tested SHA');
 assert.match(desktop,/git push origin "refs\/tags\/\$tag"/,'CI budget: desktop release tag must be pushed before publishing');
 assert.match(desktop,/git ls-remote --tags origin/,'CI budget: desktop publisher must verify an existing tag before reuse');
-assert.match(desktop,/skipped publishing\|GitHub release not created/,'CI budget: desktop workflow must fail when GitHub publishing is skipped');
+assert.match(desktop,/--publish never/,'CI budget: electron-builder must not race GitHub release creation');
+assert.match(desktop,/gh release create \$tag[\s\S]*--draft/,'CI budget: desktop publisher must create one draft release');
+assert.match(desktop,/gh release upload \$tag \$exe \$blockmap \$latest/,'CI budget: desktop publisher must upload installer, blockmap, and latest metadata together');
+assert.match(desktop,/gh release view \$tag[\s\S]*--json assets/,'CI budget: desktop publisher must verify release assets before publish');
+assert.match(desktop,/gh release edit \$tag[\s\S]*--draft=false[\s\S]*--latest/,'CI budget: desktop release may publish only after complete asset verification');
 assert.match(desktopMain,/data-view=\\\"inbox\\\"/,'CI budget: desktop Inbox shortcut must target canonical inbox');
 assert.match(desktopPrep,/KAMIL_DESKTOP_BUILD/,'CI budget: desktop prepare step must derive release version from canonical OS version');
 assert.match(pkg.scripts['test:runtime'],/run-qa-suite\.mjs runtime/,'CI budget: runtime suite must route through manifest runner');
