@@ -19,7 +19,7 @@ await startColdPartition42();
 let actionLock=false;
 export async function withActionLock(fn){if(actionLock)return false;actionLock=true;try{return await fn()}finally{schedule1100(OWNER,'action-unlock',()=>{actionLock=false},250)}}
 
-let current='today',stopAuthWatch=()=>{},renderSeq=0,renderQueued=false,renderForce=false,stateRevision=0,sessionSeq=0;
+let current='today',stopAuthWatch=()=>{},renderSeq=0,renderQueued=false,renderForce=false,cancelRenderFrame=()=>{},stateRevision=0,sessionSeq=0;
 const viewRevision=new Map();
 let recoveryMode=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
 const hasPrivateSnapshotKey=()=>{try{return new URLSearchParams(location.hash.replace(/^#/,'')).has('privateSnapshotKey')}catch{return false}};
@@ -128,7 +128,8 @@ function navigate(v,{syncUrl=true,replaceUrl=false}={}){
    sameHost.removeAttribute('data-view-ready');
    viewRevision.delete(current);
    restoreCanonicalProductStyles();
-   scheduleRender(true);
+   cancelRenderFrame();cancelRenderFrame=()=>{};renderQueued=false;renderForce=false;
+   void render(true);
    window.scrollTo({top:0,behavior:'auto'});
    return;
   }
