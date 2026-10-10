@@ -87,18 +87,50 @@ jobs:
         env:
           KAMIL_DESKTOP_BUILD: ${{ github.run_number }}
 
-      - name: Build and publish Windows update
+      - name: Build Windows update package
         working-directory: desktop
         shell: pwsh
         run: |
-          npx electron-builder --win nsis --x64 --publish always 2>&1 | Tee-Object -FilePath publish.log
-          if (Select-String -Path publish.log -Pattern 'skipped publishing|GitHub release not created') {
-            throw 'Desktop release was not published. Version/tag synchronization failed.'
+          npx electron-builder --win nsis --x64 --publish never
+          $exe = "dist/Kamil-OS-Setup-$env:KAMIL_DESKTOP_VERSION-x64.exe"
+          $blockmap = "$exe.blockmap"
+          $latest = "dist/latest.yml"
+          foreach ($file in @($exe,$blockmap,$latest)) {
+            if (-not (Test-Path $file)) { throw "Missing Windows release artifact: $file" }
           }
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           KAMIL_DESKTOP_BUILD: ${{ github.run_number }}
+
+      - name: Publish one complete GitHub release
+        working-directory: desktop
+        shell: pwsh
+        run: |
+          $version = $env:KAMIL_DESKTOP_VERSION
+          $tag = "v$version"
+          $repo = $env:GITHUB_REPOSITORY
+          $exe = "dist/Kamil-OS-Setup-$version-x64.exe"
+          $blockmap = "$exe.blockmap"
+          $latest = "dist/latest.yml"
+
+          gh release view $tag --repo $repo --json tagName *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --repo $repo --verify-tag --title $version --notes "Kamil OS Windows $version" --draft
+            if ($LASTEXITCODE -ne 0) { throw "Could not create draft GitHub release $tag." }
+          }
+
+          gh release upload $tag $exe $blockmap $latest --repo $repo --clobber
+          if ($LASTEXITCODE -ne 0) { throw "Could not upload all Windows release assets to $tag." }
+
+          $assets = @(gh release view $tag --repo $repo --json assets --jq '.assets[].name')
+          foreach ($expected in @((Split-Path $exe -Leaf),(Split-Path $blockmap -Leaf),'latest.yml')) {
+            if ($assets -notcontains $expected) { throw "GitHub release $tag is missing $expected." }
+          }
+
+          gh release edit $tag --repo $repo --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw "Could not publish GitHub release $tag." }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload installer and update metadata
         uses: actions/upload-artifact@v4
