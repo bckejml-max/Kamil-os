@@ -9,7 +9,8 @@ const CLOSED610=new Set(['DONE','HOTOVO','CLOSED','ARCHIVED','RESOLVED','PAID','
 const active610=x=>!CLOSED610.has(String(x?.status||x?.workflow||x?.state||'OPEN').trim().toUpperCase());
 const openTarget=(target,focus=null)=>{
  const view=target||'today';
- if(focus)window.__KAMIL_PENDING_FOCUS610__={target:view,focus,at:Date.now()};
+ if(view==='more'&&focus==='insurance')window.__KAMIL_PENDING_FOCUS610__={target:'more',focus:'insurance',at:Date.now()};
+ else if(focus)window.__KAMIL_PENDING_FOCUS610__={target:view,focus,at:Date.now()};
  window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:view}));
  return true
 };
