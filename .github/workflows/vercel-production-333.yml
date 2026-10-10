@@ -1,6 +1,10 @@
 name: Production Source Guard
 
 on:
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   push:
     branches: [main]
     paths-ignore:

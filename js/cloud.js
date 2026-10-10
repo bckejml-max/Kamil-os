@@ -5,7 +5,7 @@ import {replaceColdState42} from './coldPartition42.js';
 import {recordDiagnostic} from './diagnostics.js';
 import {installRuntimeOwnership1100,ownEvent1100,schedule1100,cancelScheduled1100} from './runtimeOwnership1100.js';
 
-const SUPABASE_SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+const SUPABASE_SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3';
 const CANONICAL_APP_URL='https://kamil-os-smoke.vercel.app/';
 const OWNER='cloud.core32';
 const CLOUD_TIMEOUT_MS=15000;
@@ -33,7 +33,7 @@ function withCloudTimeout(promise,key,ms=CLOUD_TIMEOUT_MS){
 async function loadSdk(){
  if(globalThis.supabase?.createClient)return globalThis.supabase;
  if(sdkPromise)return sdkPromise;
- sdkPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=SUPABASE_SDK;script.async=true;script.crossOrigin='anonymous';script.onload=()=>globalThis.supabase?.createClient?resolve(globalThis.supabase):reject(new Error('Supabase SDK se nenačetlo.'));script.onerror=()=>reject(new Error('Supabase SDK není dostupné. Lokální režim funguje dál.'));document.head.appendChild(script)}).catch(error=>{sdkPromise=null;throw error});
+ sdkPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=SUPABASE_SDK;script.async=true;script.crossOrigin='anonymous';script.referrerPolicy='no-referrer';script.onload=()=>globalThis.supabase?.createClient?resolve(globalThis.supabase):reject(new Error('Supabase SDK se nenačetlo.'));script.onerror=()=>reject(new Error('Supabase SDK není dostupné. Lokální režim funguje dál.'));document.head.appendChild(script)}).catch(error=>{sdkPromise=null;throw error});
  return sdkPromise;
 }
 async function getClient({force=false}={}){

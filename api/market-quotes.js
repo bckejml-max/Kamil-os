@@ -1,3 +1,4 @@
+import {rateLimit} from '../lib/api-request-guard.js';
 import {MARKET_QUOTE_SOURCE_32,quoteSymbol32,normalizeYahooChart32} from '../js/marketQuote32.js';
 import {parseProviderJson1160,providerOutcome1163,freshness1171,ttlFor1172,providerFetch1165,CircuitBreaker1168,rememberLastGood1170,lastKnownGood1170} from '../lib/provider-reliability1160.js';
 
@@ -54,7 +55,7 @@ async function chanceOdds(req,res,url){
   return res.status(200).json({ok:true,provider:'pulsescore',bookmaker:'chance',sport,mode,fetchedAt,eventCount:events.length,events,dataState:outcome.state,freshness,degraded:false});
  }catch(error){const fallback=lastKnownGood1170(cacheKey,{maxAgeMs:ttl*3});if(fallback){const saved=fallback.payload||{};return res.status(200).json({ok:true,provider:'pulsescore',bookmaker:'chance',sport,mode,fetchedAt:saved.fetchedAt||null,eventCount:Number(saved.eventCount)||0,events:Array.isArray(saved.events)?saved.events:[],dataState:'degraded',freshness:{fresh:false,stale:true,ageMs:fallback.ageMs,label:'stale'},degraded:true,fallback:'last-known-good',providerError:String(error?.message||error).slice(0,300)})}return res.status(502).json({ok:false,error:'PULSESCORE_FETCH_FAILED',message:String(error?.message||error).slice(0,300),dataState:'failed',breaker:pulseBreaker.snapshot()})}
 }
-export default async function handler(req,res){
+export default async function handler(req,res){if(!rateLimit(req,res,{bucket:'provider-proxy',limit:90,windowMs:60000}))return;
  res.setHeader('Content-Type','application/json; charset=utf-8');if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({ok:false,error:'METHOD_NOT_ALLOWED'})}
  const url=requestUrl(req);if(String(url.searchParams.get('source')||'').toLowerCase()==='chance')return chanceOdds(req,res,url);
  res.setHeader('Cache-Control','public, s-maxage=120, stale-while-revalidate=300');

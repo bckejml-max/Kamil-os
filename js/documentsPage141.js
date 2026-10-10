@@ -9,7 +9,7 @@ import {buildActionTruth741} from './actionTruthEngine.js';
 
 const OWNER='documents.page1500';
 async function openMoreFocus610(focus){
- if(focus==='insurance'){const m=await import('./insuranceUi25.js');m.renderInsurance25?.();return true}
+ if(focus==='insurance'){const host=document.querySelector('#moreView');if(host)host.dataset.productAdvanced='1';const m=await import('./insuranceUi25.js');m.renderInsurance25?.();return true}
  if(focus==='upgrades2050'){const m=await import('./osUpgrades2050.js');m.renderUpgradeCenter2050?.();return true}
  if(focus==='automation2100'){const m=await import('./osAutomation2100.js');m.renderAutomationCenter2100?.();return true}
  if(focus==='execution2200'){const m=await import('./osExecution2200.js');m.renderExecutionCenter2200?.();return true}
@@ -69,13 +69,12 @@ export function renderDocumentsPage141(){
   if(e.target.closest('[data-doc1500-execution]')){const m=await import('./osExecution2200.js');m.renderExecutionCenter2200?.();return}
   if(e.target.closest('[data-doc1500-portfolio]')){const m=await import('./osPortfolio2300.js');m.renderPortfolioCenter2300?.();return}
   if(e.target.closest('[data-doc1500-strategy]')){const m=await import('./osStrategy2400.js');m.renderStrategyCenter2400?.();return}
-  if(e.target.closest('#insurance25Tile')||e.target.closest('#insurance25Radar')){const m=await import('./insuranceUi25.js');m.renderInsurance25?.();return}
+  if(e.target.closest('#insurance25Tile')||e.target.closest('#insurance25Radar')){await openMoreFocus610('insurance');return}
   const restore=e.target.closest('[data-doc741-restore]');if(restore){if(store.restoreTrash(restore.dataset.doc741Restore))return renderDocumentsPage141();return}
   if(e.target.closest('#documentInbox650')){await addSourceInbox650(cur.records);return renderDocumentsPage141()}
-  if(e.target.closest('[data-doc1500-primary]')&&cur.primary){if(cur.primary.source==='insurance'){const m=await import('./insuranceUi25.js');m.renderInsurance25?.();return}await openVaultRecord640(cur.primary.id);return renderDocumentsPage141()}
+  if(e.target.closest('[data-doc1500-primary]')&&cur.primary){if(cur.primary.source==='insurance'){await openMoreFocus610('insurance');return}await openVaultRecord640(cur.primary.id);return renderDocumentsPage141()}
   const rb=e.target.closest('[data-doc1500-record]');if(rb){await openVaultRecord640(rb.dataset.doc1500Record);return renderDocumentsPage141()}
  })}
  window.__KAMIL_DOCUMENTS141__={healthy:true,core:'os1500',records:d.records.length,action:d.actionTotal,insuranceAction:d.insuranceAction.length,ending:d.counts.ending,refs:d.refs,primarySource:d.primary?.source||'vault',insuranceRadar:insTruth.radar.length,trash:trash.length,stale:truth.counts.stale,missing:truth.counts.missing,connected:truth.counts.connected,conflicts:truth.counts.conflicts,at:Date.now()};
- const pending=window.__KAMIL_PENDING_FOCUS610__;if(pending?.target==='more'&&pending.focus){delete window.__KAMIL_PENDING_FOCUS610__;void openMoreFocus610(pending.focus)}
  return true;
 }
