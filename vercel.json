@@ -8,6 +8,14 @@
   },
   "rewrites": [
     {
+      "source": "/api/deployment-meta",
+      "destination": "/api/core70-health?source=deployment_meta"
+    },
+    {
+      "source": "/api/client-diagnostics",
+      "destination": "/api/core70-health?source=client_diagnostic"
+    },
+    {
       "source": "/api/chance-model-pages",
       "destination": "/api/core70-health?source=chance_pages"
     },
