@@ -21,7 +21,7 @@ function showWindow(){if(!mainWindow)createWindow(appUrl);if(mainWindow){if(main
 function rendererAction(code){showWindow();setTimeout(()=>{try{mainWindow?.webContents.executeJavaScript(code,true)}catch{}},80)}
 function openPalette(){rendererAction("window.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,altKey:true,bubbles:true}))")}
 function quickTask(){rendererAction("document.querySelector('#quickAddBtn')?.click()")}
-function openInbox(){rendererAction("document.querySelector('#mainNav [data-view=\"today\"]')?.click();setTimeout(()=>document.querySelector('#lifeOs42')?.scrollIntoView({behavior:'smooth',block:'start'}),180)")}
+function openInbox(){rendererAction("document.querySelector('#mainNav [data-view=\"inbox\"]')?.click()||document.querySelector('#bottomNav [data-view=\"inbox\"]')?.click()")}
 function startupEnabled(){try{return !!app.getLoginItemSettings().openAtLogin}catch{return false}}
 function setStartup(enabled){try{app.setLoginItemSettings({openAtLogin:!!enabled,path:process.execPath});return startupEnabled()}catch{return false}}
 function trayIcon(){const candidates=[path.join(WEB_ROOT,'icons','icon-192.png'),path.join(WEB_ROOT,'icon.png')];for(const p of candidates){try{if(fs.existsSync(p)){const img=nativeImage.createFromPath(p);if(!img.isEmpty())return img.resize({width:18,height:18})}}catch{}}return nativeImage.createEmpty()}
