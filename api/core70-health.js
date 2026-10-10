@@ -28,6 +28,10 @@ function sourceEvents(payload){return Array.isArray(payload)?payload:Array.isArr
 function probability(value){const n=Number(value);if(!Number.isFinite(n)||n<=0)return null;if(n>1&&n<=100)return n/100;return n<=1?n:null}
 function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
 function plain(value){return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
+const diagnosticClean=(value,max=120)=>String(value??'').replace(/[^a-zA-Z0-9_:.\-\/ ]+/g,'?').slice(0,max);
+function diagnosticPayload(body={}){
+ return {release:diagnosticClean(body.release,32),scope:diagnosticClean(body.scope,96),name:diagnosticClean(body.name||'Error',64),route:diagnosticClean(body.route||'/',120),view:diagnosticClean(body.view||'',32),at:new Date().toISOString()};
+}
 
 async function pulseAttempt(target,key,authMode){
  const url=new URL(target);
@@ -385,9 +389,19 @@ async function chanceProxy(req,res,url){
 }
 
 export default async function handler(req,res){if(!rateLimit(req,res,{bucket:'provider-proxy',limit:60,windowMs:60000}))return;
- if(req.method!=='GET')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
  const url=requestUrl(req);
  const source=String(url.searchParams.get('source')||'').toLowerCase();
+ if(source==='client_diagnostic'){
+  if(req.method!=='POST')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
+  const size=Number(req.headers?.['content-length']||0);if(size>4096)return json(res,413,{ok:false,error:'PAYLOAD_TOO_LARGE'});
+  let body=req.body||{};if(typeof body==='string'){try{body=JSON.parse(body)}catch{return json(res,400,{ok:false,error:'INVALID_JSON'})}}
+  if(!body||typeof body!=='object'||Array.isArray(body))return json(res,400,{ok:false,error:'INVALID_BODY'});
+  console.error('[client-diagnostic]',JSON.stringify(diagnosticPayload(body)));
+  return json(res,202,{ok:true,accepted:true});
+ }
+ if(req.method!=='GET')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
+ if(source==='deployment_meta')return json(res,200,{ok:true,release:'746.0.0',commit:process.env.VERCEL_GIT_COMMIT_SHA||null,deploymentId:process.env.VERCEL_DEPLOYMENT_ID||null,region:process.env.VERCEL_REGION||null,environment:process.env.VERCEL_ENV||null});
+
  if(source==='chance_pages')return chancePageDiscovery(res,url);
  if(source==='chance')return chanceProxy(req,res,url);
  if(source==='ledger')return json(res,200,{ok:true,version:'70.13-candidate-scope',ledger:ledgerSummary(),bets:publicLedger()});
