@@ -76,5 +76,10 @@ export function renderDocumentsPage141(){
   const rb=e.target.closest('[data-doc1500-record]');if(rb){await openVaultRecord640(rb.dataset.doc1500Record);return renderDocumentsPage141()}
  })}
  window.__KAMIL_DOCUMENTS141__={healthy:true,core:'os1500',records:d.records.length,action:d.actionTotal,insuranceAction:d.insuranceAction.length,ending:d.counts.ending,refs:d.refs,primarySource:d.primary?.source||'vault',insuranceRadar:insTruth.radar.length,trash:trash.length,stale:truth.counts.stale,missing:truth.counts.missing,connected:truth.counts.connected,conflicts:truth.counts.conflicts,at:Date.now()};
+ const pending=window.__KAMIL_PENDING_FOCUS610__;
+ if(pending?.target==='more'&&pending.focus){
+  delete window.__KAMIL_PENDING_FOCUS610__;
+  void openMoreFocus610(pending.focus);
+ }
  return true;
 }
