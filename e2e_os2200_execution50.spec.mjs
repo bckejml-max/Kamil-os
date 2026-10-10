@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
+const boot=async page=>{await boot(page);await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true)};
 test('OS2200 exposes the third 50 execution/governance modules',async({page})=>{
- await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+ await boot(page);
  await page.locator('#mainNav [data-view="more"]').click();
  await expect(page.locator('[data-documents-page1500]')).toBeVisible({timeout:10000});
  await page.locator('[data-doc1500-advanced] > summary').click();
@@ -14,7 +15,7 @@ test('OS2200 exposes the third 50 execution/governance modules',async({page})=>{
  expect(diag?.healthy).toBe(true);expect(diag?.count).toBe(50);expect(diag?.killSwitch).toBe(true);expect(diag?.dryRun).toBe(true);
 });
 test('OS2200 command opens Execution & Governance center',async({page})=>{
- await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+ await boot(page);
  const input=page.locator('#commandInput');await input.fill('třetích 50');await input.press('Enter');
  await expect(page.locator('[data-execution2200-center]')).toBeVisible({timeout:10000});
 });
