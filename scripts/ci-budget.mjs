@@ -30,8 +30,11 @@ assert.match(browser,/npm ci/,'CI budget: canonical browser installs locked depe
 assert.match(browser,/npm run test:e2e/,'CI budget: canonical browser owns the full browser suite');
 assert.match(production,/npm run test:structural/,'CI budget: production source guard keeps structural integrity');
 assert.match(production,/pull_request:/,'CI budget: production source guard must run before merge');
-assert.match(desktop,/workflow_run:[\s\S]*Kamil OS Canonical Release \+ Browser QA/,'CI budget: desktop release must wait for canonical browser QA');
-assert.match(desktop,/workflow_run\.conclusion == 'success'/,'CI budget: desktop publish must require successful canonical browser QA');
+assert.match(desktop,/push:[\s\S]*branches:\s*\[main\]/,'CI budget: desktop release must originate from main push');
+assert.match(desktop,/Require successful canonical QA for this exact commit/,'CI budget: desktop publish must gate on canonical QA');
+assert.match(desktop,/head_sha=\"?\$\{GITHUB_SHA\}|head_sha=.*GITHUB_SHA/,'CI budget: desktop gate must bind QA to the exact main SHA');
+assert.match(desktop,/Kamil OS Canonical Release \+ Browser QA/,'CI budget: desktop gate must require the canonical browser workflow');
+assert.match(desktop,/\[ \"\$conclusion\" = \"success\" \]/,'CI budget: desktop publish must require a successful canonical conclusion');
 assert.match(desktop,/KAMIL_DESKTOP_BUILD/,'CI budget: desktop releases need a unique monotonic build version');
 assert.match(desktop,/skipped publishing\|GitHub release not created/,'CI budget: desktop workflow must fail when GitHub publishing is skipped');
 assert.match(desktopMain,/data-view=\\\"inbox\\\"/,'CI budget: desktop Inbox shortcut must target canonical inbox');
