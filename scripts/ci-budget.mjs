@@ -36,6 +36,9 @@ assert.match(desktop,/head_sha=\"?\$\{GITHUB_SHA\}|head_sha=.*GITHUB_SHA/,'CI bu
 assert.match(desktop,/Kamil OS Canonical Release \+ Browser QA/,'CI budget: desktop gate must require the canonical browser workflow');
 assert.match(desktop,/\[ \"\$conclusion\" = \"success\" \]/,'CI budget: desktop publish must require a successful canonical conclusion');
 assert.match(desktop,/KAMIL_DESKTOP_BUILD/,'CI budget: desktop releases need a unique monotonic build version');
+assert.match(desktop,/git tag \$tag \$env:GITHUB_SHA/,'CI budget: desktop release must pre-create a tag for the exact tested SHA');
+assert.match(desktop,/git push origin "refs\/tags\/\$tag"/,'CI budget: desktop release tag must be pushed before publishing');
+assert.match(desktop,/git ls-remote --tags origin/,'CI budget: desktop publisher must verify an existing tag before reuse');
 assert.match(desktop,/skipped publishing\|GitHub release not created/,'CI budget: desktop workflow must fail when GitHub publishing is skipped');
 assert.match(desktopMain,/data-view=\\\"inbox\\\"/,'CI budget: desktop Inbox shortcut must target canonical inbox');
 assert.match(desktopPrep,/KAMIL_DESKTOP_BUILD/,'CI budget: desktop prepare step must derive release version from canonical OS version');
