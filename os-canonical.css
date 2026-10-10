@@ -1845,3 +1845,15 @@ html[data-os1700="1"] .os2-command-box input{font-size:12px!important}
 
 .os741-search-row{padding:0!important;align-items:stretch}.os741-search-row>button:first-child{flex:1;min-width:0;border:0;background:transparent;color:inherit;text-align:left;padding:11px 12px;display:flex;justify-content:space-between;gap:14px}.os741-search-task{width:42px;border:0;border-left:1px solid var(--os-line,#26313d);background:transparent;color:inherit;font-size:18px;cursor:pointer}.os741-search-task:hover,.os741-search-row>button:first-child:hover{background:#111923}
 .os1500-summary.bad{border-color:#703c46}.os1500-summary.warn{border-color:#735f30}.os1500-summary.good{border-color:#315f4a}
+
+
+/* OS746 audit hardening — keep mobile navigation and status microcopy legible. */
+@media(max-width:760px){
+  html[data-visual-polish745="1"] .os2-bottom button{font-size:10px!important;line-height:1.12!important}
+  html[data-visual-polish745="1"] .os1600-summary-item span,
+  html[data-visual-polish745="1"] .os1500-summary span,
+  html[data-visual-polish745="1"] .os1334-mini-grid small{font-size:9.5px!important;line-height:1.2!important}
+  html[data-visual-polish745="1"] .pr1300-kicker,
+  html[data-visual-polish745="1"] .os1400-kicker,
+  html[data-visual-polish745="1"] .eyebrow{font-size:9.5px!important}
+}
