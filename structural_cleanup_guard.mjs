@@ -8,6 +8,7 @@ const runtime=read('js/viewRuntime41.js');
 const registry=read('js/viewRegistry.js');
 const css=read('os-canonical.css');
 const sw=read('sw.js');
+const documents=read('js/documentsPage141.js');
 
 const views=['today','inbox','work','tickets','money','property','betting','family','home','more'];
 for(const view of views)assert.match(registry,new RegExp('\\b'+view+':\\{'),`view registry missing ${view}`);
@@ -26,6 +27,9 @@ assert.match(app,/recordDiagnostic\('render:'/,'renderer failures must record di
 assert.match(app,/data-runtime-retry/,'renderer failure UI must expose retry');
 assert.match(app,/data-runtime-copy/,'renderer failure UI must expose diagnostic copy');
 assert.match(app,/writeViewToUrl/,'navigation must persist a deep link');
-assert.match(app,/popstate/,'browser back\/forward must restore the active view');
+assert.match(app,/popstate/,'browser back/forward must restore the active view');
+assert.match(app,/cancelRenderFrame\(\);cancelRenderFrame=\(\)=>\{\};renderQueued=false;renderForce=false;[\s\S]*void render\(true\)/,'active-section advanced reset must cancel stale frame work and render canonical view immediately');
+assert.doesNotMatch(documents,/const pending=window\.__KAMIL_PENDING_FOCUS610__/,'Documents renderer must not consume pending focus before central app delivery');
+assert.match(documents,/kamil:focus610/,'Documents must receive focus only through the central focus event');
 assert.match(sw,/\.\/os-canonical\.css/,'service worker must cache canonical CSS');
 console.log('OS740 structural cleanup guard PASS');
