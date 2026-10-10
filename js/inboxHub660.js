@@ -13,7 +13,7 @@ import {insurancePolicy} from './insurance25.js';
 
 const VERSION='660.0.0';
 const OWNER='core.inbox660';
-const openInsuranceCenter660=()=>{navigate('more');schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true})};
+const openInsuranceCenter660=()=>{window.__KAMIL_PENDING_FOCUS610__={target:'more',focus:'insurance',at:Date.now()};navigate('more')};
 const DAY=86400000;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','PAID','CANCELLED','CANCELED','SOLD','PAYOUT_RECEIVED']);
 const BUCKETS={reply:{label:'ODPOVĚDĚT',short:'Odpovědět'},pay:{label:'ZAPLATIT',short:'Zaplatit'},do:{label:'VYŘEŠIT',short:'Vyřešit'},waiting:{label:'ČEKÁM',short:'Čekám'},deadline:{label:'TERMÍN',short:'Termín'},document:{label:'DOKUMENT',short:'Dokument'}};

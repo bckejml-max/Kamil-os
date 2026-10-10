@@ -1,6 +1,6 @@
 import {store} from './state.js';
 import {h} from './utils.js';
-import {ownEvent1100,schedule1100} from './runtimeOwnership1100.js';
+import {ownEvent1100} from './runtimeOwnership1100.js';
 import {ensurePersonalVault640,personalVault640} from './personalVault640.js';
 import {editHomeRecord644,openMaintenance644} from './personalFamilyHomeActions644.js';
 import {personalHomeTimeline650} from './personalAssistant650.js';
@@ -9,7 +9,7 @@ import {openPersonalCapture643} from './personalCapture643.js';
 import {insuranceCenter} from './insurance25.js';
 
 const OWNER='home.page1500';
-const openInsuranceCenter=()=>{window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}));schedule1100(OWNER,'insurance-open',async()=>{const m=await import('./insuranceUi25.js');m.renderInsurance25?.()},140,{pauseWhenHidden:true})};
+const openInsuranceCenter=()=>{window.__KAMIL_PENDING_FOCUS610__={target:'more',focus:'insurance',at:Date.now()};window.dispatchEvent(new CustomEvent('kamil:navigate',{detail:'more'}))};
 const maintRe=/servis|reviz|filtr|čerpad|cerpad|rekuper|klima|kom[ií]n|zahrad|oprava|údržb|udrzb|stk/i;
 const CLOSED=new Set(['DONE','CLOSED','ARCHIVED','RESOLVED','CANCELLED','CANCELED']);
 const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
