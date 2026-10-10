@@ -327,7 +327,6 @@ async function loadBetting(host,force=false){
 
 export function renderBettingPage144(){
  ensureStyles();
- ensurePolish541();
  const host=document.querySelector('#bettingView');
  if(!host)return null;
  cancelActiveScan();
