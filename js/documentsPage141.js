@@ -17,6 +17,7 @@ async function openMoreFocus610(focus){
  if(focus==='strategy2400'){const m=await import('./osStrategy2400.js');m.renderStrategyCenter2400?.();return true}
  return false
 }
+export async function focusDocuments141(focus){return openMoreFocus610(focus)}
 const typeLabel=v=>v.recordType==='insurance'?'Pojištění':v.recordType==='utility'?'Smlouva / energie':v.recordType==='mortgage'?'Hypotéka':v.recordType==='bank-data'?'Bankovní data':v.recordType==='property'?'Nemovitost':'Dokument';
 const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
 const validity=v=>v.validUntil?`do ${date(v.validUntil)}`:v.noticeBy?`rozhodnout do ${date(v.noticeBy)}`:v.reviewAt?`kontrola ${date(v.reviewAt)}`:v.asOf?`stav k ${date(v.asOf)}`:'bez známého termínu';

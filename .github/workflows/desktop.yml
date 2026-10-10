@@ -66,13 +66,34 @@ jobs:
         working-directory: desktop
         run: npm install
 
+      - name: Prepare tagged Windows release
+        working-directory: desktop
+        shell: pwsh
+        run: |
+          npm run prepare:web
+          $version = node -p "require('./package.json').version"
+          $tag = "v$version"
+          $remote = (git ls-remote --tags origin "refs/tags/$tag").Trim()
+          if ($remote) {
+            $remoteSha = ($remote -split "\s+")[0]
+            if ($remoteSha -ne $env:GITHUB_SHA) {
+              throw "Release tag $tag already points to $remoteSha, expected $env:GITHUB_SHA."
+            }
+          } else {
+            git tag $tag $env:GITHUB_SHA
+            git push origin "refs/tags/$tag"
+          }
+          "KAMIL_DESKTOP_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+        env:
+          KAMIL_DESKTOP_BUILD: ${{ github.run_number }}
+
       - name: Build and publish Windows update
         working-directory: desktop
         shell: pwsh
         run: |
-          npm run publish:win 2>&1 | Tee-Object -FilePath publish.log
+          npx electron-builder --win nsis --x64 --publish always 2>&1 | Tee-Object -FilePath publish.log
           if (Select-String -Path publish.log -Pattern 'skipped publishing|GitHub release not created') {
-            throw 'Desktop release was not published. Version synchronization failed.'
+            throw 'Desktop release was not published. Version/tag synchronization failed.'
           }
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
