@@ -42,18 +42,6 @@ function baseData(){
  return{s,tasks,personalTasks,ticketTasks,waiting,tickets,activeTickets,transfer,ticketState,inboxState,calendar,urgentTasks,overdue,cash,moneyState,work,property,bet,family,personal,homeTimeline,insurance,vault};
 }
 function greeting(){const h=new Date().getHours();return h<11?'Dobré ráno':h<18?'Dobré odpoledne':'Dobrý večer'}
-function attention(d){
- const out=[],add=(row,score=0)=>out.push({...row,score:Number(score||0)});
- for(const x of d.overdue.slice(0,2))add({title:titleOf(x),detail:`Úkol po termínu · ${fmtDate(x)}`,route:'inbox',taskId:x.id,sourceKey:`task:${x.id}`,tone:'bad',cta:'vyřešit'},132);
- const wr=d.work.topRisks[0];if(wr)add({title:wr.title,detail:`${wr.kind} · ${wr.detail}`,route:'work',sourceKey:`work:${wr.id||wr.title}`,tone:wr.score>=95?'bad':'warn',cta:'otevřít'},Math.max(90,Number(wr.score||0)+12));
- const ticketAlert=d.ticketState?.attention?.[0];if(ticketAlert)add({title:ticketAlert.title,detail:ticketAlert.detail,route:'tickets',sourceKey:`ticket:${ticketAlert.id||ticketAlert.title}`,tone:ticketAlert.tone||'warn',cta:'otevřít'},ticketAlert.tone==='bad'?126:84);
- for(const x of d.personal?.top||[]){const taskId=x.kind==='task'&&String(x.id||'').startsWith('task:')?String(x.id).slice(5):null;add({title:x.title,detail:x.why||x.next||'Osobní věc vyžaduje kontrolu.',route:personalRoute(x),personalId:taskId?null:x.id,taskId,sourceKey:String(x.id||''),tone:x.score>=110?'bad':x.score>=90?'warn':'',cta:String(x.cta||'vyřešit').toLowerCase()},x.score)}
- for(const x of (d.insurance?.actions||[]).slice(0,2))add({title:x.title,detail:x.issues?.[0]||'Pojistku je potřeba zkontrolovat.',route:'more',insurance:true,sourceKey:`insurance:${x.id||x.title}`,tone:x.status==='URGENT'?'bad':'warn',cta:'pojištění'},Number(x.priority||0)+8);
- const dueWait=d.waiting.find(x=>{const t=ts(x);return t&&t<=Date.now()+86400000});if(dueWait)add({title:`Follow-up: ${titleOf(dueWait)}`,detail:isOverdue(dueWait)?'Čekání je po termínu.':'Follow-up je dnes nebo zítra.',route:'inbox',sourceKey:`waiting:${dueWait.id||dueWait.title||titleOf(dueWait)}`,tone:isOverdue(dueWait)?'bad':'warn',cta:'zkontrolovat'},isOverdue(dueWait)?116:84);
- const tomorrow=d.personal?.tomorrow?.[0];if(tomorrow)add({title:tomorrow.title||tomorrow.summary||'Osobní termín zítra',detail:'Osobní termín je zítra.',route:tomorrowRoute(tomorrow),sourceKey:`calendar:${tomorrow.id||tomorrow.title||tomorrow.summary||'tomorrow'}`,tone:'',cta:'připravit'},76);
- const seen=new Set();
- return out.sort((a,b)=>b.score-a.score).filter(x=>{const key=String(x.sourceKey||x.title||'').toLocaleLowerCase('cs-CZ');if(seen.has(key))return false;seen.add(key);return true}).slice(0,4);
-}
 function actionRows(items){
  if(!items.length)return '<div class="os1400-empty">Teď nic dalšího nevyžaduje tvoji pozornost.</div>';
  return '<div class="os1400-list">'+items.map((x,i)=>'<button type="button" class="os1400-row" '+actionAttr(x)+'><div><b>'+(i+1)+'. '+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></div><div class="os1400-side '+esc(x.tone||'')+'">'+esc(x.cta||'otevřít')+' →</div></button>').join('')+'</div>'
@@ -82,17 +70,6 @@ function systemState(d){
 const areaIcon1600={inbox:'✓',work:'W',tickets:'T',money:'Kč',property:'R',betting:'S',family:'F',home:'D',more:'▤'};
 function systemRows(items){
  return '<div class="os1600-areas">'+items.map(x=>'<button type="button" class="os1600-area '+esc(x.tone||'')+'" data-today1300-nav="'+esc(x.route)+'"><i class="os1600-area-icon" aria-hidden="true">'+esc(areaIcon1600[x.route]||'•')+'</i><span>'+esc(x.title)+'</span><b>'+esc(x.side)+'</b><small>'+esc(x.detail)+'</small></button>').join('')+'</div>'
-}
-function queue(d){
- const seen=new Set(),out=[];
- const add=x=>{const key=String(x.sourceKey||x.personalId||(x.taskId?'task:'+x.taskId:'')||[x.route,x.title].join(':')).toLocaleLowerCase('cs-CZ');if(seen.has(key))return;seen.add(key);out.push(x)};
- attention(d).forEach(add);
- for(const x of d.urgentTasks){
-  if(out.length>=6)break;
-  const t=ts(x),due=t&&t<=Date.now()+2*86400000;
-  if(isOverdue(x)||due)add({title:titleOf(x),detail:(x?.project||x?.area||x?.category||'Úkol')+' · '+fmtDate(x),route:'inbox',taskId:x.id,sourceKey:`task:${x.id}`,tone:isOverdue(x)?'bad':'warn',cta:'vyřešit'});
- }
- return out.slice(0,6);
 }
 function metric(label,value){return '<div class="os1400-metric"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>'}
 

@@ -8,24 +8,11 @@ const num=v=>Number.isFinite(Number(v))?Number(v):null;
 const asDate=v=>v instanceof Date?v:new Date(v);
 const daysUntil=(a,b=Date.now())=>personalDaysTo650(a,asDate(b));
 const daysBetween=(a,b=Date.now())=>{const d=personalDaysTo650(a,asDate(b));return d===null?null:-d};
-const SUPERSEDED_INSURANCE_RECOVERY_640=new Map([
- ['recovered-home-insurance-2026','Aktuální stav pojištění domu Vlasatice je vedený v Insurance Center.'],
- ['recovered-life-kamil-allianz','Aktuální stav životního pojištění Allianz je vedený v Insurance Center.'],
- ['recovered-life-tereza-nn','Aktuální stav Terezy je vedený v Insurance Center: nová NN smlouva a ukončované starší smlouvy.'],
- ['recovered-auto-insurance','Aktuální autopojištění je vedené v Insurance Center samostatně pro jednotlivá vozidla.']
-]);
-const supersededInsurance640=(v,s)=>String(s?.personalAdmin?.insuranceMasterId||'').startsWith('insurance-registry-')?SUPERSEDED_INSURANCE_RECOVERY_640.get(v?.id)||null:null;
+const supersededInsurance640=(v,s)=>String(s?.personalAdmin?.insuranceMasterId||'').startsWith('insurance-registry-')&&v?.seededFrom==='recovery-62.5'&&v?.recordType==='insurance'
+ ?'Aktuální stav pojištění je vedený v soukromém Insurance Center.'
+ :null;
 
-const META={
- 'recovered-home-insurance-2026':{section:'home',recordType:'insurance',title:'Pojištění domu Vlasatice',provider:'PVZP',annualAmount:2600,reviewAt:'2027-03-25',sourceLabel:'Archivní návrh pojistné smlouvy',nextAction:'Potvrdit, že smlouva je stále aktivní a kryje současný stav rekonstrukce.',freshnessDays:365},
- 'recovered-electricity-eon-2026':{section:'home',recordType:'utility',title:'Elektřina E.ON — Vlasatice',provider:'E.ON',validUntil:'2027-12-31',noticeBy:'2027-12-11',sourceLabel:'Smlouva E.ON',nextAction:'Před 11. 12. 2027 rozhodnout o prodloužení nebo změně dodavatele.'},
- 'recovered-life-kamil-allianz':{section:'documents',recordType:'insurance',title:'Životní pojištění Kamil',provider:'Allianz',monthlyAmount:915,asOf:'2026-07-31',freshnessDays:180,sourceLabel:'Allianz smluvní podklady + audit platby',nextAction:'Při dalším bankovním výpisu potvrdit pravidelnou platbu 915 Kč.'},
- 'recovered-life-tereza-nn':{section:'documents',recordType:'insurance',title:'Životní pojištění Tereza',provider:'NN',monthlyAmount:574,asOf:'2025-07-01',freshnessDays:180,sourceLabel:'NN Orange Risk smluvní podklady',nextAction:'Najít novější platbu 574 Kč nebo potvrzení pojišťovny.'},
- 'recovered-auto-insurance':{section:'documents',recordType:'insurance',title:'Pojištění auta',provider:'Neurčeno',sourceLabel:'Archiv více pojistných návrhů',nextAction:'Najít aktuální zelenou kartu nebo poslední zaplacené pojistné s číslem smlouvy.',freshnessDays:30},
- 'recovered-bank-coverage':{section:'money',recordType:'bank-data',title:'Bankovní data — MONETA',provider:'MONETA',asOf:'2026-07-31',freshnessDays:45,sourceLabel:'Audit zdrojů + výpis 2026/7',nextAction:'Doplnit další uzavřený měsíční výpis; ostatní banky zůstávají neúplné.'},
- 'recovered-mortgage-2026-08':{section:'money',recordType:'mortgage',title:'Hypotéka',provider:'',balance:3424369.42,monthlyAmount:17945,asOf:'2026-08-01',freshnessDays:45,sourceLabel:'Wealth OS modelový registr 01.08.2026',nextAction:'Po další splátce aktualizovat skutečný zůstatek jistiny.'},
- 'recovered-home-vlasatice':{section:'home',recordType:'property',title:'Dům Vlasatice',provider:'',sourceLabel:'Kupní / stavební dokumentace',nextAction:'Doplnit pouze aktuální tržní hodnotu, pokud ji chceme používat ve financích.'}
-};
+const META=Object.freeze({});
 
 const evidenceMap=s=>{
  const stateItems=Array.isArray(s?.personalVault?.evidence)?s.personalVault.evidence:[];
@@ -54,6 +41,7 @@ export function ensurePersonalVault640(){
  const s=store.get(),existing=Array.isArray(s.personalVault?.items)?s.personalVault.items:[];
  if(existing.length)return personalVault640(s);
  const seed=buildRecoveryVaultSeed640(s),legacyEvidence=evidenceLedger630().items||[];
+ if(!seed.length)return personalVault640(s);
  store.mutate('Personal Data Vault 64.0 — migrace osobních dat',x=>{
   x.personalVault={...(x.personalVault||{}),version:1,items:seed,evidence:legacyEvidence,migratedAt:x.personalVault?.migratedAt||nowIso(),updatedAt:nowIso()};
  },{undo:false,cloud:true,audit:true});

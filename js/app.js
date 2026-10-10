@@ -94,7 +94,7 @@ async function render(force=false){
   const result=renderer?.();if(result&&typeof result.then==='function')await result;
   if(seq!==renderSeq||view!==current)return;
   const currentHost=hostForView(view);if(currentHost){currentHost.dataset.viewReady='1';currentHost.removeAttribute('data-fast-shell')}
-  viewRevision.set(view,revision);markFirstView41(view);window.dispatchEvent(new CustomEvent('kamil:release-stamp'));await renderExtras41(view);if(!currentHost?.dataset.productAdvanced)restoreCanonicalProductStyles();
+  viewRevision.set(view,revision);markFirstView41(view);window.dispatchEvent(new CustomEvent('kamil:release-stamp'));await renderExtras41(view);deliverPendingFocus610(view);if(!currentHost?.dataset.productAdvanced)restoreCanonicalProductStyles();
  }catch(error){
   console.error('[app41] render',view,error);
   const failed=hostForView(view),diag=recordDiagnostic('render:'+view,error,{view});
@@ -111,6 +111,14 @@ function scheduleRender(force=false){
  renderForce=renderForce||force;if(renderQueued)return;renderQueued=true;
  scheduleFrame1110('app-render',()=>{const runForce=renderForce;renderForce=false;renderQueued=false;void render(runForce)});
 }
+function deliverPendingFocus610(view){
+ const pending=window.__KAMIL_PENDING_FOCUS610__;
+ if(!pending||pending.target!==view||!pending.focus)return false;
+ const host=hostForView(view);if(host?.dataset.viewReady!=='1')return false;
+ delete window.__KAMIL_PENDING_FOCUS610__;
+ window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{target:view,focus:pending.focus}}));
+ return true;
+}
 function navigate(v,{syncUrl=true,replaceUrl=false}={}){
  const next=validViews41.has(v)?v:'today';
  if(next===current){
@@ -124,12 +132,12 @@ function navigate(v,{syncUrl=true,replaceUrl=false}={}){
    window.scrollTo({top:0,behavior:'auto'});
    return;
   }
-  updateChrome();if(viewRevision.get(current)!==stateRevision)scheduleRender();return
+  updateChrome();if(viewRevision.get(current)!==stateRevision)scheduleRender();else deliverPendingFocus610(current);return
  }
  const leavingHost=hostForView(current);
  if(leavingHost?.dataset.productAdvanced==='1'){leavingHost.removeAttribute('data-product-advanced');leavingHost.removeAttribute('data-view-ready');viewRevision.delete(current);restoreCanonicalProductStyles()}
  current=next;if(syncUrl)writeViewToUrl(current,{replace:replaceUrl});qsa('.view').forEach(x=>x.classList.remove('on'));qs(`#view-${current}`)?.classList.add('on');updateChrome();revealMobileDestination(current);quickShell(current);
- if(viewRevision.get(current)!==stateRevision)scheduleRender();
+ if(viewRevision.get(current)!==stateRevision)scheduleRender();else deliverPendingFocus610(current);
  void prefetchView41(current);window.dispatchEvent(new CustomEvent('kamil:view-change',{detail:current}));window.scrollTo({top:0,behavior:'auto'});
 }
 qsa('[data-view]').forEach(x=>{x.onclick=()=>navigate(x.dataset.view)});

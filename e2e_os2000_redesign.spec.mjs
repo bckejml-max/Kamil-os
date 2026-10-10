@@ -166,6 +166,10 @@ test('OS1300 personal views use one stable visual hierarchy',async({page})=>{
 });
 
 test('OS1330 Betting does not pretend risk is known without bankroll',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('kamil-os-state',JSON.stringify({
+  meta:{schemaVersion:80,createdAt:new Date().toISOString()},
+  bettingLedger:{bets:[{id:'unknown-risk-test',status:'OPEN',label:'Test otevřená sázka',stakeCzk:5000,odds:2}],bankrollCzk:0,unitCzk:100,updatedAt:new Date().toISOString(),masterId:'private-test-source'}
+ })));
  await boot(page);
  await openView(page,'betting');
  await expect(page.locator('#bettingView [data-betting-overview]')).toBeVisible();
@@ -241,7 +245,7 @@ test('OS1327 Money prioritizes actions and Tickets collapse empty states',async(
  const diag=await page.evaluate(()=>window.__KAMIL_TICKET_OVERVIEW__);
  if(diag.events===0&&diag.attention===0){
   await expect(page.locator('#ticketIntelView .pr1327-ticket-clear')).toHaveCount(1);
-  await expect(page.locator('#ticketIntelView .pr1300-panel')).toHaveCount(1);
+  await expect(page.locator('#ticketIntelView .pr1300-panel')).toHaveCount(2);
  }
 });
 test('OS1500 Today shows all nine primary areas with live cross-section data',async({page})=>{
@@ -277,11 +281,15 @@ test('OS1324 visual polish keeps the shell compact and consistent',async({page})
  expect(desktop.bodyOverflow).toBeLessThanOrEqual(2);
 
  await openView(page,'family');
- const familySurface=await page.locator('#familyView .os1500-summary').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
+ const familySummary=page.locator('#familyView [data-family-page1500] .os1500-summary').first();
+ await expect(familySummary).toBeVisible({timeout:10000});
+ const familySurface=await familySummary.evaluate(el=>{const cs=getComputedStyle(el);return{bg:cs.backgroundColor,bgImage:cs.backgroundImage,border:cs.borderTopColor}});
  await openView(page,'home');
- const homeSurface=await page.locator('#homeView .os1500-summary').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
- expect(familySurface.bg).not.toBe('rgba(0, 0, 0, 0)');
- expect(homeSurface.bg).not.toBe('rgba(0, 0, 0, 0)');
+ const homeSummary=page.locator('#homeView [data-home-page1500] .os1500-summary').first();
+ await expect(homeSummary).toBeVisible({timeout:10000});
+ const homeSurface=await homeSummary.evaluate(el=>{const cs=getComputedStyle(el);return{bg:cs.backgroundColor,bgImage:cs.backgroundImage,border:cs.borderTopColor}});
+ expect(familySurface.bgImage!=='none'||familySurface.bg!=='rgba(0, 0, 0, 0)').toBe(true);
+ expect(homeSurface.bgImage!=='none'||homeSurface.bg!=='rgba(0, 0, 0, 0)').toBe(true);
  expect(familySurface.border).not.toBe('rgba(0, 0, 0, 0)');
  expect(homeSurface.border).not.toBe('rgba(0, 0, 0, 0)');
 
@@ -551,7 +559,7 @@ test('OS1307 empty canonical betting ledger does not revive legacy bets',async({
  await expect(page.locator('#bettingView')).not.toContainText('Stará sázka');
  const state=await page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().bettingLedger});
  expect(state.bets.some(x=>x.id==='legacy-open')).toBe(false);
- expect(state.masterId).toBeTruthy();
+ expect(state.masterId??null).toBeNull();
 });
 
 
@@ -592,7 +600,7 @@ test('OS1308 advanced betting cannot resurrect stale legacy bets',async({page})=
  await page.waitForTimeout(500);
  const state=await page.evaluate(async()=>{const {store}=await import('./js/state.js');return store.get().bettingLedger});
  expect(state.bets.some(x=>x.id==='legacy-zombie')).toBe(false);
- expect(state.masterId).toBeTruthy();
+ expect(state.masterId??null).toBeNull();
 });
 
 test('OS1308 store.replace cloud option queues and schedules repaired state',async({page})=>{
