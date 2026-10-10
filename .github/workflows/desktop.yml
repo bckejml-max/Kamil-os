@@ -73,7 +73,7 @@ jobs:
           npm run prepare:web
           $version = node -p "require('./package.json').version"
           $tag = "v$version"
-          $remote = (git ls-remote --tags origin "refs/tags/$tag").Trim()
+          $remote = [string](git ls-remote --tags origin "refs/tags/$tag")
           if ($remote) {
             $remoteSha = ($remote -split "\s+")[0]
             if ($remoteSha -ne $env:GITHUB_SHA) {
