@@ -1,4 +1,5 @@
 import {rateLimit} from '../lib/api-request-guard.js';
+import {APP_RELEASE,APP_VERSION} from '../js/releaseMeta.js';
 import {decorateLedgerSelection,ledgerSummary,publicLedger} from '../lib/bet-ledger.js';
 import {resolveAutoBettingModels} from '../lib/auto-betting-model.js';
 import {canonicalChanceLeague} from '../lib/chance-football-data-model.js';
@@ -388,9 +389,11 @@ async function chanceProxy(req,res,url){
  }
 }
 
-export default async function handler(req,res){if(!rateLimit(req,res,{bucket:'provider-proxy',limit:60,windowMs:60000}))return;
+export default async function handler(req,res){
  const url=requestUrl(req);
  const source=String(url.searchParams.get('source')||'').toLowerCase();
+ const budget=source==='client_diagnostic'?{bucket:'client-diagnostics',limit:20,windowMs:60000}:source==='deployment_meta'?{bucket:'deployment-meta',limit:120,windowMs:60000}:{bucket:'provider-proxy',limit:60,windowMs:60000};
+ if(!rateLimit(req,res,budget))return;
  if(source==='client_diagnostic'){
   if(req.method!=='POST')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
   const size=Number(req.headers?.['content-length']||0);if(size>4096)return json(res,413,{ok:false,error:'PAYLOAD_TOO_LARGE'});
@@ -400,7 +403,7 @@ export default async function handler(req,res){if(!rateLimit(req,res,{bucket:'pr
   return json(res,202,{ok:true,accepted:true});
  }
  if(req.method!=='GET')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
- if(source==='deployment_meta')return json(res,200,{ok:true,release:'746.0.0',commit:process.env.VERCEL_GIT_COMMIT_SHA||null,deploymentId:process.env.VERCEL_DEPLOYMENT_ID||null,region:process.env.VERCEL_REGION||null,environment:process.env.VERCEL_ENV||null});
+ if(source==='deployment_meta')return json(res,200,{ok:true,release:APP_RELEASE,version:APP_VERSION,commit:process.env.VERCEL_GIT_COMMIT_SHA||null,deploymentId:process.env.VERCEL_DEPLOYMENT_ID||null,region:process.env.VERCEL_REGION||null,environment:process.env.VERCEL_ENV||null});
 
  if(source==='chance_pages')return chancePageDiscovery(res,url);
  if(source==='chance')return chanceProxy(req,res,url);
