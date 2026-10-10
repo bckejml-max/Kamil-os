@@ -1852,8 +1852,11 @@ html[data-os1700="1"] .os2-command-box input{font-size:12px!important}
   html[data-visual-polish745="1"] .os2-bottom button{font-size:10px!important;line-height:1.12!important}
   html[data-visual-polish745="1"] .os1600-summary-item span,
   html[data-visual-polish745="1"] .os1500-summary span,
-  html[data-visual-polish745="1"] .os1334-mini-grid small{font-size:9.5px!important;line-height:1.2!important}
+  html[data-visual-polish745="1"] .os1334-mini-grid small,
+  html[data-visual-polish745="1"] .os1500-section-note,
+  html[data-visual-polish745="1"] .pr1300-row-main small,
+  html[data-visual-polish745="1"] .os1600-area small{font-size:10px!important;line-height:1.3!important}
   html[data-visual-polish745="1"] .pr1300-kicker,
   html[data-visual-polish745="1"] .os1400-kicker,
-  html[data-visual-polish745="1"] .eyebrow{font-size:9.5px!important}
+  html[data-visual-polish745="1"] .eyebrow{font-size:10px!important}
 }
