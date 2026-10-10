@@ -1,0 +1,67 @@
+name: Production Post-Deploy Smoke
+
+on:
+  workflow_run:
+    workflows: ["Kamil OS Canonical Release + Browser QA"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-post-deploy
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PRODUCTION_URL: https://kamil-os-smoke.vercel.app
+      EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Wait for exact tested SHA on production
+        shell: bash
+        run: |
+          set -euo pipefail
+          matched=0
+          for attempt in {1..60}; do
+            meta="$(curl -fsS "$PRODUCTION_URL/api/deployment-meta" || true)"
+            actual="$(META="$meta" node -e 'try{const x=JSON.parse(process.env.META||"{}");process.stdout.write(String(x.commit||""))}catch{}')"
+            if [ "$actual" = "$EXPECTED_SHA" ]; then matched=1; break; fi
+            echo "Production commit is ${actual:-unknown}; waiting for $EXPECTED_SHA"
+            sleep 5
+          done
+          [ "$matched" = "1" ] || { echo "Exact tested SHA never reached production"; exit 1; }
+
+      - name: Smoke live production
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS "$PRODUCTION_URL/" >/dev/null
+          curl -fsS "$PRODUCTION_URL/sw.js" | grep -q 'core-r'
+          health="$(curl -fsS "$PRODUCTION_URL/api/core70-health")"
+          HEALTH="$health" node -e 'const x=JSON.parse(process.env.HEALTH);if(!x.ok||!Array.isArray(x.providers))process.exit(1)'
+          meta="$(curl -fsS "$PRODUCTION_URL/api/deployment-meta")"
+          META="$meta" EXPECTED_SHA="$EXPECTED_SHA" node -e 'const x=JSON.parse(process.env.META);if(!x.ok||x.commit!==process.env.EXPECTED_SHA)process.exit(1)'
+          echo "Production smoke PASS for $EXPECTED_SHA"
+
+      - name: Roll back to previous ready deployment on smoke failure
+        if: failure()
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_eKQcHMPKD00dztpWujOlvWI5PkHQ
+          VERCEL_TEAM_ID: team_cHEU3IXsEXwuTTWbe0l2eIhj
+        run: |
+          set -euo pipefail
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "::warning::VERCEL_TOKEN is not configured; automatic rollback is armed but cannot execute."
+            exit 0
+          fi
+          deployments="$(curl -fsS -H "Authorization: Bearer $VERCEL_TOKEN" "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&target=production&limit=10&teamId=$VERCEL_TEAM_ID")"
+          target="$(DEPLOYMENTS="$deployments" EXPECTED_SHA="$EXPECTED_SHA" node -e 'const x=JSON.parse(process.env.DEPLOYMENTS);const d=(x.deployments||[]).find(v=>v.state==="READY"&&(v.meta?.githubCommitSha||v.gitSource?.sha)!==process.env.EXPECTED_SHA);process.stdout.write(d?.uid||"")')"
+          [ -n "$target" ] || { echo "No previous READY deployment found"; exit 1; }
+          curl -fsS -X POST -H "Authorization: Bearer $VERCEL_TOKEN" "https://api.vercel.com/v1/projects/$VERCEL_PROJECT_ID/rollback/$target?teamId=$VERCEL_TEAM_ID" >/dev/null
+          echo "Rollback requested to $target"

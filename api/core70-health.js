@@ -1,4 +1,5 @@
 import {rateLimit} from '../lib/api-request-guard.js';
+import {APP_RELEASE,APP_VERSION} from '../js/releaseMeta.js';
 import {decorateLedgerSelection,ledgerSummary,publicLedger} from '../lib/bet-ledger.js';
 import {resolveAutoBettingModels} from '../lib/auto-betting-model.js';
 import {canonicalChanceLeague} from '../lib/chance-football-data-model.js';
@@ -28,6 +29,10 @@ function sourceEvents(payload){return Array.isArray(payload)?payload:Array.isArr
 function probability(value){const n=Number(value);if(!Number.isFinite(n)||n<=0)return null;if(n>1&&n<=100)return n/100;return n<=1?n:null}
 function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
 function plain(value){return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
+const diagnosticClean=(value,max=120)=>String(value??'').replace(/[^a-zA-Z0-9_:.\-\/ ]+/g,'?').slice(0,max);
+function diagnosticPayload(body={}){
+ return {release:diagnosticClean(body.release,32),scope:diagnosticClean(body.scope,96),name:diagnosticClean(body.name||'Error',64),route:diagnosticClean(body.route||'/',120),view:diagnosticClean(body.view||'',32),at:new Date().toISOString()};
+}
 
 async function pulseAttempt(target,key,authMode){
  const url=new URL(target);
@@ -384,10 +389,22 @@ async function chanceProxy(req,res,url){
  }
 }
 
-export default async function handler(req,res){if(!rateLimit(req,res,{bucket:'provider-proxy',limit:60,windowMs:60000}))return;
- if(req.method!=='GET')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
+export default async function handler(req,res){
  const url=requestUrl(req);
  const source=String(url.searchParams.get('source')||'').toLowerCase();
+ const budget=source==='client_diagnostic'?{bucket:'client-diagnostics',limit:20,windowMs:60000}:source==='deployment_meta'?{bucket:'deployment-meta',limit:120,windowMs:60000}:{bucket:'provider-proxy',limit:60,windowMs:60000};
+ if(!rateLimit(req,res,budget))return;
+ if(source==='client_diagnostic'){
+  if(req.method!=='POST')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
+  const size=Number(req.headers?.['content-length']||0);if(size>4096)return json(res,413,{ok:false,error:'PAYLOAD_TOO_LARGE'});
+  let body=req.body||{};if(typeof body==='string'){try{body=JSON.parse(body)}catch{return json(res,400,{ok:false,error:'INVALID_JSON'})}}
+  if(!body||typeof body!=='object'||Array.isArray(body))return json(res,400,{ok:false,error:'INVALID_BODY'});
+  console.error('[client-diagnostic]',JSON.stringify(diagnosticPayload(body)));
+  return json(res,202,{ok:true,accepted:true});
+ }
+ if(req.method!=='GET')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
+ if(source==='deployment_meta')return json(res,200,{ok:true,release:APP_RELEASE,version:APP_VERSION,commit:process.env.VERCEL_GIT_COMMIT_SHA||null,deploymentId:process.env.VERCEL_DEPLOYMENT_ID||null,region:process.env.VERCEL_REGION||null,environment:process.env.VERCEL_ENV||null});
+
  if(source==='chance_pages')return chancePageDiscovery(res,url);
  if(source==='chance')return chanceProxy(req,res,url);
  if(source==='ledger')return json(res,200,{ok:true,version:'70.13-candidate-scope',ledger:ledgerSummary(),bets:publicLedger()});
@@ -397,5 +414,14 @@ export default async function handler(req,res){if(!rateLimit(req,res,{bucket:'pr
  const pulse=await pulseHealth(pulseKey);
  const apiFootball=!!(process.env.API_FOOTBALL_KEY||process.env.API_SPORTS_KEY);
  const fmd=!!process.env.FMD_API_KEY;
- return json(res,200,{ok:true,version:'70.14-truthful-provider-health',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulse.ok===true,pulsescore_configured:!!pulseKey,pulsescore_verified:pulse.verified===true,pulsescore_status:pulse.status,pulsescore_auth_mode:pulse.authMode,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},pulse:{configured:!!pulseKey,verified:pulse.verified===true,ok:pulse.ok,status:pulse.status,authMode:pulse.authMode,message:pulse.message},ledger:ledgerSummary()});
+ const provider=(id,label,configured,verified=false,detail='')=>({id,label,configured:!!configured,verified:!!verified,status:verified?'verified':configured?'configured':'missing',detail});
+ const providers=[
+  provider('pulsescore','PulseScore / Chance',!!pulseKey,pulse.verified===true,pulse.message||String(pulse.status||'')),
+  provider('viagogo','Viagogo official API',viagogo,false,viagogo?'credentials present; live verification is action-scoped':'fallback scanner only'),
+  provider('gmail','Gmail sync',gmail,false,gmail?'credentials present; verification runs on sync':'credentials missing'),
+  provider('football-data','Football-Data Poisson model',true,true,'built-in model path'),
+  provider('api-football','API-Football',apiFootball,false,apiFootball?'key present':'optional key missing'),
+  provider('fmd','FMD',fmd,false,fmd?'key present':'optional key missing')
+ ];
+ return json(res,200,{ok:true,version:'70.15-provider-status',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulse.ok===true,pulsescore_configured:!!pulseKey,pulsescore_verified:pulse.verified===true,pulsescore_status:pulse.status,pulsescore_auth_mode:pulse.authMode,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},providers,capabilities:{ticketMarket:viagogo?'official-plus-fallback':'fallback-only',gmail:gmail?'configured':'not-connected',bettingModel:apiFootball?'football-data-plus-api-football':'football-data-built-in'},pulse:{configured:!!pulseKey,verified:pulse.verified===true,ok:pulse.ok,status:pulse.status,authMode:pulse.authMode,message:pulse.message},ledger:ledgerSummary()});
 }
