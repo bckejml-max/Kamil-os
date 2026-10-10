@@ -87,6 +87,7 @@ function quickShell(view){
 }
 async function render(force=false){
  updateChrome();const view=current,host=hostForView(view);
+ if(!force&&host?.dataset.productAdvanced==='1')return;
  if(!force&&host?.dataset.viewReady==='1'&&viewRevision.get(view)===stateRevision)return;
  quickShell(view);const seq=++renderSeq,revision=stateRevision;
  try{
