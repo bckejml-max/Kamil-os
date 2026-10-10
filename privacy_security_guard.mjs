@@ -12,6 +12,9 @@ const gmail=read('api/ticket-gmail-sync.js');
 const coreRls=read('supabase/migrations/0037_core_private_rls.sql');
 const cloud=read('js/cloud.js');
 const apiGuard=read('lib/api-request-guard.js');
+const clientDiagnostics=read('api/client-diagnostics.js');
+const diagnostics=read('js/diagnostics.js');
+const deploymentMeta=read('api/deployment-meta.js');
 const guardedApis=['api/ticket-market-watch-v2.js','api/ticket-market-watch-v4.js','api/ticket-market-watch.js','api/ticket-market-reader.js','api/ticket-market-search-fallback.js','api/viagogo-official.js','api/stubhub-market.js','api/core70-health.js','api/market-history.js','api/market-quotes.js'];
 
 const state=read('js/state.js');
@@ -86,6 +89,11 @@ for(const token of [
 assert.ok(cloud.includes('@supabase/supabase-js@2.117.3'),'Supabase browser SDK must be pinned to an exact reviewed release');
 assert.ok(!cloud.includes('@supabase/supabase-js@2\''),'Supabase browser SDK must never float on major tag');
 assert.ok(apiGuard.includes("error:'RATE_LIMITED'")&&apiGuard.includes('maxBatch:12'),'public API guard must rate-limit and define the canonical batch ceiling');
+assert.ok(clientDiagnostics.includes("bucket:'client-diagnostics'"),'client diagnostics endpoint must be rate-limited');
+assert.doesNotMatch(clientDiagnostics,/body\.message|body\.stack|body\.meta/,'production diagnostics must never accept message, stack, or arbitrary metadata');
+assert.match(diagnostics,/body=\{release:row\.release,scope:row\.scope,name:row\.name,route:location\.pathname,view\}/,'browser diagnostics must send only the allowlisted telemetry envelope');
+assert.match(deploymentMeta,/VERCEL_GIT_COMMIT_SHA/,'deployment metadata must expose the exact production git SHA');
+assert.ok(deploymentMeta.includes("bucket:'deployment-meta'"),'deployment metadata endpoint must be rate-limited');
 for(const file of guardedApis){
  const src=read(file);
  assert.ok(src.includes("api-request-guard.js"),`public provider API must use request guard: ${file}`);
