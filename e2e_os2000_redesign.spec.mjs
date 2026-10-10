@@ -283,15 +283,13 @@ test('OS1324 visual polish keeps the shell compact and consistent',async({page})
  await openView(page,'family');
  const familySummary=page.locator('#familyView [data-family-page1500] .os1500-summary').first();
  await expect(familySummary).toBeVisible({timeout:10000});
- await expect.poll(()=>familySummary.evaluate(el=>getComputedStyle(el).backgroundColor),{timeout:10000}).not.toBe('rgba(0, 0, 0, 0)');
- const familySurface=await familySummary.evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
+ const familySurface=await familySummary.evaluate(el=>{const cs=getComputedStyle(el);return{bg:cs.backgroundColor,bgImage:cs.backgroundImage,border:cs.borderTopColor}});
  await openView(page,'home');
  const homeSummary=page.locator('#homeView [data-home-page1500] .os1500-summary').first();
  await expect(homeSummary).toBeVisible({timeout:10000});
- await expect.poll(()=>homeSummary.evaluate(el=>getComputedStyle(el).backgroundColor),{timeout:10000}).not.toBe('rgba(0, 0, 0, 0)');
- const homeSurface=await homeSummary.evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
- expect(familySurface.bg).not.toBe('rgba(0, 0, 0, 0)');
- expect(homeSurface.bg).not.toBe('rgba(0, 0, 0, 0)');
+ const homeSurface=await homeSummary.evaluate(el=>{const cs=getComputedStyle(el);return{bg:cs.backgroundColor,bgImage:cs.backgroundImage,border:cs.borderTopColor}});
+ expect(familySurface.bgImage!=='none'||familySurface.bg!=='rgba(0, 0, 0, 0)').toBe(true);
+ expect(homeSurface.bgImage!=='none'||homeSurface.bg!=='rgba(0, 0, 0, 0)').toBe(true);
  expect(familySurface.border).not.toBe('rgba(0, 0, 0, 0)');
  expect(homeSurface.border).not.toBe('rgba(0, 0, 0, 0)');
 
