@@ -9,6 +9,8 @@ const bettingMigration=read('supabase/migrations/0034_betting_ledger543.sql');
 const marketHistory=read('api/market-history.js');
 const vercel=read('vercel.json');
 const gmail=read('api/ticket-gmail-sync.js');
+const coreRls=read('supabase/migrations/0037_core_private_rls.sql');
+const cloud=read('js/cloud.js');
 
 const state=read('js/state.js');
 const bettingOverview=read('js/bettingOverview.js');
@@ -69,5 +71,17 @@ assert.ok(gmail.includes("error:'AUTH_REQUIRED'"),'Gmail sync must expose an aut
 assert.match(gmail,/async function ticketMode\(req,res(?:,input)?\)/,'ticket mode must receive the authenticated request');
 assert.ok(!gmail.includes('async function ticketMode(res)'),'ticket mode must never bypass request authentication');
 assert.match(gmail,/ticketMode\(req,res,input\)/,'ticket handler must pass request plus bounded checkpoint input');
+
+for(const token of [
+ 'alter table public.kamil_os_state enable row level security',
+ 'revoke all on table public.kamil_os_state from anon',
+ 'auth.uid() = user_id',
+ 'alter table public.kamil_calendar_cache enable row level security',
+ 'revoke all on table public.kamil_calendar_cache from anon',
+ 'alter table public.kamil_xtb_data enable row level security',
+ 'revoke all on table public.kamil_xtb_data from anon'
+])assert.ok(coreRls.includes(token),`core private RLS migration missing ${token}`);
+assert.ok(cloud.includes('@supabase/supabase-js@2.117.3'),'Supabase browser SDK must be pinned to an exact reviewed release');
+assert.ok(!cloud.includes('@supabase/supabase-js@2\''),'Supabase browser SDK must never float on major tag');
 
 console.log('PRIVACY + API SECURITY GUARD PASS');
