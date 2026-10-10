@@ -8,6 +8,9 @@ const ticket=read('.github/workflows/qa.yml');
 const control=read('.github/workflows/os1047-control-operations.yml');
 const browser=read('.github/workflows/os333-browser.yml');
 const production=read('.github/workflows/vercel-production-333.yml');
+const desktop=read('.github/workflows/desktop.yml');
+const desktopMain=read('desktop/main.cjs');
+const desktopPrep=read('desktop/scripts/prepare-web.cjs');
 const workflows=[ticket,control,browser,production];
 
 assert.equal((workflows.join('\n').match(/npm run test:release/g)||[]).length,1,'CI budget: exactly one workflow may own the full release suite');
@@ -26,6 +29,13 @@ assert.doesNotMatch(control,/os2\.css|os2010\.css|os2020\.css/,'CI budget: contr
 assert.match(browser,/npm ci/,'CI budget: canonical browser installs locked dependencies');
 assert.match(browser,/npm run test:e2e/,'CI budget: canonical browser owns the full browser suite');
 assert.match(production,/npm run test:structural/,'CI budget: production source guard keeps structural integrity');
+assert.match(production,/pull_request:/,'CI budget: production source guard must run before merge');
+assert.match(desktop,/workflow_run:[\s\S]*Kamil OS Canonical Release \+ Browser QA/,'CI budget: desktop release must wait for canonical browser QA');
+assert.match(desktop,/workflow_run\.conclusion == 'success'/,'CI budget: desktop publish must require successful canonical browser QA');
+assert.match(desktop,/KAMIL_DESKTOP_BUILD/,'CI budget: desktop releases need a unique monotonic build version');
+assert.match(desktop,/skipped publishing\|GitHub release not created/,'CI budget: desktop workflow must fail when GitHub publishing is skipped');
+assert.match(desktopMain,/data-view=\\\"inbox\\\"/,'CI budget: desktop Inbox shortcut must target canonical inbox');
+assert.match(desktopPrep,/KAMIL_DESKTOP_BUILD/,'CI budget: desktop prepare step must derive release version from canonical OS version');
 assert.match(pkg.scripts['test:runtime'],/run-qa-suite\.mjs runtime/,'CI budget: runtime suite must route through manifest runner');
 assert.match(pkg.scripts['test:release'],/run-qa-suite\.mjs release/,'CI budget: release suite must route through manifest runner');
 
