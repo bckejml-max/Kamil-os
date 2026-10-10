@@ -1849,7 +1849,7 @@ html[data-os1700="1"] .os2-command-box input{font-size:12px!important}
 
 /* OS746 audit hardening — keep mobile navigation and status microcopy legible. */
 @media(max-width:760px){
-  html[data-visual-polish745="1"] .os2-bottom button{font-size:10px!important;line-height:1.12!important}
+  html[data-visual-polish745="1"] .os2-bottom button{font-size:10.1px!important;line-height:1.12!important}
   html[data-visual-polish745="1"] .os1600-summary-item span,
   html[data-visual-polish745="1"] .os1500-summary span,
   html[data-visual-polish745="1"] .os1334-mini-grid small,
