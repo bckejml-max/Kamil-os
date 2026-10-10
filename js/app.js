@@ -115,6 +115,7 @@ function deliverPendingFocus610(view){
  const pending=window.__KAMIL_PENDING_FOCUS610__;
  if(!pending||pending.target!==view||!pending.focus)return false;
  const host=hostForView(view);if(host?.dataset.viewReady!=='1')return false;
+ delete window.__KAMIL_PENDING_FOCUS610__;
  window.dispatchEvent(new CustomEvent('kamil:focus610',{detail:{target:view,focus:pending.focus}}));
  return true;
 }

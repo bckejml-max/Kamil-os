@@ -253,7 +253,7 @@ test('OS737.0.45 Inbox excludes informational upcoming insurance',async({page})=
  expect(out.inboxHasUpcoming).toBe(false);
 });
 
-test('OS737.0.46 actionable Inbox insurance row opens Insurance Center',async({page})=>{
+test('OS745 insurance focus survives fresh, cached and invalidated Documents',async({page})=>{
  await boot(page);
  const row=await page.evaluate(async()=>{
   const {store}=await import('./js/state.js');
@@ -261,8 +261,24 @@ test('OS737.0.46 actionable Inbox insurance row opens Insurance Center',async({p
   return localInboxSummary660(store.get()).rows.find(x=>x.insurance)||null;
  });
  expect(row).toBeTruthy();
+ const openFromInbox=async()=>{
+  await page.locator('#mainNav [data-view="inbox"]').click();
+  await expect(page.locator('[data-tasks-overview]')).toBeVisible({timeout:10000});
+  await page.locator('[data-task-open="'+row.id+'"]').click();
+  await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
+ };
+ await openFromInbox();
+ await page.locator('#insuranceBack25').click();
+ await expect(page.locator('[data-documents-page1500]')).toBeVisible({timeout:10000});
+ await openFromInbox();
+ await page.locator('#insuranceBack25').click();
+ await expect(page.locator('[data-documents-page1500]')).toBeVisible({timeout:10000});
  await page.locator('#mainNav [data-view="inbox"]').click();
  await expect(page.locator('[data-tasks-overview]')).toBeVisible({timeout:10000});
+ await page.evaluate(async()=>{
+  const {store}=await import('./js/state.js');
+  store.mutate('test insurance focus invalidation',s=>{s.meta=s.meta||{};s.meta.os745FocusProbe=Date.now()},{undo:false,cloud:false,audit:false});
+ });
  await page.locator('[data-task-open="'+row.id+'"]').click();
  await expect(page.locator('#moreView')).toContainText('INSURANCE CENTER / OS1336',{timeout:10000});
 });
