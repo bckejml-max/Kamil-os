@@ -397,5 +397,14 @@ export default async function handler(req,res){if(!rateLimit(req,res,{bucket:'pr
  const pulse=await pulseHealth(pulseKey);
  const apiFootball=!!(process.env.API_FOOTBALL_KEY||process.env.API_SPORTS_KEY);
  const fmd=!!process.env.FMD_API_KEY;
- return json(res,200,{ok:true,version:'70.14-truthful-provider-health',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulse.ok===true,pulsescore_configured:!!pulseKey,pulsescore_verified:pulse.verified===true,pulsescore_status:pulse.status,pulsescore_auth_mode:pulse.authMode,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},pulse:{configured:!!pulseKey,verified:pulse.verified===true,ok:pulse.ok,status:pulse.status,authMode:pulse.authMode,message:pulse.message},ledger:ledgerSummary()});
+ const provider=(id,label,configured,verified=false,detail='')=>({id,label,configured:!!configured,verified:!!verified,status:verified?'verified':configured?'configured':'missing',detail});
+ const providers=[
+  provider('pulsescore','PulseScore / Chance',!!pulseKey,pulse.verified===true,pulse.message||String(pulse.status||'')),
+  provider('viagogo','Viagogo official API',viagogo,false,viagogo?'credentials present; live verification is action-scoped':'fallback scanner only'),
+  provider('gmail','Gmail sync',gmail,false,gmail?'credentials present; verification runs on sync':'credentials missing'),
+  provider('football-data','Football-Data Poisson model',true,true,'built-in model path'),
+  provider('api-football','API-Football',apiFootball,false,apiFootball?'key present':'optional key missing'),
+  provider('fmd','FMD',fmd,false,fmd?'key present':'optional key missing')
+ ];
+ return json(res,200,{ok:true,version:'70.15-provider-status',checks:{runtime_endpoint:true,viagogo_api:viagogo,gmail_api:gmail,pulsescore_api:pulse.ok===true,pulsescore_configured:!!pulseKey,pulsescore_verified:pulse.verified===true,pulsescore_status:pulse.status,pulsescore_auth_mode:pulse.authMode,football_data_poisson_model:true,api_football_key:apiFootball,fmd_api_key:fmd},providers,capabilities:{ticketMarket:viagogo?'official-plus-fallback':'fallback-only',gmail:gmail?'configured':'not-connected',bettingModel:apiFootball?'football-data-plus-api-football':'football-data-built-in'},pulse:{configured:!!pulseKey,verified:pulse.verified===true,ok:pulse.ok,status:pulse.status,authMode:pulse.authMode,message:pulse.message},ledger:ledgerSummary()});
 }
