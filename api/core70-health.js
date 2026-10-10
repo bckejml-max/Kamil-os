@@ -1,3 +1,4 @@
+import {rateLimit} from '../lib/api-request-guard.js';
 import {decorateLedgerSelection,ledgerSummary,publicLedger} from '../lib/bet-ledger.js';
 import {resolveAutoBettingModels} from '../lib/auto-betting-model.js';
 import {canonicalChanceLeague} from '../lib/chance-football-data-model.js';
@@ -383,7 +384,7 @@ async function chanceProxy(req,res,url){
  }
 }
 
-export default async function handler(req,res){
+export default async function handler(req,res){if(!rateLimit(req,res,{bucket:'provider-proxy',limit:60,windowMs:60000}))return;
  if(req.method!=='GET')return json(res,405,{ok:false,error:'METHOD_NOT_ALLOWED'});
  const url=requestUrl(req);
  const source=String(url.searchParams.get('source')||'').toLowerCase();
