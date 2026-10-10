@@ -17,6 +17,7 @@ async function openMoreFocus610(focus){
  if(focus==='strategy2400'){const m=await import('./osStrategy2400.js');m.renderStrategyCenter2400?.();return true}
  return false
 }
+export async function focusDocuments141(focus){return openMoreFocus610(focus)}
 const typeLabel=v=>v.recordType==='insurance'?'Pojištění':v.recordType==='utility'?'Smlouva / energie':v.recordType==='mortgage'?'Hypotéka':v.recordType==='bank-data'?'Bankovní data':v.recordType==='property'?'Nemovitost':'Dokument';
 const date=v=>v?new Date(v).toLocaleDateString('cs-CZ'):'—';
 const validity=v=>v.validUntil?`do ${date(v.validUntil)}`:v.noticeBy?`rozhodnout do ${date(v.noticeBy)}`:v.reviewAt?`kontrola ${date(v.reviewAt)}`:v.asOf?`stav k ${date(v.asOf)}`:'bez známého termínu';
@@ -76,10 +77,5 @@ export function renderDocumentsPage141(){
   const rb=e.target.closest('[data-doc1500-record]');if(rb){await openVaultRecord640(rb.dataset.doc1500Record);return renderDocumentsPage141()}
  })}
  window.__KAMIL_DOCUMENTS141__={healthy:true,core:'os1500',records:d.records.length,action:d.actionTotal,insuranceAction:d.insuranceAction.length,ending:d.counts.ending,refs:d.refs,primarySource:d.primary?.source||'vault',insuranceRadar:insTruth.radar.length,trash:trash.length,stale:truth.counts.stale,missing:truth.counts.missing,connected:truth.counts.connected,conflicts:truth.counts.conflicts,at:Date.now()};
- const pending=window.__KAMIL_PENDING_FOCUS610__;
- if(pending?.target==='more'&&pending.focus){
-  delete window.__KAMIL_PENDING_FOCUS610__;
-  void openMoreFocus610(pending.focus);
- }
  return true;
 }
