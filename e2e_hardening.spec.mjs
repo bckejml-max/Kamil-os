@@ -70,3 +70,16 @@ test('OS747 local Web Vitals are available without external analytics',async({pa
  expect(v.cls).toBeGreaterThanOrEqual(0);
  expect(await page.evaluate(()=>window.__KAMIL_WEB_VITALS747__?.started)).toBe(true);
 });
+
+
+test('OS747 System Health exposes encrypted backup and restore actions',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="more"]').click();
+ await expect(page.locator('#moreView [data-documents-page1500]')).toBeVisible({timeout:12000});
+ const advanced=page.locator('#moreView [data-doc1500-advanced]');
+ await advanced.locator('summary').click();
+ await advanced.locator('[data-doc747-health]').click();
+ await expect(page.getByRole('button',{name:'Stáhnout šifrovanou zálohu',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Obnovit zálohu',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Zavřít',exact:true}).click();
+});
