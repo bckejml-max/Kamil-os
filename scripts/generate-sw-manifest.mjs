@@ -8,7 +8,7 @@ const base=[
  './js/state.js','./js/utils.js',
  './js/viewRegistry.js','./js/diagnostics.js','./js/viewRuntime41.js','./js/runtimeOwnership1100.js'
 ];
-const extras=['./js/propertyHub620.js','./js/cloud.js','./js/authUx32.js','./js/perf41.js','./js/coldPartition42.js'];
+const extras=['./js/propertyHub620.js','./js/cloud.js','./js/authUx32.js','./js/perf41.js','./js/coldPartition42.js','./js/systemHealth.js','./js/encryptedBackup.js'];
 export const criticalAssets=()=>[...new Set([...base,...VIEW_ORDER.map(v=>'./js/'+VIEW_REGISTRY[v].module.replace('./','')),...extras])];
 
 const file=new URL('../sw.js',import.meta.url);

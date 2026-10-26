@@ -57,3 +57,52 @@ test('OS747 System Health exposes canonical freshness and recovery round-trip',a
  expect(health.backup?.roundTrip?.ok).toBe(true);
  expect(health.backup?.currentFingerprint).toMatch(/^[a-f0-9]{16}$/);
 });
+
+
+test('OS747 local Web Vitals are available without external analytics',async({page})=>{
+ await boot(page);
+ await page.waitForTimeout(150);
+ const v=await page.evaluate(async()=>{const m=await import('./js/webVitals.js');return m.webVitalsSnapshot747()});
+ expect(v.started).toBe(true);
+ expect(v.supported).toBe(true);
+ expect(v.ttfbMs===null||v.ttfbMs>=0).toBe(true);
+ expect(v.fcpMs===null||v.fcpMs>=0).toBe(true);
+ expect(v.cls).toBeGreaterThanOrEqual(0);
+ expect(await page.evaluate(()=>window.__KAMIL_WEB_VITALS747__?.started)).toBe(true);
+});
+
+
+test('OS747 System Health exposes encrypted backup and restore actions',async({page})=>{
+ await boot(page);
+ await page.locator('#mainNav [data-view="more"]').click();
+ await expect(page.locator('#moreView [data-documents-page1500]')).toBeVisible({timeout:12000});
+ const advanced=page.locator('#moreView [data-doc1500-advanced]');
+ await advanced.locator('summary').click();
+ await advanced.locator('[data-doc747-health]').click();
+ await expect(page.getByRole('button',{name:'Stáhnout šifrovanou zálohu',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Obnovit zálohu',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Zavřít',exact:true}).click();
+});
+
+
+test('OS747 canonical views keep basic accessibility names intact',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ for(const view of views){
+  if(view!=='today')await page.locator(`#mainNav [data-view="${view}"]`).click();
+  await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
+  const issues=await page.evaluate(v=>{
+   const host=document.querySelector(`#view-${v}`);if(!host)return['missing-host'];
+   const visible=el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none'};
+   const names=[];
+   for(const el of host.querySelectorAll('input,select,textarea'))if(visible(el)){
+    const id=el.id||'',label=id?document.querySelector(`label[for="${CSS.escape(id)}"]`):null;
+    const named=el.getAttribute('aria-label')||el.getAttribute('aria-labelledby')||el.getAttribute('title')||el.getAttribute('placeholder')||label?.textContent||'';
+    if(!String(named).trim())names.push(`${el.tagName.toLowerCase()}:${id||el.name||'unnamed'}`);
+   }
+   for(const img of host.querySelectorAll('img'))if(visible(img)&&!img.hasAttribute('alt'))names.push('img:missing-alt');
+   return names;
+  },view);
+  expect(issues,`accessibility naming in ${view}`).toEqual([]);
+ }
+});

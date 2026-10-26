@@ -4,6 +4,7 @@ import {recentDiagnostics} from './diagnostics.js';
 import {store} from './state.js';
 import {sourceFreshness741,freshnessLabel741} from './dataSourceRegistry.js';
 import {backupHealth} from './backupGuard26.js';
+import {webVitalsSnapshot747} from './webVitals.js';
 import {h,modal} from './utils.js';
 
 const timeout=ms=>AbortSignal.timeout?AbortSignal.timeout(ms):undefined;
@@ -24,6 +25,7 @@ export async function systemHealthSnapshot747(){
  const controlled=!!navigator?.serviceWorker?.controller;
  const freshness=sourceFreshness741(store.get());
  const backup=backupHealth(store.get(),store.meta());
+ const webVitals=webVitalsSnapshot747();
  return {
   release:APP_RELEASE,
   deployment:deploy.data||null,
@@ -36,6 +38,7 @@ export async function systemHealthSnapshot747(){
   diagnostics:recentDiagnostics().length,
   freshness,
   backup,
+  webVitals,
   checkedAt:new Date().toISOString()
  };
 }
@@ -53,11 +56,19 @@ export async function openSystemHealth747(){
    <div class="row"><span>Cloud session</span><b>${x.cloudSession?'uložená':'nepřipojeno'}</b></div>
    <div class="row"><span>Záloha / recovery</span><b class="${backupTone}">${h(x.backup?.label||'neznámé')} · ${x.backup?.roundTrip?.ok?'round-trip OK':'round-trip chyba'}</b></div>
    <div class="row"><span>Diagnostiky v relaci</span><b>${x.diagnostics}</b></div>
+   <div class="section-title" style="margin-top:14px">Výkon tohoto zařízení</div>
+   <div class="row"><span>TTFB</span><b>${x.webVitals?.ttfbMs??'—'} ms</b></div>
+   <div class="row"><span>FCP</span><b>${x.webVitals?.fcpMs??'—'} ms</b></div>
+   <div class="row"><span>LCP</span><b>${x.webVitals?.lcpMs??'—'} ms</b></div>
+   <div class="row"><span>CLS</span><b>${x.webVitals?.cls??'—'}</b></div>
+   <div class="row"><span>Nejpomalejší interakce</span><b>${x.webVitals?.interactionMaxMs??'—'} ms</b></div>
    <div class="section-title" style="margin-top:14px">Čerstvost dat</div>
    ${freshnessRows}
    <div class="section-title" style="margin-top:14px">Živé zdroje</div>
    ${rows}
   </div>`;
- await modal('System Health',html,[{label:'Zavřít',value:null,primary:true}]);
+ const action=await modal('System Health',html,[{label:'Stáhnout šifrovanou zálohu',value:'backup',primary:true},{label:'Obnovit zálohu',value:'restore'},{label:'Zavřít',value:null}]);
+ if(action==='backup'){const m=await import('./encryptedBackup.js');await m.exportEncryptedBackup()}
+ if(action==='restore'){const m=await import('./encryptedBackup.js');await m.restoreEncryptedBackup()}
  return x;
 }

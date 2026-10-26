@@ -12,9 +12,11 @@ import {restoreCanonicalProductStyles} from './productAdvancedStyles.js';
 import {isPersonalScope527} from './personalScope527.js';
 import {VIEW_ORDER,viewMeta,viewFromUrl,writeViewToUrl} from './viewRegistry.js';
 import {recordDiagnostic,copyDiagnostic} from './diagnostics.js';
+import {startWebVitals747} from './webVitals.js';
 
 const OWNER='core.app41';
 installRuntimeOwnership1100();
+startWebVitals747();
 await startColdPartition42();
 let actionLock=false;
 export async function withActionLock(fn){if(actionLock)return false;actionLock=true;try{return await fn()}finally{schedule1100(OWNER,'action-unlock',()=>{actionLock=false},250)}}

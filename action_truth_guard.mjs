@@ -6,7 +6,9 @@ const truth=read('js/actionTruthEngine.js'),sources=read('js/dataSourceRegistry.
 
 assert.equal(pkg.version,'746.0.0');
 assert.match(release,/746\.0\.0/);
-assert.match(sw,/kamil-os-746\.0\.0-core-r151/);
+assert.match(sw,/kamil-os-746\.0\.0-core-r152/);
+assert.match(sw,/\.\/js\/systemHealth\.js/,'System Health must be available from offline critical cache');
+assert.match(sw,/\.\/js\/encryptedBackup\.js/,'Encrypted backup tools must be available from offline critical cache');
 
 for(const symbol of ['buildActionTruth741','buildUnifiedWaiting741','dedupeActions','financeTruth741','ticketTruth741','bettingTruth741','propertyTruth741','workTruth741','insuranceTruth741','conflicts741','tomorrow741','auditSummary741','ignore741'])assert.match(truth,new RegExp(symbol),'Action Truth missing '+symbol);
 assert.match(sources,/MASTER_DATA_REGISTRY/);

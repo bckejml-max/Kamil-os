@@ -34,4 +34,5 @@ assert.ok(cssBytes<=180000,`OS747 canonical CSS grew past 180 KB: ${cssBytes}`);
 const allJs=[];
 for(const ent of fs.readdirSync(path.join(root,'js'),{withFileTypes:true}))if(ent.isFile()&&ent.name.endsWith('.js'))allJs.push('js/'+ent.name);
 const unreachable=allJs.filter(x=>!reachable.has(x));
+assert.ok(unreachable.length<=535,`OS747 legacy/unreachable module count grew past frozen baseline 535: ${unreachable.length}`);
 console.log(`OS747 runtime budget PASS · ${reachable.size} reachable modules · ${Math.round(bytes/1024)} KB JS · ${Math.round(cssBytes/1024)} KB CSS · ${unreachable.length} top-level legacy/unreachable modules`);
