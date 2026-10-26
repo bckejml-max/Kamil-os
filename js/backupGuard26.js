@@ -3,7 +3,7 @@ import {mergeColdState42} from './coldPartition42.js';
 
 export const BACKUP_FORMAT='KAMIL_OS_BACKUP';
 export const BACKUP_FORMAT_VERSION=1;
-export const backupGuardNote='JSON záloha není šifrovaná. Ulož ji na bezpečné místo. Kontrolní otisk chrání proti náhodnému poškození souboru, není to kryptografický podpis. Sensitive Vault je záměrně mimo tento export.';
+export const backupGuardNote='JSON záloha obsahuje osobní data a není šifrovaná. Ulož ji pouze na bezpečné místo. Kontrolní otisk chrání proti náhodnému poškození souboru, není to kryptografický podpis.';
 
 const obj=v=>v&&typeof v==='object'&&!Array.isArray(v);
 const jsonClone=v=>JSON.parse(JSON.stringify(v));
@@ -33,7 +33,7 @@ export function backupPayload(state){
 
 export function createBackupEnvelope(state,now=new Date()){
  const payload=backupPayload(state),fingerprint=backupFingerprint(payload),exportedAt=new Date(now).toISOString();
- const envelope={format:BACKUP_FORMAT,formatVersion:BACKUP_FORMAT_VERSION,appVersion:APP_VERSION,schemaVersion:SCHEMA_VERSION,exportedAt,fingerprint,payload};
+ const envelope={format:BACKUP_FORMAT,formatVersion:BACKUP_FORMAT_VERSION,appVersion:APP_VERSION,schemaVersion:SCHEMA_VERSION,exportedAt,containsPrivateData:true,fingerprint,payload};
  return {...envelope,bytes:utf8Bytes(JSON.stringify(envelope))};
 }
 
