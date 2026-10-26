@@ -68,7 +68,13 @@ async function pulseRequest(target,key){
 async function pulseHealth(key){
  if(!key)return{configured:false,verified:false,ok:false,status:null,authMode:null,message:'PULSESCORE_NOT_CONFIGURED'};
  if(Date.now()-Number(pulseHealthCache.checkedAt||0)<PULSE_HEALTH_TTL_MS&&pulseHealthCache.ok!==null)return{configured:true,verified:true,...pulseHealthCache};
- return{configured:true,verified:false,ok:false,status:null,authMode:null,message:'PULSESCORE_UNVERIFIED'};
+ try{
+  const target=`${PULSE_BASE}/soccer/events?page=1&limit=1`;
+  const probe=await pulseRequest(target,key);
+  return{configured:true,verified:true,...pulseHealthCache,ok:probe?.response?.ok===true};
+ }catch(error){
+  return{configured:true,verified:true,...pulseHealthCache,ok:false,message:String(error?.message||error||'PULSESCORE_HEALTH_FAILED')};
+ }
 }
 
 function compactEvent(event){
