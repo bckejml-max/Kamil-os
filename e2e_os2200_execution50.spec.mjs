@@ -1,5 +1,6 @@
 import {test,expect} from '@playwright/test';
-const boot=async page=>{await boot(page);await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true)};
+const BASE='http://127.0.0.1:4173';
+const boot=async page=>{await page.goto(BASE,{waitUntil:'domcontentloaded'});await expect.poll(()=>page.evaluate(()=>window.__KAMIL_BOOT_BUDGET343__?.complete),{timeout:15000}).toBe(true)};
 test('OS2200 exposes the third 50 execution/governance modules',async({page})=>{
  await boot(page);
  await page.locator('#mainNav [data-view="more"]').click();
