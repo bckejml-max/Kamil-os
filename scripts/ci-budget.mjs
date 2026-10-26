@@ -34,6 +34,7 @@ assert.match(production,/pull_request:/,'CI budget: production source guard must
 assert.match(postDeploy,/push:[\s\S]*branches:\s*\[main\]/,'CI budget: post-deploy smoke must originate from main push');
 assert.match(postDeploy,/Require successful canonical QA for this exact commit/,'CI budget: post-deploy smoke must gate on canonical QA');
 assert.match(postDeploy,/head_sha=.*GITHUB_SHA/,'CI budget: post-deploy gate must bind QA to the exact main SHA');
+assert.match(postDeploy,/gh run watch "\$run_id"[\s\S]*--exit-status/,'CI budget: post-deploy gate must wait for the exact canonical run');
 assert.match(postDeploy,/Kamil OS Canonical Release \+ Browser QA/,'CI budget: post-deploy gate must require canonical browser QA');
 assert.match(postDeploy,/EXPECTED_SHA/,'CI budget: production smoke must bind to the exact tested SHA');
 assert.match(postDeploy,/\/api\/deployment-meta/,'CI budget: production smoke must verify deployment metadata');
@@ -43,8 +44,9 @@ assert.match(postDeploy,/\/rollback\/\$target/,'CI budget: rollback hook must ta
 assert.match(desktop,/push:[\s\S]*branches:\s*\[main\]/,'CI budget: desktop release must originate from main push');
 assert.match(desktop,/Require successful canonical QA for this exact commit/,'CI budget: desktop publish must gate on canonical QA');
 assert.match(desktop,/head_sha=\"?\$\{GITHUB_SHA\}|head_sha=.*GITHUB_SHA/,'CI budget: desktop gate must bind QA to the exact main SHA');
+assert.match(desktop,/gh run watch "\$run_id"[\s\S]*--exit-status/,'CI budget: desktop gate must wait for the exact canonical run');
 assert.match(desktop,/Kamil OS Canonical Release \+ Browser QA/,'CI budget: desktop gate must require the canonical browser workflow');
-assert.match(desktop,/\[ \"\$conclusion\" = \"success\" \]/,'CI budget: desktop publish must require a successful canonical conclusion');
+assert.match(desktop,/gh run watch \"\$run_id\"[\s\S]*--exit-status/,'CI budget: desktop publish must require the canonical run to finish successfully');
 assert.match(desktop,/KAMIL_DESKTOP_BUILD/,'CI budget: desktop releases need a unique monotonic build version');
 assert.match(desktop,/git tag \$tag \$env:GITHUB_SHA/,'CI budget: desktop release must pre-create a tag for the exact tested SHA');
 assert.match(desktop,/git push origin "refs\/tags\/\$tag"/,'CI budget: desktop release tag must be pushed before publishing');
