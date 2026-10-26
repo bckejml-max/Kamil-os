@@ -3,6 +3,10 @@ import {mergeColdState42} from './coldPartition42.js';
 
 export const BACKUP_FORMAT='KAMIL_OS_BACKUP';
 export const BACKUP_FORMAT_VERSION=1;
+export const ENCRYPTED_BACKUP_FORMAT='KAMIL_OS_ENCRYPTED_BACKUP';
+export const ENCRYPTED_BACKUP_FORMAT_VERSION=1;
+export const ENCRYPTED_BACKUP_ITERATIONS=250000;
+const ENCRYPTED_BACKUP_AAD='kamil-os-encrypted-backup-747';
 export const backupGuardNote='JSON záloha obsahuje osobní data a není šifrovaná. Ulož ji pouze na bezpečné místo. Kontrolní otisk chrání proti náhodnému poškození souboru, není to kryptografický podpis.';
 
 const obj=v=>v&&typeof v==='object'&&!Array.isArray(v);
@@ -35,6 +39,36 @@ export function createBackupEnvelope(state,now=new Date()){
  const payload=backupPayload(state),fingerprint=backupFingerprint(payload),exportedAt=new Date(now).toISOString();
  const envelope={format:BACKUP_FORMAT,formatVersion:BACKUP_FORMAT_VERSION,appVersion:APP_VERSION,schemaVersion:SCHEMA_VERSION,exportedAt,containsPrivateData:true,fingerprint,payload};
  return {...envelope,bytes:utf8Bytes(JSON.stringify(envelope))};
+}
+
+const bytesToB64=bytes=>{let s='';for(const b of bytes)s+=String.fromCharCode(b);return btoa(s)};
+const b64ToBytes=value=>{const raw=atob(String(value||''));return Uint8Array.from(raw,c=>c.charCodeAt(0))};
+async function backupKey747(passphrase,salt,iterations=ENCRYPTED_BACKUP_ITERATIONS){
+ const subtle=globalThis.crypto?.subtle;if(!subtle)throw new Error('WEB_CRYPTO_UNAVAILABLE');
+ const raw=await subtle.importKey('raw',new TextEncoder().encode(String(passphrase||'')),'PBKDF2',false,['deriveKey']);
+ return subtle.deriveKey({name:'PBKDF2',salt,iterations,hash:'SHA-256'},raw,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+export async function createEncryptedBackup747(state,passphrase,now=new Date()){
+ const secret=String(passphrase||'');if(secret.length<10)throw new Error('BACKUP_PASSPHRASE_TOO_SHORT');
+ const cryptoApi=globalThis.crypto;if(!cryptoApi?.subtle)throw new Error('WEB_CRYPTO_UNAVAILABLE');
+ const salt=cryptoApi.getRandomValues(new Uint8Array(16)),iv=cryptoApi.getRandomValues(new Uint8Array(12)),aad=new TextEncoder().encode(ENCRYPTED_BACKUP_AAD);
+ const key=await backupKey747(secret,salt),envelope=createBackupEnvelope(state,now),plain=new TextEncoder().encode(JSON.stringify(envelope));
+ const encrypted=new Uint8Array(await cryptoApi.subtle.encrypt({name:'AES-GCM',iv,additionalData:aad},key,plain));
+ return {format:ENCRYPTED_BACKUP_FORMAT,formatVersion:ENCRYPTED_BACKUP_FORMAT_VERSION,cipher:'AES-GCM',kdf:'PBKDF2-SHA256',iterations:ENCRYPTED_BACKUP_ITERATIONS,createdAt:envelope.exportedAt,salt:bytesToB64(salt),iv:bytesToB64(iv),aad:ENCRYPTED_BACKUP_AAD,ciphertext:bytesToB64(encrypted)};
+}
+export async function readEncryptedBackup747(raw,passphrase){
+ if(!obj(raw)||raw.format!==ENCRYPTED_BACKUP_FORMAT)return {ok:false,code:'ENCRYPTED_FORMAT',message:'Soubor není šifrovaná záloha Kamil OS.'};
+ if(Number(raw.formatVersion)!==ENCRYPTED_BACKUP_FORMAT_VERSION)return {ok:false,code:'ENCRYPTED_FORMAT_VERSION',message:'Tato verze šifrované zálohy není podporovaná.'};
+ if(raw.cipher!=='AES-GCM'||raw.kdf!=='PBKDF2-SHA256')return {ok:false,code:'ENCRYPTED_ALGORITHM',message:'Záloha používá nepodporované šifrování.'};
+ const secret=String(passphrase||'');if(secret.length<1)return {ok:false,code:'PASSPHRASE_REQUIRED',message:'Zadej heslo k záloze.'};
+ try{
+  const subtle=globalThis.crypto?.subtle;if(!subtle)throw new Error('WEB_CRYPTO_UNAVAILABLE');
+  const salt=b64ToBytes(raw.salt),iv=b64ToBytes(raw.iv),aad=new TextEncoder().encode(String(raw.aad||ENCRYPTED_BACKUP_AAD));
+  const key=await backupKey747(secret,salt,Number(raw.iterations||ENCRYPTED_BACKUP_ITERATIONS));
+  const plain=await subtle.decrypt({name:'AES-GCM',iv,additionalData:aad},key,b64ToBytes(raw.ciphertext));
+  const envelope=JSON.parse(new TextDecoder().decode(plain)),read=readBackup(envelope);
+  return read.ok?{...read,encrypted:true}:{...read,encrypted:true};
+ }catch(error){return {ok:false,code:'DECRYPT_FAILED',message:'Zálohu se nepodařilo odemknout. Heslo je chybné nebo byl soubor změněn.',error:String(error?.message||error)}}
 }
 
 export function readBackup(raw){
