@@ -47,3 +47,13 @@ test('OS747 mobile shell owns safe-area spacing and keyboard focus',async({page}
  const focused=await page.evaluate(()=>{const el=document.activeElement;return !!el&&el!==document.body&&el!==document.documentElement});
  expect(focused).toBe(true);
 });
+
+
+test('OS747 System Health exposes canonical freshness and recovery round-trip',async({page})=>{
+ await boot(page);
+ const health=await page.evaluate(async()=>{const m=await import('./js/systemHealth.js');const x=await m.systemHealthSnapshot747();return{freshness:x.freshness,backup:x.backup}});
+ expect(health.freshness).toHaveLength(8);
+ expect(health.freshness.map(x=>x.key).sort()).toEqual(['betting','calendar','insurance','money','personal','property','tickets','work'].sort());
+ expect(health.backup?.roundTrip?.ok).toBe(true);
+ expect(health.backup?.currentFingerprint).toMatch(/^[a-f0-9]{16}$/);
+});
