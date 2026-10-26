@@ -57,3 +57,16 @@ test('OS747 System Health exposes canonical freshness and recovery round-trip',a
  expect(health.backup?.roundTrip?.ok).toBe(true);
  expect(health.backup?.currentFingerprint).toMatch(/^[a-f0-9]{16}$/);
 });
+
+
+test('OS747 local Web Vitals are available without external analytics',async({page})=>{
+ await boot(page);
+ await page.waitForTimeout(150);
+ const v=await page.evaluate(async()=>{const m=await import('./js/webVitals.js');return m.webVitalsSnapshot747()});
+ expect(v.started).toBe(true);
+ expect(v.supported).toBe(true);
+ expect(v.ttfbMs===null||v.ttfbMs>=0).toBe(true);
+ expect(v.fcpMs===null||v.fcpMs>=0).toBe(true);
+ expect(v.cls).toBeGreaterThanOrEqual(0);
+ expect(await page.evaluate(()=>window.__KAMIL_WEB_VITALS747__?.started)).toBe(true);
+});

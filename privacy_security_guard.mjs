@@ -69,6 +69,7 @@ assert.ok(marketHistory.includes('getBettingLedger543(req)'),'betting reads must
 assert.ok(marketHistory.includes('mutateBettingLedger543(await readBody(req),req)'),'betting writes must carry authenticated request context');
 assert.ok(vercel.includes('"destination": "/api/market-history?source=ledger543"'),'betting ledger must share an existing function to preserve Hobby deployment limits');
 assert.equal(fs.existsSync('api/betting-ledger543.js'),false,'no dedicated 13th betting API function may be deployed on Hobby');
+assert.match(vercel,/camera=\(\), microphone=\(\), geolocation=\(\), payment=\(\), usb=\(\)/,'Permissions-Policy must deny unused camera/microphone/geolocation/payment/usb capabilities');
 
 assert.ok(gmail.includes('authorizedMailbox(req,res)'),'Gmail sync must authenticate every mode');
 assert.ok(gmail.includes("error:'AUTH_REQUIRED'"),'Gmail sync must expose an auth-required contract');
@@ -104,5 +105,9 @@ for(const file of guardedApis){
 for(const file of ['api/ticket-market-watch-v2.js','api/ticket-market-watch-v4.js','api/ticket-market-watch.js','api/ticket-market-reader.js','api/ticket-market-search-fallback.js','api/viagogo-official.js','api/stubhub-market.js']){
  assert.match(read(file),/items\.slice\(0,12\)|b\.items\.slice\(0,12\)|body\.items\.slice\(0,12\)|req\.body\.items\.slice\(0,12\)/,`ticket provider batch must be capped at 12: ${file}`);
 }
+for(const file of ['api/ticket-market-watch-v2.js','api/ticket-market-watch-v4.js','api/ticket-market-watch.js','api/ticket-market-reader.js','api/ticket-market-search-fallback.js','api/viagogo-official.js','api/stubhub-market.js']){
+ assert.ok(read(file).includes('bodySizeLimit(req,res)'),`public ticket POST body must be capped: ${file}`);
+}
+assert.ok(apiGuard.includes('defaultBodyBytes:65536'),'public API guard must define the canonical 64KB body ceiling');
 
 console.log('PRIVACY + API SECURITY GUARD PASS');
