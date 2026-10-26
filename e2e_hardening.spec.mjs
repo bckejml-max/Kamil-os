@@ -83,3 +83,26 @@ test('OS747 System Health exposes encrypted backup and restore actions',async({p
  await expect(page.getByRole('button',{name:'Obnovit zálohu',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Zavřít',exact:true}).click();
 });
+
+
+test('OS747 canonical views keep basic accessibility names intact',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await boot(page);
+ for(const view of views){
+  if(view!=='today')await page.locator(`#mainNav [data-view="${view}"]`).click();
+  await expect(page.locator(`#view-${view}`)).toHaveClass(/on/);
+  const issues=await page.evaluate(v=>{
+   const host=document.querySelector(`#view-${v}`);if(!host)return['missing-host'];
+   const visible=el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none'};
+   const names=[];
+   for(const el of host.querySelectorAll('input,select,textarea'))if(visible(el)){
+    const id=el.id||'',label=id?document.querySelector(`label[for="${CSS.escape(id)}"]`):null;
+    const named=el.getAttribute('aria-label')||el.getAttribute('aria-labelledby')||el.getAttribute('title')||el.getAttribute('placeholder')||label?.textContent||'';
+    if(!String(named).trim())names.push(`${el.tagName.toLowerCase()}:${id||el.name||'unnamed'}`);
+   }
+   for(const img of host.querySelectorAll('img'))if(visible(img)&&!img.hasAttribute('alt'))names.push('img:missing-alt');
+   return names;
+  },view);
+  expect(issues,`accessibility naming in ${view}`).toEqual([]);
+ }
+});
