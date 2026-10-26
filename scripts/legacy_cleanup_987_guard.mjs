@@ -16,8 +16,8 @@ need(!/(deleteFile|delete_file|unlinkSync|rmSync|autoMerge:true|autoDeploy:true|
 const gatewayGuards=['operator_717_guard.mjs','operator_truth_737_guard.mjs','data_truth_738_guard.mjs','strategy_788_guard.mjs','strategy_789_guard.mjs','copilot_840_guard.mjs','autonomous_943_guard.mjs','scripts/proposal_review_944_guard.mjs','scripts/safe_change_plan_945_guard.mjs'];
 for(const f of gatewayGuards){const x=read(f);need(x.includes('oneOS977.js'),`${f} must validate OS977 gateway`);need(!x.includes('js/personalMore640.js'),`${f} still depends on legacy More wiring`)}
 const workflows=fs.readdirSync('.github/workflows').filter(f=>/\.ya?ml$/i.test(f)).sort();
-const canonical=['desktop.yml','os1047-control-operations.yml','os333-browser.yml','qa.yml','vercel-production-333.yml'].sort();
-need(JSON.stringify(workflows)===JSON.stringify(canonical),`OS987 workflow inventory must be canonical five: ${workflows.join(', ')}`);
+const canonical=['desktop.yml','os1047-control-operations.yml','os333-browser.yml','post-deploy-smoke.yml','qa.yml','vercel-production-333.yml'].sort();
+need(JSON.stringify(workflows)===JSON.stringify(canonical),`OS987 workflow inventory must match the canonical six: ${workflows.join(', ')}`);
 const os333=read('.github/workflows/os333-browser.yml'),pkg=JSON.parse(read('package.json')),canonicalE2e=String(pkg.scripts?.['test:e2e']||''),legacyE2e=String(pkg.scripts?.['test:legacy:e2e']||'');
 for(const token of ['npm run test:release','npm run test:e2e'])need(os333.includes(token),`OS333 missing canonical coverage ${token}`);
 for(const token of ['e2e_legacy_cleanup_987.spec.mjs','e2e_one_os_977.spec.mjs','e2e_one_os_967.spec.mjs','e2e_os947_visual.spec.mjs']){

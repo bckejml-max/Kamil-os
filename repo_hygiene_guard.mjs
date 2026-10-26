@@ -5,7 +5,7 @@ import {QA_SUITES} from './scripts/qa-suites.mjs';
 const root=new URL('./',import.meta.url);
 const workflowsDir=new URL('./.github/workflows/',root);
 const workflows=(await readdir(workflowsDir)).filter(f=>/\.ya?ml$/i.test(f)).sort();
-const allowedWorkflows=['desktop.yml','os1047-control-operations.yml','os333-browser.yml','qa.yml','vercel-production-333.yml'].sort();
+const allowedWorkflows=['desktop.yml','os1047-control-operations.yml','os333-browser.yml','post-deploy-smoke.yml','qa.yml','vercel-production-333.yml'].sort();
 assert.deepEqual(workflows,allowedWorkflows,`Workflow inventory drifted. Expected only: ${allowedWorkflows.join(', ')}`);
 
 const retired=new Set([
@@ -41,4 +41,4 @@ const jsDir=new URL('./js/',root);
 const jsFiles=(await readdir(jsDir)).filter(f=>f.endsWith('.js'));
 let intervals=0,timeouts=0,listeners=0;
 for(const name of jsFiles){const src=await readFile(new URL(name,jsDir),'utf8');intervals+=(src.match(/\bsetInterval\s*\(/g)||[]).length;timeouts+=(src.match(/\bsetTimeout\s*\(/g)||[]).length;listeners+=(src.match(/\.addEventListener\s*\(/g)||[]).length}
-console.log(`Repo hygiene PASS: 5 workflows, ${jsFiles.length} JS modules, timers=${intervals+timeouts}, listeners=${listeners}, canonical=os2, release=${QA_SUITES.release.files.length} guards`);
+console.log(`Repo hygiene PASS: ${workflows.length} workflows, ${jsFiles.length} JS modules, timers=${intervals+timeouts}, listeners=${listeners}, canonical=os2, release=${QA_SUITES.release.files.length} guards`);
