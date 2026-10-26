@@ -67,6 +67,8 @@ export async function openSystemHealth747(){
    <div class="section-title" style="margin-top:14px">Živé zdroje</div>
    ${rows}
   </div>`;
- await modal('System Health',html,[{label:'Zavřít',value:null,primary:true}]);
+ const action=await modal('System Health',html,[{label:'Stáhnout šifrovanou zálohu',value:'backup',primary:true},{label:'Obnovit zálohu',value:'restore'},{label:'Zavřít',value:null}]);
+ if(action==='backup'){const m=await import('./encryptedBackup.js');await m.exportEncryptedBackup()}
+ if(action==='restore'){const m=await import('./encryptedBackup.js');await m.restoreEncryptedBackup()}
  return x;
 }
