@@ -60,12 +60,14 @@ export async function readEncryptedBackup747(raw,passphrase){
  if(!obj(raw)||raw.format!==ENCRYPTED_BACKUP_FORMAT)return {ok:false,code:'ENCRYPTED_FORMAT',message:'Soubor není šifrovaná záloha Kamil OS.'};
  if(Number(raw.formatVersion)!==ENCRYPTED_BACKUP_FORMAT_VERSION)return {ok:false,code:'ENCRYPTED_FORMAT_VERSION',message:'Tato verze šifrované zálohy není podporovaná.'};
  if(raw.cipher!=='AES-GCM'||raw.kdf!=='PBKDF2-SHA256')return {ok:false,code:'ENCRYPTED_ALGORITHM',message:'Záloha používá nepodporované šifrování.'};
+ if(Number(raw.iterations)!==ENCRYPTED_BACKUP_ITERATIONS||String(raw.aad||'')!==ENCRYPTED_BACKUP_AAD)return {ok:false,code:'ENCRYPTED_KDF_PARAMS',message:'Záloha má nepodporované bezpečnostní parametry.'};
  const secret=String(passphrase||'');if(secret.length<1)return {ok:false,code:'PASSPHRASE_REQUIRED',message:'Zadej heslo k záloze.'};
  try{
   const subtle=globalThis.crypto?.subtle;if(!subtle)throw new Error('WEB_CRYPTO_UNAVAILABLE');
-  const salt=b64ToBytes(raw.salt),iv=b64ToBytes(raw.iv),aad=new TextEncoder().encode(String(raw.aad||ENCRYPTED_BACKUP_AAD));
-  const key=await backupKey747(secret,salt,Number(raw.iterations||ENCRYPTED_BACKUP_ITERATIONS));
-  const plain=await subtle.decrypt({name:'AES-GCM',iv,additionalData:aad},key,b64ToBytes(raw.ciphertext));
+  const salt=b64ToBytes(raw.salt),iv=b64ToBytes(raw.iv),ciphertext=b64ToBytes(raw.ciphertext),aad=new TextEncoder().encode(ENCRYPTED_BACKUP_AAD);
+  if(salt.length!==16||iv.length!==12||ciphertext.length<16||ciphertext.length>12000000)return {ok:false,code:'ENCRYPTED_BOUNDS',message:'Záloha má neplatnou velikost nebo kryptografické parametry.'};
+  const key=await backupKey747(secret,salt,ENCRYPTED_BACKUP_ITERATIONS);
+  const plain=await subtle.decrypt({name:'AES-GCM',iv,additionalData:aad},key,ciphertext);
   const envelope=JSON.parse(new TextDecoder().decode(plain)),read=readBackup(envelope);
   return read.ok?{...read,encrypted:true}:{...read,encrypted:true};
  }catch(error){return {ok:false,code:'DECRYPT_FAILED',message:'Zálohu se nepodařilo odemknout. Heslo je chybné nebo byl soubor změněn.',error:String(error?.message||error)}}
