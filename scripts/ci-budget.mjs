@@ -46,7 +46,7 @@ assert.match(desktop,/Require successful canonical QA for this exact commit/,'CI
 assert.match(desktop,/head_sha=\"?\$\{GITHUB_SHA\}|head_sha=.*GITHUB_SHA/,'CI budget: desktop gate must bind QA to the exact main SHA');
 assert.match(desktop,/gh run watch "\$run_id"[\s\S]*--exit-status/,'CI budget: desktop gate must wait for the exact canonical run');
 assert.match(desktop,/Kamil OS Canonical Release \+ Browser QA/,'CI budget: desktop gate must require the canonical browser workflow');
-assert.match(desktop,/\[ \"\$conclusion\" = \"success\" \]/,'CI budget: desktop publish must require a successful canonical conclusion');
+assert.match(desktop,/gh run watch \"\$run_id\"[\s\S]*--exit-status/,'CI budget: desktop publish must require the canonical run to finish successfully');
 assert.match(desktop,/KAMIL_DESKTOP_BUILD/,'CI budget: desktop releases need a unique monotonic build version');
 assert.match(desktop,/git tag \$tag \$env:GITHUB_SHA/,'CI budget: desktop release must pre-create a tag for the exact tested SHA');
 assert.match(desktop,/git push origin "refs\/tags\/\$tag"/,'CI budget: desktop release tag must be pushed before publishing');
