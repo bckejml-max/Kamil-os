@@ -62,7 +62,7 @@ test('OS747 System Health exposes canonical freshness and recovery round-trip',a
 test('OS747 local Web Vitals are available without external analytics',async({page})=>{
  await boot(page);
  await page.waitForTimeout(150);
- const v=await page.evaluate(async()=>{const m=await import('./js/webVitals747.js');return m.webVitalsSnapshot747()});
+ const v=await page.evaluate(async()=>{const m=await import('./js/webVitals.js');return m.webVitalsSnapshot747()});
  expect(v.started).toBe(true);
  expect(v.supported).toBe(true);
  expect(v.ttfbMs===null||v.ttfbMs>=0).toBe(true);
