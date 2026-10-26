@@ -1,4 +1,4 @@
-const CACHE='kamil-os-746.0.0-core-r151';
+const CACHE='kamil-os-746.0.0-core-r152';
 const CRITICAL=[
  "./",
  "./index.html",
@@ -30,7 +30,9 @@ const CRITICAL=[
  "./js/cloud.js",
  "./js/authUx32.js",
  "./js/perf41.js",
- "./js/coldPartition42.js"
+ "./js/coldPartition42.js",
+ "./js/systemHealth.js",
+ "./js/encryptedBackup.js"
 ];
 const CACHEABLE_PATHS=new Set(CRITICAL.map(path=>new URL(path,self.location.href).pathname));
 const RUNTIME_STATIC_PATH=/\.(?:js|css|webmanifest|png|svg|ico|webp)$/i;
