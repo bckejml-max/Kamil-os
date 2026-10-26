@@ -69,6 +69,7 @@ assert.ok(marketHistory.includes('getBettingLedger543(req)'),'betting reads must
 assert.ok(marketHistory.includes('mutateBettingLedger543(await readBody(req),req)'),'betting writes must carry authenticated request context');
 assert.ok(vercel.includes('"destination": "/api/market-history?source=ledger543"'),'betting ledger must share an existing function to preserve Hobby deployment limits');
 assert.equal(fs.existsSync('api/betting-ledger543.js'),false,'no dedicated 13th betting API function may be deployed on Hobby');
+assert.match(vercel,/camera=\(\), microphone=\(\), geolocation=\(\), payment=\(\), usb=\(\)/,'Permissions-Policy must deny unused camera/microphone/geolocation/payment/usb capabilities');
 
 assert.ok(gmail.includes('authorizedMailbox(req,res)'),'Gmail sync must authenticate every mode');
 assert.ok(gmail.includes("error:'AUTH_REQUIRED'"),'Gmail sync must expose an auth-required contract');
