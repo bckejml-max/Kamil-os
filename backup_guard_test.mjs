@@ -39,6 +39,16 @@ assert(!wrongPassword.ok&&wrongPassword.code==='DECRYPT_FAILED','wrong encrypted
 const changedCipher=structuredClone(encrypted);changedCipher.ciphertext=changedCipher.ciphertext.slice(0,-4)+'AAAA';
 const changedRead=await readEncryptedBackup747(changedCipher,passphrase);
 assert(!changedRead.ok&&changedRead.code==='DECRYPT_FAILED','AES-GCM detects modified encrypted backup');
+const hostileIterations=structuredClone(encrypted);hostileIterations.iterations=999999999;
+const hostileRead=await readEncryptedBackup747(hostileIterations,passphrase);
+assert(!hostileRead.ok&&hostileRead.code==='ENCRYPTED_KDF_PARAMS','encrypted backup rejects attacker-controlled PBKDF2 iterations');
+const hostileAad=structuredClone(encrypted);hostileAad.aad='attacker-controlled-aad';
+const hostileAadRead=await readEncryptedBackup747(hostileAad,passphrase);
+assert(!hostileAadRead.ok&&hostileAadRead.code==='ENCRYPTED_KDF_PARAMS','encrypted backup rejects attacker-controlled AAD');
+const badIv=structuredClone(encrypted);badIv.iv='AA==';
+const badIvRead=await readEncryptedBackup747(badIv,passphrase);
+assert(!badIvRead.ok&&badIvRead.code==='ENCRYPTED_BOUNDS','encrypted backup rejects invalid IV length');
+
 
 let health=backupHealth(state,{},ref);assert(health.status==='NO_BACKUP','missing backup detected');
 health=backupHealth(state,{lastBackupAt:'2026-08-01T10:00:00+02:00'},ref);assert(health.status==='AGING','aging backup detected');
