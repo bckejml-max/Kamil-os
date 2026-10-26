@@ -31,8 +31,10 @@ assert.match(browser,/npm ci/,'CI budget: canonical browser installs locked depe
 assert.match(browser,/npm run test:e2e/,'CI budget: canonical browser owns the full browser suite');
 assert.match(production,/npm run test:structural/,'CI budget: production source guard keeps structural integrity');
 assert.match(production,/pull_request:/,'CI budget: production source guard must run before merge');
-assert.match(postDeploy,/workflow_run:/,'CI budget: post-deploy smoke must follow canonical QA');
-assert.match(postDeploy,/head_branch == 'main'/,'CI budget: post-deploy smoke must only target main');
+assert.match(postDeploy,/push:[\s\S]*branches:\s*\[main\]/,'CI budget: post-deploy smoke must originate from main push');
+assert.match(postDeploy,/Require successful canonical QA for this exact commit/,'CI budget: post-deploy smoke must gate on canonical QA');
+assert.match(postDeploy,/head_sha=.*GITHUB_SHA/,'CI budget: post-deploy gate must bind QA to the exact main SHA');
+assert.match(postDeploy,/Kamil OS Canonical Release \+ Browser QA/,'CI budget: post-deploy gate must require canonical browser QA');
 assert.match(postDeploy,/EXPECTED_SHA/,'CI budget: production smoke must bind to the exact tested SHA');
 assert.match(postDeploy,/\/api\/deployment-meta/,'CI budget: production smoke must verify deployment metadata');
 assert.match(postDeploy,/\/api\/core70-health/,'CI budget: production smoke must verify provider health');
