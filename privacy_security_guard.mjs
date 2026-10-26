@@ -10,6 +10,7 @@ const marketHistory=read('api/market-history.js');
 const vercel=read('vercel.json');
 const gmail=read('api/ticket-gmail-sync.js');
 const coreRls=read('supabase/migrations/0037_core_private_rls.sql');
+const legacyHubRls=read('supabase/migrations/0038_legacy_hub_owner_rls.sql');
 const cloud=read('js/cloud.js');
 const apiGuard=read('lib/api-request-guard.js');
 const diagnostics=read('js/diagnostics.js');
@@ -86,6 +87,18 @@ for(const token of [
  'alter table public.kamil_xtb_data enable row level security',
  'revoke all on table public.kamil_xtb_data from anon'
 ])assert.ok(coreRls.includes(token),`core private RLS migration missing ${token}`);
+for(const token of [
+ 'alter table public.kamil_calendar_cache add column if not exists user_id uuid',
+ 'alter table public.kamil_xtb_data add column if not exists user_id uuid',
+ 'owner_count = 1',
+ 'auth.uid() = user_id',
+ 'drop policy if exists kamil_calendar_authenticated_read',
+ 'drop policy if exists kamil_xtb_authenticated_read',
+ 'create policy kamil_calendar_owner_select',
+ 'create policy kamil_xtb_owner_select'
+])assert.ok(legacyHubRls.includes(token),`legacy hub owner RLS migration missing ${token}`);
+assert.doesNotMatch(legacyHubRls,/using \(auth\.uid\(\) is not null\)/,'legacy calendar/XTB hubs must never retain broad authenticated-read policies');
+
 assert.ok(cloud.includes('@supabase/supabase-js@2.117.3'),'Supabase browser SDK must be pinned to an exact reviewed release');
 assert.ok(!cloud.includes('@supabase/supabase-js@2\''),'Supabase browser SDK must never float on major tag');
 assert.ok(apiGuard.includes("error:'RATE_LIMITED'")&&apiGuard.includes('maxBatch:12'),'public API guard must rate-limit and define the canonical batch ceiling');
