@@ -1,5 +1,5 @@
 const {SCHEMA_VERSION}=await import('./js/config.js');
-const {createBackupEnvelope,readBackup,backupPayload,backupHealth,backupRoundTripHealth,BACKUP_FORMAT}=await import('./js/backupGuard26.js');
+const {createBackupEnvelope,readBackup,backupPayload,backupHealth,backupRoundTripHealth,createEncryptedBackup747,readEncryptedBackup747,BACKUP_FORMAT,ENCRYPTED_BACKUP_FORMAT}=await import('./js/backupGuard26.js');
 const assert=(x,m)=>{if(!x)throw new Error(m)};
 const ref=new Date('2026-08-20T10:00:00+02:00');
 const state={
@@ -27,6 +27,19 @@ const tampered=structuredClone(downloaded);tampered.payload.personalAdmin.items[
 read=readBackup({meta:{schemaVersion:38},personalAdmin:{items:[]}});assert(read.ok&&read.legacy,'legacy raw JSON remains supported');
 read=readBackup({format:BACKUP_FORMAT,formatVersion:1,schemaVersion:SCHEMA_VERSION+1,fingerprint:'x',payload:{meta:{schemaVersion:SCHEMA_VERSION+1}}});assert(!read.ok&&read.code==='FUTURE_SCHEMA','future schema blocked');
 const roundTrip=backupRoundTripHealth(state,ref);assert(roundTrip.ok&&roundTrip.code==='OK','portable backup survives export JSON import roundtrip');assert(roundTrip.fingerprint===env.fingerprint,'roundtrip preserves canonical fingerprint');
+const passphrase='Kamil-OS-test-passphrase-747';
+const encrypted=await createEncryptedBackup747(state,passphrase,ref);
+assert(encrypted.format===ENCRYPTED_BACKUP_FORMAT,'encrypted backup uses canonical encrypted format');
+assert(!JSON.stringify(encrypted).includes('Pojištění'),'encrypted backup does not expose private plaintext');
+const decrypted=await readEncryptedBackup747(JSON.parse(JSON.stringify(encrypted)),passphrase);
+assert(decrypted.ok&&decrypted.encrypted===true,'encrypted backup decrypts and verifies');
+assert(decrypted.payload.personalAdmin.items[0].title==='Pojištění','encrypted backup preserves private records');
+const wrongPassword=await readEncryptedBackup747(encrypted,'wrong-password');
+assert(!wrongPassword.ok&&wrongPassword.code==='DECRYPT_FAILED','wrong encrypted-backup password is rejected');
+const changedCipher=structuredClone(encrypted);changedCipher.ciphertext=changedCipher.ciphertext.slice(0,-4)+'AAAA';
+const changedRead=await readEncryptedBackup747(changedCipher,passphrase);
+assert(!changedRead.ok&&changedRead.code==='DECRYPT_FAILED','AES-GCM detects modified encrypted backup');
+
 let health=backupHealth(state,{},ref);assert(health.status==='NO_BACKUP','missing backup detected');
 health=backupHealth(state,{lastBackupAt:'2026-08-01T10:00:00+02:00'},ref);assert(health.status==='AGING','aging backup detected');
 health=backupHealth(state,{lastBackupAt:'2026-07-01T10:00:00+02:00'},ref);assert(health.status==='STALE','stale backup detected');
