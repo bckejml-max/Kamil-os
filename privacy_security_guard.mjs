@@ -104,5 +104,9 @@ for(const file of guardedApis){
 for(const file of ['api/ticket-market-watch-v2.js','api/ticket-market-watch-v4.js','api/ticket-market-watch.js','api/ticket-market-reader.js','api/ticket-market-search-fallback.js','api/viagogo-official.js','api/stubhub-market.js']){
  assert.match(read(file),/items\.slice\(0,12\)|b\.items\.slice\(0,12\)|body\.items\.slice\(0,12\)|req\.body\.items\.slice\(0,12\)/,`ticket provider batch must be capped at 12: ${file}`);
 }
+for(const file of ['api/ticket-market-watch-v2.js','api/ticket-market-watch-v4.js','api/ticket-market-watch.js','api/ticket-market-reader.js','api/ticket-market-search-fallback.js','api/viagogo-official.js','api/stubhub-market.js']){
+ assert.ok(read(file).includes('bodySizeLimit(req,res)'),`public ticket POST body must be capped: ${file}`);
+}
+assert.ok(apiGuard.includes('defaultBodyBytes:65536'),'public API guard must define the canonical 64KB body ceiling');
 
 console.log('PRIVACY + API SECURITY GUARD PASS');
