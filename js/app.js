@@ -12,7 +12,7 @@ import {restoreCanonicalProductStyles} from './productAdvancedStyles.js';
 import {isPersonalScope527} from './personalScope527.js';
 import {VIEW_ORDER,viewMeta,viewFromUrl,writeViewToUrl} from './viewRegistry.js';
 import {recordDiagnostic,copyDiagnostic} from './diagnostics.js';
-import {startWebVitals747} from './webVitals747.js';
+import {startWebVitals747} from './webVitals.js';
 
 const OWNER='core.app41';
 installRuntimeOwnership1100();
