@@ -7,11 +7,14 @@ const gmail=await read('./api/ticket-gmail-sync.js');
 
 for(const token of [
   'configured:false,verified:false,ok:false',
-  "message:'PULSESCORE_UNVERIFIED'",
+  "const target=\`${PULSE_BASE}/soccer/events?page=1&limit=1\`",
+  'const probe=await pulseRequest(target,key)',
   'pulsescore_verified:pulse.verified===true',
   'pulsescore_api:pulse.ok===true'
 ]) assert.ok(core.includes(token),`Core provider health missing truthful contract token: ${token}`);
 assert.equal(core.includes("return{configured:true,ok:true,status:null,authMode:null,message:null}"),false,'Configured PulseScore must not be assumed healthy without evidence');
+assert.match(core,/if\(Date\.now\(\)-Number\(pulseHealthCache\.checkedAt\|\|0\)<PULSE_HEALTH_TTL_MS/,'PulseScore verification must keep a bounded in-instance TTL');
+assert.match(core,/return\{configured:true,verified:true,\.\.\.pulseHealthCache,ok:probe\?\.response\?\.ok===true\}/,'Cold provider health must report the observed PulseScore result');
 
 for(const token of [
   "healthy:false,status:'unconfigured',configured:false",
