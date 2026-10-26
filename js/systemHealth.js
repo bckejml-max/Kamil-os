@@ -4,7 +4,7 @@ import {recentDiagnostics} from './diagnostics.js';
 import {store} from './state.js';
 import {sourceFreshness741,freshnessLabel741} from './dataSourceRegistry.js';
 import {backupHealth} from './backupGuard26.js';
-import {webVitalsSnapshot747} from './webVitals747.js';
+import {webVitalsSnapshot747} from './webVitals.js';
 import {h,modal} from './utils.js';
 
 const timeout=ms=>AbortSignal.timeout?AbortSignal.timeout(ms):undefined;
