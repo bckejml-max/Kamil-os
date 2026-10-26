@@ -125,6 +125,29 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Verify published auto-update feed
+        working-directory: desktop
+        shell: pwsh
+        run: |
+          $version = $env:KAMIL_DESKTOP_VERSION
+          $tag = "v$version"
+          $repo = $env:GITHUB_REPOSITORY
+          $expectedExe = "Kamil-OS-Setup-$version-x64.exe"
+          Remove-Item verify-feed -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path verify-feed | Out-Null
+          gh release download $tag --repo $repo --pattern latest.yml --dir verify-feed
+          if ($LASTEXITCODE -ne 0) { throw "Could not download published latest.yml for $tag." }
+          $feed = Get-Content "verify-feed/latest.yml" -Raw
+          if ($feed -notmatch ("(?m)^version:\s*" + [regex]::Escape($version) + "\s*$")) {
+            throw "Published latest.yml does not advertise version $version."
+          }
+          if ($feed -notmatch [regex]::Escape($expectedExe)) {
+            throw "Published latest.yml does not point to $expectedExe."
+          }
+          Write-Host "Auto-update feed verified for $version."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload installer and update metadata
         uses: actions/upload-artifact@v4
         with:
