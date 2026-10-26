@@ -18,7 +18,7 @@ assert(Array.isArray(cleaned.undo)&&cleaned.undo.length===0,'portable backup str
 assert(state.undo.length===1,'backup cleanup does not mutate live state');
 assert(!('runtimeOnly' in cleaned.personalAdmin.items[0]),'runtime-only undefined value normalized before fingerprint');
 const env=createBackupEnvelope(state,ref);
-assert(env.format===BACKUP_FORMAT&&env.schemaVersion===SCHEMA_VERSION,'envelope metadata uses canonical schema');
+assert(env.format===BACKUP_FORMAT&&env.schemaVersion===SCHEMA_VERSION,'envelope metadata uses canonical schema');assert(env.containsPrivateData===true,'backup explicitly declares private-data content');
 assert(!JSON.stringify(env).includes('UNDO-SECRET-SHOULD-NOT-EXPORT'),'undo historical secret not exported');
 assert(env.payload.personalAdmin.items[0].title==='Pojištění','user records preserved');assert(env.payload.personalInbox.items.length===1&&env.payload.assetBook.items.length===1&&env.payload.personalGoals.items.length===1,'Autopilot records preserved');assert(env.payload.personalSpending.transactions.length===1&&env.payload.importCenter.history.length===1,'Smart Import records preserved');assert(env.payload.netWorthBook.items.length===1&&env.payload.netWorthBook.history.length===1,'True Net Worth records preserved');
 let read=readBackup(env);assert(read.ok&&!read.legacy,'new backup verifies');assert(read.fingerprint===env.fingerprint,'fingerprint roundtrip');
@@ -31,4 +31,5 @@ let health=backupHealth(state,{},ref);assert(health.status==='NO_BACKUP','missin
 health=backupHealth(state,{lastBackupAt:'2026-08-01T10:00:00+02:00'},ref);assert(health.status==='AGING','aging backup detected');
 health=backupHealth(state,{lastBackupAt:'2026-07-01T10:00:00+02:00'},ref);assert(health.status==='STALE','stale backup detected');
 health=backupHealth(state,{lastBackupAt:'2026-08-18T10:00:00+02:00'},ref);assert(health.status==='OK','fresh backup detected');assert(health.roundTrip?.ok===true,'backup health includes successful roundtrip');assert(health.counts.emergencyContacts===1&&health.counts.personalAdmin===1&&health.counts.personalInbox===1&&health.counts.assets===1&&health.counts.goals===1&&health.counts.transactions===1&&health.counts.imports===1&&health.counts.netWorthItems===1&&health.counts.netWorthSnapshots===1,'personal + import + net worth coverage counted');
+const {backupGuardNote}=await import('./js/backupGuard26.js');assert(/obsahuje osobní data/i.test(backupGuardNote)&&/není šifrovaná/i.test(backupGuardNote),'backup warning must explicitly disclose private unencrypted data');assert(!/Sensitive Vault/i.test(backupGuardNote),'backup warning must not claim an unimplemented vault exclusion');
 console.log('BACKUP & RECOVERY GUARD QA PASS');
