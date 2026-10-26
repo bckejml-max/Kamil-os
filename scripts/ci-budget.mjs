@@ -56,6 +56,9 @@ assert.match(desktop,/gh release create \$tag[\s\S]*--draft/,'CI budget: desktop
 assert.match(desktop,/gh release upload \$tag \$exe \$blockmap \$latest/,'CI budget: desktop publisher must upload installer, blockmap, and latest metadata together');
 assert.match(desktop,/gh release view \$tag[\s\S]*--json assets/,'CI budget: desktop publisher must verify release assets before publish');
 assert.match(desktop,/gh release edit \$tag[\s\S]*--draft=false[\s\S]*--latest/,'CI budget: desktop release may publish only after complete asset verification');
+assert.match(desktop,/Verify published auto-update feed/,'CI budget: desktop release must verify the public updater metadata');
+assert.match(desktop,/gh release download \$tag[\s\S]*latest\.yml/,'CI budget: updater verification must read latest.yml back from the published release');
+assert.match(desktop,/Published latest\.yml does not advertise version/,'CI budget: updater feed version must match the released desktop version');
 assert.match(desktopMain,/data-view=\\\"inbox\\\"/,'CI budget: desktop Inbox shortcut must target canonical inbox');
 assert.match(desktopPrep,/KAMIL_DESKTOP_BUILD/,'CI budget: desktop prepare step must derive release version from canonical OS version');
 assert.match(pkg.scripts['test:runtime'],/run-qa-suite\.mjs runtime/,'CI budget: runtime suite must route through manifest runner');
